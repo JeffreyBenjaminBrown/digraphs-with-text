@@ -7,15 +7,15 @@
       tdSnv = totally descended from A, successors not visited
       tdSv = totally descended from A, successors visited
         This set could be called "done processing" -- once a node is in tdSv, it never leaves, and it is not further processed except to determine whether other nodes are descended from it.
-      undet = total descent from A undetermined
+      undet = under consideration, but total descent from A so far undetermined
         A node gets into undet by being descended from something in td.
         If it is then verified that all of its parents are in td, the node itself is moved to td (specifically to tdSnv).
       gr = the graph of interest
       td = shorthand for the union of tdSnv and tdSv
-    To begin, tdSnv = A: The ancestors are known to be pure, and their children have not been visited yet. tdSv and undet start empty, and gr starts (and remains unchanged henceforth) the initial graph of interest.
-    At each iteration, if tdSnv is nonempty, the children of everything in tdSnv are added to undet, unless they have already been accounted for. Then tdSnv is made empty, and what were in it are added to tdSv. Now that tdSnv is empty, the elements of undet are checked; if the parents of any node N in undet lie entirely in tdSv, then N has been determined pure, so it is moved to tdSnv and the cycle restarts.
+    To begin, tdSnv = A, because the ancestors A are known to be totally descended from themselves, and their children have not been visited yet. tdSv and undet start empty, and gr starts (and remains unchanged henceforth) the initial graph of interest.
+    At each iteration, if tdSnv is nonempty, the children of everything in tdSnv are added to undet, unless they have already been accounted for. Then tdSnv is made empty, and what were in it are added to tdSv. Now that tdSnv is empty, the elements of undet are checked; if the parents of any node N in undet lie entirely in tdSv, then N has been determined totally descended from A, so it is moved to tdSnv and the cycle restarts.
   A wrinkle, for efficiency:
-    To avoid repeatedly checking the same parents of a node in undet, undet is not a set of nodes; rather, it is a map from nodes to sets of nodes. As parents are determined pure, they are removed from those sets.
+    To avoid repeatedly checking the same parents of a node in undet, undet is not a set of nodes; rather, it is a map from nodes to sets of nodes. As parents are determined totally descended from the ancestors of interest, they are removed from those sets.
 -}
 
 -- imports

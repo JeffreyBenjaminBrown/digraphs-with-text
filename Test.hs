@@ -1,6 +1,6 @@
 {- how to run
     :l Test
-    runTestTT testList
+      runTestTT testList
 -}
 
 -- imports
@@ -86,10 +86,9 @@
       assertBool "undo" (hr == gr)
 
 -- Test graphs
-    sharkDiamond :: Graph
-       -- 1--->--->-3-->-5
-       --  \        v
-       --   \->-2->-4
+    sharkDiamond :: Graph -- 1--->--->-3-->-5
+                          --  \        v
+                          --   \->-2->-4
     sharkDiamond = gr'
       where gr  = blankGraphFromList [1,2,3,4,5]
             gr' = modUsingLabels addEdge 1 2 $
@@ -98,7 +97,7 @@
                   modUsingLabels addEdge 3 4 $
                   modUsingLabels addEdge 3 5 gr
 
-    chain5 :: Graph
+    chain5 :: Graph -- 1 -> 2 -> 3 -> 4 -> 5
     chain5 = gr'
       where gr = blankGraphFromList [1,2,3,4,5]
             gr' = modUsingLabels addEdge 1 2 $
@@ -153,7 +152,7 @@
       assertBool "tdSv unchanged" (tdSv == tdSv')
       assertBool "4 still undet, but less its parent 3" 
         (undet' == M.fromList [ (4, S.fromList [2] ) ] )
-      assertBool "5 identified as pure" (tdSnv' == S.fromList [5])
+      assertBool "5 identified as totally descended from 3" (tdSnv' == S.fromList [5])
 
     tTotalDescendents = TestCase $ do
       assertBool "3's totalDescendents are only itself and 5"
