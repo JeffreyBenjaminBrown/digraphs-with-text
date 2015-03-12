@@ -34,7 +34,7 @@ module Reln where
   data Reln = Reln { dirn :: Dirn
                    , dtIdx :: DirdTxIdx }
     deriving (Eq, Show, Ord)
-  
+
   instance Rev Reln where
     -- TODO, brevity: use lenses
     rev r = Reln { dirn = rev $ dirn r

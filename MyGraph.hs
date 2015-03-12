@@ -47,8 +47,6 @@
     rmPrdLab lostPrd input = -- similar, but use a label
       input { prds = S.delete lostPrd $ prds input }
 
-    -- the next 4 are untested but identical* to the previous 4
-      -- *except I swapped every instance of prd -> suc, ignoring caps
     addSuc :: Node -> Node -> Node
     addSuc newSuc input = -- "input" gains "newSuc" as a successor
       input { sucs = S.insert (glab newSuc) $ sucs input }
@@ -107,3 +105,4 @@
             s = M.lookup sl graph
 
 -- EOF
+
