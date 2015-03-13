@@ -1,8 +1,8 @@
 {- how to run
     :l Test
       runTestTT testList
--}
-
+-}                           
+                            
 -- imports
     import MyGraph
     import TotalDescendents
@@ -165,4 +165,4 @@
   -- Each test aborts at its first failure.
 
 -- EOF
-
+            
