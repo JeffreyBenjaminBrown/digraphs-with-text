@@ -14,7 +14,7 @@
     data StmtIdx = StmtIdx Int deriving (Show, Eq, Ord)
     data RelIdx  = RelIdx  Int deriving (Show, Eq, Ord)
     data NodeIdx = StmtNodeIdx StmtIdx | RelNodeIdx  RelIdx 
-                 -- | NullNodeIdx -- for half-filled Rels   
+                 -- | NullNodeIdx -- might use for half-filled-in Rels
                  deriving (Show, Eq, Ord)
     data Stmt = Stmt String deriving (Show, Eq, Ord)
     data Rel = Rel { _tplt :: StmtIdx   , _mbrs :: [NodeIdx] }
@@ -22,11 +22,11 @@
     data Node = StmtNode { _stmt    :: Stmt , _relIdxs :: [RelIdx] }
               | RelNode  { _rel     :: Rel  , _relIdxs :: [RelIdx] }
                 deriving (Show, Eq, Ord)
-      --PITFALL: _stmt and _rel not defined for the other constructor,
-        --which means stmt and rel lenses can fail. I could add a Monoid instance to handle failure. Instead, I am using (^?) in place of (^.), "reusing the Maybe monoid", per the suggestion here: http://stackoverflow.com/questions/17518301/indexing-list-with-control-lens-requires-monoid-constraint
     data Graph = Graph { _nodeMap :: Map.Map NodeIdx Node            
                        , _maxStmtIdx :: Int, _maxRelIdx  :: Int } 
                           deriving (Show, Eq)
+    --PITFALL: _stmt and _rel not defined for the other constructor,
+      --which means stmt and rel lenses can fail. If I try to use Lens.(^.), I get an error stating that I can't unless maybe I add a Monoid instance to handle failure. Instead of that, I am using (^?), "reusing the Maybe monoid", per the suggestion here: http://stackoverflow.com/questions/17518301/indexing-list-with-control-lens-requires-monoid-constraint
   --makeLenses
     makeLenses ''Rel
     makeLenses ''Node
