@@ -1,13 +1,12 @@
 How it works (and why that's good)
 ----------------------------------
-I will use being words like "is" herein sloppily.
-
 A Graph is a collection of Nodes, each of which is either a Stmt (statement) or Rel (relationship). A Stmt is just a String, but Stmts can be used as templates of Rels.
 
-For instance, if "_ needs _" was Stmt 1, "the dog" was Stmt 2, and "respect" Stmt 3, then the relationship "the dog needs respect" would be represented (Stmt 1, [Stmt 2, Stmt 3]). More generally, a Rel is a Template and a collection of Occupants, where the number of Occupants is equal to the number of "_" characters in Tplt.
+For instance, if "_ needs _" was Stmt 1, "the dog" was Stmt 2, and "respect" Stmt 3, then the relationship "the dog needs respect" would be represented (Stmt 1, [Stmt 2, Stmt 3]). More generally, a Rel is a template and a list of member Nodes, where the number of members is equal to the number of "_" characters in Tplt, and they correspond in order.
 
 Why that's good
 ---------------
 Rels can involve any number of things: "_ needs _ for _" is a valid Rel. This generalizes the traditional graph from mathematics, in which a relationship ("edge") connects exactly two nodes.
 
-Rels can involve Rels as easily as Stmts. It can thus naturally represent such ("meta-ideas"?) as "If I believed [sugar causes happiness] I might [pay someone for sugar]."
+Rels can involve Rels as easily as Stmts. They can thus naturally represent such ("meta-ideas"?) as "If I believed [sugar causes happiness] I might [pay someone for sugar]."
+

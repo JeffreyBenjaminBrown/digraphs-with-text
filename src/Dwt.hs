@@ -216,4 +216,4 @@
     --DO makeDense :: Graph -> Graph 
       --in output, indices run from 0 to n, adjacent
 --eof
-                        
+

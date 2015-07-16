@@ -1,3 +1,9 @@
+to do?
+  make graph operations Maybe or Either, and use <|> on them
+    I can monkey those words but I don't really know what I'm saying.
+  use typeclasses
+    So far I only use data statements.
+  simplify by hiding graph in State monad
 problems?
   "case ni of Rel -> .. Stmt -> .."
     Functions with that problem
@@ -9,7 +15,4 @@ problems?
     function addRelAtIdxToGraph
   "if (Maybe.isJust nMb) ... else error ..."
     function nodeIdxToNode
-to do?
-  graph operations should be Maybe or Either, and use <|> on them
-    I can monkey those words but I don't really know what I'm saying.
-  could simplify by hiding graph in State monad
+
