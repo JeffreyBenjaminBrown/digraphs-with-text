@@ -1,18 +1,18 @@
-to do?
-  make graph operations Maybe or Either, and use <|> on them
-    I can monkey those words but I don't really know what I'm saying.
-  use typeclasses
-    So far I only use data statements.
-  simplify by hiding graph in State monad
 problems?
   "case ni of Rel -> .. Stmt -> .."
     Functions with that problem
       isTpltOfRel
       graphSupportsRelIdxInNode
       more
-    If I tolerate it now will it have worse effects later?
-  too long
-    function addRelAtIdxToGraph
+    If I tolerate those case statements now will they proliferate or have other negative consequences later?
   "if (Maybe.isJust nMb) ... else error ..."
     function nodeIdxToNode
+  too long
+    function addRelAtIdxToGraph
+to do?
+  make graph operations Maybe or Either, and use <|> on them
+    I can monkey those words but I don't really know what I'm saying.
+  use typeclasses
+    So far I only use data statements.
+  simplify by hiding graph in State monad
 
