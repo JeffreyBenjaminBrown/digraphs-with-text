@@ -1,12 +1,19 @@
-How it works (and why that's good)
-----------------------------------
-A Graph is a collection of Nodes, each of which is either a Stmt (statement) or Rel (relationship). A Stmt is just a String, but Stmts can be used as templates of Rels.
+Graphs, Nodes, Stmts and Rels
+-----------------------------
+A Graph is a collection of Nodes, each of which is either a Stmt (statement) or Rel (relationship). A Stmt is just a String. In a Stmt the "_" character serves as a wildcard; Stmts with _s can be used as templates for Rels.
 
-For instance, if "_ needs _" was Stmt 1, "the dog" was Stmt 2, and "respect" Stmt 3, then the relationship "the dog needs respect" would be represented (Stmt 1, [Stmt 2, Stmt 3]). More generally, a Rel is a template and a list of member Nodes, where the number of members is equal to the number of "_" characters in Tplt, and they correspond in order.
+For instance, the Stmt "_ needs _" can be used as a template for a relationshp between two things. If that Stmt was Stmt 1, and "the dog" was Stmt 2, and "respect" Stmt 3, then the relationship "the dog needs respect" would be represented (Stmt 1, [Stmt 2, Stmt 3]). More generally, a Rel is a template and a list of member Nodes, where the number of members is equal to the number of "_" characters in the template, and they correspond in order.
 
-Why that's good
----------------
-Rels can involve any number of things: "_ needs _ for _" is a valid Rel. This generalizes the traditional graph from mathematics, in which a relationship ("edge") connects exactly two nodes.
+Forks
+-----
+A--> F ---> B
+      \            F, B and C and the lines between them
+       \           are all part of "the fork"
+        --> C          
 
-Rels can involve Rels as easily as Stmts. They can thus naturally represent such ("meta-ideas"?) as "If I believed [sugar causes happiness] I might [pay someone for sugar]."
+In English, if you walk down a forest path and come to a fork where it split in two, ordinarily "the fork" would refer to the point where it splits and the two paths away from that point, but not the one that led to it. In this application, similarly, a Fork is defined by a root Node and a relationship to it.
+
+Branches
+--------
+In English, on a tree, "the branch from" any given point of the tree indicates everything leafward of that point. It can split many times into subbranches, and they are all included as part of the branch. In this application, similarly to English, a Branch is again defined by a root Node and a relationship, but whereas a Fork only includes one application of that relationship from the root, the Branch includes everything reachable by any number of applications of that relationship.
 
