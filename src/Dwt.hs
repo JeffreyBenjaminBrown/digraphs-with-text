@@ -192,24 +192,25 @@
         --     $ Map.insert (nodeCstrctr $ relOrStmtIdxCstrctr nextId
         --                  ) n m )
         --   $ g
-    addToGraphAtIdx :: Node -> NodeIdx -> Graph -> Graph
-    addToGraphAtIdx n ni g = let nm = view nodeMap g
-      in case n of
-      StmtNode _ _ -> case ni of
-        RelNodeIdx _-> error "Cannot add StmtNode at RelNodeIdx."
-        StmtNodeIdx (StmtIdx i) -> case (elem ni $ Map.keys nm) of
-          True -> error "Cannot add StmtNode at occupied StmtIdx."
-          False -> let newMax = max i $ view maxStmtIdx g 
-                   in (set maxStmtIdx newMax)
-                      . (set nodeMap $ Map.insert ni n $ nm )
-                      $ g
-      RelNode _ _ -> case ni of
-        StmtNodeIdx _ -> error "Cannot insert RelNode at StmtNodeIdx."
-        RelNodeIdx (RelIdx i) -> case (elem ni $ Map.keys nm) of
-          True -> error "Cannot add RelNode at occupied StmtIdx."
-          False -> let newMax = max i $ view maxRelIdx g 
-                   in (set maxRelIdx newMax)
-                      . (set nodeMap $ Map.insert ni n $ nm )
+    -- discovered broken 2015 07 17
+      --addToGraphAtIdx :: Node -> NodeIdx -> Graph -> Graph
+      --addToGraphAtIdx n ni g = let nm = view nodeMap g
+      --  in case n of
+      --  StmtNode _ _ -> case ni of
+      --    RelNodeIdx _-> error "Cannot add StmtNode at RelNodeIdx."
+      --    StmtNodeIdx (StmtIdx i) -> case (elem ni $ Map.keys nm) of
+      --      True -> error "Cannot add StmtNode at occupied StmtIdx."
+      --      False -> let newMax = max i $ view maxStmtIdx g 
+      --               in (set maxStmtIdx newMax)
+      --                  . (set nodeMap $ Map.insert ni n $ nm )
+      --                  $ g
+      --  RelNode _ _ -> case ni of
+      --    StmtNodeIdx _ -> error "Cannot insert RelNode at StmtNodeIdx."
+      --    RelNodeIdx (RelIdx i) -> case (elem ni $ Map.keys nm) of
+      --      True -> error "Cannot add RelNode at occupied StmtIdx."
+      --      False -> let newMax = max i $ view maxRelIdx g 
+      --               in (set maxRelIdx newMax)
+      --                  . (set nodeMap $ Map.insert ni n $ nm )
   -- Graph keyset
     --DO merge :: Graph -> Graph -> Graph
       --add the max of one's indices to all the other's for both types
