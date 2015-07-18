@@ -1,24 +1,13 @@
 -- This code is very tentative.
+-- imports
     module Dwt.View where
-    import Dwt
+    import Dwt.Graph
+    import Dwt.Subgraph
 
-    data ViewVar = It | These | Something
-      --It: the Stmt that view-contains|precedes this one
-      --These: what the ViewCmd this NodeVar appears in will return 
-      --Something: "disregard whatever appears in this position"
-      --example: "It needs These for Something when (StmtIdx 3)"
-        --returns all y such that It needs y for anything when Stmt 3
-    data ViewStmt = ViewStmt StmtIdx | ViewStmtVar ViewVar
-    --data ViewRel = ViewRel RelIdx | ViewRelVar ViewVar -- ? don't need?
-    data ViewNode = ViewNode NodeIdx | ViewNodeVar ViewVar
-    data View = View ViewCmd [View]
-    data ViewCmd = --not Cmd, this is just Subgraph 
-      OneNode NodeIdx --make it a whole list (or set)
-      | Fork { forkRelTplt :: ViewStmt
-             , forkRelMbrs :: [ViewNode] }
-      | Branch { branchRoots :: [ViewNode]
-               , branchRels :: [(ViewStmt,[ViewNode])] }
-                --DO? branchRels is a list of forks; could reify
+    -- data ViewStmt = ViewStmt StmtIdx | ViewStmtVar ViewVar
+    -- data ViewRel = ViewRel RelIdx | ViewRelVar ViewVar -- ? don't need?
+    -- data ViewNode = ViewNode NodeIdx | ViewNodeVar ViewVar
+    data View = View Subgraph [View]
 -- example
   -- regarding the following view ...
     -- View (NodeView (NodeIdx 5)) -- Node 5 = the volcano

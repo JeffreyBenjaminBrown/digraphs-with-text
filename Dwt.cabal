@@ -18,6 +18,8 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Dwt
                        Dwt.Util
+                       Dwt.Subgraph
+                       Dwt.View
   -- other-modules: -- for non-public (non-interface) files       
   -- default-extensions:
   build-depends:       base >=4.7 && <4.8 
@@ -41,3 +43,4 @@ executable test
     , base >=4.7 && <4.8 
     , containers >=0.5 && <0.6
     , lens
+
