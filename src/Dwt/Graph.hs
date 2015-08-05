@@ -13,7 +13,7 @@
 --types
     data StmtIdx = StmtIdx Int deriving (Show, Eq, Ord)
     data RelIdx  = RelIdx  Int deriving (Show, Eq, Ord)
-    data NodeIdx = StmtNodeIdx StmtIdx | RelNodeIdx  RelIdx 
+    data NodeIdx = StmtNodeIdx StmtIdx | RelNodeIdx RelIdx 
                  -- | NullNodeIdx -- might use for half-filled-in Rels
                  deriving (Show, Eq, Ord)
     data Stmt = Stmt String deriving (Show, Eq, Ord)
@@ -22,8 +22,8 @@
     data Node = StmtNode { _stmt    :: Stmt , _relIdxs :: [RelIdx] }
               | RelNode  { _rel     :: Rel  , _relIdxs :: [RelIdx] }
                 deriving (Show, Eq, Ord)
-    data Graph = Graph { _nodeMap :: Map.Map NodeIdx Node            
-                       , _maxStmtIdx :: Int, _maxRelIdx  :: Int } 
+    data Graph = Graph { _nodeMap :: Map.Map NodeIdx Node
+                       , _maxStmtIdx :: Int, _maxRelIdx  :: Int }
                           deriving (Show, Eq)
     --PITFALL: _stmt and _rel not defined for the other constructor,
       --which means stmt and rel lenses can fail. If I try to use Lens.(^.), I get an error stating that I can't unless maybe I add a Monoid instance to handle failure. Instead of that, I am using (^?), "reusing the Maybe monoid", per the suggestion here: http://stackoverflow.com/questions/17518301/indexing-list-with-control-lens-requires-monoid-constraint
@@ -33,19 +33,19 @@
     makeLenses ''Graph
 --test
   --test Rel ~ NodeIdx, or test Rel in Graph
-    isMbrOfRel :: Rel -> NodeIdx -> Bool
-    isMbrOfRel r ni = (elem ni $ r ^. mbrs)
-    isTpltOfRel :: Rel -> NodeIdx -> Bool
-    isTpltOfRel r ni = case ni of
+    inRelAsMbr :: Rel -> NodeIdx -> Bool
+    inRelAsMbr r ni = (elem ni $ r ^. mbrs)
+    inRelAsTplt :: Rel -> NodeIdx -> Bool
+    inRelAsTplt r ni = case ni of
       RelNodeIdx _ -> error "RelNodeIdx cannot be a Rel's tplt."
       StmtNodeIdx si -> view tplt r == si  
-    relUsesNodeIdx :: Rel -> NodeIdx -> Bool
-    relUsesNodeIdx r ni = isMbrOfRel r ni || isTpltOfRel r ni
+    inRel :: Rel -> NodeIdx -> Bool
+    inRel r ni = inRelAsMbr r ni || inRelAsTplt r ni
     graphSupportsRelIdxInNode :: Graph -> NodeIdx -> RelIdx -> Bool
     graphSupportsRelIdxInNode g ni ri = --Is Node n of ni in Rel r of ri?
       let rn = nodeIdxToNode g $ RelNodeIdx ri
       in case rn of
-        RelNode _ _ -> relUsesNodeIdx (relFromRelNode rn) ni 
+        RelNode _ _ -> inRel (relFromRelNode rn) ni 
         StmtNode _ _ -> error "Lookup up a RelIdx, got a StmtNode."
     graphSupportsRel :: Graph -> Rel -> Bool --DO test
     graphSupportsRel g r = --true if g's keys > tplt and mbrs of r
@@ -217,3 +217,4 @@
     --DO makeDense :: Graph -> Graph 
       --in output, indices run from 0 to n, adjacent
 --eof
+

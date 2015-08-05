@@ -69,12 +69,12 @@ tGraphTypes = TestCase $ do -- bigger graph
         , _maxStmtIdx = 3
         , _maxRelIdx = 2 }
   assertBool "1"     (graphSupportsRelIdxInNode g sni ri)
-  assertBool "1.1"   (isTpltOfRel       r sni    )
-  assertBool "1.1.5" (not $ isTpltOfRel r sni2   )
-  assertBool "1.3"   (not $ isMbrOfRel   r sni    )
+  assertBool "1.1"   (inRelAsTplt       r sni    )
+  assertBool "1.1.5" (not $ inRelAsTplt r sni2   )
+  assertBool "1.3"   (not $ inRelAsMbr   r sni    )
   assertBool "2" (graphSupportsRelIdxInNode   g sni2 ri)
-  assertBool "2.1" (not $ isTpltOfRel r sni2    )
-  assertBool "2.3" (      isMbrOfRel   r sni2    )
+  assertBool "2.1" (not $ inRelAsTplt r sni2    )
+  assertBool "2.3" (      inRelAsMbr   r sni2    )
   assertBool "3" (graphSupportsRelIdxInNode         g sni3 ri)
   assertBool "3.1" (not $ graphSupportsRelIdxInNode g sni3 ri2)
     -- Works even on sni3, which has false relIdxs field -- good, because it checks ri for containing ni, not the reverse.
@@ -93,8 +93,8 @@ tAdd_ToGraph = TestCase $ do -- bigger graph
                            [StmtNodeIdx (StmtIdx 3)
                            , StmtNodeIdx (StmtIdx 2) ] )
          $ g
-  putStr $ show g' -- Works! Visually inspected. Even idxs as hoped.
-    ++ "\n"
+  -- putStr $ show g' -- Works! Visually inspected. Even idxs as hoped.
+    -- ++ "\n"
   assertBool "1" True
 
 -- eof
