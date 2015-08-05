@@ -15,4 +15,7 @@
       | Branch { _forkRoot :: NodeIdx
                , _forkVRel :: VRel
                , _maxDepth :: Maybe Int } -- should be > 0
- 
+      | Union Subgraph Subgraph
+      | Intersect Subgraph Subgraph
+      | Diff Subgraph Subgraph -- the first, minus the second
+
