@@ -42,13 +42,15 @@
     inRel :: Rel -> NodeIdx -> Bool
     inRel r ni = inRelAsMbr r ni || inRelAsTplt r ni
     graphSupportsRelIdxInNode :: Graph -> NodeIdx -> RelIdx -> Bool
+      -- Not sure I need this function.
+      -- Better name: graphSaysInRel. That is, according to the graph, the provided NodeIdx is in the rel indexed by the provided RelIdx
     graphSupportsRelIdxInNode g ni ri = --Is Node n of ni in Rel r of ri?
       let rn = nodeIdxToNode g $ RelNodeIdx ri
       in case rn of
         RelNode _ _ -> inRel (relFromRelNode rn) ni 
         StmtNode _ _ -> error "Lookup up a RelIdx, got a StmtNode."
-    graphSupportsRel :: Graph -> Rel -> Bool --DO test
-    graphSupportsRel g r = --true if g's keys > tplt and mbrs of r
+    canHaveRel :: Rel -> Graph -> Bool --DO test
+    canHaveRel r g = -- do g's keys include tplt and mbrs of r
       Set.intersection involved keys == Set.empty
       where involved = Set.insert (StmtNodeIdx $ view tplt r)
                        $ Set.fromList $ view mbrs r
