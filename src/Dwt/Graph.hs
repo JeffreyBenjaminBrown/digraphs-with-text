@@ -65,8 +65,10 @@
     nodeIdxToNode g ni = let nMb = Map.lookup ni $ view nodeMap g
                              n = Maybe.fromJust nMb
                          in if (Maybe.isJust nMb) 
-                            then n 
+                            then n
                             else error "NodeIdx not a key in Graph"
+    nodeIdxToNode' :: Graph -> NodeIdx -> Maybe Node
+    nodeIdxToNode' g ni = Map.lookup ni $ view nodeMap g
     relFromRelNode :: Node -> Rel
     relFromRelNode rn = Maybe.fromJust $ rn ^? rel
     nodeIdxsRelRefersTo :: Rel -> [NodeIdx]
