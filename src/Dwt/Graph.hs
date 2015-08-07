@@ -61,7 +61,7 @@
       and $ map (graphSupportsRelIdxInNode g ni) 
           $ view relIdxs $ nodeIdxToNode g ni
 --lookups
-    nodeIdxToNode :: Graph -> NodeIdx -> Node
+    nodeIdxToNode :: Graph -> NodeIdx -> Node -- DEPRECATED
     nodeIdxToNode g ni = let nMb = Map.lookup ni $ view nodeMap g
                              n = Maybe.fromJust nMb
                          in if (Maybe.isJust nMb) 
@@ -69,7 +69,7 @@
                             else error "NodeIdx not a key in Graph"
     nodeIdxToNode' :: Graph -> NodeIdx -> Maybe Node
     nodeIdxToNode' g ni = Map.lookup ni $ view nodeMap g
-    relFromRelNode :: Node -> Rel
+    relFromRelNode :: Node -> Rel -- DEPRECATED, just use rn ^? rel
     relFromRelNode rn = Maybe.fromJust $ rn ^? rel
     nodeIdxsRelRefersTo :: Rel -> [NodeIdx]
     nodeIdxsRelRefersTo r = --DO test 
