@@ -1,12 +1,15 @@
 module Dwt
-    ( -- these are what get exported
-    someFunc
-    -- , module Dwt -- this is accepted, but does it make sense?
-                    -- is it to export everything in this file?
-    -- , module Dwt.Graph
-    ) where
--- import Dwt.Graph
+  ( -- exports:
+  module Data.Graph.Inductive -- export for testing, not production
+  , module Dwt -- exports everything in this file
+    -- could be more selective
+  -- , module Dwt.Graph -- etc. Will need to import below to match.
+  ) where                   
+import Data.Graph.Inductive
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+myEmpty = empty :: Gr String String
+                           
+insString s g = insNode (i,s) g
+  where i = head $ newNodes 1 g
+
 
