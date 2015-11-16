@@ -34,12 +34,17 @@
       where newNode = head $ newNodes 1 g
 
 -- query mindmap
-  --  mmMatch g (Just n, Nothing, Nothing) =
-    --  let outLEdges = out g n :: [LEdge MmLab]
+    -- if (n,m,lab :: MmLab) :: LEdge MmLab, then n is a triplet referring to m
+      -- that is, predecessors refer to successors 
+        -- (in that relationship; maybe there will be others)
+    mmRelvs g (Nothing, Just n, Nothing) =
+      let inLEdges = inn g n :: [LEdge MmLab]
+          relevantInEdges = filter labeledRelevant inLEdges
+          labeledRelevant (m,n,lab) = case lab of MmLab2 -> True
+                                                  _      -> False
+      in map (\(m,n,l)-> m) relevantInEdges
+    -- mmMatch (Just n, Nothing, Nothing)
       -- find all edges (m,n) labeled MmLab1
-      -- return the list of those m values
-    -- mmMatch (Nothing, Just n, Nothing)
-      -- find all edges (m,n) labeled MmLab2
       -- ...
     -- mmMatch (Just n, Just m, Nothing)
       -- find all (k,n) and all (k,m)
