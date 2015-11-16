@@ -6,15 +6,25 @@ module Dwt
   -- , module Dwt.Graph -- etc. Will need to import below to match.
   ) where
 import Data.Graph.Inductive
+import Data.String
 
-myEmpty = empty :: Gr String String
+data MmNode = MmStr String | MmTrip (Node,Node,Node)
+  deriving (Show,Eq)
+  -- Adj b = (Node,Node,b) but Adj String = MmTrip would be confusg
+data MmLab = MmLab1 | MmLab2 | MmLab3 -- corresponding to MTrip's 3
+  deriving (Show,Eq,Ord)
 
-insString s g = insNode (i,s) g
-  where i = head $ newNodes 1 g
+myEmpty = empty :: Gr MmNode MmLab
 
-insStringEdge s n1 n2 g = insEdge (n1,n2,s) g
+insMmStr str g = insNode (int, MmStr str) g
+  where int = head $ newNodes 1 g
 
--- 2015 11 13
+insMmTrip (MmTrip (n,r,m)) g = insEdge (newNode,n,MmLab1)
+    $ insEdge (newNode,r,MmLab2)
+    $ insEdge (newNode,m,MmLab3)
+    $ insNode (newNode, MmTrip (n,r,m)) g -- add 1 node, 3 edges
+  where newNode = head $ newNodes 1 g
+
 -- intention: use the Sum type below in the Graph type 
   -- implementing eval as a recursive graph function
 
