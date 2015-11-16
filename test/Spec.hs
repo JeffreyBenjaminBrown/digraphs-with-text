@@ -6,7 +6,8 @@ main = runTestTT testList
 
 testList = TestList 
   [ -- TestLabel "tStmt" tStmt -- why was I doing that, if these work?
-    tGraph
+    tInsert
+    , tRelvs
   ]
 
 g1 = mkGraph [   (0, MmStr "dog"   )
@@ -23,13 +24,24 @@ g1' =   insMmTrip (0,2,3) $ insMmTrip (0,1,4)
       $ insMmStr "brandy" $ insMmStr "water" 
       $ insMmStr "needs"  $ insMmStr "wants" 
       $ insMmStr "dog" mmEmpty
--- would "foldInsMmTrip" not be good? reduce these to two exprs:
-  -- one command & list of strings
-  -- one command & list of trips
 
-tGraph = TestCase $ do
+tInsert = TestCase $ do
   assertBool "insMmStr" $ insMmStr "nerp" mmEmpty 
     == mkGraph [(0,MmStr "nerp")] []
   assertBool "insMmTrip & insMmStr" $ g1 == g1'
-  assertBool "mmRelvs" $ mmRelvs g1 (Nothing, Just 1, Nothing) == [5]
 
+tRelvs = TestCase $ do
+  assertBool "mmRelvs 0-- some" $ mmRelvs g1 (Just 0, Nothing, Nothing) == [5,6]
+    -- TODO: Order matters; that could have been [6,5]. Use Set instead.
+  assertBool "mmRelvs 1-- none" $ mmRelvs g1 (Just 1, Nothing, Nothing) == []
+  assertBool "mmRelvs -1- some" $ mmRelvs g1 (Nothing, Just 1, Nothing) == [5]
+  assertBool "mmRelvs -0- none" $ mmRelvs g1 (Nothing, Just 0, Nothing) == []
+  assertBool "mmRelvs --4 some" $ mmRelvs g1 (Nothing, Nothing, Just 4) == [5]
+  assertBool "mmRelvs --0 none" $ mmRelvs g1 (Nothing, Nothing, Just 0) == []
+  assertBool "mmRelvs 01- some" $ mmRelvs g1 (Just 0, Just 1, Nothing) == [5]
+  assertBool "mmRelvs 02- some" $ mmRelvs g1 (Just 0, Just 2, Nothing) == [6]
+  assertBool "mmRelvs 03- none" $ mmRelvs g1 (Just 0, Just 3, Nothing) == []
+  assertBool "mmRelvs -14 some" $ mmRelvs g1 (Nothing, Just 1, Just 4) == [5]
+  assertBool "mmRelvs -20 none" $ mmRelvs g1 (Nothing, Just 2, Just 0) == []
+  assertBool "mmRelvs 023 some" $ mmRelvs g1 (Just 0, Just 2, Just 3) == [6]
+  assertBool "mmRelvs 024 none" $ mmRelvs g1 (Just 0, Just 2, Just 4) == []
