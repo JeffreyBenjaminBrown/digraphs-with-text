@@ -25,9 +25,11 @@
 -- build mindmap
     mmEmpty = empty :: Mindmap
 
+    insStrExpr :: String -> Mindmap -> Mindmap
     insStrExpr str g = insNode (int, StrExpr str) g
       where int = head $ newNodes 1 g
 
+    insRelExpr :: (Node, Node, Node) -> Mindmap -> Mindmap
     insRelExpr (n,r,m) g = insEdge (newNode, n, RelPosition 1)
                          $ insEdge (newNode, r, RelPosition 2)
                          $ insEdge (newNode, m, RelPosition 3)
