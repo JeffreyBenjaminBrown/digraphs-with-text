@@ -9,15 +9,20 @@
     import Data.String (String)
     import Data.List (intersect)
 
--- data
+-- REFACTORING: destination types have ' appended
     data MmNode = MmStr String | MmTrip
       deriving (Show,Eq,Ord)
-      -- Adj b = (Node,Node,b) but Adj String = MmTrip would be confusg
+
+    data MmNode' = StrExpr String | RelExpr Int
+      deriving (Show,Eq,Ord)
 
     data MmLab = MmLab1 | MmLab2 | MmLab3 -- corresponding to MTrip's 3
       deriving (Show,Eq,Ord)
+    data MmLab' = MmLab Int -- int for which of the Tplt's _s an Expr corresps to
+      deriving (Show,Eq,Ord)
 
     type Mindmap = Gr MmNode MmLab
+    type Mindmap' = Gr MmNode' MmLab'
 
 -- build mindmap
     mmEmpty = empty :: Mindmap
