@@ -6,11 +6,11 @@
       -- , module Dwt.Graph -- etc. Will need to import below to match.
       ) where    
     import Data.Graph.Inductive
-    import Data.String as String
+    import Data.String (String)
     import Data.List (intersect)
 
 -- data
-    data MmNode = MmStr String.String | MmTrip
+    data MmNode = MmStr String | MmTrip
       deriving (Show,Eq,Ord)
       -- Adj b = (Node,Node,b) but Adj String = MmTrip would be confusg
 
@@ -35,6 +35,8 @@
     -- if (n,m,lab :: MmLab) :: LEdge MmLab, then n is triplet referring to m
       -- that is, predecessors refer to successors 
         -- (in that relationship; maybe there will be others
+
+  -- mmRelvs: to find neighbors
     mmTripLab :: MmLab -> LEdge MmLab -> Bool
     mmTripLab mmLab (m,n,lab) = lab == mmLab
 
@@ -57,6 +59,8 @@
     mmRelvs g (Just n1, Just n2 , Just n3) = 
       intersect (mmRelvs g (Just n1, Just n2, Nothing))
                 (mmRelvs g (Nothing, Nothing, Just n3))
+
+  --
 
 -- Sum data type
     -- intention: use the Sum type below in the Graph type 
