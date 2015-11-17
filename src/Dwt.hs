@@ -36,6 +36,15 @@
                          $ insNode (newNode, RelExpr 3) g -- add 1 node, 3 edges
       where newNode = head $ newNodes 1 g
 
+    insRelExpr' :: Node -> [Node] -> Mindmap -> Mindmap -- TODO: test, replace 1st
+    insRelExpr' t ns g = f (zip ns [1..len]) g'
+      where len = length ns
+            newNode = head $ newNodes 1 g
+            g' = insEdge (newNode, t, RelTemplate)
+               $ insNode (newNode, RelExpr len) g
+            f []     g = g
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelPosition $ snd p) g
+
 -- query mindmap
   -- mmRelvs: to find neighbors
     relExprLab :: MmEdge -> LEdge MmEdge -> Bool
