@@ -17,8 +17,8 @@ g1 = mkGraph [   (0, StrExpr "dog"   )
                , (4, StrExpr "brandy")
                , (5, RelExpr 3       )
                , (6, RelExpr 3       ) ]
-            [   (5,0,MmLab1), (5,1,MmLab2), (5,4,MmLab3)
-              , (6,0,MmLab1), (6,2,MmLab2), (6,3,MmLab3) ]
+            [   (5,0,MmEdgeLab 1), (5,1,MmEdgeLab 2), (5,4,MmEdgeLab 3)
+              , (6,0,MmEdgeLab 1), (6,2,MmEdgeLab 2), (6,3,MmEdgeLab 3) ]
 
 g1' =   insRelExpr (0,2,3) $ insRelExpr (0,1,4)
       $ insStrExpr "brandy" $ insStrExpr "water" 

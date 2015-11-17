@@ -9,47 +9,43 @@
     import Data.String (String)
     import Data.List (intersect)
 
--- REFACTORING: destination types have ' appended
+-- REFACTORING from triplets to general n-ary relationships
     data MmExpr = StrExpr String | RelExpr Int
       deriving (Show,Eq,Ord)
 
-    data MmLab = MmLab1 | MmLab2 | MmLab3 -- corresponding to MTrip's 3
+    data MmEdgeLab = MmEdgeLab Int -- user not to (directly)use this
       deriving (Show,Eq,Ord)
-    -- data MmLab' = MmLab' Int -- int for which of the Tplt's _s an Expr corresps to
-    --   deriving (Show,Eq,Ord)
 
-    type Mindmap = Gr MmExpr MmLab
-    -- type Mindmap' = Gr MmExpr' MmLab'
+    type Mindmap = Gr MmExpr MmEdgeLab
+    -- how to read edges
+      -- in (n,m,lab :: MmLab) :: LEdge MmLab, n is a triplet referring to m
+      -- that is, predecessors refer to successors 
+      -- (in that relationship; maybe there will be others
 
 -- build mindmap
     mmEmpty = empty :: Mindmap
-    -- mmEmpty' = empty :: Mindmap'
 
     insStrExpr str g = insNode (int, StrExpr str) g
       where int = head $ newNodes 1 g
 
-    insRelExpr (n,r,m) g = insEdge (newNode, n, MmLab1)
-                         $ insEdge (newNode, r, MmLab2)
-                         $ insEdge (newNode, m, MmLab3)
+    insRelExpr (n,r,m) g = insEdge (newNode, n, MmEdgeLab 1)
+                         $ insEdge (newNode, r, MmEdgeLab 2)
+                         $ insEdge (newNode, m, MmEdgeLab 3)
                          $ insNode (newNode, RelExpr 3) g -- add 1 node, 3 edges
       where newNode = head $ newNodes 1 g
 
 -- query mindmap
-    -- if (n,m,lab :: MmLab) :: LEdge MmLab, then n is triplet referring to m
-      -- that is, predecessors refer to successors 
-        -- (in that relationship; maybe there will be others
-
   -- mmRelvs: to find neighbors
-    relExprLab :: MmLab -> LEdge MmLab -> Bool
+    relExprLab :: MmEdgeLab -> LEdge MmEdgeLab -> Bool
     relExprLab mmLab (m,n,lab) = lab == mmLab
 
     mmRelvs :: Mindmap -> (Maybe Node, Maybe Node, Maybe Node) -> [Node]
     mmRelvs g (Just n, Nothing, Nothing) = 
-      map (\(m,n,l)-> m) $ filter (relExprLab MmLab1) $ inn g n
+      map (\(m,n,l)-> m) $ filter (relExprLab $ MmEdgeLab 1) $ inn g n
     mmRelvs g (Nothing, Just n, Nothing) = 
-      map (\(m,n,l)-> m) $ filter (relExprLab MmLab2) $ inn g n
+      map (\(m,n,l)-> m) $ filter (relExprLab $ MmEdgeLab 2) $ inn g n
     mmRelvs g (Nothing, Nothing, Just n) = 
-      map (\(m,n,l)-> m) $ filter (relExprLab MmLab3) $ inn g n
+      map (\(m,n,l)-> m) $ filter (relExprLab $ MmEdgeLab 3) $ inn g n
     mmRelvs g (Just n1, Just n2, Nothing) = 
       intersect (mmRelvs g (Just n1, Nothing, Nothing))
                 (mmRelvs g (Nothing, Just n2, Nothing))
@@ -62,8 +58,6 @@
     mmRelvs g (Just n1, Just n2 , Just n3) = 
       intersect (mmRelvs g (Just n1, Just n2, Nothing))
                 (mmRelvs g (Nothing, Nothing, Just n3))
-
-  --
 
 -- Sum data type
     -- intention: use the Sum type below in the Graph type 
