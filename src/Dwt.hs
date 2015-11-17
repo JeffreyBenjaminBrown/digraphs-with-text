@@ -50,6 +50,7 @@
     relExprLab :: MmEdge -> LEdge MmEdge -> Bool
     relExprLab mmLab (m,n,lab) = lab == mmLab
 
+    -- TODO: Rewrite mmRelvs for general n-ary rels
     mmRelvs :: Mindmap -> (Maybe Node, Maybe Node, Maybe Node) -> [Node]
     mmRelvs g (Just n, Nothing, Nothing) = 
       map (\(m,n,l)-> m) $ filter (relExprLab $ RelPosition 1) $ inn g n
