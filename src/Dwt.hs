@@ -13,10 +13,10 @@
     data MmExpr = StrExpr String | RelExpr Int
       deriving (Show,Eq,Ord)
 
-    data MmEdgeLab = MmEdgeLab Int -- user not to (directly)use this
+    data MmEdge = RelTemplate | RelPosition Int -- hide this type from user
       deriving (Show,Eq,Ord)
 
-    type Mindmap = Gr MmExpr MmEdgeLab
+    type Mindmap = Gr MmExpr MmEdge
     -- how to read edges
       -- in (n,m,lab :: MmLab) :: LEdge MmLab, n is a triplet referring to m
       -- that is, predecessors refer to successors 
@@ -28,24 +28,24 @@
     insStrExpr str g = insNode (int, StrExpr str) g
       where int = head $ newNodes 1 g
 
-    insRelExpr (n,r,m) g = insEdge (newNode, n, MmEdgeLab 1)
-                         $ insEdge (newNode, r, MmEdgeLab 2)
-                         $ insEdge (newNode, m, MmEdgeLab 3)
+    insRelExpr (n,r,m) g = insEdge (newNode, n, RelPosition 1)
+                         $ insEdge (newNode, r, RelPosition 2)
+                         $ insEdge (newNode, m, RelPosition 3)
                          $ insNode (newNode, RelExpr 3) g -- add 1 node, 3 edges
       where newNode = head $ newNodes 1 g
 
 -- query mindmap
   -- mmRelvs: to find neighbors
-    relExprLab :: MmEdgeLab -> LEdge MmEdgeLab -> Bool
+    relExprLab :: MmEdge -> LEdge MmEdge -> Bool
     relExprLab mmLab (m,n,lab) = lab == mmLab
 
     mmRelvs :: Mindmap -> (Maybe Node, Maybe Node, Maybe Node) -> [Node]
     mmRelvs g (Just n, Nothing, Nothing) = 
-      map (\(m,n,l)-> m) $ filter (relExprLab $ MmEdgeLab 1) $ inn g n
+      map (\(m,n,l)-> m) $ filter (relExprLab $ RelPosition 1) $ inn g n
     mmRelvs g (Nothing, Just n, Nothing) = 
-      map (\(m,n,l)-> m) $ filter (relExprLab $ MmEdgeLab 2) $ inn g n
+      map (\(m,n,l)-> m) $ filter (relExprLab $ RelPosition 2) $ inn g n
     mmRelvs g (Nothing, Nothing, Just n) = 
-      map (\(m,n,l)-> m) $ filter (relExprLab $ MmEdgeLab 3) $ inn g n
+      map (\(m,n,l)-> m) $ filter (relExprLab $ RelPosition 3) $ inn g n
     mmRelvs g (Just n1, Just n2, Nothing) = 
       intersect (mmRelvs g (Just n1, Nothing, Nothing))
                 (mmRelvs g (Nothing, Just n2, Nothing))

@@ -11,18 +11,18 @@ testList = TestList
   ]
 
 g1 = mkGraph [   (0, StrExpr "dog"   )
-               , (1, StrExpr "wants" )
-               , (2, StrExpr "needs" )
+               , (1, StrExpr "_ wants _" )
+               , (2, StrExpr "_ needs _" )
                , (3, StrExpr "water" )
                , (4, StrExpr "brandy")
                , (5, RelExpr 3       )
                , (6, RelExpr 3       ) ]
-            [   (5,0,MmEdgeLab 1), (5,1,MmEdgeLab 2), (5,4,MmEdgeLab 3)
-              , (6,0,MmEdgeLab 1), (6,2,MmEdgeLab 2), (6,3,MmEdgeLab 3) ]
+            [   (5,0,RelPosition 1), (5,1,RelPosition 2), (5,4,RelPosition 3)
+              , (6,0,RelPosition 1), (6,2,RelPosition 2), (6,3,RelPosition 3) ]
 
-g1' =   insRelExpr (0,2,3) $ insRelExpr (0,1,4)
-      $ insStrExpr "brandy" $ insStrExpr "water" 
-      $ insStrExpr "needs"  $ insStrExpr "wants" 
+g1' =   insRelExpr (0,2,3)      $ insRelExpr (0,1,4)
+      $ insStrExpr "brandy"     $ insStrExpr "water" 
+      $ insStrExpr "_ needs _"  $ insStrExpr "_ wants _"
       $ insStrExpr "dog" mmEmpty
 
 tInsert = TestCase $ do
