@@ -15,8 +15,8 @@ g1 = mkGraph [   (0, StrExpr "dog"   )
                , (2, StrExpr "needs" )
                , (3, StrExpr "water" )
                , (4, StrExpr "brandy")
-               , (5, RelExpr        )
-               , (6, RelExpr        ) ]
+               , (5, RelExpr 3       )
+               , (6, RelExpr 3       ) ]
             [   (5,0,MmLab1), (5,1,MmLab2), (5,4,MmLab3)
               , (6,0,MmLab1), (6,2,MmLab2), (6,3,MmLab3) ]
 

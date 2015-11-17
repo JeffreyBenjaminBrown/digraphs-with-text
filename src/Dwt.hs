@@ -10,10 +10,8 @@
     import Data.List (intersect)
 
 -- REFACTORING: destination types have ' appended
-    data MmExpr = StrExpr String | RelExpr
+    data MmExpr = StrExpr String | RelExpr Int
       deriving (Show,Eq,Ord)
-    -- data MmExpr' = StrExpr' String | RelExpr' Int
-    -- deriving (Show,Eq,Ord)
 
     data MmLab = MmLab1 | MmLab2 | MmLab3 -- corresponding to MTrip's 3
       deriving (Show,Eq,Ord)
@@ -33,7 +31,7 @@
     insRelExpr (n,r,m) g = insEdge (newNode, n, MmLab1)
                          $ insEdge (newNode, r, MmLab2)
                          $ insEdge (newNode, m, MmLab3)
-                         $ insNode (newNode, RelExpr) g -- add 1 node, 3 edges
+                         $ insNode (newNode, RelExpr 3) g -- add 1 node, 3 edges
       where newNode = head $ newNodes 1 g
 
 -- query mindmap
