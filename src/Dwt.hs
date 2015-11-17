@@ -10,30 +10,30 @@
     import Data.List (intersect)
 
 -- REFACTORING: destination types have ' appended
-    data MmNode = MmStr String | MmTrip
+    data MmExpr = StrExpr String | RelExpr
       deriving (Show,Eq,Ord)
-
-    data MmNode' = StrExpr String | RelExpr Int
-      deriving (Show,Eq,Ord)
+    -- data MmExpr' = StrExpr' String | RelExpr' Int
+    -- deriving (Show,Eq,Ord)
 
     data MmLab = MmLab1 | MmLab2 | MmLab3 -- corresponding to MTrip's 3
       deriving (Show,Eq,Ord)
-    data MmLab' = MmLab Int -- int for which of the Tplt's _s an Expr corresps to
-      deriving (Show,Eq,Ord)
+    -- data MmLab' = MmLab' Int -- int for which of the Tplt's _s an Expr corresps to
+    --   deriving (Show,Eq,Ord)
 
-    type Mindmap = Gr MmNode MmLab
-    type Mindmap' = Gr MmNode' MmLab'
+    type Mindmap = Gr MmExpr MmLab
+    -- type Mindmap' = Gr MmExpr' MmLab'
 
 -- build mindmap
     mmEmpty = empty :: Mindmap
+    -- mmEmpty' = empty :: Mindmap'
 
-    insMmStr str g = insNode (int, MmStr str) g
+    insStrExpr str g = insNode (int, StrExpr str) g
       where int = head $ newNodes 1 g
 
-    insMmTrip (n,r,m) g = insEdge (newNode, n, MmLab1)
-                        $ insEdge (newNode, r, MmLab2)
-                        $ insEdge (newNode, m, MmLab3)
-                        $ insNode (newNode, MmTrip) g -- add 1 node, 3 edges
+    insRelExpr (n,r,m) g = insEdge (newNode, n, MmLab1)
+                         $ insEdge (newNode, r, MmLab2)
+                         $ insEdge (newNode, m, MmLab3)
+                         $ insNode (newNode, RelExpr) g -- add 1 node, 3 edges
       where newNode = head $ newNodes 1 g
 
 -- query mindmap
@@ -42,16 +42,16 @@
         -- (in that relationship; maybe there will be others
 
   -- mmRelvs: to find neighbors
-    mmTripLab :: MmLab -> LEdge MmLab -> Bool
-    mmTripLab mmLab (m,n,lab) = lab == mmLab
+    relExprLab :: MmLab -> LEdge MmLab -> Bool
+    relExprLab mmLab (m,n,lab) = lab == mmLab
 
     mmRelvs :: Mindmap -> (Maybe Node, Maybe Node, Maybe Node) -> [Node]
     mmRelvs g (Just n, Nothing, Nothing) = 
-      map (\(m,n,l)-> m) $ filter (mmTripLab MmLab1) $ inn g n
+      map (\(m,n,l)-> m) $ filter (relExprLab MmLab1) $ inn g n
     mmRelvs g (Nothing, Just n, Nothing) = 
-      map (\(m,n,l)-> m) $ filter (mmTripLab MmLab2) $ inn g n
+      map (\(m,n,l)-> m) $ filter (relExprLab MmLab2) $ inn g n
     mmRelvs g (Nothing, Nothing, Just n) = 
-      map (\(m,n,l)-> m) $ filter (mmTripLab MmLab3) $ inn g n
+      map (\(m,n,l)-> m) $ filter (relExprLab MmLab3) $ inn g n
     mmRelvs g (Just n1, Just n2, Nothing) = 
       intersect (mmRelvs g (Just n1, Nothing, Nothing))
                 (mmRelvs g (Nothing, Just n2, Nothing))

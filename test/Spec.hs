@@ -10,25 +10,25 @@ testList = TestList
     , tRelvs
   ]
 
-g1 = mkGraph [   (0, MmStr "dog"   )
-               , (1, MmStr "wants" )
-               , (2, MmStr "needs" )
-               , (3, MmStr "water" )
-               , (4, MmStr "brandy")
-               , (5, MmTrip        )
-               , (6, MmTrip        ) ]
+g1 = mkGraph [   (0, StrExpr "dog"   )
+               , (1, StrExpr "wants" )
+               , (2, StrExpr "needs" )
+               , (3, StrExpr "water" )
+               , (4, StrExpr "brandy")
+               , (5, RelExpr        )
+               , (6, RelExpr        ) ]
             [   (5,0,MmLab1), (5,1,MmLab2), (5,4,MmLab3)
               , (6,0,MmLab1), (6,2,MmLab2), (6,3,MmLab3) ]
 
-g1' =   insMmTrip (0,2,3) $ insMmTrip (0,1,4)
-      $ insMmStr "brandy" $ insMmStr "water" 
-      $ insMmStr "needs"  $ insMmStr "wants" 
-      $ insMmStr "dog" mmEmpty
+g1' =   insRelExpr (0,2,3) $ insRelExpr (0,1,4)
+      $ insStrExpr "brandy" $ insStrExpr "water" 
+      $ insStrExpr "needs"  $ insStrExpr "wants" 
+      $ insStrExpr "dog" mmEmpty
 
 tInsert = TestCase $ do
-  assertBool "insMmStr" $ insMmStr "nerp" mmEmpty 
-    == mkGraph [(0,MmStr "nerp")] []
-  assertBool "insMmTrip & insMmStr" $ g1 == g1'
+  assertBool "insStrExpr" $ insStrExpr "nerp" mmEmpty 
+    == mkGraph [(0, StrExpr "nerp")] []
+  assertBool "insRelExpr & insStrExpr" $ g1 == g1'
 
 tRelvs = TestCase $ do
   assertBool "mmRelvs 0-- some" $ mmRelvs g1 (Just 0, Nothing, Nothing) == [5,6]
@@ -45,3 +45,4 @@ tRelvs = TestCase $ do
   assertBool "mmRelvs -20 none" $ mmRelvs g1 (Nothing, Just 2, Just 0) == []
   assertBool "mmRelvs 023 some" $ mmRelvs g1 (Just 0, Just 2, Just 3) == [6]
   assertBool "mmRelvs 024 none" $ mmRelvs g1 (Just 0, Just 2, Just 4) == []
+
