@@ -31,7 +31,7 @@
     insStrExpr str g = insNode (int, StrExpr str) g
       where int = head $ newNodes 1 g
 
-    insRelExpr :: (Node, Node, Node) -> Mindmap -> Mindmap
+    insRelExpr :: (Node, Node, Node) -> Mindmap -> Mindmap -- obsoleting
     insRelExpr (n,r,m) g = insEdge (newNode, n, RelPosition 1)
                          $ insEdge (newNode, r, RelPosition 2)
                          $ insEdge (newNode, m, RelPosition 3)
@@ -39,7 +39,7 @@
       where newNode = head $ newNodes 1 g
 
     insRelExpr' :: Node -> [Node] -> Mindmap -> Mindmap -- TODO: test, replace 1st
-    insRelExpr' t ns g = f (zip ns [1..len]) g'
+    insRelExpr' t ns g = f (zip ns [1..len]) g' -- t is like ns but tplt
       where len = length ns
             newNode = head $ newNodes 1 g
             g' = insEdge (newNode, t, RelTemplate)
@@ -79,9 +79,6 @@
       let pdrNode      (m,n,lab) = m
           hasLab mmLab (m,n,lab) = lab == mmLab
       in [m | (m,n,lab) <- inn g n, lab == e]
---      in map (\(m,n,l) -> m)  -- the first way I was doing that
---         $ filter (\(m,n,lab) -> lab == e) 
---         $ inn g n
 
     mmRelvs' :: Mindmap -> [Maybe Node] -> [Node]
     mmRelvs' g mns = listIntersect $ map f jns
@@ -89,22 +86,3 @@
             f (Just n, 0) = mmReferents g n RelTemplate
             f (Just n, k) = mmReferents g n $ RelPosition k
             listIntersect (x:xs) = foldl intersect x xs
-
---    mmRelvs' :: Mindmap -> Maybe Node -> [Maybe Node] -> [Node]
---    mmRelvs' g (Just n) ns =
---      map (\(m,n,l)-> m) $ filter (relExprLab $ RelPosition 1) $ inn g n
-
--- Sum data type
-    -- intention: use the Sum type below in the Graph type 
-      -- implementing eval as a recursive graph function 
-    data Sum = Sum {sum1 :: Sum, sum2 :: Sum} | SumConst Int deriving Show
-    a = SumConst 3
-    b = Sum a a
-
-    eval :: Sum -> Int
-    eval s = case s of
-      SumConst a -> a
-      Sum a b -> eval a + eval b
-      -- works! transcript:
-        -- *Dwt> (eval a, eval b)
-        -- (3,6)
