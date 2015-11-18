@@ -9,8 +9,8 @@
       [ -- TestLabel "tStmt" tStmt -- why was I doing that, if these work?
         tInsert
         , tInsert'
-        , tRelvs
-        , tRelvs'
+        , TestLabel "tRelvs" tRelvs
+        , TestLabel "tRelvs'" tRelvs'
       ]
 
     mn = Nothing
@@ -32,11 +32,11 @@
     g1' =   insRelExpr (0,2,3)      $ insRelExpr (0,1,4)
           $ insStrExpr "brandy"     $ insStrExpr "water"
           $ insStrExpr "_ needs _"  $ insStrExpr "_ wants _"
-          $ insStrExpr "dog" mmEmpty
+          $ insStrExpr "dog" $ empty :: Mindmap
 
   -- tests
     tInsert = TestCase $ do
-      assertBool "insStrExpr" $ insStrExpr "nerp" mmEmpty
+      assertBool "insStrExpr" $ insStrExpr "nerp" (empty :: Mindmap)
         == mkGraph [(0, StrExpr "nerp")] []
       assertBool "insRelExpr & insStrExpr" $ g1 == g1'
 
@@ -78,11 +78,11 @@
           $ insRelExpr' 2 [0,3]     $ insRelExpr' 1 [0,4]
           $ insStrExpr "brandy"     $ insStrExpr "water"
           $ insStrExpr "_ needs _"  $ insStrExpr "_ wants _"
-          $ insStrExpr "dog" mmEmpty
+          $ insStrExpr "dog" $ empty :: Mindmap
 
   -- tests
     tInsert' = TestCase $ do
-      assertBool "insStrExpr" $ insStrExpr "nerp" mmEmpty
+      assertBool "insStrExpr" $ insStrExpr "nerp" (empty :: Mindmap)
         == mkGraph [(0, StrExpr "nerp")] []
       assertBool "insRelExpr' & insStrExpr" $ g2 == g2'
 

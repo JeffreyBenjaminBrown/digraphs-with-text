@@ -31,8 +31,6 @@
       -- (in that relationship; maybe there will be others
 
 -- build mindmap
-    mmEmpty = empty :: Mindmap
-
     insStrExpr :: String -> Mindmap -> Mindmap
     insStrExpr str g = insNode (int, StrExpr str) g
       where int = head $ newNodes 1 g
