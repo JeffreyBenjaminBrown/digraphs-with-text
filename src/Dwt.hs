@@ -74,7 +74,8 @@
                 (mmRelvs g (Nothing, Nothing, Just n3))
 
     mmReferents :: Mindmap -> Node -> MmEdge -> [Node]
-    mmReferents g n e = 
+      -- TODO: Add an integer argument k, indicating is for k-ary relationships.
+    mmReferents g n e =
       let pdrNode      (m,n,lab) = m
           hasLab mmLab (m,n,lab) = lab == mmLab
       in [m | (m,n,lab) <- inn g n, lab == e]
