@@ -73,7 +73,6 @@
       intersect (mmRelvs g (Just n1, Just n2, Nothing))
                 (mmRelvs g (Nothing, Nothing, Just n3))
 
-    -- TODO: rename "mmReferents"
     mmReferents :: Mindmap -> Node -> MmEdge -> [Node]
     mmReferents g n e = 
       let pdrNode      (m,n,lab) = m
