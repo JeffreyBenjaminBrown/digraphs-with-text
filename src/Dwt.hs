@@ -1,10 +1,11 @@
 -- usually folded
+  -- NEXT TODO ? IO, parser
+    -- ? viewer
   -- TODO ? make "arity" a type
       -- its support is the integers in [1,k]
       -- RelPositions and RelExprs contain one
         -- or RelPosition contains a number that varies in [1,k]
           -- where k is the arity
-
   -- types, vocab, language
     -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
     -- how to read edges
@@ -12,7 +13,7 @@
       -- that is, predecessors refer to successors 
         -- (in that kind of relationship they do; maybe there will be others)
 
--- export & import
+  -- export & import
     module Dwt
       ( -- exports:
       module Data.Graph.Inductive -- export for testing, not production
@@ -51,10 +52,9 @@
   -- mmRelvs: to find neighbors
     mmReferents :: Mindmap -> MmEdge -> Int -> Node -> [Node]
     mmReferents g e arity n =
-      let pdrNode      (m,n,lab) = m
-          hasLab mmLab (m,n,lab) = lab == mmLab
+      let pdrNode      (m,n,label) = m
           isKAryRel m = lab g m == (Just $ RelExpr arity)
-      in [m | (m,n,lab) <- inn g n, lab == e, isKAryRel m]
+      in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
     mmRelps :: Mindmap -> [Maybe Node] -> [Node]
     mmRelps g mns = listIntersect $ map f jns
