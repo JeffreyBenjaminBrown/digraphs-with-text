@@ -6,38 +6,12 @@
     main = runTestTT testList
 
     testList = TestList
-      [ -- TestLabel "tStmt" tStmt -- why was I doing that, if these work?
-        tInsert
-        , tInsert'
+      [ tInsert' -- the TestLabel syntax is useful only if you want names
         , TestLabel "tRelvs'" tRelvs'
       ]
 
     mn = Nothing
     mj = Just
-
--- obsoleting
-  -- globals
-    g1,g1' :: Mindmap
-    g1 = mkGraph [   (0, StrExpr "dog"   )
-                   , (1, StrExpr "_ wants _" )
-                   , (2, StrExpr "_ needs _" )
-                   , (3, StrExpr "water" )
-                   , (4, StrExpr "brandy")
-                   , (5, RelExpr 3       )
-                   , (6, RelExpr 3       ) ]
-                [   (5,0,RelPosition 1), (5,1,RelPosition 2), (5,4,RelPosition 3)
-                  , (6,0,RelPosition 1), (6,2,RelPosition 2), (6,3,RelPosition 3) ]
-
-    g1' =   insRelExpr (0,2,3)      $ insRelExpr (0,1,4)
-          $ insStrExpr "brandy"     $ insStrExpr "water"
-          $ insStrExpr "_ needs _"  $ insStrExpr "_ wants _"
-          $ insStrExpr "dog" $ empty :: Mindmap
-
-  -- tests
-    tInsert = TestCase $ do
-      assertBool "insStrExpr" $ insStrExpr "nerp" (empty :: Mindmap)
-        == mkGraph [(0, StrExpr "nerp")] []
-      assertBool "insRelExpr & insStrExpr" $ g1 == g1'
 
 -- replacing that with this
   -- globals

@@ -12,7 +12,7 @@
 
 -- REFACTORING from triplets to general n-ary relationships
     -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
-    -- ? make "arity" a type
+    -- TODO ? make "arity" a type
       -- its support is the integers in [1,k]
       -- RelPositions and RelExprs contain one
         -- or RelPosition contains a number that varies in [1,k]
@@ -35,13 +35,6 @@
     insStrExpr str g = insNode (int, StrExpr str) g
       where int = head $ newNodes 1 g
 
-    insRelExpr :: (Node, Node, Node) -> Mindmap -> Mindmap -- obsoleting
-    insRelExpr (n,r,m) g = insEdge (newNode, n, RelPosition 1)
-                         $ insEdge (newNode, r, RelPosition 2)
-                         $ insEdge (newNode, m, RelPosition 3)
-                         $ insNode (newNode, RelExpr 3) g -- add 1 node, 3 edges
-      where newNode = head $ newNodes 1 g
-
     insRelExpr' :: Node -> [Node] -> Mindmap -> Mindmap -- TODO: test, replace 1st
     insRelExpr' t ns g = f (zip ns [1..len]) g' -- t is like ns but tplt
       where len = length ns
@@ -53,9 +46,6 @@
 
 -- query mindmap
   -- mmRelvs: to find neighbors
-    relExprLab :: MmEdge -> LEdge MmEdge -> Bool
-    relExprLab mmLab (m,n,lab) = lab == mmLab
-
     mmReferents :: Mindmap -> MmEdge -> Int -> Node -> [Node]
     mmReferents g e arity n =
       let pdrNode      (m,n,lab) = m
