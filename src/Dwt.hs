@@ -35,8 +35,8 @@
     insStrExpr str g = insNode (int, StrExpr str) g
       where int = head $ newNodes 1 g
 
-    insRelExpr' :: Node -> [Node] -> Mindmap -> Mindmap -- TODO: test, replace 1st
-    insRelExpr' t ns g = f (zip ns [1..len]) g' -- t is like ns but tplt
+    insRelExpr :: Node -> [Node] -> Mindmap -> Mindmap -- TODO: test, replace 1st
+    insRelExpr t ns g = f (zip ns [1..len]) g' -- t is like ns but tplt
       where len = length ns
             newNode = head $ newNodes 1 g
             g' = insEdge (newNode, t, RelTemplate)
@@ -53,8 +53,8 @@
           isKAryRel m = lab g m == (Just $ RelExpr arity)
       in [m | (m,n,lab) <- inn g n, lab == e, isKAryRel m]
 
-    mmRelvs' :: Mindmap -> [Maybe Node] -> [Node]
-    mmRelvs' g mns = listIntersect $ map f jns
+    mmRelps :: Mindmap -> [Maybe Node] -> [Node]
+    mmRelps g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
             f (Just n, 0) = mmReferents g RelTemplate     arity n
