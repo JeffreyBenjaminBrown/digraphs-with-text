@@ -73,9 +73,9 @@
     showExpr g n = case lab g n of
       Nothing -> Left $ "node " ++ (show n) ++ " not in graph"
       Just (StrExpr s) -> Right s
-      -- next case is broken
-      Just (RelExpr n) -> Right $ concat $ concat --concat [String]s, then Strings
-                                $ partitionEithers $ map f $ out g n
+      Just (RelExpr n) -> Right -- broken
+          $ concat $ concat --concat [String]s, then Strings
+          $ partitionEithers $ map f $ out g n
         where f (n,m,label) = showExpr g m
 
     v :: Mindmap -> [Maybe Node] -> IO ()
