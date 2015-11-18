@@ -8,8 +8,10 @@
     import Data.Graph.Inductive
     import Data.String (String)
     import Data.List (intersect)
+    import Data.Maybe (isJust)
 
 -- REFACTORING from triplets to general n-ary relationships
+    -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
     data MmExpr = StrExpr String | RelExpr Int
       deriving (Show,Eq,Ord)
 
@@ -70,6 +72,27 @@
     mmRelvs g (Just n1, Just n2 , Just n3) = 
       intersect (mmRelvs g (Just n1, Just n2, Nothing))
                 (mmRelvs g (Nothing, Nothing, Just n3))
+
+    -- TODO: rename "mmReferents"
+    mmReferents :: Mindmap -> Node -> MmEdge -> [Node]
+    mmReferents g n e = 
+      let pdrNode      (m,n,lab) = m
+          hasLab mmLab (m,n,lab) = lab == mmLab
+      in [m | (m,n,lab) <- inn g n, lab == e]
+--      in map (\(m,n,l) -> m)  -- the first way I was doing that
+--         $ filter (\(m,n,lab) -> lab == e) 
+--         $ inn g n
+
+    mmRelvs' :: Mindmap -> [Maybe Node] -> [Node]
+    mmRelvs' g mns = listIntersect $ map f jns
+      where jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
+            f (Just n, 0) = mmReferents g n RelTemplate
+            f (Just n, k) = mmReferents g n $ RelPosition k
+            listIntersect (x:xs) = foldl intersect x xs
+
+--    mmRelvs' :: Mindmap -> Maybe Node -> [Maybe Node] -> [Node]
+--    mmRelvs' g (Just n) ns =
+--      map (\(m,n,l)-> m) $ filter (relExprLab $ RelPosition 1) $ inn g n
 
 -- Sum data type
     -- intention: use the Sum type below in the Graph type 
