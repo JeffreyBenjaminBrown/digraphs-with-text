@@ -1,3 +1,17 @@
+-- usually folded
+  -- TODO ? make "arity" a type
+      -- its support is the integers in [1,k]
+      -- RelPositions and RelExprs contain one
+        -- or RelPosition contains a number that varies in [1,k]
+          -- where k is the arity
+
+  -- types, vocab, language
+    -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
+    -- how to read edges
+      -- in (n,m,lab :: MmLab) :: LEdge MmLab, n is a triplet referring to m
+      -- that is, predecessors refer to successors 
+        -- (in that kind of relationship they do; maybe there will be others)
+
 -- export & import
     module Dwt
       ( -- exports:
@@ -10,14 +24,7 @@
     import Data.List (intersect)
     import Data.Maybe (isJust)
 
--- REFACTORING from triplets to general n-ary relationships
-    -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
-    -- TODO ? make "arity" a type
-      -- its support is the integers in [1,k]
-      -- RelPositions and RelExprs contain one
-        -- or RelPosition contains a number that varies in [1,k]
-          -- where k is the arity
-
+-- types
     data MmExpr = StrExpr String | RelExpr Int
       deriving (Show,Eq,Ord)
 
@@ -25,17 +32,13 @@
       deriving (Show,Eq,Ord)
 
     type Mindmap = Gr MmExpr MmEdge
-    -- how to read edges
-      -- in (n,m,lab :: MmLab) :: LEdge MmLab, n is a triplet referring to m
-      -- that is, predecessors refer to successors 
-      -- (in that relationship; maybe there will be others
 
 -- build mindmap
     insStrExpr :: String -> Mindmap -> Mindmap
     insStrExpr str g = insNode (int, StrExpr str) g
       where int = head $ newNodes 1 g
 
-    insRelExpr :: Node -> [Node] -> Mindmap -> Mindmap -- TODO: test, replace 1st
+    insRelExpr :: Node -> [Node] -> Mindmap -> Mindmap
     insRelExpr t ns g = f (zip ns [1..len]) g' -- t is like ns but tplt
       where len = length ns
             newNode = head $ newNodes 1 g
