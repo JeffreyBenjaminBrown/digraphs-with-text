@@ -24,6 +24,7 @@
       ) where    
     import Data.Graph.Inductive
     import Data.String (String)
+    import Data.Either (partitionEithers)
     import Data.List (intersect)
     import Data.Maybe (isJust, catMaybes)
     import Control.Monad (mapM_)
@@ -67,11 +68,17 @@
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
-    showExpr :: Mindmap -> Node -> Either String String
+    showExpr :: Mindmap -> Node -> Either String String -- WARNING
+      -- if the graph is recursive this (I think) could infinite loop
     showExpr g n = case lab g n of
-      Nothing -> Left "node not in graph"
+      Nothing -> Left $ "node " ++ (show n) ++ " not in graph"
       Just (StrExpr s) -> Right s
-      Just r@(RelExpr n) -> Right "hello"
+      -- next case is broken
+      Just (RelExpr n) -> Right $ concat $ concat --concat [String]s, then Strings
+                                $ partitionEithers $ map f $ out g n
+        where f (n,m,label) = showExpr g m
 
---    v :: Mindmap -> [Maybe Node] -> IO ()
---    v g mns = mapM_ putStrLn $ catMaybes $ map (lab g) $ mmRelps g mns
+    v :: Mindmap -> [Maybe Node] -> IO ()
+    v g mns = mapM_ putStrLn $ map (eitherString . showExpr g) $ mmRelps g mns
+      where eitherString (Left s) = s
+            eitherString (Right s) = s
