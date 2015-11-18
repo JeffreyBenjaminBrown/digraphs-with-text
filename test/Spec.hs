@@ -13,6 +13,9 @@
         , tRelvs'
       ]
 
+    mn = Nothing
+    mj = Just
+
 -- obsoleting
   -- globals
     g1,g1' :: Mindmap
@@ -84,7 +87,7 @@
       assertBool "insRelExpr' & insStrExpr" $ g2 == g2'
 
     tRelvs' = TestCase $ do
-      assertBool "mmRelvs' 1-- none" $ mmRelvs' g2 [Just 1, Nothing, Nothing] == [5]
-      assertBool "mmRelvs' -3- none" $ mmRelvs' g2 [Nothing, Just 0, Nothing] == [5,6,8]
-        -- TODO: 8 should not appear in that result.
-      assertBool "mmRelvs' -3- none" $ mmRelvs' g2 [Nothing, Nothing, Just 3] == [6,8]
+      assertBool "1--" $ mmRelvs' g2 [Just 1, Nothing, Nothing] == [5]
+      assertBool "-0-" $ mmRelvs' g2 [Nothing, Just 0, Nothing] == [5,6]
+      assertBool "--3" $ mmRelvs' g2 [Nothing, Nothing, Just 4] == [5]
+      assertBool "---4" $ mmRelvs' g2 [Nothing, Nothing, Nothing, Just 4] == [8]

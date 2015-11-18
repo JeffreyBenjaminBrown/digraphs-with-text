@@ -12,6 +12,12 @@
 
 -- REFACTORING from triplets to general n-ary relationships
     -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
+    -- ? make "arity" a type
+      -- its support is the integers in [1,k]
+      -- RelPositions and RelExprs contain one
+        -- or RelPosition contains a number that varies in [1,k]
+          -- where k is the arity
+
     data MmExpr = StrExpr String | RelExpr Int
       deriving (Show,Eq,Ord)
 
@@ -73,16 +79,17 @@
       intersect (mmRelvs g (Just n1, Just n2, Nothing))
                 (mmRelvs g (Nothing, Nothing, Just n3))
 
-    mmReferents :: Mindmap -> Node -> MmEdge -> [Node]
-      -- TODO: Add an integer argument k, indicating is for k-ary relationships.
-    mmReferents g n e =
+    mmReferents :: Mindmap -> MmEdge -> Int -> Node -> [Node]
+    mmReferents g e arity n =
       let pdrNode      (m,n,lab) = m
           hasLab mmLab (m,n,lab) = lab == mmLab
-      in [m | (m,n,lab) <- inn g n, lab == e]
+          isKAryRel m = lab g m == (Just $ RelExpr arity)
+      in [m | (m,n,lab) <- inn g n, lab == e, isKAryRel m]
 
     mmRelvs' :: Mindmap -> [Maybe Node] -> [Node]
     mmRelvs' g mns = listIntersect $ map f jns
-      where jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
-            f (Just n, 0) = mmReferents g n RelTemplate
-            f (Just n, k) = mmReferents g n $ RelPosition k
+      where arity = length mns - 1
+            jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
+            f (Just n, 0) = mmReferents g RelTemplate     arity n
+            f (Just n, k) = mmReferents g (RelPosition k) arity n
             listIntersect (x:xs) = foldl intersect x xs
