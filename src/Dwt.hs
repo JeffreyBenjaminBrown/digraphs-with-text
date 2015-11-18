@@ -56,27 +56,6 @@
     relExprLab :: MmEdge -> LEdge MmEdge -> Bool
     relExprLab mmLab (m,n,lab) = lab == mmLab
 
-    -- TODO: Rewrite mmRelvs for general n-ary rels
-    mmRelvs :: Mindmap -> (Maybe Node, Maybe Node, Maybe Node) -> [Node]
-    mmRelvs g (Just n, Nothing, Nothing) = 
-      map (\(m,n,l)-> m) $ filter (relExprLab $ RelPosition 1) $ inn g n
-    mmRelvs g (Nothing, Just n, Nothing) = 
-      map (\(m,n,l)-> m) $ filter (relExprLab $ RelPosition 2) $ inn g n
-    mmRelvs g (Nothing, Nothing, Just n) = 
-      map (\(m,n,l)-> m) $ filter (relExprLab $ RelPosition 3) $ inn g n
-    mmRelvs g (Just n1, Just n2, Nothing) = 
-      intersect (mmRelvs g (Just n1, Nothing, Nothing))
-                (mmRelvs g (Nothing, Just n2, Nothing))
-    mmRelvs g (Just n1, Nothing, Just n3) = 
-      intersect (mmRelvs g (Just n1, Nothing, Nothing))
-                (mmRelvs g (Nothing, Nothing, Just n3))
-    mmRelvs g (Nothing, Just n2 , Just n3) = 
-      intersect (mmRelvs g (Nothing, Just n2, Nothing))
-                (mmRelvs g (Nothing, Nothing, Just n3))
-    mmRelvs g (Just n1, Just n2 , Just n3) = 
-      intersect (mmRelvs g (Just n1, Just n2, Nothing))
-                (mmRelvs g (Nothing, Nothing, Just n3))
-
     mmReferents :: Mindmap -> MmEdge -> Int -> Node -> [Node]
     mmReferents g e arity n =
       let pdrNode      (m,n,lab) = m
