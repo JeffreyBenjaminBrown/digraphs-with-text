@@ -6,6 +6,8 @@
       -- RelPositions and RelExprs contain one
         -- or RelPosition contains a number that varies in [1,k]
           -- where k is the arity
+  -- TODO ? use concatMap :: Foldable t => (a -> [b]) -> t a -> [b]
+    -- (I forget where but I think I was doing that by hand)
   -- types, vocab, language
     -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
     -- how to read edges
@@ -23,7 +25,8 @@
     import Data.Graph.Inductive
     import Data.String (String)
     import Data.List (intersect)
-    import Data.Maybe (isJust)
+    import Data.Maybe (isJust, catMaybes)
+    import Control.Monad (mapM_)
 
 -- types
     data MmExpr = StrExpr String | RelExpr Int
@@ -34,7 +37,7 @@
 
     type Mindmap = Gr MmExpr MmEdge
 
--- build mindmap
+-- build
     insStrExpr :: String -> Mindmap -> Mindmap
     insStrExpr str g = insNode (int, StrExpr str) g
       where int = head $ newNodes 1 g
@@ -48,11 +51,10 @@
             f []     g = g
             f (p:ps) g = f ps $ insEdge (newNode, fst p, RelPosition $ snd p) g
 
--- query mindmap
-  -- mmRelvs: to find neighbors
+-- query
     mmReferents :: Mindmap -> MmEdge -> Int -> Node -> [Node]
     mmReferents g e arity n =
-      let pdrNode      (m,n,label) = m
+      let pdrNode (m,n,label) = m
           isKAryRel m = lab g m == (Just $ RelExpr arity)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
@@ -63,3 +65,13 @@
             f (Just n, 0) = mmReferents g RelTemplate     arity n
             f (Just n, k) = mmReferents g (RelPosition k) arity n
             listIntersect (x:xs) = foldl intersect x xs
+
+-- view
+    showExpr :: Mindmap -> Node -> Either String String
+    showExpr g n = case lab g n of
+      Nothing -> Left "node not in graph"
+      Just (StrExpr s) -> Right s
+      Just r@(RelExpr n) -> Right "hello"
+
+--    v :: Mindmap -> [Maybe Node] -> IO ()
+--    v g mns = mapM_ putStrLn $ catMaybes $ map (lab g) $ mmRelps g mns
