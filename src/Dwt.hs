@@ -39,12 +39,12 @@
     type Mindmap = Gr MmExpr MmEdge
 
 -- build
-    insStrExpr :: String -> Mindmap -> Mindmap
-    insStrExpr str g = insNode (int, StrExpr str) g
+    insStr :: String -> Mindmap -> Mindmap
+    insStr str g = insNode (int, StrExpr str) g
       where int = head $ newNodes 1 g
 
-    insRelExpr :: Node -> [Node] -> Mindmap -> Mindmap
-    insRelExpr t ns g = f (zip ns [1..len]) g' -- t is like ns but tplt
+    insRel :: Node -> [Node] -> Mindmap -> Mindmap
+    insRel t ns g = f (zip ns [1..len]) g' -- t is like ns but tplt
       where len = length ns
             newNode = head $ newNodes 1 g
             g' = insEdge (newNode, t, RelTplt)

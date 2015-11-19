@@ -34,17 +34,17 @@
         , (11,9,RelTplt), (11,5,RelPos 1), (11,10,RelPos 2)
       ]
 
-    g1' = insRelExpr 9 [5,10] 
-          $ insStrExpr "dubious"    $ insStrExpr "statement _ is _"
-          $ insRelExpr 7 [0,3,4]    $ insStrExpr "_ needs _ for _"
-          $ insRelExpr 2 [0,3]      $ insRelExpr 1 [0,4]
-          $ insStrExpr "brandy"     $ insStrExpr "water"
-          $ insStrExpr "_ needs _"  $ insStrExpr "_ wants _"
-          $ insStrExpr "dog" $ empty :: Mindmap
+    g1' = insRel 9 [5,10] 
+          $ insStr "dubious"    $ insStr "statement _ is _"
+          $ insRel 7 [0,3,4]    $ insStr "_ needs _ for _"
+          $ insRel 2 [0,3]      $ insRel 1 [0,4]
+          $ insStr "brandy"     $ insStr "water"
+          $ insStr "_ needs _"  $ insStr "_ wants _"
+          $ insStr "dog" $ empty :: Mindmap
 
 -- tests
     tInsert = TestCase $ do
-      assertBool "insRelExpr & insStrExpr" $ g1 == g1'
+      assertBool "insRel & insStr" $ g1 == g1'
 
     tRelvs = TestCase $ do
       assertBool "1--"  $ mmRelps g1 [Just 1, Nothing, Nothing] == [5]
