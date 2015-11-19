@@ -25,7 +25,7 @@
     import Data.Graph.Inductive
     import Data.String (String)
     import Data.Either (partitionEithers)
-    import Data.List (intersect)
+    import Data.List (intersect, sortOn, intercalate)
     import Data.Maybe (isJust, catMaybes)
     import Control.Monad (mapM_)
 
@@ -34,7 +34,7 @@
       deriving (Show,Eq,Ord)
 
     data MmEdge = RelTemplate | RelPosition Int -- hide this type from user
-      deriving (Show,Eq,Ord)
+      deriving (Show,Eq,Ord) -- Ord: RelTemplate < RelPosition _
 
     type Mindmap = Gr MmExpr MmEdge
 
@@ -73,12 +73,12 @@
     showExpr g n = case lab g n of
       Nothing -> Left $ "node " ++ (show n) ++ " not in graph"
       Just (StrExpr s) -> Right s
-      Just (RelExpr n) -> Right -- broken
-          $ concat $ concat --concat [String]s, then Strings
-          $ partitionEithers $ map f $ out g n
+      Just (RelExpr _) -> Right $ intercalate ", " 
+           $ (\(a,b)->a++b) $ partitionEithers $ map f
+           $ sortOn (\(_,_,l)->l) $ out g n
         where f (n,m,label) = showExpr g m
 
-    v :: Mindmap -> [Maybe Node] -> IO ()
-    v g mns = mapM_ putStrLn $ map (eitherString . showExpr g) $ mmRelps g mns
+    view :: Mindmap -> [Maybe Node] -> IO ()
+    view g mns = mapM_ putStrLn $ map (eitherString . showExpr g) $ mmRelps g mns
       where eitherString (Left s) = s
             eitherString (Right s) = s
