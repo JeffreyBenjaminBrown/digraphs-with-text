@@ -1,13 +1,9 @@
 -- usually folded
-  -- NEXT TODO ? IO, parser
-    -- ? viewer
   -- TODO ? make "arity" a type
       -- its support is the integers in [1,k]
       -- RelPositions and RelExprs contain one
         -- or RelPosition contains a number that varies in [1,k]
           -- where k is the arity
-  -- TODO ? use concatMap :: Foldable t => (a -> [b]) -> t a -> [b]
-    -- (I forget where but I think I was doing that by hand)
   -- types, vocab, language
     -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
     -- how to read edges
@@ -29,7 +25,7 @@
     import Data.Maybe (isJust, catMaybes)
     import Control.Monad (mapM_)
 
--- types
+ -- types
     data MmExpr = StrExpr String | RelExpr Int
       deriving (Show,Eq,Ord)
 
@@ -68,8 +64,9 @@
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
-    showExpr :: Mindmap -> Node -> Either String String -- WARNING TODO
-      -- if the graph is recursive this (I think) could infinite loop
+    showExpr :: Mindmap -> Node -> Either String String -- WARNING|TODO
+      -- if the graph is recursive, could this infinite loop?
+        -- yes, but is that kind of graph probable?
     showExpr g n = case lab g n of
       Nothing -> Left $ "node " ++ (show n) ++ " not in graph"
       Just (StrExpr s) -> Right s
