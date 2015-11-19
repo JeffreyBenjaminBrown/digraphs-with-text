@@ -33,8 +33,8 @@
     data MmExpr = StrExpr String | RelExpr Int
       deriving (Show,Eq,Ord)
 
-    data MmEdge = RelTemplate | RelPosition Int -- hide this type from user
-      deriving (Show,Eq,Ord) -- Ord: RelTemplate < RelPosition _
+    data MmEdge = RelTplt | RelPos Int -- hide this type from user
+      deriving (Show,Eq,Ord) -- Ord: RelTplt < RelPos _ 
 
     type Mindmap = Gr MmExpr MmEdge
 
@@ -47,10 +47,10 @@
     insRelExpr t ns g = f (zip ns [1..len]) g' -- t is like ns but tplt
       where len = length ns
             newNode = head $ newNodes 1 g
-            g' = insEdge (newNode, t, RelTemplate)
+            g' = insEdge (newNode, t, RelTplt)
                $ insNode (newNode, RelExpr len) g
             f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelPosition $ snd p) g
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelPos $ snd p) g
 
 -- query
     mmReferents :: Mindmap -> MmEdge -> Int -> Node -> [Node]
@@ -63,12 +63,12 @@
     mmRelps g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
-            f (Just n, 0) = mmReferents g RelTemplate     arity n
-            f (Just n, k) = mmReferents g (RelPosition k) arity n
+            f (Just n, 0) = mmReferents g RelTplt     arity n
+            f (Just n, k) = mmReferents g (RelPos k) arity n
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
-    showExpr :: Mindmap -> Node -> Either String String -- WARNING
+    showExpr :: Mindmap -> Node -> Either String String -- WARNING TODO
       -- if the graph is recursive this (I think) could infinite loop
     showExpr g n = case lab g n of
       Nothing -> Left $ "node " ++ (show n) ++ " not in graph"

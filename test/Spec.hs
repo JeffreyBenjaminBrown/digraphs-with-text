@@ -28,10 +28,10 @@
         , (9, StrExpr "statement _ is _")
         , (10, StrExpr "dubious"  )
         , (11, RelExpr 2          )
-      ] [ (5,1,RelTemplate), (5,0,RelPosition 1), (5,4,RelPosition 2)
-        , (6,2,RelTemplate), (6,0,RelPosition 1), (6,3,RelPosition 2)
-        , (8,7,RelTemplate), (8,0,RelPosition 1), (8,3,RelPosition 2), (8,4,RelPosition 3) 
-        , (11,9,RelTemplate), (11,5,RelPosition 1), (11,10,RelPosition 2)
+      ] [ (5,1, RelTplt), (5,0, RelPos 1), (5,4,RelPos 2)
+        , (6,2, RelTplt), (6,0, RelPos 1), (6,3,RelPos 2)
+        , (8,7, RelTplt), (8,0, RelPos 1), (8,3,RelPos 2), (8,4,RelPos 3) 
+        , (11,9,RelTplt), (11,5,RelPos 1), (11,10,RelPos 2)
       ]
 
     g1' = insRelExpr 9 [5,10] 
