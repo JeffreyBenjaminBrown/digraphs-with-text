@@ -55,7 +55,8 @@
           isKAryRel m = lab g m == (Just $ RelExpr arity)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
-    mmRelps :: Mindmap -> [Maybe Node] -> [Node]
+    mmRelps :: Mindmap -> [Maybe Node] -> [Node] -- TODO: Exhaust patterns
+      -- currently the pattern [Nothing] does not match
     mmRelps g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
@@ -69,11 +70,12 @@
         -- yes, but is that kind of graph probable?
     showExpr g n = case lab g n of
       Nothing -> Left $ "node " ++ (show n) ++ " not in graph"
-      Just (StrExpr s) -> Right s
-      Just (RelExpr _) -> Right $ intercalate ", " 
+      Just (StrExpr s) -> Right $ prefixNode s
+      Just (RelExpr _) -> Right $ prefixNode $ intercalate ", " 
            $ (\(a,b)->a++b) $ partitionEithers $ map f
            $ sortOn (\(_,_,l)->l) $ out g n
         where f (n,m,label) = showExpr g m
+      where prefixNode s = (show n) ++ ": " ++ s
 
     view :: Mindmap -> [Maybe Node] -> IO () -- TODO ? test
     view g mns = mapM_ putStrLn $ map (eitherString . showExpr g) $ mmRelps g mns
