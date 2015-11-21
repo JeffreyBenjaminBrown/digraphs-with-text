@@ -11,7 +11,7 @@
       -- that is, predecessors refer to successors 
         -- (in that kind of relationship they do; maybe there will be others)
 
-  -- export & import
+-- export & import
     module Dwt
       ( -- exports:
       module Data.Graph.Inductive -- export for testing, not production
@@ -25,12 +25,12 @@
     import Data.Maybe (isJust, catMaybes)
     import Control.Monad (mapM_)
 
- -- types
+-- types
     data MmExpr = StrExpr String | RelExpr Int
-      deriving (Show,Eq,Ord)
+      deriving (Show,Read,Eq,Ord)
 
     data MmEdge = RelTplt | RelPos Int -- hide this type from user
-      deriving (Show,Eq,Ord) -- Ord: RelTplt < RelPos _ 
+      deriving (Show,Read,Eq,Ord) -- Ord: RelTplt < RelPos _ 
 
     type Mindmap = Gr MmExpr MmEdge
 
@@ -75,7 +75,9 @@
            $ sortOn (\(_,_,l)->l) $ out g n
         where f (n,m,label) = showExpr g m
 
-    view :: Mindmap -> [Maybe Node] -> IO ()
+    view :: Mindmap -> [Maybe Node] -> IO () -- TODO ? test
     view g mns = mapM_ putStrLn $ map (eitherString . showExpr g) $ mmRelps g mns
       where eitherString (Left s) = s
             eitherString (Right s) = s
+
+-- EOF

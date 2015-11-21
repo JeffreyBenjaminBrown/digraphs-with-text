@@ -6,12 +6,9 @@
     main = runTestTT testList
 
     testList = TestList
-      [ tInsert -- the TestLabel syntax is useful only if you want names
+      [ tInsert -- TestLabel syntax: needed only if you need names
         , TestLabel "tRelvs" tRelvs
       ]
-
-    mn = Nothing
-    mj = Just
 
 -- globals
     g1,g1' :: Mindmap
