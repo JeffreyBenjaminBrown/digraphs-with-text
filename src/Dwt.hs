@@ -27,9 +27,12 @@
 
 -- types
     data MmExpr = StrExpr String | RelExpr Int
+      -- TODO: add third type RelTplt String
+      --       relExpr -> rel
       deriving (Show,Read,Eq,Ord)
 
     data MmEdge = RelTplt | RelPos Int -- hide this type from user
+      -- TODO: reltplt, relpos -> edgeTplt, edgePos
       deriving (Show,Read,Eq,Ord) -- Ord: RelTplt < RelPos _ 
 
     type Mindmap = Gr MmExpr MmEdge
