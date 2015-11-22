@@ -26,7 +26,7 @@
     import Control.Monad (mapM_)
 
 -- types
-    data MmExpr =  MmString String | Tplt String | Rel Int
+    data MmExpr =  MmString String | Tplt Int String | Rel Int
       -- TODO: use Tplt
       deriving (Show,Read,Eq,Ord)
 
@@ -38,6 +38,15 @@
 -- build
     insStr :: String -> Mindmap -> Mindmap
     insStr str g = insNode (int, MmString str) g
+      where int = head $ newNodes 1 g
+
+    countHoles :: String -> Int
+    countHoles ('_':s) = 1 + countHoles s
+    countHoles (_:s) = countHoles s
+    countHoles "" = 0
+
+    insTplt :: String -> Mindmap -> Mindmap
+    insTplt s g = insNode (int, Tplt (countHoles s) s) g
       where int = head $ newNodes 1 g
 
     insRel :: Node -> [Node] -> Mindmap -> Mindmap
