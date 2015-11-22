@@ -26,9 +26,9 @@
     import Control.Monad (mapM_)
 
 -- types
-    data MmExpr = StrExpr String | RelExpr Int
+    data MmExpr = MmString String | RelExpr Int
       -- TODO: add third type RelTplt String
-      --       StrExpr -> MmString
+      --       MmString -> MmString
       --       relExpr -> rel
       deriving (Show,Read,Eq,Ord)
 
@@ -40,7 +40,7 @@
 
 -- build
     insStr :: String -> Mindmap -> Mindmap
-    insStr str g = insNode (int, StrExpr str) g
+    insStr str g = insNode (int, MmString str) g
       where int = head $ newNodes 1 g
 
     insRel :: Node -> [Node] -> Mindmap -> Mindmap
@@ -74,7 +74,7 @@
         -- yes, but is that kind of graph probable?
     showExpr g n = case lab g n of
       Nothing -> Left $ "node " ++ (show n) ++ " not in graph"
-      Just (StrExpr s) -> Right $ prefixNode s
+      Just (MmString s) -> Right $ prefixNode s
       Just (RelExpr _) -> Right $ prefixNode $ intercalate ", " 
            $ (\(a,b)->a++b) $ partitionEithers $ map f
            $ sortOn (\(_,_,l)->l) $ out g n
