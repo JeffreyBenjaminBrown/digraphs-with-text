@@ -26,15 +26,16 @@
     import Control.Monad (mapM_)
 
 -- types
-    data MmExpr = MmString String | Rel Int
-      -- TODO: add third type EdgeTplt String
+    data MmExpr =  MmString String | Rel Int
+      -- TODO: add third type AsTplt String
       --       MmString -> MmString
       --       relExpr -> rel
       deriving (Show,Read,Eq,Ord)
 
-    data MmEdge = EdgeTplt | RelPos Int -- hide this type from user
+    data MmEdge = AsTplt | RelPos Int -- hide this type from user
+      -- t asTplt n, asPos
       -- TODO: reltplt, relpos -> edgeTplt, edgePos
-      deriving (Show,Read,Eq,Ord) -- Ord: EdgeTplt < RelPos _ 
+      deriving (Show,Read,Eq,Ord) -- Ord: AsTplt < RelPos _ 
 
     type Mindmap = Gr MmExpr MmEdge
 
@@ -47,7 +48,7 @@
     insRel t ns g = f (zip ns [1..len]) g' -- t is like ns but tplt
       where len = length ns
             newNode = head $ newNodes 1 g
-            g' = insEdge (newNode, t, EdgeTplt)
+            g' = insEdge (newNode, t, AsTplt)
                $ insNode (newNode, Rel len) g
             f []     g = g
             f (p:ps) g = f ps $ insEdge (newNode, fst p, RelPos $ snd p) g
@@ -64,7 +65,7 @@
     mmRelps g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
-            f (Just n, 0) = mmReferents g EdgeTplt     arity n
+            f (Just n, 0) = mmReferents g AsTplt     arity n
             f (Just n, k) = mmReferents g (RelPos k) arity n
             listIntersect (x:xs) = foldl intersect x xs
 
