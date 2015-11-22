@@ -28,6 +28,7 @@
 -- types
     data MmExpr = StrExpr String | RelExpr Int
       -- TODO: add third type RelTplt String
+      --       StrExpr -> MmString
       --       relExpr -> rel
       deriving (Show,Read,Eq,Ord)
 
