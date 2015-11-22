@@ -1,8 +1,8 @@
 -- usually folded
   -- TODO ? make "arity" a type
       -- its support is the integers in [1,k]
-      -- RelPositions and Rels contain one
-        -- or RelPosition contains a number that varies in [1,k]
+      -- AsPositions and Rels contain one
+        -- or AsPosition contains a number that varies in [1,k]
           -- where k is the arity
   -- types, vocab, language
     -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
@@ -32,10 +32,10 @@
       --       relExpr -> rel
       deriving (Show,Read,Eq,Ord)
 
-    data MmEdge = AsTplt | RelPos Int -- hide this type from user
+    data MmEdge = AsTplt | AsPos Int -- hide this type from user
       -- t asTplt n, asPos
       -- TODO: reltplt, relpos -> edgeTplt, edgePos
-      deriving (Show,Read,Eq,Ord) -- Ord: AsTplt < RelPos _ 
+      deriving (Show,Read,Eq,Ord) -- Ord: AsTplt < AsPos _ 
 
     type Mindmap = Gr MmExpr MmEdge
 
@@ -51,7 +51,7 @@
             g' = insEdge (newNode, t, AsTplt)
                $ insNode (newNode, Rel len) g
             f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelPos $ snd p) g
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
 
 -- query
     mmReferents :: Mindmap -> MmEdge -> Int -> Node -> [Node]
@@ -66,7 +66,7 @@
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
             f (Just n, 0) = mmReferents g AsTplt     arity n
-            f (Just n, k) = mmReferents g (RelPos k) arity n
+            f (Just n, k) = mmReferents g (AsPos k) arity n
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view

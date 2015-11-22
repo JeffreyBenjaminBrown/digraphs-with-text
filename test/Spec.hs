@@ -25,10 +25,10 @@
         , (9, MmString "statement _ is _")
         , (10, MmString "dubious"  )
         , (11, Rel 2          )
-      ] [ (5,1, AsTplt), (5,0, RelPos 1), (5,4,RelPos 2)
-        , (6,2, AsTplt), (6,0, RelPos 1), (6,3,RelPos 2)
-        , (8,7, AsTplt), (8,0, RelPos 1), (8,3,RelPos 2), (8,4,RelPos 3) 
-        , (11,9,AsTplt), (11,5,RelPos 1), (11,10,RelPos 2)
+      ] [ (5,1, AsTplt), (5,0, AsPos 1), (5,4,AsPos 2)
+        , (6,2, AsTplt), (6,0, AsPos 1), (6,3,AsPos 2)
+        , (8,7, AsTplt), (8,0, AsPos 1), (8,3,AsPos 2), (8,4,AsPos 3) 
+        , (11,9,AsTplt), (11,5,AsPos 1), (11,10,AsPos 2)
       ]
 
     g1' = insRel 9 [5,10] 
