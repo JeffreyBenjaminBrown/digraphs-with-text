@@ -26,15 +26,11 @@
     import Control.Monad (mapM_)
 
 -- types
-    data MmExpr =  MmString String | Rel Int
-      -- TODO: add third type AsTplt String
-      --       MmString -> MmString
-      --       relExpr -> rel
+    data MmExpr =  MmString String | Tplt String | Rel Int
+      -- TODO: use Tplt
       deriving (Show,Read,Eq,Ord)
 
     data MmEdge = AsTplt | AsPos Int -- hide this type from user
-      -- t asTplt n, asPos
-      -- TODO: reltplt, relpos -> edgeTplt, edgePos
       deriving (Show,Read,Eq,Ord) -- Ord: AsTplt < AsPos _ 
 
     type Mindmap = Gr MmExpr MmEdge
