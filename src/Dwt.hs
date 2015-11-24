@@ -26,12 +26,16 @@
     import qualified Data.Text as T
 
 -- types
+  -- IN PROGRESS: refactoring Tplt to hold a list of Strings
     type Arity = Int
-    data MmExpr =  MmString String | Tplt Arity String | Rel Arity
+    data MmExpr =   MmString String | Tplt Arity String    | Rel Arity
+      deriving (Show,Read,Eq,Ord)
+    data MmExpr' = MmString' String | Tplt' Arity [String] | Rel' Arity
       deriving (Show,Read,Eq,Ord)
     data MmEdge = AsTplt | AsPos Arity -- MmEdgeLabel more accurate, but too long
       deriving (Show,Read,Eq,Ord)
-    type Mindmap = Gr MmExpr MmEdge
+    type Mindmap =  Gr MmExpr  MmEdge
+    type Mindmap' = Gr MmExpr' MmEdge
 
 -- build
     insStr :: String -> Mindmap -> Mindmap
@@ -40,6 +44,11 @@
 
     insTplt :: String -> Mindmap -> Mindmap
     insTplt s g = insNode (newNode, Tplt (countHoles s) s) g
+      where newNode = head $ newNodes 1 g
+            countHoles = length . filter (== '_') :: String -> Int
+
+    insTplt' :: String -> Mindmap' -> Mindmap'
+    insTplt' s g = insNode (newNode, Tplt' (countHoles s) $ splitTplt s) g
       where newNode = head $ newNodes 1 g
             countHoles = length . filter (== '_') :: String -> Int
 
