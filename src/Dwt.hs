@@ -42,22 +42,19 @@
     insStr str g = insNode (int, MmString str) g
       where int = head $ newNodes 1 g
 
-    countHoles :: String -> Arity
-    countHoles ('_':s) = 1 + countHoles s
-    countHoles (_:s) = countHoles s
-    countHoles "" = 0
-
     insTplt :: String -> Mindmap -> Mindmap
     insTplt s g = insNode (newNode, Tplt (countHoles s) s) g
       where newNode = head $ newNodes 1 g
+            countHoles "" = 0
+            countHoles ('_':s) = 1 + countHoles s
+            countHoles (_:s) = countHoles s
 
-    insRel :: Node -> [Node] -> Mindmap -> Mindmap -- TODO: Either Str Mm
-      -- TODO: throw exception if length ns /= ti
-    insRel t ns g = if ti /= length ns 
+    insRel :: Node -> [Node] -> Mindmap -> Mindmap -- TODO ? return Either Str Mm
+    insRel t ns g = if ti /= length ns -- t is tplt, otherwise like ns
         then error "Tplt arity /= number of members"
-        else f (zip ns [1..ti]) g' -- t is tplt, otherwise like ns
-      where Tplt ti ts = fromJust $ lab g t -- TODO: consider Nothing case? 
-            -- consider Just k case, for k not Tplt?
+        else f (zip ns [1..ti]) g'
+      where Tplt ti ts = fromJust $ lab g t -- TODO: consider case of Nothing?
+                                            -- case of Just k, for k not Tplt?
             newNode = head $ newNodes 1 g
             g' = insEdge (newNode, t, AsTplt)
                $ insNode (newNode, Rel ti) g
@@ -66,18 +63,17 @@
 
 -- query
     mmReferents :: Mindmap -> MmEdge -> Arity -> Node -> [Node]
-    mmReferents g e k n = -- all uses (of a type specd by e & arity) of n
+    mmReferents g e k n = -- all uses (of a type specified by e & k) of n
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
-    mmRelps :: Mindmap -> [Maybe Node] -> [Node] -- TODO: Exhaust patterns
-      -- currently the pattern [Nothing] does not match
-      -- TODO: provide the Tplt as a separate Maybe Node, not the first in list
+    mmRelps :: Mindmap -> [Maybe Node] -> [Node]
     mmRelps g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
             f (Just n, 0) = mmReferents g AsTplt    arity n
             f (Just n, k) = mmReferents g (AsPos k) arity n
+            listIntersect [] = []
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
@@ -94,9 +90,8 @@
         where f (n,m,label) = showExpr g m
       where prefixNode s = (show n) ++ ": " ++ s
 
-    view :: Mindmap -> [Maybe Node] -> IO () -- TODO ? test
+    view :: Mindmap -> [Maybe Node] -> IO ()
     view g mns = mapM_ putStrLn $ map (eitherString . showExpr g) $ mmRelps g mns
       where eitherString (Left s) = s
             eitherString (Right s) = s
 
--- EOF
