@@ -29,13 +29,12 @@
     import Control.Monad (mapM_)
 
 -- types
-    data MmExpr =  MmString String | Tplt Int String | Rel Int
+    type Arity = Int
+    data MmExpr =  MmString String | Tplt Arity String | Rel Arity
       deriving (Show,Read,Eq,Ord)
-
-    data MmEdge = AsTplt | AsPos Int -- MmEdgeLab would be a better name
+    data MmEdge = AsTplt | AsPos Arity -- MmEdgeLab would be a better name
         -- hide this type from user
       deriving (Show,Read,Eq,Ord) -- Ord: AsTplt < AsPos _ 
-
     type Mindmap = Gr MmExpr MmEdge
 
 -- build
@@ -43,14 +42,14 @@
     insStr str g = insNode (int, MmString str) g
       where int = head $ newNodes 1 g
 
-    countHoles :: String -> Int
+    countHoles :: String -> Arity
     countHoles ('_':s) = 1 + countHoles s
     countHoles (_:s) = countHoles s
     countHoles "" = 0
 
     insTplt :: String -> Mindmap -> Mindmap
-    insTplt s g = insNode (int, Tplt (countHoles s) s) g
-      where int = head $ newNodes 1 g
+    insTplt s g = insNode (newNode, Tplt (countHoles s) s) g
+      where newNode = head $ newNodes 1 g
 
     insRel :: Node -> [Node] -> Mindmap -> Mindmap -- TODO: Either Str Mm
       -- TODO: throw exception if length ns /= ti
@@ -66,9 +65,9 @@
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
 
 -- query
-    mmReferents :: Mindmap -> MmEdge -> Int -> Node -> [Node]
-    mmReferents g e arity n = -- all uses (of a type specd by e & arity) of n
-      let isKAryRel m = lab g m == (Just $ Rel arity)
+    mmReferents :: Mindmap -> MmEdge -> Arity -> Node -> [Node]
+    mmReferents g e k n = -- all uses (of a type specd by e & arity) of n
+      let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
     mmRelps :: Mindmap -> [Maybe Node] -> [Node] -- TODO: Exhaust patterns
