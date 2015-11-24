@@ -30,10 +30,9 @@
 
 -- types
     data MmExpr =  MmString String | Tplt Int String | Rel Int
-      -- TODO: use Tplt
       deriving (Show,Read,Eq,Ord)
 
-    data MmEdge = AsTplt | AsPos Int -- TODO ? MmEdge -> MmEdgeLab
+    data MmEdge = AsTplt | AsPos Int -- MmEdgeLab would be a better name
         -- hide this type from user
       deriving (Show,Read,Eq,Ord) -- Ord: AsTplt < AsPos _ 
 
@@ -53,18 +52,9 @@
     insTplt s g = insNode (int, Tplt (countHoles s) s) g
       where int = head $ newNodes 1 g
 
-    insRel :: Node -> [Node] -> Mindmap -> Mindmap
-    insRel t ns g = f (zip ns [1..len]) g' -- t is like ns but tplt
-      where len = length ns
-            newNode = head $ newNodes 1 g
-            g' = insEdge (newNode, t, AsTplt)
-               $ insNode (newNode, Rel len) g
-            f []     g = g -- a fold would be briefer
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
-
-    insRel' :: Node -> [Node] -> Mindmap -> Mindmap -- TODO: Either Str Mm
+    insRel :: Node -> [Node] -> Mindmap -> Mindmap -- TODO: Either Str Mm
       -- TODO: throw exception if length ns /= ti
-    insRel' t ns g = if ti /= length ns 
+    insRel t ns g = if ti /= length ns 
         then error "Tplt arity /= number of members"
         else f (zip ns [1..ti]) g' -- t is tplt, otherwise like ns
       where Tplt ti ts = fromJust $ lab g t -- TODO: consider Nothing case? 
@@ -77,7 +67,7 @@
 
 -- query
     mmReferents :: Mindmap -> MmEdge -> Int -> Node -> [Node]
-    mmReferents g e arity n = -- all uses(of a type specd by e & arity) of n
+    mmReferents g e arity n = -- all uses (of a type specd by e & arity) of n
       let isKAryRel m = lab g m == (Just $ Rel arity)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
