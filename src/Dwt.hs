@@ -42,13 +42,16 @@
     insStr str g = insNode (int, MmString str) g
       where int = head $ newNodes 1 g
 
-    insTplt :: String -> Mindmap -> Mindmap
-    insTplt s g = insNode (newNode, Tplt (countHoles s) s) g
-      where newNode = head $ newNodes 1 g
-            countHoles = length . filter (== '_') :: String -> Int
+    splitTplt :: String -> [String]
+    splitTplt t = map T.unpack $ T.splitOn (T.pack "_") (T.pack t)
 
     insTplt' :: String -> Mindmap' -> Mindmap'
     insTplt' s g = insNode (newNode, Tplt' (countHoles s) $ splitTplt s) g
+      where newNode = head $ newNodes 1 g
+            countHoles = length . filter (== '_') :: String -> Int
+
+    insTplt :: String -> Mindmap -> Mindmap
+    insTplt s g = insNode (newNode, Tplt (countHoles s) s) g
       where newNode = head $ newNodes 1 g
             countHoles = length . filter (== '_') :: String -> Int
 
@@ -80,9 +83,6 @@
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
-    splitTplt :: String -> [String]
-    splitTplt t = map T.unpack $ T.splitOn (T.pack "_") (T.pack t)
-
     subInTplt :: String -> [String] -> String -- TODO: Tplt be already split
     subInTplt t ss = let tpltAsList = splitTplt t
                          pairList = zip tpltAsList $ ss ++ [""] --append [""] because there are n+1 segments in an n-ary Tplt
