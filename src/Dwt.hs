@@ -83,6 +83,11 @@
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
+    subInTplt' :: MmExpr' -> [String] -> String -- TODO: Tplt be already split
+    subInTplt' (Tplt' k ts) ss = let pairList = zip ts $ ss ++ [""] --append [""] because there are n+1 segments in an n-ary Tplt
+      in foldl (\s (a,b) -> s++a++b) "" pairList
+    subInTplt' _ _ = error "MmExpr' not a Tplt"
+
     subInTplt :: String -> [String] -> String -- TODO: Tplt be already split
     subInTplt t ss = let tpltAsList = splitTplt t
                          pairList = zip tpltAsList $ ss ++ [""] --append [""] because there are n+1 segments in an n-ary Tplt
@@ -90,7 +95,7 @@
 
     showExpr :: Mindmap -> Node -> Either String String -- WARNING|TODO
       -- if the graph is recursive, could this infinite loop?
-        -- yes, but is that kind of graph probable?
+        -- (the answer is yes, but is that kind of graph probable?)
     showExpr g n = case lab g n of
       Nothing -> Left $ "node " ++ (show n) ++ " not in graph"
       Just (MmString s) -> Right $ prefixNode s
