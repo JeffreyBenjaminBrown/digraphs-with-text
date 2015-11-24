@@ -78,7 +78,8 @@
 
     subInTplt :: String -> [String] -> String -- TODO: Tplt be already split
     subInTplt t ss = let tpltAsList = splitTplt t
-                         pairList = zip tpltAsList ss
+                         pairList = zip tpltAsList $ ss ++ [""]
+      -- append [""] because there are n+1 segments in an n-ary Tplt
       in foldl (\s (a,b) -> s++a++b) "" pairList
 
     showExpr :: Mindmap -> Node -> Either String String -- WARNING|TODO

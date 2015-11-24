@@ -48,8 +48,7 @@
                      b = "love"
       in TestCase $ do
         assertBool "1" $ subInTplt t1 [a,b] == "skeletor needs love"
-        assertBool "2" $ subInTplt t2 [a,b] == "Does skeletor need love?" --BUG
-          -- The trailing ? is missing, because zip stops once either list does.
+        assertBool "2" $ subInTplt t2 [a,b] == "Does skeletor need love?"
         assertBool "3" $ subInTplt t3 [a,b] == "skeletor needs love!"
 
     tInsert = TestCase $ do
