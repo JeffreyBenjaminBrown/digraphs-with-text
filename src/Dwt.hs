@@ -1,4 +1,6 @@
 -- usually folded
+  -- TODO ? Make another Rel type
+    -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
   -- TODO ? classes for checking arity
   -- TODO ? make "arity" a type
       -- its support is the integers in [1,k]
@@ -75,13 +77,13 @@
 
 -- query
     mmReferents :: Mindmap -> MmEdge -> Int -> Node -> [Node]
-    mmReferents g e arity n =
-      let pdrNode (m,n,label) = m
-          isKAryRel m = lab g m == (Just $ Rel arity)
+    mmReferents g e arity n = -- all uses(of a type specd by e & arity) of n
+      let isKAryRel m = lab g m == (Just $ Rel arity)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
     mmRelps :: Mindmap -> [Maybe Node] -> [Node] -- TODO: Exhaust patterns
       -- currently the pattern [Nothing] does not match
+      -- TODO: provide the Tplt as a separate Maybe Node, not the first in list
     mmRelps g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
@@ -96,6 +98,7 @@
     showExpr g n = case lab g n of
       Nothing -> Left $ "node " ++ (show n) ++ " not in graph"
       Just (MmString s) -> Right $ prefixNode s
+      Just (Tplt k s) -> Right $ "Tplt: " ++ prefixNode s
       Just (Rel _) -> Right $ prefixNode $ intercalate ", " 
            $ (\(a,b)->a++b) $ partitionEithers $ map f
            $ sortOn (\(_,_,l)->l) $ out g n
