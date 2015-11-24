@@ -1,12 +1,8 @@
 -- usually folded
-  -- TODO ? Make another Rel type
-    -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
-  -- TODO ? classes for checking arity
-  -- TODO ? make "arity" a type
-      -- its support is the integers in [1,k]
-      -- AsPositions and Rels contain one
-        -- or AsPosition contains a number that varies in [1,k]
-          -- where k is the arity
+  -- TODO
+    -- Make another Rel type
+      -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
+    -- Add classes for checking arity
   -- types, vocab, language
     -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
     -- how to read edges
@@ -27,14 +23,14 @@
     import Data.List (intersect, sortOn, intercalate)
     import Data.Maybe (isJust, catMaybes, fromJust)
     import Control.Monad (mapM_)
+    import qualified Data.Text as T
 
 -- types
     type Arity = Int
     data MmExpr =  MmString String | Tplt Arity String | Rel Arity
       deriving (Show,Read,Eq,Ord)
-    data MmEdge = AsTplt | AsPos Arity -- MmEdgeLab would be a better name
-        -- hide this type from user
-      deriving (Show,Read,Eq,Ord) -- Ord: AsTplt < AsPos _ 
+    data MmEdge = AsTplt | AsPos Arity -- MmEdgeLabel more accurate, but too long
+      deriving (Show,Read,Eq,Ord)
     type Mindmap = Gr MmExpr MmEdge
 
 -- build
@@ -63,7 +59,7 @@
 
 -- query
     mmReferents :: Mindmap -> MmEdge -> Arity -> Node -> [Node]
-    mmReferents g e k n = -- all uses (of a type specified by e & k) of n
+    mmReferents g e k n = -- returns all uses (of a type specified by e & k) of n
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
@@ -73,17 +69,25 @@
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
             f (Just n, 0) = mmReferents g AsTplt    arity n
             f (Just n, k) = mmReferents g (AsPos k) arity n
-            listIntersect [] = []
+            listIntersect [] = [] -- silly case
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
+    splitTplt :: String -> [String]
+    splitTplt t = map T.unpack $ T.splitOn (T.pack "_") (T.pack t)
+
+    subInTplt :: String -> [String] -> String -- TODO: Tplt be already split
+    subInTplt t ss = let tpltAsList = splitTplt t
+                         pairList = zip tpltAsList ss
+      in foldl (\s (a,b) -> s++a++b) "" pairList
+
     showExpr :: Mindmap -> Node -> Either String String -- WARNING|TODO
       -- if the graph is recursive, could this infinite loop?
         -- yes, but is that kind of graph probable?
     showExpr g n = case lab g n of
       Nothing -> Left $ "node " ++ (show n) ++ " not in graph"
       Just (MmString s) -> Right $ prefixNode s
-      Just (Tplt k s) -> Right $ "Tplt: " ++ prefixNode s
+      Just (Tplt k s) -> Right $ prefixNode $ "Tplt: " ++  s
       Just (Rel _) -> Right $ prefixNode $ intercalate ", " 
            $ (\(a,b)->a++b) $ partitionEithers $ map f
            $ sortOn (\(_,_,l)->l) $ out g n
@@ -94,4 +98,3 @@
     view g mns = mapM_ putStrLn $ map (eitherString . showExpr g) $ mmRelps g mns
       where eitherString (Left s) = s
             eitherString (Right s) = s
-
