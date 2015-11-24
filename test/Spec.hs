@@ -44,8 +44,7 @@
     tSubInTplt = let t1 = "_ needs _"
                      t2 = "Does _ need _?"
                      t3 = "_ needs _!"
-                     a = "skeletor"
-                     b = "love"
+                     (a,b) = ("skeletor","love")
       in TestCase $ do
         assertBool "1" $ subInTplt t1 [a,b] == "skeletor needs love"
         assertBool "2" $ subInTplt t2 [a,b] == "Does skeletor need love?"

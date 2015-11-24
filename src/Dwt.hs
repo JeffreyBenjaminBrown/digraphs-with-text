@@ -1,8 +1,8 @@
 -- usually folded
   -- TODO
-    -- Make another Rel type
+    -- Make another Rel type (called Rel'? RelSpec? RelRequest?)
       -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
-    -- Add classes for checking arity
+    -- Add classes for checking arity?
   -- types, vocab, language
     -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
     -- how to read edges
@@ -41,9 +41,7 @@
     insTplt :: String -> Mindmap -> Mindmap
     insTplt s g = insNode (newNode, Tplt (countHoles s) s) g
       where newNode = head $ newNodes 1 g
-            countHoles "" = 0
-            countHoles ('_':s) = 1 + countHoles s
-            countHoles (_:s) = countHoles s
+            countHoles = length . filter (== '_') :: String -> Int
 
     insRel :: Node -> [Node] -> Mindmap -> Mindmap -- TODO ? return Either Str Mm
     insRel t ns g = if ti /= length ns -- t is tplt, otherwise like ns
@@ -78,8 +76,7 @@
 
     subInTplt :: String -> [String] -> String -- TODO: Tplt be already split
     subInTplt t ss = let tpltAsList = splitTplt t
-                         pairList = zip tpltAsList $ ss ++ [""]
-      -- append [""] because there are n+1 segments in an n-ary Tplt
+                         pairList = zip tpltAsList $ ss ++ [""] --append [""] because there are n+1 segments in an n-ary Tplt
       in foldl (\s (a,b) -> s++a++b) "" pairList
 
     showExpr :: Mindmap -> Node -> Either String String -- WARNING|TODO
