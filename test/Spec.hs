@@ -10,7 +10,7 @@
         , TestLabel "tRelvs" tRelvs
       ]
 
--- globals
+-- "globals"
     g1,g1' :: Mindmap
     g1 = mkGraph
       [   (0, MmString "dog"       )

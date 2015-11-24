@@ -1,4 +1,5 @@
 -- usually folded
+  -- TODO ? classes for checking arity
   -- TODO ? make "arity" a type
       -- its support is the integers in [1,k]
       -- AsPositions and Rels contain one
@@ -22,7 +23,7 @@
     import Data.String (String)
     import Data.Either (partitionEithers)
     import Data.List (intersect, sortOn, intercalate)
-    import Data.Maybe (isJust, catMaybes)
+    import Data.Maybe (isJust, catMaybes, fromJust)
     import Control.Monad (mapM_)
 
 -- types
@@ -30,7 +31,8 @@
       -- TODO: use Tplt
       deriving (Show,Read,Eq,Ord)
 
-    data MmEdge = AsTplt | AsPos Int -- hide this type from user
+    data MmEdge = AsTplt | AsPos Int -- TODO ? MmEdge -> MmEdgeLab
+        -- hide this type from user
       deriving (Show,Read,Eq,Ord) -- Ord: AsTplt < AsPos _ 
 
     type Mindmap = Gr MmExpr MmEdge
@@ -55,6 +57,19 @@
             newNode = head $ newNodes 1 g
             g' = insEdge (newNode, t, AsTplt)
                $ insNode (newNode, Rel len) g
+            f []     g = g -- a fold would be briefer
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
+
+    insRel' :: Node -> [Node] -> Mindmap -> Mindmap -- TODO: Either Str Mm
+      -- TODO: throw exception if length ns /= ti
+    insRel' t ns g = if ti /= length ns 
+        then error "Tplt arity /= number of members"
+        else f (zip ns [1..ti]) g' -- t is tplt, otherwise like ns
+      where Tplt ti ts = fromJust $ lab g t -- TODO: consider Nothing case? 
+            -- consider Just k case, for k not Tplt?
+            newNode = head $ newNodes 1 g
+            g' = insEdge (newNode, t, AsTplt)
+               $ insNode (newNode, Rel ti) g
             f []     g = g
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
 
@@ -70,7 +85,7 @@
     mmRelps g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
-            f (Just n, 0) = mmReferents g AsTplt     arity n
+            f (Just n, 0) = mmReferents g AsTplt    arity n
             f (Just n, k) = mmReferents g (AsPos k) arity n
             listIntersect (x:xs) = foldl intersect x xs
 
