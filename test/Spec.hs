@@ -10,6 +10,7 @@
         , TestLabel "tInsert" tInsert
         , TestLabel "tInsert'" tInsert'
         , TestLabel "tRelvs"   tRelvs
+        , TestLabel "tRelvs'"   tRelvs
       ]
 
 -- "globals"
@@ -92,3 +93,9 @@
       assertBool "-0-"  $ mmRelps g1 [Nothing, Just 0, Nothing] == [5,6]
       assertBool "--3"  $ mmRelps g1 [Nothing, Nothing, Just 4] == [5]
       assertBool "---4" $ mmRelps g1 [Nothing, Nothing, Nothing, Just 4] == [8]
+
+    tRelvs' = TestCase $ do
+      assertBool "1--"  $ mmRelps' g2 [Just 1,  Nothing, Nothing] == [5]
+      assertBool "-0-"  $ mmRelps' g2 [Nothing, Just 0,  Nothing] == [5,6]
+      assertBool "--3"  $ mmRelps' g2 [Nothing, Nothing, Just 4 ] == [5]
+      assertBool "---4" $ mmRelps' g2 [Nothing, Nothing, Nothing, Just 4] == [8]
