@@ -88,13 +88,13 @@
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
 
 -- query. TODO: Duplicate for MmExpr'
-    mmReferents' :: Mindmap' -> MmEdge -> Arity -> Node -> [Node]
-    mmReferents' g e k n = -- returns all uses (of a type specified by e & k) of n
+    users' :: Mindmap' -> MmEdge -> Arity -> Node -> [Node]
+    users' g e k n = -- returns all uses (of a type specified by e & k) of n
       let isKAryRel m = lab g m == (Just $ Rel' k)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
-    mmReferents :: Mindmap -> MmEdge -> Arity -> Node -> [Node]
-    mmReferents g e k n = -- returns all uses (of a type specified by e & k) of n
+    users :: Mindmap -> MmEdge -> Arity -> Node -> [Node]
+    users g e k n = -- returns all uses (of a type specified by e & k) of n
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
@@ -102,8 +102,8 @@
     mmRelps g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
-            f (Just n, 0) = mmReferents g AsTplt    arity n
-            f (Just n, k) = mmReferents g (AsPos k) arity n
+            f (Just n, 0) = users g AsTplt    arity n
+            f (Just n, k) = users g (AsPos k) arity n
             listIntersect [] = [] -- silly case
             listIntersect (x:xs) = foldl intersect x xs
 
