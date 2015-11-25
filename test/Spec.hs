@@ -10,6 +10,7 @@
       [   TestLabel "tSubInTplt" tSubInTplt
         , TestLabel "tInsert" tInsert
         , TestLabel "tRelvs"  tRelvs
+        , TestLabel "tShowExpr" tShowExpr
       ]
 
 -- "globals"
@@ -54,3 +55,8 @@
       assertBool "-0-"  $ mmRelps g1 [Nothing, Just 0,  Nothing] == [5,6]
       assertBool "--3"  $ mmRelps g1 [Nothing, Nothing, Just 4 ] == [5]
       assertBool "---4" $ mmRelps g1 [Nothing, Nothing, Nothing, Just 4] == [8]
+
+    tShowExpr = TestCase $ do
+      assertBool "expr 5" $ showExpr g1 5 == "5: [0: dog] wants [4: brandy]"
+      assertBool "expr 11" $ showExpr g1 11 == 
+        "11: statement [5: [0: dog] wants [4: brandy]] is [10: dubious]"

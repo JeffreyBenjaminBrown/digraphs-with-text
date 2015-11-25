@@ -83,12 +83,13 @@
       in foldl (\s (a,b) -> s++a++b) "" pairList
     subInTplt _ _ = error "subInTplt: MmExpr not a Tplt"
 
-    showExpr :: Mindmap -> Node -> String -- TODO: BUGGY
-     -- if the graph is recursive, could this infinite loop?
-        -- (the answer is yes, but is that kind of graph probable?)
-        -- a solution: while building, keep list of visited nodes
-            -- if visiting one already there, display it as just its number
-            -- or number + "already displayed higher in this (node view?)"    
+    showExpr :: Mindmap -> Node -> String -- BEWARE ? infinite loops
+     -- if the graph is recursive, this could infinite loop
+       -- although such graphs seem unlikely, because recursive statements are
+       -- difficult; c.f. Godel's impossibility theorem
+     -- a solution: while building, keep list of visited nodes
+       -- if visiting one already there, display it as just its number
+       -- or number + "already displayed higher in this (node view?)"    
     showExpr g n = case lab g n of
       Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
       Just (MmString s) -> prefixNode s
@@ -99,9 +100,10 @@
             (_,tpltNode,_) = head ledges
               -- head because Tplt sorts first, before Rel, in Ord MmExpr 
             Just tpltLab = lab g tpltNode :: Maybe MmExpr
-            members = map (\(_,m,_)-> m) $ tail ledges :: [Node] -- TODO: USE
-        in subInTplt tpltLab $ map (\(_,m,_) -> showExpr g m) ledges
+            members = map (\(_,m,_)-> m) $ tail ledges :: [Node]
+        in prefixNode $ subInTplt tpltLab $ map (bracket . showExpr g) members
       where prefixNode s = (show n) ++ ": " ++ s
+            bracket s = "[" ++ s ++ "]"
 
     view :: Mindmap -> [Maybe Node] -> IO ()
     view g mns = mapM_ putStrLn 
