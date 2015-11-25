@@ -42,8 +42,16 @@
     insStr str g = insNode (int, MmString str) g
       where int = head $ newNodes 1 g
 
-    splitTplt :: String -> [String]
+    insStr' :: String -> Mindmap' -> Mindmap'
+    insStr' str g = insNode (int, MmString' str) g
+      where int = head $ newNodes 1 g
+
+    splitTplt :: String -> [String] -- TODO: rename splitTpltString
     splitTplt t = map T.unpack $ T.splitOn (T.pack "_") (T.pack t)
+
+    stringToTplt :: String -> MmExpr'
+    stringToTplt s = Tplt' (length ss-1) ss -- surprpsingly, even length=0 works
+      where ss = splitTplt s
 
     insTplt' :: String -> Mindmap' -> Mindmap'
     insTplt' s g = insNode (newNode, Tplt' (countHoles s) $ splitTplt s) g
@@ -67,6 +75,19 @@
             f []     g = g
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
 
+    insRel' :: Node -> [Node] -> Mindmap' -> Mindmap' -- TODO ? return Either
+      -- this function is unchanged from insRel except in its type sig
+    insRel' t ns g = if ti /= length ns -- t is tplt, otherwise like ns
+        then error "Tplt arity /= number of members"
+        else f (zip ns [1..ti]) g'
+      where Tplt' ti ts = fromJust $ lab g t -- TODO: consider case of Nothing?
+                                            -- case of Just k, for k not Tplt?
+            newNode = head $ newNodes 1 g
+            g' = insEdge (newNode, t, AsTplt)
+               $ insNode (newNode, Rel' ti) g
+            f []     g = g
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
+
 -- query
     mmReferents :: Mindmap -> MmEdge -> Arity -> Node -> [Node]
     mmReferents g e k n = -- returns all uses (of a type specified by e & k) of n
@@ -83,30 +104,56 @@
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
-    subInTplt' :: MmExpr' -> [String] -> String -- TODO: Tplt be already split
+    subInTplt' :: MmExpr' -> [String] -> String
     subInTplt' (Tplt' k ts) ss = let pairList = zip ts $ ss ++ [""] --append [""] because there are n+1 segments in an n-ary Tplt
       in foldl (\s (a,b) -> s++a++b) "" pairList
-    subInTplt' _ _ = error "MmExpr' not a Tplt"
+    subInTplt' _ _ = error "MmExpr not a Tplt"
 
     subInTplt :: String -> [String] -> String -- TODO: Tplt be already split
     subInTplt t ss = let tpltAsList = splitTplt t
                          pairList = zip tpltAsList $ ss ++ [""] --append [""] because there are n+1 segments in an n-ary Tplt
       in foldl (\s (a,b) -> s++a++b) "" pairList
 
+    showExpr' :: Mindmap' -> Node -> String -- TODO: BUGGY
+       -- replacing showExpr; this one is Tplt'-aware
+     -- WARNING|TODO
+     -- if the graph is recursive, could this infinite loop?
+        -- (the answer is yes, but is that kind of graph probable?)
+        -- a solution: while building, keep list of visited nodes
+            -- if visiting one already there, display it as just its number
+            -- or number + "already displayed higher in this (node view?)"    
+    showExpr' g n = case lab g n of
+      Nothing -> error $ "node " ++ (show n) ++ " not in graph"
+      Just (MmString' s) -> prefixNode s
+      Just (Tplt' k ts) -> prefixNode $ "Tplt: "
+        ++ intercalate "_" ts
+      Just (Rel' _) -> let
+            ledges = sortOn (\(_,_,l)->l) $ out g n
+            (_,tn,_) = head ledges
+              -- head because Tplt sorts first, before Rel, in Ord MmExpr 
+            Just t = lab g tn :: Maybe MmExpr'
+            members = map (\(_,m,_)-> m) $ tail ledges :: [Node]
+        in subInTplt' t $ map (\(_,m,_) -> showExpr' g m) ledges
+      where prefixNode s = (show n) ++ ": " ++ s
+
     showExpr :: Mindmap -> Node -> Either String String -- WARNING|TODO
       -- if the graph is recursive, could this infinite loop?
         -- (the answer is yes, but is that kind of graph probable?)
+        -- a solution: while building, keep list of visited nodes
+            -- if visiting one already there, display it as just its number
+            -- or number + "already displayed higher in this (node view?)"
     showExpr g n = case lab g n of
       Nothing -> Left $ "node " ++ (show n) ++ " not in graph"
       Just (MmString s) -> Right $ prefixNode s
       Just (Tplt k s) -> Right $ prefixNode $ "Tplt: " ++  s
       Just (Rel _) -> Right $ prefixNode $ intercalate ", " 
-           $ (\(a,b)->a++b) $ partitionEithers $ map f
+           $ (\(a,b) -> a++b) $ partitionEithers $ map f
            $ sortOn (\(_,_,l)->l) $ out g n
         where f (n,m,label) = showExpr g m
       where prefixNode s = (show n) ++ ": " ++ s
 
     view :: Mindmap -> [Maybe Node] -> IO ()
-    view g mns = mapM_ putStrLn $ map (eitherString . showExpr g) $ mmRelps g mns
+    view g mns = mapM_ putStrLn 
+               $ map (eitherString . showExpr g) $ mmRelps g mns
       where eitherString (Left s) = s
             eitherString (Right s) = s
