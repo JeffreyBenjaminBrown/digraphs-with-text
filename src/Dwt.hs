@@ -53,7 +53,7 @@
     stringToTplt s = Tplt' (length ss-1) ss -- even length=0 works
       where ss = splitTpltStr s
 
-    insTplt' :: String -> Mindmap' -> Mindmap' -- TODO: use stringToTplt
+    insTplt' :: String -> Mindmap' -> Mindmap'
     insTplt' s g = insNode (newNode, stringToTplt s) g
       where newNode = head $ newNodes 1 g
 
@@ -88,6 +88,11 @@
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
 
 -- query. TODO: Duplicate for MmExpr'
+    mmReferents' :: Mindmap' -> MmEdge -> Arity -> Node -> [Node]
+    mmReferents' g e k n = -- returns all uses (of a type specified by e & k) of n
+      let isKAryRel m = lab g m == (Just $ Rel' k)
+      in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
+
     mmReferents :: Mindmap -> MmEdge -> Arity -> Node -> [Node]
     mmReferents g e k n = -- returns all uses (of a type specified by e & k) of n
       let isKAryRel m = lab g m == (Just $ Rel k)
