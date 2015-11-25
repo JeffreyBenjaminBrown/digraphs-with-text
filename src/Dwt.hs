@@ -26,7 +26,6 @@
     import qualified Data.Text as T
 
 -- types
-  -- IN PROGRESS: refactoring Tplt to hold a list of Strings
     type Arity = Int
     data MmExpr = MmString String | Tplt Arity [String] | Rel Arity
       deriving (Show,Read,Eq,Ord)
@@ -35,7 +34,7 @@
     type Mindmap = Gr MmExpr MmEdge
 
 -- build
-    insStr :: String -> Mindmap -> Mindmap -- unchanged but for type
+    insStr :: String -> Mindmap -> Mindmap
     insStr str g = insNode (int, MmString str) g
       where int = head $ newNodes 1 g
 
@@ -51,7 +50,6 @@
       where newNode = head $ newNodes 1 g
 
     insRel :: Node -> [Node] -> Mindmap -> Mindmap -- TODO ? return Either
-      -- this function is unchanged from insRel except in its type sig
     insRel t ns g = if ti /= length ns -- t is tplt, otherwise like ns
         then error "Tplt arity /= number of members"
         else f (zip ns [1..ti]) g'
@@ -64,12 +62,12 @@
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
 
 -- query
-    users :: Mindmap -> MmEdge -> Arity -> Node -> [Node] -- unchanged
+    users :: Mindmap -> MmEdge -> Arity -> Node -> [Node]
     users g e k n = -- returns all uses (of a type specified by e & k) of n
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
-    mmRelps :: Mindmap -> [Maybe Node] -> [Node] -- unchanged
+    mmRelps :: Mindmap -> [Maybe Node] -> [Node]
     mmRelps g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
@@ -84,9 +82,7 @@
       in foldl (\s (a,b) -> s++a++b) "" pairList
     subInTplt _ _ = error "MmExpr not a Tplt"
 
-    showExpr :: Mindmap -> Node -> String -- changd: no either. TODO: BUGGY
-       -- replacing showExpr; this one is Tplt-aware
-     -- WARNING|TODO
+    showExpr :: Mindmap -> Node -> String -- TODO: BUGGY
      -- if the graph is recursive, could this infinite loop?
         -- (the answer is yes, but is that kind of graph probable?)
         -- a solution: while building, keep list of visited nodes
@@ -106,6 +102,6 @@
         in subInTplt t $ map (\(_,m,_) -> showExpr g m) ledges
       where prefixNode s = (show n) ++ ": " ++ s
 
-    view :: Mindmap -> [Maybe Node] -> IO () -- changed; no eitherString
+    view :: Mindmap -> [Maybe Node] -> IO ()
     view g mns = mapM_ putStrLn 
                 $ map (showExpr g) $ mmRelps g mns
