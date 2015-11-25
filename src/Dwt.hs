@@ -88,7 +88,7 @@
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
 
 -- query. TODO: Duplicate for MmExpr'
-    users' :: Mindmap' -> MmEdge -> Arity -> Node -> [Node]
+    users' :: Mindmap' -> MmEdge -> Arity -> Node -> [Node] -- unchanged
     users' g e k n = -- returns all uses (of a type specified by e & k) of n
       let isKAryRel m = lab g m == (Just $ Rel' k)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
@@ -97,6 +97,15 @@
     users g e k n = -- returns all uses (of a type specified by e & k) of n
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
+
+    mmRelps' :: Mindmap' -> [Maybe Node] -> [Node] -- unchanged
+    mmRelps' g mns = listIntersect $ map f jns
+      where arity = length mns - 1
+            jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
+            f (Just n, 0) = users' g AsTplt    arity n
+            f (Just n, k) = users' g (AsPos k) arity n
+            listIntersect [] = [] -- silly case
+            listIntersect (x:xs) = foldl intersect x xs
 
     mmRelps :: Mindmap -> [Maybe Node] -> [Node]
     mmRelps g mns = listIntersect $ map f jns
@@ -118,7 +127,7 @@
                          pairList = zip tpltAsList $ ss ++ [""] --append [""] because there are n+1 segments in an n-ary Tplt
       in foldl (\s (a,b) -> s++a++b) "" pairList
 
-    showExpr' :: Mindmap' -> Node -> String -- TODO: BUGGY
+    showExpr' :: Mindmap' -> Node -> String -- changd: no either. TODO: BUGGY
        -- replacing showExpr; this one is Tplt'-aware
      -- WARNING|TODO
      -- if the graph is recursive, could this infinite loop?
@@ -162,3 +171,7 @@
                $ map (eitherString . showExpr g) $ mmRelps g mns
       where eitherString (Left s) = s
             eitherString (Right s) = s
+
+    view' :: Mindmap' -> [Maybe Node] -> IO () -- changed; no eitherString
+    view' g mns = mapM_ putStrLn 
+               $ map (showExpr' g) $ mmRelps' g mns
