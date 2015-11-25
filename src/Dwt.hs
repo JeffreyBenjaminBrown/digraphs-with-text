@@ -54,9 +54,8 @@
       where ss = splitTpltStr s
 
     insTplt' :: String -> Mindmap' -> Mindmap' -- TODO: use stringToTplt
-    insTplt' s g = insNode (newNode, Tplt' (countHoles s) $ splitTpltStr s) g
+    insTplt' s g = insNode (newNode, stringToTplt s) g
       where newNode = head $ newNodes 1 g
-            countHoles = length . filter (== '_') :: String -> Int
 
     insTplt :: String -> Mindmap -> Mindmap
     insTplt s g = insNode (newNode, Tplt (countHoles s) s) g
