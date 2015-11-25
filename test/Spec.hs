@@ -2,11 +2,13 @@
     import Test.HUnit
     import Dwt
     import qualified Data.List as List
+    import Data.Maybe (fromJust)
 
     main = runTestTT testList
 
     testList = TestList
       [   TestLabel "tSubInTplt" tSubInTplt
+--        , TestLabel "tSubInTplt'" tSubInTplt'
         , TestLabel "tInsert" tInsert
         , TestLabel "tInsert'" tInsert'
         , TestLabel "tRelvs"   tRelvs
@@ -81,6 +83,10 @@
         assertBool "1" $ subInTplt t1 [a,b] == "skeletor needs love"
         assertBool "2" $ subInTplt t2 [a,b] == "Does skeletor need love?"
         assertBool "3" $ subInTplt t3 [a,b] == "skeletor needs love!"
+
+    tSubInTplt' = TestCase $ do
+      assertBool "1" $ subInTplt' (fromJust $ lab g2 1) ["man","peace"]
+        == "man wants peace"
 
     tInsert = TestCase $ do
       assertBool "insRel & insStr" $ g1 == g1'
