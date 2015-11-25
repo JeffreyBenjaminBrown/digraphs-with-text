@@ -51,7 +51,7 @@
 
     insRel :: Node -> [Node] -> Mindmap -> Mindmap -- TODO ? return Either
     insRel t ns g = if ti /= length ns -- t is tplt, otherwise like ns
-        then error "Tplt arity /= number of members"
+        then error "insRel: Tplt arity /= number of members"
         else f (zip ns [1..ti]) g'
       where Tplt ti ts = fromJust $ lab g t -- TODO: consider case of Nothing?
                                             -- case of Just k, for k not Tplt?
@@ -78,9 +78,10 @@
 
 -- view
     subInTplt :: MmExpr -> [String] -> String
-    subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] --append [""] because there are n+1 segments in an n-ary Tplt
+    subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] 
+        --append [""] because there are n+1 segments in an n-ary Tplt
       in foldl (\s (a,b) -> s++a++b) "" pairList
-    subInTplt _ _ = error "MmExpr not a Tplt"
+    subInTplt _ _ = error "subInTplt: MmExpr not a Tplt"
 
     showExpr :: Mindmap -> Node -> String -- TODO: BUGGY
      -- if the graph is recursive, could this infinite loop?
@@ -89,17 +90,17 @@
             -- if visiting one already there, display it as just its number
             -- or number + "already displayed higher in this (node view?)"    
     showExpr g n = case lab g n of
-      Nothing -> error $ "node " ++ (show n) ++ " not in graph"
+      Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
       Just (MmString s) -> prefixNode s
       Just (Tplt k ts) -> prefixNode $ "Tplt: "
         ++ intercalate "_" ts
-      Just (Rel _) -> let
-            ledges = sortOn (\(_,_,l)->l) $ out g n
-            (_,tn,_) = head ledges
+      Just (Rel _) -> 
+        let ledges = sortOn (\(_,_,l)->l) $ out g n
+            (_,tpltNode,_) = head ledges
               -- head because Tplt sorts first, before Rel, in Ord MmExpr 
-            Just t = lab g tn :: Maybe MmExpr
-            members = map (\(_,m,_)-> m) $ tail ledges :: [Node]
-        in subInTplt t $ map (\(_,m,_) -> showExpr g m) ledges
+            Just tpltLab = lab g tpltNode :: Maybe MmExpr
+            members = map (\(_,m,_)-> m) $ tail ledges :: [Node] -- TODO: USE
+        in subInTplt tpltLab $ map (\(_,m,_) -> showExpr g m) ledges
       where prefixNode s = (show n) ++ ": " ++ s
 
     view :: Mindmap -> [Maybe Node] -> IO ()
