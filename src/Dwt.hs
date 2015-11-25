@@ -46,15 +46,15 @@
     insStr' str g = insNode (int, MmString' str) g
       where int = head $ newNodes 1 g
 
-    splitTplt :: String -> [String] -- TODO: rename splitTpltString
-    splitTplt t = map T.unpack $ T.splitOn (T.pack "_") (T.pack t)
+    splitTpltStr :: String -> [String]
+    splitTpltStr t = map T.unpack $ T.splitOn (T.pack "_") (T.pack t)
 
     stringToTplt :: String -> MmExpr'
     stringToTplt s = Tplt' (length ss-1) ss -- even length=0 works
-      where ss = splitTplt s
+      where ss = splitTpltStr s
 
     insTplt' :: String -> Mindmap' -> Mindmap' -- TODO: use stringToTplt
-    insTplt' s g = insNode (newNode, Tplt' (countHoles s) $ splitTplt s) g
+    insTplt' s g = insNode (newNode, Tplt' (countHoles s) $ splitTpltStr s) g
       where newNode = head $ newNodes 1 g
             countHoles = length . filter (== '_') :: String -> Int
 
@@ -110,7 +110,7 @@
     subInTplt' _ _ = error "MmExpr not a Tplt"
 
     subInTplt :: String -> [String] -> String -- TODO: Tplt be already split
-    subInTplt t ss = let tpltAsList = splitTplt t
+    subInTplt t ss = let tpltAsList = splitTpltStr t
                          pairList = zip tpltAsList $ ss ++ [""] --append [""] because there are n+1 segments in an n-ary Tplt
       in foldl (\s (a,b) -> s++a++b) "" pairList
 
@@ -136,12 +136,13 @@
         in subInTplt' t $ map (\(_,m,_) -> showExpr' g m) ledges
       where prefixNode s = (show n) ++ ": " ++ s
 
-    showExpr :: Mindmap -> Node -> Either String String -- WARNING|TODO
-      -- if the graph is recursive, could this infinite loop?
-        -- (the answer is yes, but is that kind of graph probable?)
-        -- a solution: while building, keep list of visited nodes
-            -- if visiting one already there, display it as just its number
-            -- or number + "already displayed higher in this (node view?)"
+    showExpr :: Mindmap -> Node -> Either String String -- TODO ? cyc-robust
+      -- if the graph is recursive, this could infinite loop
+        -- although that kind of mindmap is unlikely, difficult
+          -- c.f. Godel's impossibility theorem
+      -- a solution: while building, keep list of visited nodes
+        -- if visiting one already there, display it as just its number
+        -- or number + "already displayed higher in this (node view?)"
     showExpr g n = case lab g n of
       Nothing -> Left $ "node " ++ (show n) ++ " not in graph"
       Just (MmString s) -> Right $ prefixNode s
