@@ -42,7 +42,7 @@
     insStr str g = insNode (int, MmString str) g
       where int = head $ newNodes 1 g
 
-    insStr' :: String -> Mindmap' -> Mindmap'
+    insStr' :: String -> Mindmap' -> Mindmap' -- unchanged but for type
     insStr' str g = insNode (int, MmString' str) g
       where int = head $ newNodes 1 g
 
@@ -50,10 +50,10 @@
     splitTplt t = map T.unpack $ T.splitOn (T.pack "_") (T.pack t)
 
     stringToTplt :: String -> MmExpr'
-    stringToTplt s = Tplt' (length ss-1) ss -- surprpsingly, even length=0 works
+    stringToTplt s = Tplt' (length ss-1) ss -- even length=0 works
       where ss = splitTplt s
 
-    insTplt' :: String -> Mindmap' -> Mindmap'
+    insTplt' :: String -> Mindmap' -> Mindmap' -- TODO: use stringToTplt
     insTplt' s g = insNode (newNode, Tplt' (countHoles s) $ splitTplt s) g
       where newNode = head $ newNodes 1 g
             countHoles = length . filter (== '_') :: String -> Int
@@ -88,7 +88,7 @@
             f []     g = g
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
 
--- query
+-- query. TODO: Duplicate for MmExpr'
     mmReferents :: Mindmap -> MmEdge -> Arity -> Node -> [Node]
     mmReferents g e k n = -- returns all uses (of a type specified by e & k) of n
       let isKAryRel m = lab g m == (Just $ Rel k)
