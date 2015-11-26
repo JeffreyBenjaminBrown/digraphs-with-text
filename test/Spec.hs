@@ -16,17 +16,17 @@
 -- "globals"
     g1,g1' :: Mindmap
     g1 = mkGraph
-      [   (0, MmString "dog"       )
+      [   (0, Str "dog"       )
         , (1, stringToTplt "_ wants _" )
         , (2, stringToTplt "_ needs _" )
-        , (3, MmString "water"     )
-        , (4, MmString "brandy"    )
+        , (3, Str "water"     )
+        , (4, Str "brandy"    )
         , (5, Rel 2           )
         , (6, Rel 2           )
         , (7, stringToTplt "_ needs _ for _")
         , (8, Rel 3           ) 
         , (9, stringToTplt "statement _ is _")
-        , (10, MmString "dubious"  )
+        , (10, Str "dubious"  )
         , (11, Rel 2          )
       ] [ (5,1, AsTplt), (5,0, AsPos 1), (5,4,AsPos 2)
         , (6,2, AsTplt), (6,0, AsPos 1), (6,3,AsPos 2)

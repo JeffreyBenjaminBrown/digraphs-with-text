@@ -8,7 +8,7 @@
     -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
     -- how to read edges
       -- in (n,m,lab :: MmLab) :: LEdge MmLab, n is a Rel referring to m
-        -- usj, m is an MmString
+        -- usj, m is an Str
       -- that is, predecessors refer to successors 
         -- (in that kind of relationship they do; maybe there will be others)
 
@@ -28,28 +28,27 @@
     import qualified Data.Text as T
 
 -- types
-    -- TODO rename MmExpr -> Expr, MmString -> Str, MmEdge -> RelPart
-    type Arity = Int
-    type RelPos = Int
-    data MmExpr = MmString String | Tplt Arity [String] | Rel Arity
+    type Arity = Int -- relationships, which some expressions are, have arities
+    type RelPos = Int -- a k-ary Rel has RelPos values [1..k] for its members
+    data Expr = Str String | Tplt Arity [String] | Rel Arity
       deriving (Show,Read,Eq,Ord)
-    data MmEdge = AsTplt | AsPos Arity -- MmEdgeLabel more accurate, but too long
+    data Role = AsTplt | AsPos RelPos
       deriving (Show,Read,Eq,Ord)
-    type Mindmap = Gr MmExpr MmEdge
+    type Mindmap = Gr Expr Role
 
 -- build
     insStr :: String -> Mindmap -> Mindmap
-    insStr str g = insNode (int, MmString str) g
+    insStr str g = insNode (int, Str str) g
       where int = head $ newNodes 1 g
 
-    replace :: Mindmap -> Node -> MmExpr -> Mindmap
+    replace :: Mindmap -> Node -> Expr -> Mindmap
     replace g n me = let (Just (a,b,c,d),g') = match n g -- TODO: better Maybeing
       in (a,b,me,d) & g'
 
     splitTpltStr :: String -> [String]
     splitTpltStr t = map T.unpack $ T.splitOn (T.pack "_") (T.pack t)
 
-    stringToTplt :: String -> MmExpr
+    stringToTplt :: String -> Expr
     stringToTplt s = Tplt (length ss-1) ss -- even length=0 works
       where ss = splitTpltStr s
 
@@ -73,10 +72,10 @@
     users :: Mindmap ->  Node -> [Node]
     users g n = [m | (m,n,label) <- inn g n]
 
-    specUsers :: Mindmap -> MmEdge -> RelPos -> Node -> [Node]
-    specUsers g e k n = -- returns all nodes using n in the kth position of e
+    specUsers :: Mindmap -> Role -> RelPos -> Node -> [Node] -- FISHY
+    specUsers g r k n = -- returns all nodes using n in the kth position of r
       let isKAryRel m = lab g m == (Just $ Rel k)
-      in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
+      in [m | (m,n,r') <- inn g n, r' == r, isKAryRel m]
 
     matchRel :: Mindmap -> [Maybe Node] -> [Node] -- rename match-_
     matchRel g mns = listIntersect $ map f jns
@@ -88,11 +87,11 @@
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
-    subInTplt :: MmExpr -> [String] -> String
+    subInTplt :: Expr -> [String] -> String
     subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] 
         --append [""] because there are n+1 segments in an n-ary Tplt
       in foldl (\s (a,b) -> s++a++b) "" pairList
-    subInTplt _ _ = error "subInTplt: MmExpr not a Tplt"
+    subInTplt _ _ = error "subInTplt: Expr not a Tplt"
 
     showExpr :: Mindmap -> Node -> String -- BEWARE ? infinite loops
      -- if the graph is recursive, this could infinite loop
@@ -103,14 +102,14 @@
        -- or number + "already displayed higher in this (node view?)"    
     showExpr g n = case lab g n of
       Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
-      Just (MmString s) -> prefixNode s
+      Just (Str s) -> prefixNode s
       Just (Tplt k ts) -> prefixNode $ "Tplt: "
         ++ intercalate "_" ts
       Just (Rel _) ->  -- TODO: Include Node of Tplt, not just Rel and members
         let ledges = sortOn (\(_,_,l)->l) $ out g n
             (_,tpltNode,_) = head ledges
-              -- head because Tplt sorts first, before Rel, in Ord MmExpr 
-            Just tpltLab = lab g tpltNode :: Maybe MmExpr
+              -- head because Tplt sorts first, before Rel, in Ord Expr 
+            Just tpltLab = lab g tpltNode :: Maybe Expr
             members = map (\(_,m,_)-> m) $ tail ledges :: [Node]
         in prefixNode $ subInTplt tpltLab $ map (bracket . showExpr g) members
       where prefixNode s = (show n) ++ ": " ++ s
