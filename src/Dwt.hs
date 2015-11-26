@@ -28,7 +28,9 @@
     import qualified Data.Text as T
 
 -- types
+    -- TODO rename MmExpr -> Expr, MmString -> Str, MmEdge -> RelPart
     type Arity = Int
+    type RelPos = Int
     data MmExpr = MmString String | Tplt Arity [String] | Rel Arity
       deriving (Show,Read,Eq,Ord)
     data MmEdge = AsTplt | AsPos Arity -- MmEdgeLabel more accurate, but too long
@@ -71,8 +73,7 @@
     users :: Mindmap ->  Node -> [Node]
     users g n = [m | (m,n,label) <- inn g n]
 
-    specUsers :: Mindmap -> MmEdge -> Int -> Node -> [Node] -- Int, not Arity:
-      -- because an Arity indicates how many rels; this Int indicates which.
+    specUsers :: Mindmap -> MmEdge -> RelPos -> Node -> [Node]
     specUsers g e k n = -- returns all nodes using n in the kth position of e
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
@@ -80,7 +81,7 @@
     matchRel :: Mindmap -> [Maybe Node] -> [Node] -- rename match-_
     matchRel g mns = listIntersect $ map f jns
       where arity = length mns - 1
-            jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
+            jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, RelPos)]
             f (Just n, 0) = specUsers g AsTplt    arity n
             f (Just n, k) = specUsers g (AsPos k) arity n
             listIntersect [] = [] -- silly case
@@ -105,7 +106,7 @@
       Just (MmString s) -> prefixNode s
       Just (Tplt k ts) -> prefixNode $ "Tplt: "
         ++ intercalate "_" ts
-      Just (Rel _) -> 
+      Just (Rel _) ->  -- TODO: Include Node of Tplt, not just Rel and members
         let ledges = sortOn (\(_,_,l)->l) $ out g n
             (_,tpltNode,_) = head ledges
               -- head because Tplt sorts first, before Rel, in Ord MmExpr 
@@ -114,6 +115,10 @@
         in prefixNode $ subInTplt tpltLab $ map (bracket . showExpr g) members
       where prefixNode s = (show n) ++ ": " ++ s
             bracket s = "[" ++ s ++ "]"
+
+    vUsers :: Mindmap -> Node -> IO ()
+    vUsers g n = mapM_ putStrLn 
+               $ map (showExpr g) $ users g n
 
     vMatchRel :: Mindmap -> [Maybe Node] -> IO ()
     vMatchRel g mns = mapM_ putStrLn 
