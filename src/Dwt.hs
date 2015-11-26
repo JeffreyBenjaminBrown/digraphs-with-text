@@ -80,8 +80,8 @@
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
-    mmRelps :: Mindmap -> [Maybe Node] -> [Node] -- rename match-_
-    mmRelps g mns = listIntersect $ map f jns
+    matchRel :: Mindmap -> [Maybe Node] -> [Node] -- rename match-_
+    matchRel g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
             f (Just n, 0) = allUsers g AsTplt    arity n
@@ -120,4 +120,4 @@
 
     view :: Mindmap -> [Maybe Node] -> IO ()
     view g mns = mapM_ putStrLn 
-                $ map (showExpr g) $ mmRelps g mns
+                $ map (showExpr g) $ matchRel g mns

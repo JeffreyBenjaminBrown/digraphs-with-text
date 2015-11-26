@@ -51,10 +51,10 @@
       assertBool "insRel & insStr" $ g1 == g1'
 
     tRelvs = TestCase $ do
-      assertBool "1--"  $ mmRelps g1 [Just 1,  Nothing, Nothing] == [5]
-      assertBool "-0-"  $ mmRelps g1 [Nothing, Just 0,  Nothing] == [5,6]
-      assertBool "--3"  $ mmRelps g1 [Nothing, Nothing, Just 4 ] == [5]
-      assertBool "---4" $ mmRelps g1 [Nothing, Nothing, Nothing, Just 4] == [8]
+      assertBool "1--"  $ matchRel g1 [Just 1,  Nothing, Nothing] == [5]
+      assertBool "-0-"  $ matchRel g1 [Nothing, Just 0,  Nothing] == [5,6]
+      assertBool "--3"  $ matchRel g1 [Nothing, Nothing, Just 4 ] == [5]
+      assertBool "---4" $ matchRel g1 [Nothing, Nothing, Nothing, Just 4] == [8]
 
     tShowExpr = TestCase $ do
       assertBool "expr 5" $ showExpr g1 5 == "5: [0: dog] wants [4: brandy]"
