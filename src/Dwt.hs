@@ -62,12 +62,13 @@
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
 
 -- query
-    users :: Mindmap -> MmEdge -> Arity -> Node -> [Node]
-    users g e k n = -- returns all uses (of a type specified by e & k) of n
+    users :: Mindmap -> MmEdge -> Int -> Node -> [Node] -- why Int not Arity:
+      -- An Arity indicates how many rels; this Int indicates which.
+    users g e k n = -- returns all nodes using n in the kth position of e
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,label) <- inn g n, label == e, isKAryRel m]
 
-    mmRelps :: Mindmap -> [Maybe Node] -> [Node]
+    mmRelps :: Mindmap -> [Maybe Node] -> [Node] -- rename match-_
     mmRelps g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, Int)]
