@@ -1,16 +1,14 @@
 -- usually folded
   -- TODO
     -- Delete node
-    -- Replace node with node
-      -- MmStmt with MmRel
-    -- Show all rels involving node
     -- Make another Rel type (called Rel'? RelSpec? RelRequest?)
       -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
     -- Add classes for checking arity?
   -- types, vocab, language
     -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
     -- how to read edges
-      -- in (n,m,lab :: MmLab) :: LEdge MmLab, n is a triplet referring to m
+      -- in (n,m,lab :: MmLab) :: LEdge MmLab, n is a Rel referring to m
+        -- usj, m is an MmString
       -- that is, predecessors refer to successors 
         -- (in that kind of relationship they do; maybe there will be others)
 
