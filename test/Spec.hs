@@ -57,6 +57,6 @@
       assertBool "---4" $ matchRel g1 [Nothing, Nothing, Nothing, Just 4] == [8]
 
     tShowExpr = TestCase $ do
-      assertBool "expr 5" $ showExpr g1 5 == "5: [0: dog] wants [4: brandy]"
+      assertBool "expr 5" $ showExpr g1 5 == "5:1 [0: dog] wants [4: brandy]"
       assertBool "expr 11" $ showExpr g1 11 == 
-        "11: statement [5: [0: dog] wants [4: brandy]] is [10: dubious]"
+        "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"

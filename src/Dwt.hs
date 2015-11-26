@@ -31,7 +31,7 @@
     type Arity = Int -- relationships, which some expressions are, have arities
     type RelPos = Int -- a k-ary Rel has RelPos values [1..k] for its members
     data Expr = Str String | Tplt Arity [String] | Rel Arity
-      deriving (Show,Read,Eq,Ord)
+      deriving (Show,Read,Eq,Ord) -- relationships instantiate templates
     data Role = AsTplt | AsPos RelPos
       deriving (Show,Read,Eq,Ord)
     type Mindmap = Gr Expr Role
@@ -72,12 +72,12 @@
     users :: Mindmap ->  Node -> [Node]
     users g n = [m | (m,n,label) <- inn g n]
 
-    specUsers :: Mindmap -> Role -> RelPos -> Node -> [Node] -- FISHY
-    specUsers g r k n = -- returns all nodes using n in the kth position of r
+    specUsers :: Mindmap -> Role -> RelPos -> Node -> [Node]
+    specUsers g r k n = -- returns all k-ary rels using n as r
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,r') <- inn g n, r' == r, isKAryRel m]
 
-    matchRel :: Mindmap -> [Maybe Node] -> [Node] -- rename match-_
+    matchRel :: Mindmap -> [Maybe Node] -> [Node]
     matchRel g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, RelPos)]
@@ -88,8 +88,7 @@
 
 -- view
     subInTplt :: Expr -> [String] -> String
-    subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] 
-        --append [""] because there are n+1 segments in an n-ary Tplt
+    subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] -- append [""] because there are n+1 segments in an n-ary Tplt; zipper ends early otherwise
       in foldl (\s (a,b) -> s++a++b) "" pairList
     subInTplt _ _ = error "subInTplt: Expr not a Tplt"
 
@@ -102,7 +101,7 @@
        -- or number + "already displayed higher in this (node view?)"    
     showExpr g n = case lab g n of
       Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
-      Just (Str s) -> prefixNode s
+      Just (Str s) ->     prefixNode s
       Just (Tplt k ts) -> prefixNode $ "Tplt: "
         ++ intercalate "_" ts
       Just (Rel _) ->  -- TODO: Include Node of Tplt, not just Rel and members
@@ -111,8 +110,10 @@
               -- head because Tplt sorts first, before Rel, in Ord Expr 
             Just tpltLab = lab g tpltNode :: Maybe Expr
             members = map (\(_,m,_)-> m) $ tail ledges :: [Node]
-        in prefixNode $ subInTplt tpltLab $ map (bracket . showExpr g) members
+        in prefixTpltNode tpltNode $ subInTplt tpltLab 
+             $ map (bracket . showExpr g) members
       where prefixNode s = (show n) ++ ": " ++ s
+            prefixTpltNode tn s = show n ++ ":" ++ show tn ++ " " ++ s
             bracket s = "[" ++ s ++ "]"
 
     vUsers :: Mindmap -> Node -> IO ()
