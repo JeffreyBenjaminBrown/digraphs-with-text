@@ -58,7 +58,7 @@
 
     insRel :: Node -> [Node] -> Mindmap -> Mindmap -- TODO ? return Either
     insRel t ns g = if ti /= length ns -- t is tplt, otherwise like ns
-        then error "insRel: Tplt arity /= number of members"
+        then error "insRel: Tplt arity /= number of members" -- TODO ? smelly
         else f (zip ns [1..ti]) g'
       where Tplt ti ts = fromJust $ lab g t -- TODO: consider case of Nothing?
                                             -- case of Just k, for k not Tplt?
@@ -77,7 +77,8 @@
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,r') <- inn g n, r' == r, isKAryRel m]
 
-    matchRel :: Mindmap -> [Maybe Node] -> [Node]
+    matchRel :: Mindmap -> [Maybe Node] -> [Node] -- could be divided
+      -- into forming jns, parsing jns (f does it), and the rest
     matchRel g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, RelPos)]
@@ -90,7 +91,7 @@
     subInTplt :: Expr -> [String] -> String
     subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] -- append [""] because there are n+1 segments in an n-ary Tplt; zipper ends early otherwise
       in foldl (\s (a,b) -> s++a++b) "" pairList
-    subInTplt _ _ = error "subInTplt: Expr not a Tplt"
+    subInTplt _ _ = error "subInTplt: Expr not a Tplt" -- TODO ? smelly
 
     showExpr :: Mindmap -> Node -> String -- BEWARE ? infinite loops
      -- if the graph is recursive, this could infinite loop
@@ -100,20 +101,19 @@
        -- if visiting one already there, display it as just its number
        -- or number + "already displayed higher in this (node view?)"    
     showExpr g n = case lab g n of
-      Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
+      Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph" -- TODO ? smelly
       Just (Str s) ->     prefixNode s
-      Just (Tplt k ts) -> prefixNode $ "Tplt: "
-        ++ intercalate "_" ts
-      Just (Rel _) ->  -- TODO: Include Node of Tplt, not just Rel and members
+      Just (Tplt k ts) -> prefixNode $ "Tplt: " ++ intercalate "_" ts
+      Just (Rel _) ->
         let ledges = sortOn (\(_,_,l)->l) $ out g n
             (_,tpltNode,_) = head ledges
               -- head because Tplt sorts first, before Rel, in Ord Expr 
             Just tpltLab = lab g tpltNode :: Maybe Expr
             members = map (\(_,m,_)-> m) $ tail ledges :: [Node]
-        in prefixTpltNode tpltNode $ subInTplt tpltLab 
+        in prefixRel tpltNode $ subInTplt tpltLab 
              $ map (bracket . showExpr g) members
       where prefixNode s = (show n) ++ ": " ++ s
-            prefixTpltNode tn s = show n ++ ":" ++ show tn ++ " " ++ s
+            prefixRel tn s = show n ++ ":" ++ show tn ++ " " ++ s
             bracket s = "[" ++ s ++ "]"
 
     vUsers :: Mindmap -> Node -> IO ()
