@@ -1,5 +1,10 @@
 -- usually folded
   -- TODO
+    -- ** Edit node text
+    -- Delete node
+    -- Replace node with node
+      -- MmStmt with MmRel
+    -- Show all rels involving node
     -- Make another Rel type (called Rel'? RelSpec? RelRequest?)
       -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
     -- Add classes for checking arity?
@@ -37,6 +42,10 @@
     insStr :: String -> Mindmap -> Mindmap
     insStr str g = insNode (int, MmString str) g
       where int = head $ newNodes 1 g
+
+    replace :: Mindmap -> Node -> MmExpr -> Mindmap
+    replace g n me = let (Just (a,b,c,d),g') = match n g -- TODO: better Maybeing
+      in (a,b,me,d) & g'
 
     splitTpltStr :: String -> [String]
     splitTpltStr t = map T.unpack $ T.splitOn (T.pack "_") (T.pack t)
@@ -76,6 +85,8 @@
             f (Just n, k) = users g (AsPos k) arity n
             listIntersect [] = [] -- silly case
             listIntersect (x:xs) = foldl intersect x xs
+
+    -- allRels :: Mindmap -> Node -> [Node]
 
 -- view
     subInTplt :: MmExpr -> [String] -> String
