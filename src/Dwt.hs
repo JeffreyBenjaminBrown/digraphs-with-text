@@ -1,6 +1,5 @@
 -- usually folded
   -- TODO
-    -- ** Edit node text
     -- Delete node
     -- Replace node with node
       -- MmStmt with MmRel
@@ -118,6 +117,6 @@
       where prefixNode s = (show n) ++ ": " ++ s
             bracket s = "[" ++ s ++ "]"
 
-    view :: Mindmap -> [Maybe Node] -> IO ()
-    view g mns = mapM_ putStrLn 
-                $ map (showExpr g) $ matchRel g mns
+    vMatchRel :: Mindmap -> [Maybe Node] -> IO ()
+    vMatchRel g mns = mapM_ putStrLn 
+                    $ map (showExpr g) $ matchRel g mns
