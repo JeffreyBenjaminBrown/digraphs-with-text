@@ -1,5 +1,9 @@
 -- usually folded
   -- TODO
+    -- make my Node|Label notation consistent with tradition
+      -- e.g. replace should be relabel
+    -- Kinds of view
+      -- e.g. with Nodes, without
     -- Delete node
     -- Make another Rel type (called Rel'? RelSpec? RelRequest?)
       -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
@@ -41,9 +45,11 @@
     insStr str g = insNode (int, Str str) g
       where int = head $ newNodes 1 g
 
-    replace :: Mindmap -> Node -> Expr -> Mindmap
-    replace g n me = let (Just (a,b,c,d),g') = match n g -- TODO: better Maybeing
+    relabel :: Mindmap -> Node -> Expr -> Mindmap -- TODO: use Either
+    relabel g n me = let (Just (a,b,c,d),g') = match n g -- TODO: better Maybeing
       in (a,b,me,d) & g'
+
+    -- changeMember :: Role -> Node -> Node -> Mindmap -> Mindmap -- TODO
 
     splitTpltStr :: String -> [String]
     splitTpltStr t = map T.unpack $ T.splitOn (T.pack "_") (T.pack t)
