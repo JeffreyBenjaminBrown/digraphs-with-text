@@ -55,8 +55,8 @@
     stringToTplt s = Tplt (length ss-1) ss -- even length=0 works
       where ss = splitTpltStr s
 
-    subInTplt :: Expr -> [String] -> String -- TODO ? Inexhaustive case
-    subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] -- append [""] because there are n+1 segments in an n-ary Tplt; zipper ends early otherwise
+    subInTplt :: Expr -> [String] -> String -- TODO ? exhaust cases
+    subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] -- append "" because there are n+1 segments in an n-ary Tplt; zipper ends early otherwise
       in foldl (\s (a,b) -> s++a++b) "" pairList
 
   -- insert
@@ -120,7 +120,7 @@
       Just (Str s) ->     prependNode s
       Just (Tplt k ts) -> prependNode $ "Tplt: " ++ intercalate "_" ts
       Just (Rel _) ->
-        let ledges = sortOn (\(_,_,l)->l) $ out g n
+        let ledges = sortOn edgeLabel $ out g n
             (_,tpltNode,_) = head ledges
               -- head because Tplt sorts first, before Rel, in Ord Expr 
             Just tpltLab = lab g tpltNode :: Maybe Expr
