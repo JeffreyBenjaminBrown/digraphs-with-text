@@ -55,7 +55,7 @@
     stringToTplt s = Tplt (length ss-1) ss -- even length=0 works
       where ss = splitTpltStr s
 
-    subInTplt :: Expr -> [String] -> String -- TODO ? exhaust cases
+    subInTplt :: Expr -> [String] -> String
     subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] -- append "" because there are n+1 segments in an n-ary Tplt; zipper ends early otherwise
       in foldl (\s (a,b) -> s++a++b) "" pairList
 
@@ -68,17 +68,34 @@
     insTplt s g = insNode (newNode, stringToTplt s) g
       where newNode = head $ newNodes 1 g
 
-    insRel :: Node -> [Node] -> Mindmap -> Mindmap -- TODO ? Either|Maybe
+    insRel :: Node -> [Node] -> Mindmap -> Mindmap
     insRel t ns g = if ti /= length ns -- t is tplt, otherwise like ns
         then error "insRel: Tplt arity /= number of members"
         else f (zip ns [1..ti]) g'
-      where Tplt ti ts = fromJust $ lab g t -- TODO: if (lab g t) =  Nothing?
-                                            -- or Just k, for k not Tplt?
+      where Tplt ti ts = fromJust $ lab g t
             newNode = head $ newNodes 1 g
-            g' = insEdge (newNode, t, AsTplt)
-               $ insNode (newNode, Rel ti) g
             f []     g = g
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
+            g' =                insEdge (newNode, t, AsTplt)
+                              $ insNode (newNode, Rel ti) g
+
+    insRel' :: (Monad m) => Node -> [Node] -> Mindmap -> m Mindmap
+      -- IN PROGRESS : Either|Maybe
+      -- TODO : EMULATE Jake's "move" function in tictactoe
+    insRel' t ns g = if ti /= length ns -- t is tplt, otherwise like ns
+          then fail "insRel: Tplt arity /= number of members"
+        else if any (==False) $ map (flip gelem g) $ t:ns
+          then fail "One of those Nodes is not in the Mindmap."
+        -- else if (t or any of the ns are not in g)
+        -- else if (label of t in g is not a Tplt) -- SMELLY ? duplicative
+        else return $ f (zip ns [1..ti]) g'
+      where Tplt ti ts = fromJust $ lab g t -- ? will this return a Left if
+              -- in an Either context and t is not to a Tplt
+            newNode = head $ newNodes 1 g
+            f []     g = g
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
+            g' =                insEdge (newNode, t, AsTplt)
+                              $ insNode (newNode, Rel ti) g
 
   -- edit ("ch" = "change")
     chLNode :: Mindmap -> Node -> Expr -> Mindmap -- TODO: Either|Maybe
@@ -107,6 +124,8 @@
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
+    -- TODO: showExpr should show Template as ":[Node] bla _ bla _ bla"
+      -- where [Node] is a single integer, not a list
     showExpr :: Mindmap -> Node -> String -- TODO: Either|Maybe
       -- BEWARE ? infinite loops
         -- if the graph is recursive, this could infinite loop
