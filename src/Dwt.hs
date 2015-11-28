@@ -68,12 +68,12 @@
     insTplt s g = insNode (newNode, stringToTplt s) g
       where newNode = head $ newNodes 1 g
 
-    insRel :: Node -> [Node] -> Mindmap -> Mindmap -- TODO ? return Either
+    insRel :: Node -> [Node] -> Mindmap -> Mindmap -- TODO ? Either|Maybe
     insRel t ns g = if ti /= length ns -- t is tplt, otherwise like ns
-        then error "insRel: Tplt arity /= number of members" -- TODO ? smelly
+        then error "insRel: Tplt arity /= number of members"
         else f (zip ns [1..ti]) g'
-      where Tplt ti ts = fromJust $ lab g t -- TODO: consider case of Nothing?
-                                            -- case of Just k, for k not Tplt?
+      where Tplt ti ts = fromJust $ lab g t -- TODO: if (lab g t) =  Nothing?
+                                            -- or Just k, for k not Tplt?
             newNode = head $ newNodes 1 g
             g' = insEdge (newNode, t, AsTplt)
                $ insNode (newNode, Rel ti) g
@@ -81,8 +81,8 @@
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
 
   -- edit ("ch" = "change")
-    chLNode :: Mindmap -> Node -> Expr -> Mindmap -- TODO: use Either
-    chLNode g n me = let (Just (a,b,c,d),g') = match n g -- TODO: better Maybeing
+    chLNode :: Mindmap -> Node -> Expr -> Mindmap -- TODO: Either|Maybe
+    chLNode g n me = let (Just (a,b,c,d),g') = match n g
       in (a,b,me,d) & g'
 
     -- chMbr :: Role -> Node -> Node -> Mindmap -> Mindmap -- TODO
@@ -107,15 +107,16 @@
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
-    showExpr :: Mindmap -> Node -> String -- BEWARE ? infinite loops
-     -- if the graph is recursive, this could infinite loop
-       -- although such graphs seem unlikely, because recursive statements are
-       -- difficult; c.f. Godel's impossibility theorem
-     -- a solution: while building, keep list of visited nodes
-       -- if visiting one already there, display it as just its number
-       -- or number + "already displayed higher in this (node view?)"    
+    showExpr :: Mindmap -> Node -> String -- TODO: Either|Maybe
+      -- BEWARE ? infinite loops
+        -- if the graph is recursive, this could infinite loop
+          -- although such graphs seem unlikely, because recursive statements are
+          -- difficult; c.f. Godel's impossibility theorem
+        -- a solution: while building, keep list of visited nodes
+          -- if visiting one already there, display it as just its number
+          -- or number + "already displayed higher in this (node view?)"    
     showExpr g n = case lab g n of
-      Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph" -- TODO ? smelly
+      Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
       Just (Str s) ->     prependNode s
       Just (Tplt k ts) -> prependNode $ "Tplt: " ++ intercalate "_" ts
       Just (Rel _) ->
