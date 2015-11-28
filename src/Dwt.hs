@@ -1,13 +1,12 @@
 -- usually folded
   -- TODO
-    -- make my Node|Label notation consistent with tradition
-      -- e.g. replace should be relabel
+    -- make|keep my Node|Label notation consistent with tradition
     -- Kinds of view
       -- e.g. with Nodes, without
-    -- Delete node
+    -- Delete LNode
     -- Make another Rel type (called Rel'? RelSpec? RelRequest?)
       -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
-    -- Add classes for checking arity?
+    -- ? Add [classes?] for checking arity
   -- types, vocab, language
     -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
     -- how to read edges
@@ -15,6 +14,13 @@
         -- usj, m is an Str
       -- that is, predecessors refer to successors 
         -- (in that kind of relationship they do; maybe there will be others)
+    -- abbreviations
+      -- ch = change
+      -- mbr = member
+        -- in a a k-ary Rel, there are k AsPos Roles for k members to play,
+        -- plus one more Role for the Tplt (which must be k-ary) to play
+      -- Tplt = (relationship) template
+      -- Rel = relationship
 
 -- export & import
     module Dwt
@@ -33,7 +39,7 @@
 
 -- types
     type Arity = Int -- relationships, which some expressions are, have arities
-    type RelPos = Int -- a k-ary Rel has RelPos values [1..k] for its members
+    type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     data Expr = Str String | Tplt Arity [String] | Rel Arity
       deriving (Show,Read,Eq,Ord) -- relationships instantiate templates
     data Role = AsTplt | AsPos RelPos
@@ -41,22 +47,22 @@
     type Mindmap = Gr Expr Role
 
 -- build
-    insStr :: String -> Mindmap -> Mindmap
-    insStr str g = insNode (int, Str str) g
-      where int = head $ newNodes 1 g
-
-    relabel :: Mindmap -> Node -> Expr -> Mindmap -- TODO: use Either
-    relabel g n me = let (Just (a,b,c,d),g') = match n g -- TODO: better Maybeing
-      in (a,b,me,d) & g'
-
-    -- changeMember :: Role -> Node -> Node -> Mindmap -> Mindmap -- TODO
-
+  -- Tplt <-> String
     splitTpltStr :: String -> [String]
     splitTpltStr t = map T.unpack $ T.splitOn (T.pack "_") (T.pack t)
 
     stringToTplt :: String -> Expr
     stringToTplt s = Tplt (length ss-1) ss -- even length=0 works
       where ss = splitTpltStr s
+
+    subInTplt :: Expr -> [String] -> String -- TODO ? Inexhaustive case
+    subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] -- append [""] because there are n+1 segments in an n-ary Tplt; zipper ends early otherwise
+      in foldl (\s (a,b) -> s++a++b) "" pairList
+
+  -- insert
+    insStr :: String -> Mindmap -> Mindmap
+    insStr str g = insNode (int, Str str) g
+      where int = head $ newNodes 1 g
 
     insTplt :: String -> Mindmap -> Mindmap
     insTplt s g = insNode (newNode, stringToTplt s) g
@@ -74,17 +80,24 @@
             f []     g = g
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
 
+  -- edit ("ch" = "change")
+    chLNode :: Mindmap -> Node -> Expr -> Mindmap -- TODO: use Either
+    chLNode g n me = let (Just (a,b,c,d),g') = match n g -- TODO: better Maybeing
+      in (a,b,me,d) & g'
+
+    -- chMbr :: Role -> Node -> Node -> Mindmap -> Mindmap -- TODO
+    -- chMbr role newMbr user g = ...
+
 -- query
     users :: Mindmap ->  Node -> [Node]
     users g n = [m | (m,n,label) <- inn g n]
 
-    specUsers :: Mindmap -> Role -> RelPos -> Node -> [Node]
-    specUsers g r k n = -- returns all k-ary rels using n as r
+    specUsers :: Mindmap -> Role -> Arity -> Node -> [Node]
+    specUsers g r k n = -- all k-ary Rels using Node n in Role r
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,r') <- inn g n, r' == r, isKAryRel m]
 
-    matchRel :: Mindmap -> [Maybe Node] -> [Node] -- could be divided
-      -- into forming jns, parsing jns (f does it), and the rest
+    matchRel :: Mindmap -> [Maybe Node] -> [Node]
     matchRel g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, RelPos)]
@@ -94,11 +107,6 @@
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
-    subInTplt :: Expr -> [String] -> String
-    subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] -- append [""] because there are n+1 segments in an n-ary Tplt; zipper ends early otherwise
-      in foldl (\s (a,b) -> s++a++b) "" pairList
-    subInTplt _ _ = error "subInTplt: Expr not a Tplt" -- TODO ? smelly
-
     showExpr :: Mindmap -> Node -> String -- BEWARE ? infinite loops
      -- if the graph is recursive, this could infinite loop
        -- although such graphs seem unlikely, because recursive statements are
@@ -108,8 +116,8 @@
        -- or number + "already displayed higher in this (node view?)"    
     showExpr g n = case lab g n of
       Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph" -- TODO ? smelly
-      Just (Str s) ->     prefixNode s
-      Just (Tplt k ts) -> prefixNode $ "Tplt: " ++ intercalate "_" ts
+      Just (Str s) ->     prependNode s
+      Just (Tplt k ts) -> prependNode $ "Tplt: " ++ intercalate "_" ts
       Just (Rel _) ->
         let ledges = sortOn (\(_,_,l)->l) $ out g n
             (_,tpltNode,_) = head ledges
@@ -118,14 +126,9 @@
             members = map (\(_,m,_)-> m) $ tail ledges :: [Node]
         in prefixRel tpltNode $ subInTplt tpltLab 
              $ map (bracket . showExpr g) members
-      where prefixNode s = (show n) ++ ": " ++ s
+      where prependNode s = (show n) ++ ": " ++ s
             prefixRel tn s = show n ++ ":" ++ show tn ++ " " ++ s
             bracket s = "[" ++ s ++ "]"
 
-    vUsers :: Mindmap -> Node -> IO ()
-    vUsers g n = mapM_ putStrLn 
-               $ map (showExpr g) $ users g n
-
-    vMatchRel :: Mindmap -> [Maybe Node] -> IO ()
-    vMatchRel g mns = mapM_ putStrLn 
-                    $ map (showExpr g) $ matchRel g mns
+    view :: Mindmap -> [Node] -> IO ()
+    view g ns = mapM_ putStrLn $ map (showExpr g) ns
