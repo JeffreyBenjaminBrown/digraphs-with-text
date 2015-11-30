@@ -90,9 +90,9 @@
                               $ insNode (newNode, Rel ti) g
 
    -- insRel'
-    isIn :: (Monad m) => Mindmap -> Node -> m () -- TODO ? use FGL.Monad instead
-    isIn g n = if gelem n g then return () 
-                            else fail "Node not in Mindmap"
+    gelemM :: (Monad m) => Mindmap -> Node -> m ()
+    gelemM g n = if gelem n g then return () 
+                              else fail "Node not in Mindmap"
 
     tpltAt :: (Monad m) => Mindmap -> Node -> m Expr -- Expr is always a Tplt
     tpltAt g tn = case lab g tn of Just t@(Tplt a b) -> return $ t
@@ -112,13 +112,13 @@
 
     insRel' :: (Monad m) => Node -> [Node] -> Mindmap -> m Mindmap
     insRel' tn ns g =
-      do mapM_ (isIn g) ns
+      do mapM_ (gelemM g) ns
          t <- tpltAt g tn
          nodesMatchTplt ns t
          a <- tpltArity t
          return $ let 
              newNode = head $ newNodes 1 g
-             f []     g = g -- TODO ? use fold instead
+             f []     g = g
              f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
              g' =                insEdge (newNode, tn, AsTplt)
                                $ insNode (newNode, Rel a) g
