@@ -91,8 +91,8 @@
             g' =                insEdge (newNode, t, AsTplt)
                               $ insNode (newNode, Rel ti) g
 
-    insRel' :: (Monad m) => Node -> [Node] -> Mindmap -> m Mindmap
-    insRel' tn ns g =
+    insRelM :: (Monad m) => Node -> [Node] -> Mindmap -> m Mindmap
+    insRelM tn ns g =
       do mapM_ (gelemM g) ns
          t <- tpltAt g tn
          nodesMatchTplt ns t
@@ -113,13 +113,13 @@
    -- BUG: these next two versions both fail wrong when gelemM fails
     -- as an Exception rather than a Left if in the Either monad
       -- although they fail properly, as a Nothing, in the Maybe monad
-    chExprAt' :: (Monad m) => Mindmap -> Node -> Expr -> m Mindmap
-    chExprAt' g n e = do
+    chExprAtM :: (Monad m) => Mindmap -> Node -> Expr -> m Mindmap
+    chExprAtM g n e = do
       gelemM g n
       return $ chExprAt g n e
 
-    chExprAt'' :: (Monad m) => Mindmap -> Node -> Expr -> m Mindmap
-    chExprAt'' g n e = do
+    chExprAtM' :: (Monad m) => Mindmap -> Node -> Expr -> m Mindmap
+    chExprAtM' g n e = do
       gelemM g n
       case match n g of
         (Just (a,b,c,d),g') -> return $ (a,b,e,d) & g'
@@ -141,7 +141,7 @@
 
     tpltArity :: (Monad m) => Expr -> m Arity
     tpltArity e = case e of Tplt a _ -> return a
-                            _        -> fail "Expr not a Tplt, thus has no Arity"
+                            _        -> fail "tpltArity: Expr not a Tplt"
 
     nodesMatchTplt :: (Monad m) => [Node] -> Expr -> m ()
     nodesMatchTplt ns e = case e of

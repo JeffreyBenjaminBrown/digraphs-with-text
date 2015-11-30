@@ -11,7 +11,7 @@
         , TestLabel "tInsert" tInsert
         , TestLabel "tMatchRel"  tMatchRel
         , TestLabel "tShowExpr" tShowExpr
-        , TestLabel "tInsRel'" tInsRel'
+        , TestLabel "tInsRelM" tInsRelM
       ]
 
 -- "globals"
@@ -62,6 +62,6 @@
       assertBool "expr 11" $ showExpr g1 11 == 
         "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
 
-    tInsRel' = TestCase $ do
-      assertBool "1" $ (insRel' 2 [0,0] g1 :: Either String Mindmap)
-        == (Right $ insRel 2 [0,0] g1)
+    tInsRelM = TestCase $ do
+      assertBool "1" $ (insRelM 2 [0,0] g1 :: Either String Mindmap)
+            == (Right $ insRel  2 [0,0] g1)
