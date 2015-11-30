@@ -82,11 +82,11 @@
     insRel' :: (Monad m) => Node -> [Node] -> Mindmap -> m Mindmap
       -- IN PROGRESS : Either|Maybe
       -- TODO : EMULATE Jake's "move" function in tictactoe
-    insRel' t ns g = if ti /= length ns -- t is tplt, otherwise like ns
+    insRel' t ns g = -- t is tplt, otherwise like ns
+        if ti /= length ns
           then fail "insRel: Tplt arity /= number of members"
         else if any (==False) $ map (flip gelem g) $ t:ns
           then fail "One of those Nodes is not in the Mindmap."
-        -- else if (t or any of the ns are not in g)
         -- else if (label of t in g is not a Tplt) -- SMELLY ? duplicative
         else return $ f (zip ns [1..ti]) g'
       where Tplt ti ts = fromJust $ lab g t -- ? will this return a Left if
