@@ -65,7 +65,6 @@
       in foldl (\s (a,b) -> s++a++b) "" pairList
 
   -- insert
-   -- node-free
     insStr :: String -> Mindmap -> Mindmap
     insStr str g = insNode (int, Str str) g
       where int = head $ newNodes 1 g
@@ -74,7 +73,6 @@
     insTplt s g = insNode (newNode, stringToTplt s) g
       where newNode = head $ newNodes 1 g
 
-   -- involving Nodes
     insRel :: Node -> [Node] -> Mindmap -> Mindmap
     insRel t ns g = if ti /= length ns -- t is tplt, otherwise like ns
         then error "insRel: Tplt Arity /= number of members Nodes"
@@ -88,27 +86,6 @@
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
             g' =                insEdge (newNode, t, AsTplt)
                               $ insNode (newNode, Rel ti) g
-
-   -- insRel'
-    gelemM :: (Monad m) => Mindmap -> Node -> m ()
-    gelemM g n = if gelem n g then return () 
-                              else fail "Node not in Mindmap"
-
-    tpltAt :: (Monad m) => Mindmap -> Node -> m Expr -- Expr is always a Tplt
-    tpltAt g tn = case lab g tn of Just t@(Tplt a b) -> return $ t
-                                   Nothing  -> fail "Node not in Mindmap"
-                                   _        -> fail "Node does not index a Tplt"
-
-    nodesMatchTplt :: (Monad m) => [Node] -> Expr -> m ()
-    nodesMatchTplt ns e = case e of
-      Tplt k _ -> if k /= length ns 
-        then fail "Tplt Arity /= number of member Nodes"
-        else return ()
-      _ -> fail "Expr not a Tplt"
-
-    tpltArity :: (Monad m) => Expr -> m Arity
-    tpltArity e = case e of Tplt a _ -> return a
-                            _        -> fail "Expr not a Tplt, thus has no Arity"
 
     insRel' :: (Monad m) => Node -> [Node] -> Mindmap -> m Mindmap
     insRel' tn ns g =
@@ -133,6 +110,28 @@
     -- chMbr role newMbr user g = ...
 
 -- query
+  -- monadic tests and lookups
+    gelemM :: (Monad m) => Mindmap -> Node -> m ()
+    gelemM g n = if gelem n g then return () 
+                              else fail "Node not in Mindmap"
+
+    tpltAt :: (Monad m) => Mindmap -> Node -> m Expr -- Expr is always a Tplt
+    tpltAt g tn = case lab g tn of Just t@(Tplt a b) -> return $ t
+                                   Nothing  -> fail "Node not in Mindmap"
+                                   _        -> fail "Node does not index a Tplt"
+
+    tpltArity :: (Monad m) => Expr -> m Arity
+    tpltArity e = case e of Tplt a _ -> return a
+                            _        -> fail "Expr not a Tplt, thus has no Arity"
+
+    nodesMatchTplt :: (Monad m) => [Node] -> Expr -> m ()
+    nodesMatchTplt ns e = case e of
+      Tplt k _ -> if k /= length ns 
+        then fail "Tplt Arity /= number of member Nodes"
+        else return ()
+      _ -> fail "Expr not a Tplt"
+
+  -- _ -> [Node]
     users :: Mindmap ->  Node -> [Node]
     users g n = [m | (m,n,label) <- inn g n]
 
