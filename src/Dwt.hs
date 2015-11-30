@@ -76,10 +76,13 @@
     insRel :: Node -> [Node] -> Mindmap -> Mindmap
     insRel t ns g = if ti /= length ns -- t is tplt, otherwise like ns
         then error "insRel: Tplt arity /= number of members"
+        else if any (==False) $ map (flip gelem g) $ (t:ns)
+          then error "insRel: One of those Nodes is not in the Mindmap." 
         else f (zip ns [1..ti]) g'
-      where Tplt ti ts = fromJust $ lab g t
+      where Tplt ti ts = fromJust $ lab g t -- can also error:
+              -- by finding Str or Rel where expected Tplt
             newNode = head $ newNodes 1 g
-            f []     g = g
+            f []     g = g -- TODO ? use fold instead
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
             g' =                insEdge (newNode, t, AsTplt)
                               $ insNode (newNode, Rel ti) g
@@ -94,16 +97,16 @@
         else return ()
       case tplt of
         Tplt ti ts -> do
-          if ti /= length ns                       
+          if ti /= length ns
             then fail "insRel: Tplt arity /= number of members"
             else return ()
           return $ f (zip ns [1..ti]) g
           where newNode = head $ newNodes 1 g
-                f []     g = g
+                f []     g = g -- TODO ? use fold instead
                 f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
                 g' =                insEdge (newNode, t, AsTplt)
                                   $ insNode (newNode, Rel ti) g
-        _ -> fail "insRel: template Node argument indexes not a Tplt"
+        _ -> fail "insRel: Tplt Node argument indexes not a Tplt"
         where tplt = fromJust $ lab g t
 
   -- edit ("ch" = "change")
