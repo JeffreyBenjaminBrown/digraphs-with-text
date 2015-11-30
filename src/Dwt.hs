@@ -19,13 +19,17 @@
       -- rel = relationship
       -- pos = position
   -- NOTES TO SELF
-    -- make|keep my Node|Label notation consistent with tradition
+    -- BUG: Monadic constructors (insRel', chExprAt') producing Exceptions
+      -- where I want them to produce Left
+      -- however, if cast as Maybe, they produce Nothing as wanted
+      -- when looking up something not in the graph
     -- Kinds of view
       -- e.g. with Nodes, without
     -- Delete LNode
     -- Make another Rel type (called Rel'? RelSpec? RelRequest?)
       -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
     -- ? Add [classes?] for checking arity
+    -- keep my Node|Label notation consistent with FGL, tradition
 
 -- export & import
     module Dwt
@@ -102,9 +106,24 @@
            in f (zip ns [1..a]) g'
 
   -- edit ("ch" = "change")
-    chLNode :: Mindmap -> Node -> Expr -> Mindmap -- TODO: Either|Maybe
-    chLNode g n me = let (Just (a,b,c,d),g') = match n g
-      in (a,b,me,d) & g'
+    chExprAt :: Mindmap -> Node -> Expr -> Mindmap
+    chExprAt g n e = let (Just (a,b,c,d),g') = match n g
+      in (a,b,e,d) & g'
+
+   -- BUG: these next two versions both fail wrong when gelemM fails
+    -- as an Exception rather than a Left if in the Either monad
+      -- although they fail properly, as a Nothing, in the Maybe monad
+    chExprAt' :: (Monad m) => Mindmap -> Node -> Expr -> m Mindmap
+    chExprAt' g n e = do
+      gelemM g n
+      return $ chExprAt g n e
+
+    chExprAt'' :: (Monad m) => Mindmap -> Node -> Expr -> m Mindmap
+    chExprAt'' g n e = do
+      gelemM g n
+      case match n g of
+        (Just (a,b,c,d),g') -> return $ (a,b,e,d) & g'
+        _ -> fail "The gelemM test should catch this problem first."
 
     -- chMbr :: Role -> Node -> Node -> Mindmap -> Mindmap -- TODO
     -- chMbr role newMbr user g = ...
