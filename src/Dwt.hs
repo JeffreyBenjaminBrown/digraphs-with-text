@@ -4,8 +4,8 @@
       -- This 10-line file explains it best:
         -- data/minimalGraph.hs
       -- Rels instantiate Tplts
-        -- For example, the relationship "flower needs watering" 
-        -- instantiates the template "_ needs _"
+        -- For example, the relationship "fish need water to breathe"
+        -- instantiates the template "_ need _ to _"
       -- how to read edges
         -- predecessor Rels are built from their successor Exprs
         -- in (n,m,lab :: MmLab) :: LEdge MmLab, n is a Rel referring to m
@@ -15,21 +15,21 @@
       -- mbr = member
         -- in a a k-ary Rel, there are k AsPos Roles for k members to play,
         -- plus one more Role for the Tplt (which must be k-ary) to play
-      -- tplt = (relationship) template
-      -- rel = relationship
       -- pos = position
+      -- rel = relationship
+      -- tplt = (relationship) template
   -- NOTES TO SELF
     -- BUG: Monadic constructors (insRel', chExprAt') producing Exceptions
-      -- where I want them to produce Left
-      -- however, if cast as Maybe, they produce Nothing as wanted
-      -- when looking up something not in the graph
-    -- Kinds of view
-      -- e.g. with Nodes, without
-    -- Delete LNode
-    -- Make another Rel type (called Rel'? RelSpec? RelRequest?)
-      -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
-    -- ? Add [classes?] for checking arity
-    -- keep my Node|Label notation consistent with FGL, tradition
+      -- see test/monad_fail_problems.hs
+    -- FEATURES, want:
+      -- Kinds of view
+        -- e.g. with Nodes, without
+      -- Delete LNode
+    -- CODE, want:
+      -- Make another Rel type (called Rel'? RelSpec? RelRequest?)
+        -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
+      -- ? Add [classes?] for checking arity
+      -- keep my Node|Label notation consistent with FGL, tradition
 
 -- export & import
     module Dwt
