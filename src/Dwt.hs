@@ -89,31 +89,10 @@
             g' =                insEdge (newNode, t, AsTplt)
                               $ insNode (newNode, Rel ti) g
 
-    insRel' :: (Monad m) => Node -> [Node] -> Mindmap -> m Mindmap
-      -- BROKEN; compiles but throws an exception (see test/Spec.hs/tInsRel')
-      -- IN PROGRESS : Either|Maybe
-      -- TODO : EMULATE Jake's "move" function in tictactoe
-    insRel' t ns g = do
-      if any (==False) $ map (flip gelem g) $ ns
-        then fail "insRel: One of those Nodes is not in the Mindmap." 
-        else return ()
-      case tplt of
-        Tplt ti ts -> do
-          if ti /= length ns
-            then fail "insRel: Tplt arity /= number of members"
-            else return ()
-          return $ f (zip ns [1..ti]) g
-          where newNode = head $ newNodes 1 g
-                f []     g = g -- TODO ? use fold instead
-                f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
-                g' =                insEdge (newNode, t, AsTplt)
-                                  $ insNode (newNode, Rel ti) g
-        _ -> fail "insRel: Tplt Node argument indexes not a Tplt"
-        where tplt = fromJust $ lab g t
-
-   -- insRel''
-    isIn :: (Monad m) => Mindmap -> Node -> m ()
-    isIn g n = if gelem n g then return () else fail "Node not in Mindmap"
+   -- insRel'
+    isIn :: (Monad m) => Mindmap -> Node -> m () -- TODO ? use FGL.Monad instead
+    isIn g n = if gelem n g then return () 
+                            else fail "Node not in Mindmap"
 
     tpltAt :: (Monad m) => Mindmap -> Node -> m Expr -- Expr is always a Tplt
     tpltAt g tn = case lab g tn of Just t@(Tplt a b) -> return $ t
@@ -129,9 +108,9 @@
 
     tpltArity :: (Monad m) => Expr -> m Arity
     tpltArity e = case e of Tplt a _ -> return a
-                            _ -> fail "Not a Tplt, therefore has no Arity"
+                            _        -> fail "Expr not a Tplt, thus has no Arity"
 
-    insRel'' tn ns g = -- TODO !!! Test
+    insRel' tn ns g = -- TODO !!! Test
       do mapM_ (isIn g) ns
          t <- tpltAt g tn
          nodesMatchTplt ns t
@@ -171,8 +150,6 @@
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
-    -- TODO: showExpr should show Template as ":[Node] bla _ bla _ bla"
-      -- where [Node] is a single integer, not a list
     showExpr :: Mindmap -> Node -> String -- TODO: Either|Maybe
       -- BEWARE ? infinite loops
         -- if the graph is recursive, this could infinite loop
@@ -183,8 +160,8 @@
           -- or number + "already displayed higher in this (node view?)"    
     showExpr g n = case lab g n of
       Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
-      Just (Str s) ->     prependNode s
-      Just (Tplt k ts) -> prependNode $ "Tplt: " ++ intercalate "_" ts
+      Just (Str s) ->     (show n) ++ ": "       ++ s
+      Just (Tplt _ ts) -> ":" ++ (show n) ++ " " ++ intercalate "_" ts
       Just (Rel _) ->
         let ledges = sortOn edgeLabel $ out g n
             (_,tpltNode,_) = head ledges
@@ -193,8 +170,7 @@
             members = map (\(_,m,_)-> m) $ tail ledges :: [Node]
         in prefixRel tpltNode $ subInTplt tpltLab 
              $ map (bracket . showExpr g) members
-      where prependNode s = (show n) ++ ": " ++ s
-            prefixRel tn s = show n ++ ":" ++ show tn ++ " " ++ s
+      where prefixRel tn s = show n ++ ":" ++ show tn ++ " " ++ s
             bracket s = "[" ++ s ++ "]"
 
     view :: Mindmap -> [Node] -> IO ()

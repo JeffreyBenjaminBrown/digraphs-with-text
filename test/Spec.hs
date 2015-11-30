@@ -9,7 +9,7 @@
     testList = TestList
       [   TestLabel "tSubInTplt" tSubInTplt
         , TestLabel "tInsert" tInsert
-        , TestLabel "tRelvs"  tRelvs
+        , TestLabel "tMatchRel"  tMatchRel
         , TestLabel "tShowExpr" tShowExpr
         , TestLabel "tInsRel'" tInsRel'
       ]
@@ -51,7 +51,7 @@
     tInsert = TestCase $ do
       assertBool "insRel & insStr" $ g1 == g1'
 
-    tRelvs = TestCase $ do
+    tMatchRel = TestCase $ do
       assertBool "1--"  $ matchRel g1 [Just 1,  Nothing, Nothing] == [5]
       assertBool "-0-"  $ matchRel g1 [Nothing, Just 0,  Nothing] == [5,6]
       assertBool "--3"  $ matchRel g1 [Nothing, Nothing, Just 4 ] == [5]
