@@ -7,5 +7,4 @@ minimalGraph = -- This graph contains the relationship "[the dog] needs [water]"
         , (2, Str "water")
         , (3, Rel 2)
       ] 
-      [(3,1, AsTplt), (5,0, AsPos 1), (5,2,AsPos 2)]
-      :: Mindmap
+      [(3,1, AsTplt), (5,0, AsPos 1), (5,2,AsPos 2)] :: Mindmap

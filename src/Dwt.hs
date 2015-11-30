@@ -1,5 +1,24 @@
 -- usually folded
-  -- TODO
+  -- NOTES TO A READER
+    -- how Dwt.Exprs and Dwt.Rels are made from FGL.Nodes and FGL.Edges
+      -- This 10-line file explains it best:
+        -- data/minimalGraph.hs
+      -- Rels instantiate Tplts
+        -- For example, the relationship "flower needs watering" 
+        -- instantiates the template "_ needs _"
+      -- how to read edges
+        -- predecessor Rels are built from their successor Exprs
+        -- in (n,m,lab :: MmLab) :: LEdge MmLab, n is a Rel referring to m
+          -- usually, m is a Str, but it could be a Rel or even a Tplt
+    -- abbreviations
+      -- ch = change
+      -- mbr = member
+        -- in a a k-ary Rel, there are k AsPos Roles for k members to play,
+        -- plus one more Role for the Tplt (which must be k-ary) to play
+      -- tplt = (relationship) template
+      -- rel = relationship
+      -- pos = position
+  -- NOTES TO SELF
     -- make|keep my Node|Label notation consistent with tradition
     -- Kinds of view
       -- e.g. with Nodes, without
@@ -7,20 +26,6 @@
     -- Make another Rel type (called Rel'? RelSpec? RelRequest?)
       -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
     -- ? Add [classes?] for checking arity
-  -- types, vocab, language
-    -- Node,Edge: FGL. Expr, Rel: DWT|Mindmap.
-    -- how to read edges
-      -- in (n,m,lab :: MmLab) :: LEdge MmLab, n is a Rel referring to m
-        -- usj, m is an Str
-      -- that is, predecessors refer to successors 
-        -- (in that kind of relationship they do; maybe there will be others)
-    -- abbreviations
-      -- ch = change
-      -- mbr = member
-        -- in a a k-ary Rel, there are k AsPos Roles for k members to play,
-        -- plus one more Role for the Tplt (which must be k-ary) to play
-      -- Tplt = (relationship) template
-      -- Rel = relationship
 
 -- export & import
     module Dwt
@@ -41,7 +46,7 @@
     type Arity = Int -- relationships, which some expressions are, have arities
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     data Expr = Str String | Tplt Arity [String] | Rel Arity
-      deriving (Show,Read,Eq,Ord) -- relationships instantiate templates
+      deriving (Show,Read,Eq,Ord)
     data Role = AsTplt | AsPos RelPos
       deriving (Show,Read,Eq,Ord)
     type Mindmap = Gr Expr Role
@@ -80,22 +85,26 @@
                               $ insNode (newNode, Rel ti) g
 
     insRel' :: (Monad m) => Node -> [Node] -> Mindmap -> m Mindmap
+      -- BROKEN; compiles but throws an exception (see test/Spec.hs/tInsRel')
       -- IN PROGRESS : Either|Maybe
       -- TODO : EMULATE Jake's "move" function in tictactoe
-    insRel' t ns g = -- t is tplt, otherwise like ns
-        if ti /= length ns
-          then fail "insRel: Tplt arity /= number of members"
-        else if any (==False) $ map (flip gelem g) $ t:ns
-          then fail "One of those Nodes is not in the Mindmap."
-        -- else if (label of t in g is not a Tplt) -- SMELLY ? duplicative
-        else return $ f (zip ns [1..ti]) g'
-      where Tplt ti ts = fromJust $ lab g t -- ? will this return a Left if
-              -- in an Either context and t is not to a Tplt
-            newNode = head $ newNodes 1 g
-            f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
-            g' =                insEdge (newNode, t, AsTplt)
-                              $ insNode (newNode, Rel ti) g
+    insRel' t ns g = do
+      if any (==False) $ map (flip gelem g) $ ns
+        then fail "insRel: One of those Nodes is not in the Mindmap." 
+        else return ()
+      case tplt of
+        Tplt ti ts -> do
+          if ti /= length ns                       
+            then fail "insRel: Tplt arity /= number of members"
+            else return ()
+          return $ f (zip ns [1..ti]) g
+          where newNode = head $ newNodes 1 g
+                f []     g = g
+                f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
+                g' =                insEdge (newNode, t, AsTplt)
+                                  $ insNode (newNode, Rel ti) g
+        _ -> fail "insRel: template Node argument indexes not a Tplt"
+        where tplt = fromJust $ lab g t
 
   -- edit ("ch" = "change")
     chLNode :: Mindmap -> Node -> Expr -> Mindmap -- TODO: Either|Maybe
