@@ -110,7 +110,8 @@
     tpltArity e = case e of Tplt a _ -> return a
                             _        -> fail "Expr not a Tplt, thus has no Arity"
 
-    insRel' tn ns g = -- TODO !!! Test
+    insRel' :: (Monad m) => Node -> [Node] -> Mindmap -> m Mindmap
+    insRel' tn ns g =
       do mapM_ (isIn g) ns
          t <- tpltAt g tn
          nodesMatchTplt ns t
@@ -121,7 +122,7 @@
              f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
              g' =                insEdge (newNode, tn, AsTplt)
                                $ insNode (newNode, Rel a) g
-           in f (zip ns [1..a]) g
+           in f (zip ns [1..a]) g'
 
   -- edit ("ch" = "change")
     chLNode :: Mindmap -> Node -> Expr -> Mindmap -- TODO: Either|Maybe
