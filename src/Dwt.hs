@@ -65,6 +65,7 @@
       in foldl (\s (a,b) -> s++a++b) "" pairList
 
   -- insert
+   -- node-free
     insStr :: String -> Mindmap -> Mindmap
     insStr str g = insNode (int, Str str) g
       where int = head $ newNodes 1 g
@@ -73,9 +74,10 @@
     insTplt s g = insNode (newNode, stringToTplt s) g
       where newNode = head $ newNodes 1 g
 
+   -- involving Nodes
     insRel :: Node -> [Node] -> Mindmap -> Mindmap
     insRel t ns g = if ti /= length ns -- t is tplt, otherwise like ns
-        then error "insRel: Tplt arity /= number of members"
+        then error "insRel: Tplt Arity /= number of members Nodes"
         else if any (==False) $ map (flip gelem g) $ (t:ns)
           then error "insRel: One of those Nodes is not in the Mindmap." 
         else f (zip ns [1..ti]) g'
@@ -108,6 +110,39 @@
                                   $ insNode (newNode, Rel ti) g
         _ -> fail "insRel: Tplt Node argument indexes not a Tplt"
         where tplt = fromJust $ lab g t
+
+   -- insRel''
+    isIn :: (Monad m) => Mindmap -> Node -> m ()
+    isIn g n = if gelem n g then return () else fail "Node not in Mindmap"
+
+    tpltAt :: (Monad m) => Mindmap -> Node -> m Expr -- Expr is always a Tplt
+    tpltAt g tn = case lab g tn of Just t@(Tplt a b) -> return $ t
+                                   Nothing  -> fail "Node not in Mindmap"
+                                   _        -> fail "Node does not index a Tplt"
+
+    nodesMatchTplt :: (Monad m) => [Node] -> Expr -> m ()
+    nodesMatchTplt ns e = case e of
+      Tplt k _ -> if k /= length ns 
+        then fail "Tplt Arity /= number of member Nodes"
+        else return ()
+      _ -> fail "Expr not a Tplt"
+
+    tpltArity :: (Monad m) => Expr -> m Arity
+    tpltArity e = case e of Tplt a _ -> return a
+                            _ -> fail "Not a Tplt, therefore has no Arity"
+
+    insRel'' tn ns g = -- TODO !!! Test
+      do mapM_ (isIn g) ns
+         t <- tpltAt g tn
+         nodesMatchTplt ns t
+         a <- tpltArity t
+         return $ let 
+             newNode = head $ newNodes 1 g
+             f []     g = g -- TODO ? use fold instead
+             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
+             g' =                insEdge (newNode, tn, AsTplt)
+                               $ insNode (newNode, Rel a) g
+           in f (zip ns [1..a]) g
 
   -- edit ("ch" = "change")
     chLNode :: Mindmap -> Node -> Expr -> Mindmap -- TODO: Either|Maybe
