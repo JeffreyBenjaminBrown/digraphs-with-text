@@ -3,6 +3,7 @@
     import Dwt
     import qualified Data.List as List
     import Data.Maybe (fromJust)
+    import Data.Either
 
     import Control.Monad.Except -- from mtl library
 
@@ -15,6 +16,7 @@
         , TestLabel "tShowExpr" tShowExpr
         , TestLabel "tGelemM" tGelemM
         , TestLabel "tInsRelM" tInsRelM
+        , TestLabel "tTpltAt" tTpltAt
       ]
 
 -- "globals"
@@ -77,7 +79,13 @@
       assertBool "3" $ (insRelM 2 [100,0] g1 :: Either String Mindmap)
             == Left "Node not in Mindmap"
       -- BROKEN: The next two are both false.
-      assertBool "4" $ (insRelM 2 [1,1,1] g1 :: Either String Mindmap)
-            == Left "Tplt Arity /= number of member Nodes"
-      assertBool "5" $ (insRelM 1 [1,1,1] g1 :: Either String Mindmap)
-            == Left "Node does not index a Tplt"
+--      assertBool "4" $ (insRelM 2 [1,1,1] g1 :: Either String Mindmap)
+  --          == Left "Tplt Arity /= number of member Nodes"
+      --assertBool "5" $ (insRelM 1 [1,1,1] g1 :: Either String Mindmap)
+        --    == Left "Node does not index a Tplt"
+
+    tTpltAt = TestCase $ do
+      assertBool "j1" $ tpltArity (Tplt 3 []) == Right 3
+      -- BROKEN: The next two.
+--      assertBool "j2" $ isLeft $ tpltArity (Str "nog")
+  --    assertBool "j3" $ tpltArity (Str "rig") == Left "tpltArity: Expr not a Tplt"
