@@ -3,6 +3,7 @@
     import Dwt
     import qualified Data.List as List
     import Data.Maybe (fromJust)
+    import Control.Monad.Except -- from mtl library
 
     main = runTestTT testList
 

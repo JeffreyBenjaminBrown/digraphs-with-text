@@ -19,6 +19,13 @@
       -- rel = relationship
       -- tplt = (relationship) template
   -- NOTES TO SELF
+    -- IN PROGRESS. KEEP WHEN DONE.
+      -- Keep in case want to revert.
+      -- Removing this idiom:
+        -- gelemM :: (Monad m) => Mindmap -> Node -> m ()
+        -- gelemM g n = if gelem n g then return () 
+        --                           else fail "Node not in Mindmap"
+      -- in favor of MonadError
     -- BUG: Monadic constructors (insRel', chExprAt') producing Exceptions
       -- see test/monad_fail_problems.hs
     -- FEATURES, want:
@@ -39,14 +46,14 @@
       , module Dwt -- exports everything in this file
       -- , module Dwt.Graph -- etc. Will need to import below to match.
       ) where    
-    import Data.Graph.Inductive -- fgl library
+    import Data.Graph.Inductive -- fgl lib
     import Data.String (String)
     import Data.Either (partitionEithers)
     import Data.List (intersect, sortOn, intercalate)
     import Data.Maybe (isJust, catMaybes, fromJust)
     import Control.Monad (mapM_)
-    import Control.Monad.Except -- mtl library
-    import qualified Data.Text as T -- text library
+    import Control.Monad.Except -- mtl lib; includes inst  MonadError Either
+    import qualified Data.Text as T -- text lib
 
 -- types
     type Arity = Int -- relationships, which some expressions are, have arities
@@ -93,7 +100,7 @@
             g' =                insEdge (newNode, t, AsTplt)
                               $ insNode (newNode, Rel ti) g
 
-    insRelM :: (Monad m) => Node -> [Node] -> Mindmap -> m Mindmap
+    insRelM :: (MonadError String m) => Node -> [Node] -> Mindmap -> m Mindmap
     insRelM tn ns g =
       do mapM_ (gelemM g) ns
          t <- tpltAt g tn
@@ -112,33 +119,19 @@
     chExprAt g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'
 
-   -- BUG: these next two versions both fail wrong when gelemM fails
-    -- as an Exception rather than a Left if in the Either monad
-      -- although they fail properly, as a Nothing, in the Maybe monad
-    chExprAtM :: (Monad m) => Mindmap -> Node -> Expr -> m Mindmap
+    chExprAtM :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
     chExprAtM g n e = do
       gelemM g n
       return $ chExprAt g n e
-
-    chExprAtM' :: (Monad m) => Mindmap -> Node -> Expr -> m Mindmap
-    chExprAtM' g n e = do
-      gelemM g n
-      case match n g of
-        (Just (a,b,c,d),g') -> return $ (a,b,e,d) & g'
-        _ -> fail "The gelemM test should catch this problem first."
 
     -- chMbr :: Role -> Node -> Node -> Mindmap -> Mindmap -- TODO
     -- chMbr role newMbr user g = ...
 
 -- query
   -- monadic tests and lookups
-    gelemM :: (Monad m) => Mindmap -> Node -> m ()
+    gelemM :: (MonadError String m) => Mindmap -> Node -> m ()
     gelemM g n = if gelem n g then return () 
-                              else fail "Node not in Mindmap"
-
-    gelemM' :: (MonadError String m) => Mindmap -> Node -> m ()
-    gelemM' g n = if gelem n g then return () 
-                               else throwError "Node not in Mindmap"
+                              else throwError "Node not in Mindmap"
 
     tpltAt :: (Monad m) => Mindmap -> Node -> m Expr -- Expr is always a Tplt
     tpltAt g tn = case lab g tn of Just t@(Tplt a b) -> return $ t
