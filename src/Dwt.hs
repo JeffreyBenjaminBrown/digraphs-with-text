@@ -19,15 +19,6 @@
       -- rel = relationship
       -- tplt = (relationship) template
   -- NOTES TO SELF
-    -- IN PROGRESS. KEEP WHEN DONE.
-      -- Keep in case want to revert.
-      -- Removing this idiom:
-        -- gelemM :: (Monad m) => Mindmap -> Node -> m ()
-        -- gelemM g n = if gelem n g then return () 
-        --                           else fail "Node not in Mindmap"
-      -- in favor of MonadError
-    -- BUG: Monadic constructors (insRel', chExprAt') producing Exceptions
-      -- see test/monad_fail_problems.hs
     -- FEATURES, want:
       -- Kinds of view
         -- e.g. with Nodes, without
@@ -52,7 +43,7 @@
     import Data.List (intersect, sortOn, intercalate)
     import Data.Maybe (isJust, catMaybes, fromJust)
     import Control.Monad (mapM_)
-    import Control.Monad.Except -- mtl lib; includes inst  MonadError Either
+    import Control.Monad.Except -- mtl lib; includes inst MonadError Either
     import qualified Data.Text as T -- text lib
 
 -- types
@@ -74,7 +65,9 @@
       where ss = splitTpltStr s
 
     subInTplt :: Expr -> [String] -> String
-    subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] -- append "" because there are n+1 segments in an n-ary Tplt; zipper ends early otherwise
+    subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] 
+      -- append "" because there are n+1 segments in an n-ary Tplt; 
+        -- zipper ends early otherwise
       in foldl (\s (a,b) -> s++a++b) "" pairList
 
   -- insert
@@ -86,22 +79,8 @@
     insTplt s g = insNode (newNode, stringToTplt s) g
       where newNode = head $ newNodes 1 g
 
-    insRel :: Node -> [Node] -> Mindmap -> Mindmap
-    insRel t ns g = if ti /= length ns -- t is tplt, otherwise like ns
-        then error "insRel: Tplt Arity /= number of members Nodes"
-        else if any (==False) $ map (flip gelem g) $ (t:ns)
-          then error "insRel: One of those Nodes is not in the Mindmap." 
-        else f (zip ns [1..ti]) g'
-      where Tplt ti ts = fromJust $ lab g t -- can also error:
-              -- by finding Str or Rel where expected Tplt
-            newNode = head $ newNodes 1 g
-            f []     g = g -- TODO ? use fold instead
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
-            g' =                insEdge (newNode, t, AsTplt)
-                              $ insNode (newNode, Rel ti) g
-
-    insRelM :: (MonadError String m) => Node -> [Node] -> Mindmap -> m Mindmap
-    insRelM tn ns g =
+    insRel :: (MonadError String m) => Node -> [Node] -> Mindmap -> m Mindmap
+    insRel tn ns g =
       do mapM_ (gelemM g) $ tn:ns
          t <- tpltAt g tn
          a <- tpltArity t
@@ -114,7 +93,7 @@
                                $ insNode (newNode, Rel a) g
            in f (zip ns [1..a]) g'
 
-  -- edit ("ch" = "change")
+  -- edit
     chExprAt :: Mindmap -> Node -> Expr -> Mindmap
     chExprAt g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'
@@ -194,3 +173,18 @@
 
     view :: Mindmap -> [Node] -> IO ()
     view g ns = mapM_ putStrLn $ map (showExpr g) ns
+
+-- non-monadic, unsafe duplicate functions; deprecating
+    insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap
+    insRelUsf t ns g = if ti /= length ns -- t is tplt, otherwise like ns
+        then error "insRelUsf: Tplt Arity /= number of members Nodes"
+        else if any (==False) $ map (flip gelem g) $ (t:ns)
+          then error "insRelUsf: One of those Nodes is not in the Mindmap." 
+        else f (zip ns [1..ti]) g'
+      where Tplt ti ts = fromJust $ lab g t -- can also error:
+              -- by finding Str or Rel where expected Tplt
+            newNode = head $ newNodes 1 g
+            f []     g = g
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
+            g' =                insEdge (newNode, t, AsTplt)
+                              $ insNode (newNode, Rel ti) g

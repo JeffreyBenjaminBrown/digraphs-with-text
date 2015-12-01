@@ -40,10 +40,10 @@
         , (11,9,AsTplt), (11,5,AsPos 1), (11,10,AsPos 2)
       ]
 
-    g1' =   insRel 9 [5,10] 
+    g1' =   insRelUsf 9 [5,10] 
           $ insStr "dubious"    $ insTplt "statement _ is _"
-          $ insRel 7 [0,3,4]    $ insTplt "_ needs _ for _"
-          $ insRel 2 [0,3]      $ insRel 1 [0,4]
+          $ insRelUsf 7 [0,3,4]    $ insTplt "_ needs _ for _"
+          $ insRelUsf 2 [0,3]      $ insRelUsf 1 [0,4]
           $ insStr "brandy"     $ insStr "water"
           $ insTplt "_ needs _" $ insTplt "_ wants _"
           $ insStr "dog"        $ empty :: Mindmap
@@ -54,7 +54,7 @@
         == "man wants peace"
 
     tInsert = TestCase $ do
-      assertBool "insRel & insStr" $ g1 == g1'
+      assertBool "insRelUsf & insStr" $ g1 == g1'
 
     tMatchRel = TestCase $ do
       assertBool "1--"  $ matchRel g1 [Just 1,  Nothing, Nothing] == [5]
@@ -72,15 +72,15 @@
       assertBool "1" $ gelemM g1 100 == Left "gelemM: Node not in Mindmap"
 
     tInsRelM = TestCase $ do
-      assertBool "1" $ (insRelM 2 [0,0] g1 :: Either String Mindmap)
-            == (Right $ insRel  2 [0,0] g1)
-      assertBool "2" $ (insRelM 15 [0,0] g1 :: Either String Mindmap)
+      assertBool "1" $ (insRel 2 [0,0] g1 :: Either String Mindmap)
+            == (Right $ insRelUsf  2 [0,0] g1)
+      assertBool "2" $ (insRel 15 [0,0] g1 :: Either String Mindmap)
             == Left "gelemM: Node not in Mindmap"
-      assertBool "3" $ (insRelM 2 [100,0] g1 :: Either String Mindmap)
+      assertBool "3" $ (insRel 2 [100,0] g1 :: Either String Mindmap)
             == Left "gelemM: Node not in Mindmap"
-      assertBool "4" $ (insRelM 2 [1,1,1] g1 :: Either String Mindmap)
+      assertBool "4" $ (insRel 2 [1,1,1] g1 :: Either String Mindmap)
             == Left "nodesMatchTplt: Tplt Arity /= number of member Nodes"
-      assertBool "5" $ (insRelM 0 [1,1,1] g1 :: Either String Mindmap)
+      assertBool "5" $ (insRel 0 [1,1,1] g1 :: Either String Mindmap)
             == Left "tpltAt: Node does not index a Tplt"
 
     tTpltAt = TestCase $ do
