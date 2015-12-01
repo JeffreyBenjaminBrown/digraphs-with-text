@@ -3,6 +3,7 @@
     import Dwt
     import qualified Data.List as List
     import Data.Maybe (fromJust)
+
     import Control.Monad.Except -- from mtl library
 
     main = runTestTT testList
@@ -12,6 +13,7 @@
         , TestLabel "tInsert" tInsert
         , TestLabel "tMatchRel"  tMatchRel
         , TestLabel "tShowExpr" tShowExpr
+        , TestLabel "tGelemM" tGelemM
         , TestLabel "tInsRelM" tInsRelM
       ]
 
@@ -63,6 +65,13 @@
       assertBool "expr 11" $ showExpr g1 11 == 
         "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
 
+    tGelemM = TestCase $ do
+      assertBool "1" $ gelemM g1 0 == Right ()
+
     tInsRelM = TestCase $ do
       assertBool "1" $ (insRelM 2 [0,0] g1 :: Either String Mindmap)
             == (Right $ insRel  2 [0,0] g1)
+      assertBool "2" $ (insRelM 15 [0,0] g1 :: Either String Mindmap)
+            == Left "Node not in Mindmap"
+      assertBool "3" $ (insRelM 2 [100,0] g1 :: Either String Mindmap)
+            == Left "Node not in Mindmap"
