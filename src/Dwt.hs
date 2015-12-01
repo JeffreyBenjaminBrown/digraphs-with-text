@@ -133,16 +133,16 @@
     gelemM g n = if gelem n g then return () 
                               else throwError "Node not in Mindmap"
 
-    tpltAt :: (Monad m) => Mindmap -> Node -> m Expr -- Expr is always a Tplt
+    tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
     tpltAt g tn = case lab g tn of Just t@(Tplt a b) -> return $ t
                                    Nothing  -> fail "Node not in Mindmap"
                                    _        -> fail "Node does not index a Tplt"
 
-    tpltArity :: (Monad m) => Expr -> m Arity
+    tpltArity :: (MonadError String m) => Expr -> m Arity
     tpltArity e = case e of Tplt a _ -> return a
                             _        -> fail "tpltArity: Expr not a Tplt"
 
-    nodesMatchTplt :: (Monad m) => [Node] -> Expr -> m ()
+    nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m ()
     nodesMatchTplt ns e = case e of
       Tplt k _ -> if k /= length ns 
         then fail "Tplt Arity /= number of member Nodes"
