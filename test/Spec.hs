@@ -67,6 +67,7 @@
 
     tGelemM = TestCase $ do
       assertBool "1" $ gelemM g1 0 == Right ()
+      assertBool "1" $ gelemM g1 100 == Left "Node not in Mindmap"
 
     tInsRelM = TestCase $ do
       assertBool "1" $ (insRelM 2 [0,0] g1 :: Either String Mindmap)
@@ -75,3 +76,8 @@
             == Left "Node not in Mindmap"
       assertBool "3" $ (insRelM 2 [100,0] g1 :: Either String Mindmap)
             == Left "Node not in Mindmap"
+      -- BROKEN: The next two are both false.
+      assertBool "4" $ (insRelM 2 [1,1,1] g1 :: Either String Mindmap)
+            == Left "Tplt Arity /= number of member Nodes"
+      assertBool "5" $ (insRelM 1 [1,1,1] g1 :: Either String Mindmap)
+            == Left "Node does not index a Tplt"
