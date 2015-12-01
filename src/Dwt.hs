@@ -102,7 +102,7 @@
 
     insRelM :: (MonadError String m) => Node -> [Node] -> Mindmap -> m Mindmap
     insRelM tn ns g =
-      do mapM_ (gelemM g) ns
+      do mapM_ (gelemM g) $ tn:ns
          t <- tpltAt g tn
          nodesMatchTplt ns t
          a <- tpltArity t
