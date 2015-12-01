@@ -94,14 +94,10 @@
            in f (zip ns [1..a]) g'
 
   -- edit
-    chExprAt :: Mindmap -> Node -> Expr -> Mindmap
-    chExprAt g n e = let (Just (a,b,c,d),g') = match n g
-      in (a,b,e,d) & g'
-
-    chExprAtM :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
-    chExprAtM g n e = do
+    chExprAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
+    chExprAt g n e = do
       gelemM g n
-      return $ chExprAt g n e
+      return $ chExprAtUsf g n e
 
     -- chMbr :: Role -> Node -> Node -> Mindmap -> Mindmap -- TODO
     -- chMbr role newMbr user g = ...
@@ -188,3 +184,8 @@
             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
             g' =                insEdge (newNode, t, AsTplt)
                               $ insNode (newNode, Rel ti) g
+
+    chExprAtUsf :: Mindmap -> Node -> Expr -> Mindmap
+    chExprAtUsf g n e = let (Just (a,b,c,d),g') = match n g
+      in (a,b,e,d) & g'
+
