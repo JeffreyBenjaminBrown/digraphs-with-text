@@ -17,6 +17,7 @@
         , TestLabel "tGelemM" tGelemM
         , TestLabel "tInsRelM" tInsRelM
         , TestLabel "tTpltAt" tTpltAt
+        , TestLabel "tUsers" tUsers
       ]
 
 -- "globals"
@@ -87,3 +88,7 @@
       assertBool "j1" $ tpltArity (Tplt 3 []) == Right 3
       assertBool "j2" $ isLeft $ tpltArity (Str "nog")
       assertBool "j3" $ tpltArity (Str "rig") == Left "tpltArity: Expr not a Tplt"
+
+    tUsers = TestCase $ do
+      assertBool "1" $ users g1 0 == Right [5,6,8]
+      assertBool "2" $ isLeft $ (users g1 100 :: Either String [Dwt.Node])

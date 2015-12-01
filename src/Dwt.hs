@@ -29,7 +29,7 @@
       -- ? Add [classes?] for checking arity
       -- keep my Node|Label notation consistent with FGL, tradition
 
--- export & import
+-- pragmas, export, import
     {-# LANGUAGE FlexibleContexts #-}
     module Dwt
       ( -- exports:
@@ -103,7 +103,7 @@
     -- chMbr role newMbr user g = ...
 
 -- query
-  -- monadic tests and lookups
+  -- tests and lookups for smaller-than-graph types
     gelemM :: (MonadError String m) => Mindmap -> Node -> m ()
     gelemM g n = if gelem n g then return () 
                               else throwError "gelemM: Node not in Mindmap"
@@ -125,9 +125,11 @@
         else return ()
       _ -> throwError "nodesMatchTplt: Expr not a Tplt"
 
-  -- _ -> [Node]
-    users :: Mindmap ->  Node -> [Node]
-    users g n = [m | (m,n,label) <- inn g n]
+  -- Mindmap -> ...stuff... -> [Node]
+    users :: (MonadError String m) => Mindmap -> Node -> m [Node]
+    users g n = do 
+      gelemM g n
+      return $ [m | (m,n,label) <- inn g n]
 
     specUsers :: Mindmap -> Role -> Arity -> Node -> [Node]
     specUsers g r k n = -- all k-ary Rels using Node n in Role r
@@ -189,3 +191,5 @@
     chExprAtUsf g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'
 
+    usersUsf :: Mindmap ->  Node -> [Node] -- TODO: test
+    usersUsf g n = [m | (m,n,label) <- inn g n]
