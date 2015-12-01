@@ -32,19 +32,21 @@
       -- keep my Node|Label notation consistent with FGL, tradition
 
 -- export & import
+    {-# LANGUAGE FlexibleContexts #-}
     module Dwt
       ( -- exports:
       module Data.Graph.Inductive -- export for testing, not production
       , module Dwt -- exports everything in this file
       -- , module Dwt.Graph -- etc. Will need to import below to match.
       ) where    
-    import Data.Graph.Inductive
+    import Data.Graph.Inductive -- fgl library
     import Data.String (String)
     import Data.Either (partitionEithers)
     import Data.List (intersect, sortOn, intercalate)
     import Data.Maybe (isJust, catMaybes, fromJust)
     import Control.Monad (mapM_)
-    import qualified Data.Text as T
+    import Control.Monad.Except -- mtl library
+    import qualified Data.Text as T -- text library
 
 -- types
     type Arity = Int -- relationships, which some expressions are, have arities
@@ -133,6 +135,10 @@
     gelemM :: (Monad m) => Mindmap -> Node -> m ()
     gelemM g n = if gelem n g then return () 
                               else fail "Node not in Mindmap"
+
+    gelemM' :: (MonadError String m) => Mindmap -> Node -> m ()
+    gelemM' g n = if gelem n g then return () 
+                               else throwError "Node not in Mindmap"
 
     tpltAt :: (Monad m) => Mindmap -> Node -> m Expr -- Expr is always a Tplt
     tpltAt g tn = case lab g tn of Just t@(Tplt a b) -> return $ t
