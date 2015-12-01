@@ -69,23 +69,21 @@
 
     tGelemM = TestCase $ do
       assertBool "1" $ gelemM g1 0 == Right ()
-      assertBool "1" $ gelemM g1 100 == Left "Node not in Mindmap"
+      assertBool "1" $ gelemM g1 100 == Left "gelemM: Node not in Mindmap"
 
     tInsRelM = TestCase $ do
       assertBool "1" $ (insRelM 2 [0,0] g1 :: Either String Mindmap)
             == (Right $ insRel  2 [0,0] g1)
       assertBool "2" $ (insRelM 15 [0,0] g1 :: Either String Mindmap)
-            == Left "Node not in Mindmap"
+            == Left "gelemM: Node not in Mindmap"
       assertBool "3" $ (insRelM 2 [100,0] g1 :: Either String Mindmap)
-            == Left "Node not in Mindmap"
-      -- BROKEN: The next two are both false.
---      assertBool "4" $ (insRelM 2 [1,1,1] g1 :: Either String Mindmap)
-  --          == Left "Tplt Arity /= number of member Nodes"
-      --assertBool "5" $ (insRelM 1 [1,1,1] g1 :: Either String Mindmap)
-        --    == Left "Node does not index a Tplt"
+            == Left "gelemM: Node not in Mindmap"
+      assertBool "4" $ (insRelM 2 [1,1,1] g1 :: Either String Mindmap)
+            == Left "nodesMatchTplt: Tplt Arity /= number of member Nodes"
+      assertBool "5" $ (insRelM 0 [1,1,1] g1 :: Either String Mindmap)
+            == Left "tpltAt: Node does not index a Tplt"
 
     tTpltAt = TestCase $ do
       assertBool "j1" $ tpltArity (Tplt 3 []) == Right 3
-      -- BROKEN: The next two.
---      assertBool "j2" $ isLeft $ tpltArity (Str "nog")
-  --    assertBool "j3" $ tpltArity (Str "rig") == Left "tpltArity: Expr not a Tplt"
+      assertBool "j2" $ isLeft $ tpltArity (Str "nog")
+      assertBool "j3" $ tpltArity (Str "rig") == Left "tpltArity: Expr not a Tplt"

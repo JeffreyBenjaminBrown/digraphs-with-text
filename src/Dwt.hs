@@ -104,8 +104,8 @@
     insRelM tn ns g =
       do mapM_ (gelemM g) $ tn:ns
          t <- tpltAt g tn
-         nodesMatchTplt ns t
          a <- tpltArity t
+         nodesMatchTplt ns t
          return $ let 
              newNode = head $ newNodes 1 g
              f []     g = g
@@ -131,23 +131,24 @@
   -- monadic tests and lookups
     gelemM :: (MonadError String m) => Mindmap -> Node -> m ()
     gelemM g n = if gelem n g then return () 
-                              else throwError "Node not in Mindmap"
+                              else throwError "gelemM: Node not in Mindmap"
 
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
-    tpltAt g tn = case lab g tn of Just t@(Tplt a b) -> return $ t
-                                   Nothing  -> fail "Node not in Mindmap"
-                                   _        -> fail "Node does not index a Tplt"
+    tpltAt g tn = case lab g tn of 
+      Just t@(Tplt a b) -> return $ t
+      Nothing           -> throwError "tpltAt: Node not in Mindmap"
+      _                 -> throwError "tpltAt: Node does not index a Tplt"
 
     tpltArity :: (MonadError String m) => Expr -> m Arity
     tpltArity e = case e of Tplt a _ -> return a
-                            _        -> fail "tpltArity: Expr not a Tplt"
+                            _        -> throwError "tpltArity: Expr not a Tplt"
 
     nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m ()
     nodesMatchTplt ns e = case e of
       Tplt k _ -> if k /= length ns 
-        then fail "Tplt Arity /= number of member Nodes"
+        then throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes"
         else return ()
-      _ -> fail "Expr not a Tplt"
+      _ -> throwError "nodesMatchTplt: Expr not a Tplt"
 
   -- _ -> [Node]
     users :: Mindmap ->  Node -> [Node]
