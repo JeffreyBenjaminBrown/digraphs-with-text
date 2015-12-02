@@ -32,10 +32,9 @@
 -- pragmas, export, import
     {-# LANGUAGE FlexibleContexts #-}
     module Dwt
-      ( -- exports:
-      module Data.Graph.Inductive -- export for testing, not production
-      , module Dwt -- exports everything in this file
-      -- , module Dwt.Graph -- etc. Will need to import below to match.
+      (
+      module Data.Graph.Inductive
+      , module Dwt
       ) where    
     import Data.Graph.Inductive -- fgl lib
     import Data.String (String)
@@ -43,7 +42,7 @@
     import Data.List (intersect, sortOn, intercalate)
     import Data.Maybe (isJust, catMaybes, fromJust)
     import Control.Monad (mapM_)
-    import Control.Monad.Except -- mtl lib; includes inst MonadError Either
+    import Control.Monad.Except -- mtl lib
     import qualified Data.Text as T -- text lib
 
 -- types
@@ -127,33 +126,40 @@
 
   -- Mindmap -> ...stuff... -> [Node]
     users :: (MonadError String m) => Mindmap -> Node -> m [Node]
-    users g n = do 
-      gelemM g n
-      return $ [m | (m,n,label) <- inn g n]
+    users g n = do gelemM g n
+                   return $ [m | (m,n,label) <- inn g n]
 
-    specUsers :: Mindmap -> Role -> Arity -> Node -> [Node]
-    specUsers g r k n = -- all k-ary Rels using Node n in Role r
+    specUsersUsf :: Mindmap -> Role -> Arity -> Node -> [Node]
+    specUsersUsf g r k n = -- all k-ary Rels using Node n in Role r
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,r') <- inn g n, r' == r, isKAryRel m]
+
+    specUsers :: (MonadError String m) => 
+      Mindmap -> Role -> Arity -> Node -> m [Node]
+    specUsers g r k n = do -- all k-ary Rels using Node n in Role r
+      gelemM g n
+      return $ let isKAryRel m = lab g m == (Just $ Rel k)
+        in [m | (m,_,r') <- inn g n, r' == r, isKAryRel m]
+          -- the _ is always n
 
     matchRel :: Mindmap -> [Maybe Node] -> [Node]
     matchRel g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, RelPos)]
-            f (Just n, 0) = specUsers g AsTplt    arity n
-            f (Just n, k) = specUsers g (AsPos k) arity n
-            listIntersect [] = [] -- silly case
+            f (Just n, 0) = specUsersUsf g AsTplt    arity n
+            f (Just n, k) = specUsersUsf g (AsPos k) arity n
+            listIntersect [] = []
             listIntersect (x:xs) = foldl intersect x xs
 
 -- view
     showExpr :: Mindmap -> Node -> String -- TODO: Either|Maybe
       -- BEWARE ? infinite loops
         -- if the graph is recursive, this could infinite loop
-          -- although such graphs seem unlikely, because recursive statements are
-          -- difficult; c.f. Godel's impossibility theorem
+          -- such cycles seem unlikely to be intende, b/c recursive statements are
+          -- confusing; c.f. Godel's impossibility theorem
         -- a solution: while building, keep list of visited nodes
-          -- if visiting one already there, display it as just its number
-          -- or number + "already displayed higher in this (node view?)"    
+          -- if visiting one already listed, display it as just its Node
+          -- or Node ++ "already displayed higher in this (node view?)"
     showExpr g n = case lab g n of
       Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
       Just (Str s) ->     (show n) ++ ": "       ++ s
