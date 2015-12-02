@@ -8,13 +8,13 @@ The file data/minimalGraph.hs, 10 lines long, contains an example graph. It demo
 
 # Glossary of Abbreviations
 
-  ch = change
-  ins = insert
-  mbr = member
-  - in a a k-ary Rel, there are k AsPos Roles for k members to play,
-  - plus one more Role for the Tplt (which must be k-ary) to play
-  pos = position
-  rel = relationship
-  sub = substitute
-  tplt = (relationship) template
-  usf = unsafe
+*  ch = change
+*  ins = insert
+*  mbr = member
+*  - in a a k-ary Rel, there are k AsPos Roles for k members to play,
+*  - plus one more Role for the Tplt (which must be k-ary) to play
+*  pos = position
+*  rel = relationship
+*  sub = substitute
+*  tplt = (relationship) template
+*  usf = unsafe
