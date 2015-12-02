@@ -1,30 +1,20 @@
 # What is Dwt?
 
-Dwt is an editor for hypergraphs with text on them.
+Dwt is an editor for hypergraphs with text on them. Everything I am aware of can be represented as a hypergraph -- tables, lists|arrays|tuples, graphs, dictionaries, bitmapped imagines ...
 
+In Dwt an expression (Expr) can be a string of text (Str), a template for a k-ary relationship (Tplt k), or a k-ary relationship (Rel k). The elements of Rels are other Exprs.
 
+The file data/minimalGraph.hs, 10 lines long, contains an example graph. It demonstrates both the meaning of those three Expr constructors and how Dwt uses FGL, the Functional Graph Library, to implement hypergraphs. (Credit to Elliot Cameron for the suggestion.)
 
-# To a programmer
+# Glossary of Abbreviations
 
-  ## How does Dwt use FGL?
-    -- how Dwt.Exprs and Dwt.Rels are made from FGL.Nodes and FGL.Edges
-      -- This 10-line file explains it best:
-        -- data/minimalGraph.hs
-      -- Rels instantiate Tplts
-        -- For example, the relationship "fish need water to breathe"
-        -- instantiates the template "_ need _ to _"
-      -- how to read edges
-        -- predecessor Rels are built from their successor Exprs
-        -- in (n,m,lab :: MmLab) :: LEdge MmLab, n is a Rel referring to m
-          -- usually, m is a Str, but it could be a Rel or even a Tplt
-
-
-    -- abbreviations
-      -- ch = change
-      -- mbr = member
-        -- in a a k-ary Rel, there are k AsPos Roles for k members to play,
-        -- plus one more Role for the Tplt (which must be k-ary) to play
-      -- pos = position
-      -- rel = relationship
-      -- tplt = (relationship) template
-
+  ch = change
+  ins = insert
+  mbr = member
+  - in a a k-ary Rel, there are k AsPos Roles for k members to play,
+  - plus one more Role for the Tplt (which must be k-ary) to play
+  pos = position
+  rel = relationship
+  sub = substitute
+  tplt = (relationship) template
+  usf = unsafe

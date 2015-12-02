@@ -1,49 +1,20 @@
--- usually folded
-  -- NOTES TO A READER
-    -- how Dwt.Exprs and Dwt.Rels are made from FGL.Nodes and FGL.Edges
-      -- This 10-line file explains it best:
-        -- data/minimalGraph.hs
-      -- Rels instantiate Tplts
-        -- For example, the relationship "fish need water to breathe"
-        -- instantiates the template "_ need _ to _"
-      -- how to read edges
-        -- predecessor Rels are built from their successor Exprs
-        -- in (n,m,lab :: MmLab) :: LEdge MmLab, n is a Rel referring to m
-          -- usually, m is a Str, but it could be a Rel or even a Tplt
-    -- abbreviations
-      -- ch = change
-      -- mbr = member
-        -- in a a k-ary Rel, there are k AsPos Roles for k members to play,
-        -- plus one more Role for the Tplt (which must be k-ary) to play
-      -- pos = position
-      -- rel = relationship
-      -- tplt = (relationship) template
-  -- NOTES TO SELF
-    -- FEATURES, want:
-      -- Kinds of view
-        -- e.g. with Nodes, without
-      -- Delete LNode
-    -- CODE, want:
-      -- Make another Rel type (called Rel'? RelSpec? RelRequest?)
-        -- Rel' = (MmNode, [MmNode]), where data MmNode = MmNode Int | Blank
-      -- ? Add [classes?] for checking arity
-      -- keep my Node|Label notation consistent with FGL, tradition
-
 -- pragmas, export, import
     {-# LANGUAGE FlexibleContexts #-}
+
     module Dwt
       (
       module Data.Graph.Inductive
       , module Dwt
       ) where    
-    import Data.Graph.Inductive -- fgl lib
+
+    import Data.Graph.Inductive -- this library is called "fgl" in stack
     import Data.String (String)
     import Data.Either (partitionEithers)
     import Data.List (intersect, sortOn, intercalate)
     import Data.Maybe (isJust, catMaybes, fromJust)
     import Control.Monad (mapM_)
-    import Control.Monad.Except -- mtl lib
-    import qualified Data.Text as T -- text lib
+    import Control.Monad.Except -- in stack: "mtl"
+    import qualified Data.Text as T -- in stack: "text"
 
 -- types
     type Arity = Int -- relationships, which some expressions are, have arities
