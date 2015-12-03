@@ -2,12 +2,11 @@
     {-# LANGUAGE FlexibleContexts #-}
 
     module Dwt
-      (
-      module Data.Graph.Inductive
+      ( module Data.Graph.Inductive
       , module Dwt
       ) where    
 
-    import Data.Graph.Inductive -- this library is called "fgl" in stack
+    import Data.Graph.Inductive -- called "fgl" in stack
     import Data.String (String)
     import Data.Either (partitionEithers)
     import Data.List (intersect, sortOn, intercalate)
