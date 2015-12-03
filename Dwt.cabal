@@ -16,6 +16,7 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Dwt
+                       , Dwt.Graph
   build-depends:       base
                        , fgl
                        , text
