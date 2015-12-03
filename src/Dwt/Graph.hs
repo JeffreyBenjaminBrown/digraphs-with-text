@@ -7,12 +7,11 @@
       ) where
 
     import Data.Graph.Inductive
-    import Data.String (String)
     import Data.Either (partitionEithers)
     import Data.List (intersect, sortOn, intercalate)
     import Data.Maybe (isJust, catMaybes, fromJust)
     import Control.Monad (mapM_)
-    import Control.Monad.Except
+    import Control.Monad.Except (MonadError, throwError)
     import qualified Data.Text as T
 
 -- types
