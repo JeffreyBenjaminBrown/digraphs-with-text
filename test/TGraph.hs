@@ -101,5 +101,5 @@
 
   -- parse .mm
     tParseMm = TestCase $ do
-      assertBool "mmNodeText" $ parseWithLeftOver mmNodeText "\"aygaw\"bbbb"
+      assertBool "mmNodeText" $ eParse2 mmNodeText "\"aygaw\"bbbb"
         == Right ("aygaw","bbbb")

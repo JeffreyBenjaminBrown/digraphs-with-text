@@ -16,11 +16,11 @@
     parseWithEof :: Parser a -> String -> Either ParseError a
     parseWithEof p = parse (p <* eof) ""
 
-    regularParse :: Parser a -> String -> Either ParseError a
-    regularParse p = parse p ""
+    eParse :: Parser a -> String -> Either ParseError a
+    eParse p = parse p ""
 
-    parse2 :: Parser a -> String -> Either ParseError (a,String)
-    parse2 p = parse ((,) <$> p <*> leftOver) ""
+    eParse2 :: Parser a -> String -> Either ParseError (a,String)
+    eParse2 p = parse ((,) <$> p <*> leftOver) ""
       where leftOver = manyTill anyToken eof
 
 -- parsers
