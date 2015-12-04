@@ -13,6 +13,7 @@
         , TestLabel "tAskMinor"   tAskMinor
         , TestLabel "tAskNodes"   tAskNodes
         , TestLabel "tShowExpr"   tShowExpr
+        , TestLabel "tParseMm"    tParseMm
       ]
 
 -- "globals"
@@ -97,3 +98,8 @@
       assertBool "expr 5" $ showExpr g1 5 == "5:1 [0: dog] wants [4: brandy]"
       assertBool "expr 11" $ showExpr g1 11 == 
         "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
+
+  -- parse .mm
+    tParseMm = TestCase $ do
+      assertBool "mmNodeText" $ parseWithLeftOver mmNodeText "\"aygaw\"bbbb"
+        == Right ("aygaw","bbbb")

@@ -33,3 +33,7 @@
             mmCaret = pure '^' <* string "&quot;"
             mmAmpersand = pure '&' <* string "&amp;"
             mmApostrophe = pure '\'' <* string "&apos"
+
+    mmNodeText = char '"' *> 
+     (many $ mmEscapedChar <|> satisfy (/= '"')) 
+     <* char '"'

@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Dwt
                        , Dwt.Graph
+                       , Dwt.ParseMm
   build-depends:       base
                        , fgl
                        , text
@@ -31,8 +32,8 @@ test-suite new-template-test
   hs-source-dirs:      test
   main-is:             TGraph.hs
   build-depends:       Dwt
-                       , base
                        , HUnit
+                       , base
                        , fgl
                        , lens
                        , containers 
