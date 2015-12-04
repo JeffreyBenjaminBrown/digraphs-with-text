@@ -67,8 +67,8 @@
       gelemM g n
       return $ chExprAtUsf g n e
 
-    -- chMbr :: Role -> Node -> Node -> Mindmap -> Mindmap -- TODO
-    -- chMbr role newMbr user g = ...
+    -- chMbr :: Role -> Node -> Node -> Mindmap -> Mindmap
+    -- chMbr role newMbr user g = ... -- TODO
 
 -- query
   -- tests and lookups for smaller-than-graph types
