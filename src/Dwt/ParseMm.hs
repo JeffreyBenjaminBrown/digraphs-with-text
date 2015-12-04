@@ -37,8 +37,16 @@
             mmApostrophe = pure '\'' <* sandwich "apos"
 
     mmNodeText = char '"' *> 
-     (many $ mmEscapedChar <|> satisfy (/= '"')) 
+     (many $ mmEscapedChar <|> satisfy (/= '"'))
      <* char '"'
 
     word :: Parser String
     word = many1 $ alphaNum <|> char '_'
+
+    tag :: Parser a -> Parser a -- "tag" is XML for "<>-delimited thing"
+    tag content = char '<' *> content <* char '>'
+
+    -- found this in Text.ParserCombinators.Parsec.Combinator
+    comment :: Parser String
+    comment  = do string "<!--"
+                  manyTill anyChar (try $ string "-->")

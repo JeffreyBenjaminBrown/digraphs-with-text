@@ -100,7 +100,8 @@
         "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
 
   -- parse .mm
-    tParseMm = TestList [tMmNodeText, tWord]
+    tParseMm = TestList [tMmNodeText, tWord, tTag, tComment]
+
     tMmNodeText = TestCase $ do
       assertBool "mmNodeText" $ eParse2 mmNodeText "\"aygaw\"bbbb"
         == Right ("aygaw","bbbb")
@@ -112,3 +113,13 @@
       assertBool "tWord"
         $ eParse2 (many $ word <* spaces) "bird thug_a\nMAZ3 \n 13;;;"
         == Right (["bird","thug_a","MAZ3","13"],";;;")
+
+    tTag = TestCase $ do
+      assertBool "tTag" $ eParse2 (tag $ many $ char 'x') "<xxx>yyy"
+        == Right ("xxx","yyy")
+      assertBool "tTag" $ eParse2 (tag $ many $ char 'x') "<>yyy"
+        == Right ("","yyy")
+
+    tComment = TestCase $ do
+      assertBool "tComment" $ eParse2 comment "<!--xxx-->yyy"
+        == Right ("xxx","yyy")
