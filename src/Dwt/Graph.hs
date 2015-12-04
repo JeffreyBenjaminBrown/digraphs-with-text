@@ -63,7 +63,7 @@
 
   -- edit
     chExprAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
-    chExprAt g n e = do
+    chExprAt g n e = do -- TODO : test
       gelemM g n
       return $ chExprAtUsf g n e
 
@@ -76,7 +76,7 @@
     gelemM g n = if gelem n g then return () 
                               else throwError "gelemM: Node not in Mindmap"
 
-    tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
+    tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr -- TODO test
     tpltAt g tn = case lab g tn of 
       Just t@(Tplt a b) -> return $ t
       Nothing           -> throwError "tpltAt: Node not in Mindmap"
@@ -86,7 +86,7 @@
     tpltArity e = case e of Tplt a _ -> return a
                             _        -> throwError "tpltArity: Expr not a Tplt"
 
-    nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m ()
+    nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m () -- TODO test
     nodesMatchTplt ns e = case e of
       Tplt k _ -> if k /= length ns 
         then throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes"
@@ -98,12 +98,12 @@
     users g n = do gelemM g n
                    return $ [m | (m,n,label) <- inn g n]
 
-    specUsersUsf :: Mindmap -> Role -> Arity -> Node -> [Node]
+    specUsersUsf :: Mindmap -> Role -> Arity -> Node -> [Node] --TODO test
     specUsersUsf g r k n = -- all k-ary Rels using Node n in Role r
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,r') <- inn g n, r' == r, isKAryRel m]
 
-    specUsers :: (MonadError String m) => 
+    specUsers :: (MonadError String m) => -- TODO: test
       Mindmap -> Role -> Arity -> Node -> m [Node]
     specUsers g r k n = do -- all k-ary Rels using Node n in Role r
       gelemM g n

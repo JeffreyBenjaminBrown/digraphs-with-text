@@ -7,18 +7,12 @@
 
     import Control.Monad.Except -- from mtl library
 
-    main = runTestTT testList
-
-    testList = TestList
-      [ TestLabel "twoTests" twoTests
-        -- TestLabel "tSubInTplt" tSubInTplt
-        -- , TestLabel "tInsert" tInsert
-        , TestLabel "tMatchRel"  tMatchRel
-        , TestLabel "tShowExpr" tShowExpr
-        , TestLabel "tGelemM" tGelemM
-        , TestLabel "tInsRelM" tInsRelM
-        , TestLabel "tTpltAt" tTpltAt
-        , TestLabel "tUsers" tUsers
+-- main
+    main = runTestTT $ TestList
+      [   TestLabel "tBuildGraph" tBuildGraph
+        , TestLabel "tAskMinor"   tAskMinor
+        , TestLabel "tAskNodes"   tAskNodes
+        , TestLabel "tShowExpr"   tShowExpr
       ]
 
 -- "globals"
@@ -51,29 +45,15 @@
           $ insStr "dog"        $ empty :: Mindmap
 
 -- tests
-    twoTests = TestList [tSubInTplt, tInsert]
+  -- buildGraph
+    tBuildGraph = TestList [tSubInTplt, tInsert, tInsRelM]
 
     tSubInTplt = TestCase $ do
       assertBool "1" $ subInTplt (fromJust $ lab g1 1) ["man","peace"]
         == "man wants peace"
 
     tInsert = TestCase $ do
-      assertBool "insRelUsf & insStr" $ g1 == g1'
-
-    tMatchRel = TestCase $ do
-      assertBool "1--"  $ matchRel g1 [Just 1,  Nothing, Nothing] == [5]
-      assertBool "-0-"  $ matchRel g1 [Nothing, Just 0,  Nothing] == [5,6]
-      assertBool "--3"  $ matchRel g1 [Nothing, Nothing, Just 4 ] == [5]
-      assertBool "---4" $ matchRel g1 [Nothing, Nothing, Nothing, Just 4] == [8]
-
-    tShowExpr = TestCase $ do
-      assertBool "expr 5" $ showExpr g1 5 == "5:1 [0: dog] wants [4: brandy]"
-      assertBool "expr 11" $ showExpr g1 11 == 
-        "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
-
-    tGelemM = TestCase $ do
-      assertBool "1" $ gelemM g1 0 == Right ()
-      assertBool "1" $ gelemM g1 100 == Left "gelemM: Node not in Mindmap"
+      assertBool "stringToTplt (and thereby splitTpltStr), insRelUsf, insStr, insTplt" $ g1 == g1'
 
     tInsRelM = TestCase $ do
       assertBool "1" $ (insRel 2 [0,0] g1 :: Either String Mindmap)
@@ -87,11 +67,33 @@
       assertBool "5" $ (insRel 0 [1,1,1] g1 :: Either String Mindmap)
             == Left "tpltAt: Node does not index a Tplt"
 
-    tTpltAt = TestCase $ do
+  -- ask, minor
+    tAskMinor = TestList [tGelemM, tTpltArity]
+
+    tGelemM = TestCase $ do
+      assertBool "1" $ gelemM g1 0 == Right ()
+      assertBool "1" $ gelemM g1 100 == Left "gelemM: Node not in Mindmap"
+
+    tTpltArity = TestCase $ do
       assertBool "j1" $ tpltArity (Tplt 3 []) == Right 3
       assertBool "j2" $ isLeft $ tpltArity (Str "nog")
       assertBool "j3" $ tpltArity (Str "rig") == Left "tpltArity: Expr not a Tplt"
 
+  -- ask [Node]
+    tAskNodes = TestList [tUsers, tMatchRel]
+
     tUsers = TestCase $ do
       assertBool "1" $ users g1 0 == Right [5,6,8]
       assertBool "2" $ isLeft $ (users g1 100 :: Either String [Dwt.Node])
+
+    tMatchRel = TestCase $ do
+      assertBool "1--"  $ matchRel g1 [Just 1,  Nothing, Nothing] == [5]
+      assertBool "-0-"  $ matchRel g1 [Nothing, Just 0,  Nothing] == [5,6]
+      assertBool "--3"  $ matchRel g1 [Nothing, Nothing, Just 4 ] == [5]
+      assertBool "---4" $ matchRel g1 [Nothing, Nothing, Nothing, Just 4] == [8]
+
+  -- show
+    tShowExpr = TestCase $ do
+      assertBool "expr 5" $ showExpr g1 5 == "5:1 [0: dog] wants [4: brandy]"
+      assertBool "expr 11" $ showExpr g1 11 == 
+        "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
