@@ -100,9 +100,15 @@
         "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
 
   -- parse .mm
-    tParseMm = TestCase $ do
+    tParseMm = TestList [tMmNodeText, tWord]
+    tMmNodeText = TestCase $ do
       assertBool "mmNodeText" $ eParse2 mmNodeText "\"aygaw\"bbbb"
         == Right ("aygaw","bbbb")
       assertBool "the escape characters"
         $ eParse2 mmNodeText "\"&lt;&amp;&gt;  &apos;&quot;&#xa;\"111"
         == Right ("<&>  '\"\n","111")
+
+    tWord = TestCase $ do
+      assertBool "tWord"
+        $ eParse2 (many $ word <* spaces) "bird thug_a\nMAZ3 \n 13;;;"
+        == Right (["bird","thug_a","MAZ3","13"],";;;")

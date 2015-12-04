@@ -41,4 +41,4 @@
      <* char '"'
 
     word :: Parser String
-    word = many $ alphaNum <|> char '_'
+    word = many1 $ alphaNum <|> char '_'
