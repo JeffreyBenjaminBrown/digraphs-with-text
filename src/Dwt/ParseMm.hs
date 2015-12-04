@@ -4,6 +4,7 @@
     -- parse2 below is what Jake Wheat called parseWithLeftOver
 
 -- init
+    {-# LANGUAGE FlexibleContexts #-}
     module Dwt.ParseMm
       ( module Text.Parsec
       , module Text.Parsec.String
@@ -27,13 +28,17 @@
     mmEscapedChar :: Parser Char
     mmEscapedChar = mmLeftAngle <|> mmNewline <|> mmRightAngle 
         <|> mmCaret <|> mmAmpersand <|> mmApostrophe
-      where mmLeftAngle = pure '<' <* string "&lt;"
-            mmNewline = pure '\n' <* string "&#xa;"
-            mmRightAngle = pure '>' <* string "&gt;"
-            mmCaret = pure '^' <* string "&quot;"
-            mmAmpersand = pure '&' <* string "&amp;"
-            mmApostrophe = pure '\'' <* string "&apos"
+      where sandwich s = try $ string $ "&" ++ s ++ ";"
+            mmLeftAngle = pure '<' <* sandwich "lt"
+            mmNewline = pure '\n' <* sandwich "#xa"
+            mmRightAngle = pure '>' <* sandwich "gt"
+            mmCaret = pure '"' <* sandwich "quot"
+            mmAmpersand = pure '&' <* sandwich "amp"
+            mmApostrophe = pure '\'' <* sandwich "apos"
 
     mmNodeText = char '"' *> 
      (many $ mmEscapedChar <|> satisfy (/= '"')) 
      <* char '"'
+
+    word :: Parser String
+    word = many $ alphaNum <|> char '_'

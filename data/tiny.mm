@@ -59,7 +59,7 @@
 <edge COLOR="#0000ff"/>
 <node TEXT="node 3, child of 2" ID="ID_1441026734" CREATED="1449192255923" MODIFIED="1449192291598"/>
 </node>
-<node TEXT="fat node, with a newline right here:&#xa;these are the escape characters: &lt;&gt;&quot;&amp;&apos;" POSITION="right" ID="ID_1716485631" CREATED="1449193573345" MODIFIED="1449193632534">
+<node TEXT="fat node, with a newline right here:&#xa;these are the escape characters: &lt;&gt;&quot;&amp;&apos;&#xa;caret is not: ^" POSITION="right" ID="ID_1716485631" CREATED="1449193573345" MODIFIED="1449216947328">
 <edge COLOR="#ff00ff"/>
 </node>
 </node>

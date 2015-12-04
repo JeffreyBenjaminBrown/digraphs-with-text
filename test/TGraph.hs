@@ -103,3 +103,6 @@
     tParseMm = TestCase $ do
       assertBool "mmNodeText" $ eParse2 mmNodeText "\"aygaw\"bbbb"
         == Right ("aygaw","bbbb")
+      assertBool "the escape characters"
+        $ eParse2 mmNodeText "\"&lt;&amp;&gt;  &apos;&quot;&#xa;\"111"
+        == Right ("<&>  '\"\n","111")
