@@ -10,8 +10,9 @@
     main = runTestTT testList
 
     testList = TestList
-      [   TestLabel "tSubInTplt" tSubInTplt
-        , TestLabel "tInsert" tInsert
+      [ TestLabel "twoTests" twoTests
+        -- TestLabel "tSubInTplt" tSubInTplt
+        -- , TestLabel "tInsert" tInsert
         , TestLabel "tMatchRel"  tMatchRel
         , TestLabel "tShowExpr" tShowExpr
         , TestLabel "tGelemM" tGelemM
@@ -50,6 +51,8 @@
           $ insStr "dog"        $ empty :: Mindmap
 
 -- tests
+    twoTests = TestList [tSubInTplt, tInsert]
+
     tSubInTplt = TestCase $ do
       assertBool "1" $ subInTplt (fromJust $ lab g1 1) ["man","peace"]
         == "man wants peace"

@@ -2,8 +2,8 @@
 
     module Dwt
       ( module Dwt.Graph
-      , module Dwt.ReadMmFormat
+      , module Dwt.ParseMm
       ) where
 
     import Dwt.Graph
-    import Dwt.ReadMmFormat
+    import Dwt.ParseMm

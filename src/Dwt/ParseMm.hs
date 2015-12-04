@@ -1,12 +1,13 @@
 -- usually folded
+  -- NEXT: nest, many(the function)
   -- uses some functions by Jake Wheat
     -- https://github.com/JakeWheat/intro_to_parsing
 
 -- init
-    module Dwt.ReadMmFormat
+    module Dwt.ParseMm
       ( module Text.Parsec
       , module Text.Parsec.String
-      , module Dwt.ReadMmFormat
+      , module Dwt.ParseMm
       ) where
     import Text.Parsec
     import Text.Parsec.String (Parser)

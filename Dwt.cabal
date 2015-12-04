@@ -29,7 +29,7 @@ library
 test-suite new-template-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
-  main-is:             Spec.hs
+  main-is:             TGraph.hs
   build-depends:       Dwt
                        , base
                        , HUnit
