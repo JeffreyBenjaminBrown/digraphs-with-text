@@ -1,7 +1,7 @@
 -- usually folded
-  -- NEXT: nest, many(the function)
   -- uses some functions by Jake Wheat
     -- https://github.com/JakeWheat/intro_to_parsing
+    -- parse2 below is what Jake Wheat called parseWithLeftOver
 
 -- init
     module Dwt.ParseMm
@@ -19,8 +19,8 @@
     regularParse :: Parser a -> String -> Either ParseError a
     regularParse p = parse p ""
 
-    parseWithLeftOver :: Parser a -> String -> Either ParseError (a,String)
-    parseWithLeftOver p = parse ((,) <$> p <*> leftOver) ""
+    parse2 :: Parser a -> String -> Either ParseError (a,String)
+    parse2 p = parse ((,) <$> p <*> leftOver) ""
       where leftOver = manyTill anyToken eof
 
 -- parsers
