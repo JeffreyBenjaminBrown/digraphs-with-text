@@ -118,7 +118,7 @@
 
     tComment = TestCase $ do
       assertBool "tComment" $ eParse2 comment "<!--xxx-->yyy"
-        == Right ((),"yyy")
+        == Right (Comment,"yyy")
 
     tKeyValPair = TestCase $ do
       assertBool "tKeyValPair" $ eParse2 keyValPair "word=\"nacho\""

@@ -37,7 +37,8 @@
 
     data MmTag = MmTag { name :: String
                        , mmMap :: Map.Map String String
-                       , whole :: Bool } deriving (Eq, Show)
+                       , whole :: Bool } 
+                 | Comment deriving (Eq, Show)
 
 -- parse
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -51,15 +52,13 @@
       where leftOver = manyTill anyToken eof
 
 -- parsers
-    comment :: Parser () -- found in Text.ParserCombinators.Parsec.Combinator
+    comment :: Parser MmTag -- found in Text.ParserCombinators.Parsec.Combinator
     comment  = do string "<!--"
                   manyTill anyChar (try $ string "-->")
-                  return ()
-
-    mmSpace = comment <|> spaces
+                  return Comment
 
     lexeme :: Parser a -> Parser a
-    lexeme p = p <* mmSpace
+    lexeme p = p <* optional space
 
     mmEscapedChar :: Parser Char
     mmEscapedChar = mmLeftAngle <|> mmNewline <|> mmRightAngle 
@@ -82,7 +81,7 @@
     keyValPair :: Parser (String,String)
     keyValPair = (,) <$> (lexeme word <* lexeme (char '=')) <*> lexeme mmStr
 
-    mmTag :: Parser MmTag
+    mmTag :: Parser MmTag -- IS tested but strangely
     mmTag = do char '<'
                title <- lexeme word
                pairs <- many $ lexeme keyValPair
@@ -92,6 +91,6 @@
                          <|> (string ">" >> return False) :: Parser Bool
 
     mmFile :: Parser [MmTag]
-    mmFile = mmSpace *> (many $ lexeme mmTag)
+    mmFile = optional space *> (many $ lexeme $ try mmTag <|> comment)
 
 -- [mmTag] -> _
