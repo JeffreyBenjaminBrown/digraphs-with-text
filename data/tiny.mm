@@ -1,4 +1,5 @@
 <map version="freeplane 1.3.0">
+<!--To view this file, download free mind mapping software Freeplane from http://freeplane.sourceforge.net -->
 <node TEXT="the root" ID="ID_1723255651" CREATED="1283093380553" MODIFIED="1449261674074"><hook NAME="MapStyle" zoom="2.357">
 
 <map_styles>
@@ -49,7 +50,6 @@
 </map_styles>
 </hook>
 <hook NAME="AutomaticEdgeColor" COUNTER="4"/>
-
 <node TEXT="1, linked to 2 and 2.1" POSITION="right" ID="ID_1588678987" CREATED="1449192253308" MODIFIED="1449261657470">
 <edge COLOR="#ff0000"/>
 <arrowlink SHAPE="CUBIC_CURVE" COLOR="#000000" WIDTH="2" TRANSPARENCY="80" FONT_SIZE="9" FONT_FAMILY="SansSerif" DESTINATION="ID_1481921831" STARTINCLINATION="40;0;" ENDINCLINATION="40;0;" STARTARROW="NONE" ENDARROW="DEFAULT"/>
@@ -60,12 +60,10 @@
 <node TEXT="1.2.2" ID="ID_1904562482" CREATED="1449261637582" MODIFIED="1449261644449"/>
 </node>
 </node>
-
 <node TEXT="2" POSITION="right" ID="ID_1481921831" CREATED="1449192255923" MODIFIED="1449261659966">
 <edge COLOR="#0000ff"/>
 <node TEXT="2.1" ID="ID_1441026734" CREATED="1449192255923" MODIFIED="1449261628551"/>
 </node>
-
 <node TEXT="fat node, with a newline right here:&#xa;these are the escape characters: &lt;&gt;&quot;&amp;&apos;&#xa;caret is not: ^" POSITION="right" ID="ID_1716485631" CREATED="1449193573345" MODIFIED="1449216947328">
 <edge COLOR="#ff00ff"/>
 </node>

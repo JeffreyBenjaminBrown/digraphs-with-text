@@ -145,4 +145,5 @@
                  )
 
     tMmFile = do x <- readFile "data/tiny.mm" -- ANOMALY
-                 return $ eParse (many $ lexeme mmTag) x
+                 let Right x' = eParse (strip comment) x
+                   in return $ eParse (many $ lexeme mmTag) x'
