@@ -86,15 +86,22 @@
                               , ends = ends
                               , mmMap = Map.fromList pairs
                               }
-      where endsItself =     (string "/>" >> return True)
+      where endsItself =     (string "/>" >> return True) 
                          <|> (string ">" >> return False) :: Parser Bool
             startsItself  =  (try $ string "</" >> return False)
                          <|> (string "<" >> return True) :: Parser Bool
+      -- TO LEARN
+        -- does endsItself need no try while startsItself does
+        -- because startsItself can read halfway through before discarding,
+        -- while endsItself recognizes inequality at the first character?
 
     comment :: Parser MmTag -- found in Text.ParserCombinators.Parsec.Combinator
     comment  = do string "<!--"
                   manyTill anyChar (try $ string "-->")
                   return Comment
+
+    strip :: Parser a -> Parser [Char]
+    strip p = many $ (skipMany $ try p) >> anyChar
 
     mmFile :: Parser [MmTag]
     mmFile = optional space *> (sepBy (lexeme $ try mmTag <|> comment)

@@ -1,4 +1,5 @@
 -- setup
+    {-# LANGUAGE FlexibleContexts #-}
     import Test.HUnit
     import Dwt
     import qualified Data.List as List
@@ -102,7 +103,8 @@
         "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
 
   -- parse .mm
-    tParseMm = TestList [tMmNodeText, tWord, tComment, tKeyValPair, tMmTag]
+    tParseMm = TestList [tMmNodeText, tWord, tComment, tKeyValPair, 
+      tStrip, tMmTag]
 
     tMmNodeText = TestCase $ do
       assertBool "mmStr" $ eParse2 mmStr "\"aygaw\"bbbb"
@@ -126,6 +128,11 @@
       assertBool "list of key-value pairs; lexme"
         $ eParse2 (many $ lexeme keyValPair) "a=\"1\" b=\"2\""
         == Right( [("a","1"), ("b","2")], "")
+
+    tStrip = TestCase $ do
+      assertBool "strip -- symbols" 
+        $ eParse (strip $ string "--") "-a--b-c--dd---"
+        == Right                       "-ab-cdd-"
 
     tMmTag = TestCase $ do
       assertBool "parse mmTag" $ eParse mmTag "<hi a=\"1\" bb =\"22\" >"
