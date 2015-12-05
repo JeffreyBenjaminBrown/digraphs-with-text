@@ -103,10 +103,10 @@
     tParseMm = TestList [tMmNodeText, tWord, tComment]
 
     tMmNodeText = TestCase $ do
-      assertBool "mmNodeText" $ eParse2 mmNodeText "\"aygaw\"bbbb"
+      assertBool "mmStr" $ eParse2 mmStr "\"aygaw\"bbbb"
         == Right ("aygaw","bbbb")
       assertBool "the escape characters"
-        $ eParse2 mmNodeText "\"&lt;&amp;&gt;  &apos;&quot;&#xa;\"111"
+        $ eParse2 mmStr "\"&lt;&amp;&gt;  &apos;&quot;&#xa;\"111"
         == Right ("<&>  '\"\n","111")
 
     tWord = TestCase $ do

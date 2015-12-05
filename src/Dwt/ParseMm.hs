@@ -61,7 +61,7 @@
             mmAmpersand = pure '&' <* sandwich "amp"
             mmApostrophe = pure '\'' <* sandwich "apos"
 
-    mmNodeText = char '"' *>  -- TODO: readability: use between
+    mmStr = char '"' *>  -- TODO: readability: use between
      (many $ mmEscapedChar <|> satisfy (/= '"'))
      <* char '"'
 
