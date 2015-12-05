@@ -116,4 +116,4 @@
 
     tComment = TestCase $ do
       assertBool "tComment" $ eParse2 comment "<!--xxx-->yyy"
-        == Right ("xxx","yyy")
+        == Right ((),"yyy")
