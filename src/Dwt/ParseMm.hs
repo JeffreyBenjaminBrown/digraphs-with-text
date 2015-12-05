@@ -12,6 +12,7 @@
       ) where
     import Text.Parsec
     import Text.Parsec.String (Parser)
+    import Data.Map
 
 -- simplified parse commands
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -36,17 +37,24 @@
             mmAmpersand = pure '&' <* sandwich "amp"
             mmApostrophe = pure '\'' <* sandwich "apos"
 
-    mmNodeText = char '"' *> 
+    mmNodeText = char '"' *>  -- TODO: readability: use between
      (many $ mmEscapedChar <|> satisfy (/= '"'))
      <* char '"'
 
-    word :: Parser String
+    word :: Parser String -- that is, a Word outside of an MmNodeText
     word = many1 $ alphaNum <|> char '_'
 
-    tag :: Parser a -> Parser a -- "tag" is XML for "<>-delimited thing"
-    tag content = char '<' *> content <* char '>'
+    -- see csv2.hs at http://book.realworldhaskell.org/read/using-parsec.html
+      -- for how to make a (Parser [a]) from a (Parser a)
+    -- or this is even easier:
+      -- *Dwt> eParse2 (many $ string "bo") "bobobodo"
+      -- Right (["bo","bo","bo"],"do")
+    -- tag :: String -> Parser (Map String String)
+    -- tag name = 
 
     -- found this in Text.ParserCombinators.Parsec.Combinator
     comment :: Parser String
     comment  = do string "<!--"
                   manyTill anyChar (try $ string "-->")
+
+    
