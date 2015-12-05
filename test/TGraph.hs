@@ -4,6 +4,7 @@
     import qualified Data.List as List
     import Data.Maybe (fromJust)
     import Data.Either
+    import qualified Data.Map as Map
 
     import Control.Monad.Except -- from mtl library
 
@@ -100,7 +101,7 @@
         "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
 
   -- parse .mm
-    tParseMm = TestList [tMmNodeText, tWord, tComment, tKeyValPair]
+    tParseMm = TestList [tMmNodeText, tWord, tComment, tKeyValPair, tMmTag]
 
     tMmNodeText = TestCase $ do
       assertBool "mmStr" $ eParse2 mmStr "\"aygaw\"bbbb"
@@ -124,3 +125,8 @@
       assertBool "list of key-value pairs; lexme"
         $ eParse2 (many $ lexeme keyValPair) "a=\"1\" b=\"2\""
         == Right( [("a","1"), ("b","2")], "")
+
+    tMmTag = TestCase $ do
+      assertBool "parse mmTag" $ eParse mmTag "<hi a=\"1\" bb =\"22\" >"
+        == Right ( MmTag "hi" $
+                         Map.fromList [("a","1"), ("bb","22")] )

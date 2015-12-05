@@ -23,7 +23,7 @@
       ) where
     import Text.Parsec
     import Text.Parsec.String (Parser)
-    import Data.Map as M
+    import qualified Data.Map as Map
 
 -- types
     data Branch = Branch { mmText :: MmText
@@ -36,7 +36,7 @@
                          , modified :: Int }
 
     data MmTag = MmTag { name :: String
-                       , mmMap :: [M.Map String String] }
+                       , mmMap :: Map.Map String String } deriving (Eq, Show)
 
 -- parse
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -74,10 +74,11 @@
     keyValPair :: Parser (String,String)
     keyValPair = (,) <$> (lexeme word <* lexeme (char '=')) <*> lexeme mmStr
 
---    mmTag :: Parser MmTag
---    mmTag = do char '<'
---               title <- word
---               keyValPairs <- 
+    mmTag :: Parser MmTag
+    mmTag = do char '<'
+               title <- word
+               pairs <- many $ lexeme keyValPair
+               return $ MmTag title $ Map.fromList pairs
 
     -- found this in Text.ParserCombinators.Parsec.Combinator
     comment :: Parser ()
