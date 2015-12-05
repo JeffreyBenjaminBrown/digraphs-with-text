@@ -4,6 +4,7 @@
     import qualified Data.List as List
     import Data.Maybe (fromJust)
     import Data.Either
+    import System.IO
     import qualified Data.Map as Map
 
     import Control.Monad.Except -- from mtl library
@@ -128,5 +129,9 @@
 
     tMmTag = TestCase $ do
       assertBool "parse mmTag" $ eParse mmTag "<hi a=\"1\" bb =\"22\" >"
-        == Right ( MmTag "hi" $
-                         Map.fromList [("a","1"), ("bb","22")] )
+        == Right ( MmTag "hi" -- WHY can't I dollar these parens?
+                         ( Map.fromList [("a","1"), ("bb","22")] )
+                         False )
+
+    tMmFile = do x <- readFile "data/tiny.mm" -- ANOMALY
+                 return $ eParse (many $ lexeme mmTag) x

@@ -2,7 +2,7 @@
   -- uses some functions by Jake Wheat
     -- https://github.com/JakeWheat/intro_to_parsing
     -- parse2 below is what Jake Wheat called parseWithLeftOver
-  -- tags to skip
+  -- tags to skip -- NEAT: Maybe I did not need to write these
     -- <map_styles>
     -- <stylenode LOCALIZED_TEXT="styles.root_node">
     -- <font NAME="SansSerif" SIZE="10" BOLD="false" ITALIC="false"/>
@@ -36,7 +36,8 @@
                          , modified :: Int }
 
     data MmTag = MmTag { name :: String
-                       , mmMap :: Map.Map String String } deriving (Eq, Show)
+                       , mmMap :: Map.Map String String
+                       , whole :: Bool } deriving (Eq, Show)
 
 -- parse
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -50,8 +51,15 @@
       where leftOver = manyTill anyToken eof
 
 -- parsers
+    comment :: Parser () -- found in Text.ParserCombinators.Parsec.Combinator
+    comment  = do string "<!--"
+                  manyTill anyChar (try $ string "-->")
+                  return ()
+
+    mmSpace = comment <|> spaces
+
     lexeme :: Parser a -> Parser a
-    lexeme p = p <* spaces
+    lexeme p = p <* mmSpace
 
     mmEscapedChar :: Parser Char
     mmEscapedChar = mmLeftAngle <|> mmNewline <|> mmRightAngle 
@@ -78,10 +86,12 @@
     mmTag = do char '<'
                title <- lexeme word
                pairs <- many $ lexeme keyValPair
-               return $ MmTag title $ Map.fromList pairs
+               whole <- endsItself -- not lexeme here, rather a level up
+               return $ MmTag title (Map.fromList pairs) whole
+      where endsItself =     (string "/>" >> return True)
+                         <|> (string ">" >> return False) :: Parser Bool
 
-    -- found this in Text.ParserCombinators.Parsec.Combinator
-    comment :: Parser ()
-    comment  = do string "<!--"
-                  manyTill anyChar (try $ string "-->")
-                  return ()
+    mmFile :: Parser [MmTag]
+    mmFile = mmSpace *> (many $ lexeme mmTag)
+
+-- [mmTag] -> _
