@@ -2,6 +2,17 @@
   -- uses some functions by Jake Wheat
     -- https://github.com/JakeWheat/intro_to_parsing
     -- parse2 below is what Jake Wheat called parseWithLeftOver
+  -- tags to skip
+    -- <map_styles>
+    -- <stylenode LOCALIZED_TEXT="styles.root_node">
+    -- <font NAME="SansSerif" SIZE="10" BOLD="false" ITALIC="false"/>
+    -- </stylenode>
+    -- <edge STYLE="hide_edge"/>
+    -- <cloud COLOR="#f0f0f0" SHAPE="ROUND_RECT"/>
+    -- <icon BUILTIN="yes"/>
+    -- </map_styles>
+    -- </hook>
+    -- </map>
 
 -- init
     {-# LANGUAGE FlexibleContexts #-}
@@ -14,7 +25,20 @@
     import Text.Parsec.String (Parser)
     import Data.Map
 
--- simplified parse commands
+-- types
+    data Branch = Branch { mmText :: MmText
+                         , scrs :: [Branch]
+                         , links :: [MmText] }
+
+    data MmText = MmText { text :: String
+                         , mmId :: Int
+                         , created :: Int
+                         , modified :: Int }
+
+    data MmTag = MmTag { name :: String
+                       , mmMap :: [Map String String] }
+
+-- parse
     parseWithEof :: Parser a -> String -> Either ParseError a
     parseWithEof p = parse (p <* eof) ""
 
@@ -56,5 +80,3 @@
     comment :: Parser String
     comment  = do string "<!--"
                   manyTill anyChar (try $ string "-->")
-
-    
