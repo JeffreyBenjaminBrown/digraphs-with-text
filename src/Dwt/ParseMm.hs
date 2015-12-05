@@ -76,7 +76,7 @@
 
     mmTag :: Parser MmTag
     mmTag = do char '<'
-               title <- word
+               title <- lexeme word
                pairs <- many $ lexeme keyValPair
                return $ MmTag title $ Map.fromList pairs
 
