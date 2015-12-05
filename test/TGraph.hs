@@ -144,6 +144,6 @@
                          ( Map.fromList [("a","1"), ("bb","22")] )
                  )
 
+    tMmFile :: IO (Either ParseError [MmTag])
     tMmFile = do x <- readFile "data/tiny.mm" -- ANOMALY
-                 let Right x' = eParse (strip comment) x
-                   in return $ eParse (many $ lexeme mmTag) x'
+                 return $ parseMmFile x

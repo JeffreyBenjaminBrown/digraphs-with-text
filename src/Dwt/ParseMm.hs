@@ -23,6 +23,7 @@
       ) where
     import Text.Parsec
     import Text.Parsec.String (Parser)
+    import Control.Monad.Except
     import qualified Data.Map as Map
 
 -- types
@@ -90,9 +91,9 @@
                          <|> (string ">" >> return False) :: Parser Bool
             startsItself  =  (try $ string "</" >> return False)
                          <|> (string "<" >> return True) :: Parser Bool
-      -- TO LEARN
-        -- does endsItself need no try while startsItself does
-        -- because startsItself can read halfway through before discarding,
+      -- MYST
+        -- endsItself needs no try while startsItself does. Is that because
+        -- startsItself can read halfway through before discarding,
         -- while endsItself recognizes inequality at the first character?
 
     comment :: Parser MmTag -- found in Text.ParserCombinators.Parsec.Combinator
@@ -103,8 +104,10 @@
     strip :: Parser a -> Parser [Char]
     strip p = many $ (skipMany $ try p) >> anyChar
 
-    mmFile :: Parser [MmTag]
-    mmFile = optional space *> (sepBy (lexeme $ try mmTag <|> comment)
-                                      space)
+    parseMmFile :: String -> Either ParseError [MmTag]
+      -- MYST ? how to unify this two-parse strategy with the usual parser idiom
+    parseMmFile f = case eParse (strip comment) f of 
+        Right f' ->  eParse (many $ lexeme mmTag) f'
+        Left e -> throwError e
 
 -- [mmTag] -> _
