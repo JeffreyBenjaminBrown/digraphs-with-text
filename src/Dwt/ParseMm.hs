@@ -23,7 +23,7 @@
       ) where
     import Text.Parsec
     import Text.Parsec.String (Parser)
-    import Data.Map
+    import Data.Map as M
 
 -- types
     data Branch = Branch { mmText :: MmText
@@ -36,7 +36,7 @@
                          , modified :: Int }
 
     data MmTag = MmTag { name :: String
-                       , mmMap :: [Map String String] }
+                       , mmMap :: [M.Map String String] }
 
 -- parse
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -50,6 +50,9 @@
       where leftOver = manyTill anyToken eof
 
 -- parsers
+    lexeme :: Parser a -> Parser a
+    lexeme p = p <* spaces
+
     mmEscapedChar :: Parser Char
     mmEscapedChar = mmLeftAngle <|> mmNewline <|> mmRightAngle 
         <|> mmCaret <|> mmAmpersand <|> mmApostrophe
@@ -61,12 +64,20 @@
             mmAmpersand = pure '&' <* sandwich "amp"
             mmApostrophe = pure '\'' <* sandwich "apos"
 
-    mmStr = char '"' *>  -- TODO: readability: use between
-     (many $ mmEscapedChar <|> satisfy (/= '"'))
-     <* char '"'
+    mmStr = between quot quot 
+      $ many $ mmEscapedChar <|> satisfy (/= '"')
+      where quot = char '"'
 
     word :: Parser String -- that is, a Word outside of an MmNodeText
     word = many1 $ alphaNum <|> char '_'
+
+    keyValPair :: Parser (String,String)
+    keyValPair = (,) <$> (lexeme word <* lexeme (char '=')) <*> lexeme mmStr
+
+--    mmTag :: Parser MmTag
+--    mmTag = do char '<'
+--               title <- word
+--               keyValPairs <- 
 
     -- found this in Text.ParserCombinators.Parsec.Combinator
     comment :: Parser ()

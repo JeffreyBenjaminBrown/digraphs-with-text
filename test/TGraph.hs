@@ -100,7 +100,7 @@
         "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
 
   -- parse .mm
-    tParseMm = TestList [tMmNodeText, tWord, tComment]
+    tParseMm = TestList [tMmNodeText, tWord, tComment, tKeyValPair]
 
     tMmNodeText = TestCase $ do
       assertBool "mmStr" $ eParse2 mmStr "\"aygaw\"bbbb"
@@ -117,3 +117,7 @@
     tComment = TestCase $ do
       assertBool "tComment" $ eParse2 comment "<!--xxx-->yyy"
         == Right ((),"yyy")
+
+    tKeyValPair = TestCase $ do
+      assertBool "tKeyValPair" $ eParse2 keyValPair "word=\"nacho\""
+        == Right( ("word","nacho"), "")
