@@ -88,7 +88,7 @@
                               }
       where endsItself =     (string "/>" >> return True)
                          <|> (string ">" >> return False) :: Parser Bool
-            startsItself  =  (string "</" >> return False)
+            startsItself  =  (try $ string "</" >> return False)
                          <|> (string "<" >> return True) :: Parser Bool
 
     comment :: Parser MmTag -- found in Text.ParserCombinators.Parsec.Combinator
