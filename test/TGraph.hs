@@ -129,9 +129,9 @@
 
     tMmTag = TestCase $ do
       assertBool "parse mmTag" $ eParse mmTag "<hi a=\"1\" bb =\"22\" >"
-        == Right ( MmTag "hi" -- WHY can't I dollar these parens?
+        == Right ( MmTag "hi" True False -- WHY can't I dollar these parens?
                          ( Map.fromList [("a","1"), ("bb","22")] )
-                         False )
+                 )
 
     tMmFile = do x <- readFile "data/tiny.mm" -- ANOMALY
                  return $ eParse (many $ lexeme mmTag) x

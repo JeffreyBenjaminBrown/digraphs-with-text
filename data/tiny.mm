@@ -1,5 +1,4 @@
 <map version="freeplane 1.3.0">
-<!--To view this file, download free mind mapping software Freeplane from http://freeplane.sourceforge.net -->
 <node TEXT="the root" ID="ID_1723255651" CREATED="1283093380553" MODIFIED="1449261674074"><hook NAME="MapStyle" zoom="2.357">
 
 <map_styles>

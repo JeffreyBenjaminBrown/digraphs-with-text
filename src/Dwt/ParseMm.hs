@@ -35,10 +35,10 @@
                          , created :: Int
                          , modified :: Int }
 
-    data MmTag = MmTag { name :: String
+    data MmTag = MmTag { title :: String 
+                       , starts :: Bool, ends :: Bool
                        , mmMap :: Map.Map String String
-                       , whole :: Bool } 
-                 | Comment deriving (Eq, Show)
+                       } | Comment deriving (Eq, Show)
 
 -- parse
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -52,11 +52,6 @@
       where leftOver = manyTill anyToken eof
 
 -- parsers
-    comment :: Parser MmTag -- found in Text.ParserCombinators.Parsec.Combinator
-    comment  = do string "<!--"
-                  manyTill anyChar (try $ string "-->")
-                  return Comment
-
     lexeme :: Parser a -> Parser a
     lexeme p = p <* spaces
 
@@ -82,13 +77,24 @@
     keyValPair = (,) <$> (lexeme word <* lexeme (char '=')) <*> lexeme mmStr
 
     mmTag :: Parser MmTag -- IS tested but strangely
-    mmTag = do char '<' -- TODO: change to beginsItself
+    mmTag = do starts <- startsItself
                title <- lexeme word
                pairs <- many $ lexeme keyValPair
-               whole <- endsItself -- not lexeme here, rather a level up
-               return $ MmTag title (Map.fromList pairs) whole
+               ends <- endsItself -- not use lexeme here, rather a level up
+               return $ MmTag { title = title
+                              , starts = starts
+                              , ends = ends
+                              , mmMap = Map.fromList pairs
+                              }
       where endsItself =     (string "/>" >> return True)
                          <|> (string ">" >> return False) :: Parser Bool
+            startsItself  =  (string "</" >> return False)
+                         <|> (string "<" >> return True) :: Parser Bool
+
+    comment :: Parser MmTag -- found in Text.ParserCombinators.Parsec.Combinator
+    comment  = do string "<!--"
+                  manyTill anyChar (try $ string "-->")
+                  return Comment
 
     mmFile :: Parser [MmTag]
     mmFile = optional space *> (sepBy (lexeme $ try mmTag <|> comment)
