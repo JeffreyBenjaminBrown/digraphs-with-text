@@ -121,3 +121,6 @@
     tKeyValPair = TestCase $ do
       assertBool "tKeyValPair" $ eParse2 keyValPair "word=\"nacho\""
         == Right( ("word","nacho"), "")
+      assertBool "list of key-value pairs; lexme"
+        $ eParse2 (many $ lexeme keyValPair) "a=\"1\" b=\"2\""
+        == Right( [("a","1"), ("b","2")], "")
