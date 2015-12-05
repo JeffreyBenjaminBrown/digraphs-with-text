@@ -58,7 +58,7 @@
                   return Comment
 
     lexeme :: Parser a -> Parser a
-    lexeme p = p <* optional space
+    lexeme p = p <* spaces
 
     mmEscapedChar :: Parser Char
     mmEscapedChar = mmLeftAngle <|> mmNewline <|> mmRightAngle 
@@ -82,7 +82,7 @@
     keyValPair = (,) <$> (lexeme word <* lexeme (char '=')) <*> lexeme mmStr
 
     mmTag :: Parser MmTag -- IS tested but strangely
-    mmTag = do char '<'
+    mmTag = do char '<' -- TODO: change to beginsItself
                title <- lexeme word
                pairs <- many $ lexeme keyValPair
                whole <- endsItself -- not lexeme here, rather a level up
@@ -91,6 +91,7 @@
                          <|> (string ">" >> return False) :: Parser Bool
 
     mmFile :: Parser [MmTag]
-    mmFile = optional space *> (many $ lexeme $ try mmTag <|> comment)
+    mmFile = optional space *> (sepBy (lexeme $ try mmTag <|> comment)
+                                      space)
 
 -- [mmTag] -> _
