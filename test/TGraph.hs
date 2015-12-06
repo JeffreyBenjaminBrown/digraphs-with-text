@@ -150,7 +150,16 @@
                  return $ parseMmFile x
 
   -- manip mmTags
-    tMmTags = TestList [tParseId]
+    tMmTags = TestList [tParseId, tMmText]
 
     tParseId = TestCase $ do
       assertBool "parse ID strings" $ parseId "ID_123" == Right 123
+
+    tMmText = TestCase $ do
+      assertBool "parse an xml TEXT tag into an MmText"
+        $ (mmText $ MlTag { title = "node"
+                          , isStart = True
+                          , isEnd = True
+                          , mlMap = Map.fromList [("CREATED","1449389483215"),("ID","ID_1033943189"),("LOCALIZED_STYLE_REF","AutomaticLayout.level,2"),("MODIFIED","1449389512135"),("TEXT","c3, gold")]})
+        == MmText "c3, gold" 1033943189 (Just "AutomaticLayout.level,2")
+             1449389483215 1449389512135

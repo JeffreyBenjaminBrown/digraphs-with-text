@@ -30,7 +30,7 @@
     import qualified Data.Map as Map
 
 -- types
-    data Branch = Branch { mmText :: MmText
+    data Branch = Branch { branchText :: MmText
                          , scrs :: [Branch]
                          , links :: [MmText] }
 
@@ -38,11 +38,11 @@
                          , mmId :: Int
                          , style :: Maybe String
                          , created :: Int
-                         , modified :: Int }
+                         , modified :: Int } deriving (Show, Eq)
 
     data MlTag = MlTag { title :: String 
-                       , isStart :: Bool -- </ does not start; < does
-                       , isEnd :: Bool -- /> ends; > does not
+                       , isStart :: Bool -- starting < is start; </ is not
+                       , isEnd :: Bool   -- ending /> is end; > is not
                        , mlMap :: Map.Map String String
                        } | Comment deriving (Eq, Show)
 
@@ -124,3 +124,19 @@
 
     arrowDest :: MlTag -> Either ParseError Int
     arrowDest m = parseId $ mlMap m Map.! "DESTINATION"
+
+    fromRight :: Either a b -> b
+    fromRight (Right b) = b
+    fromRight (Left _) = error "fromRight: Left"
+
+    mmText :: MlTag -> MmText
+    mmText tag = 
+      let m = mlMap tag
+          text = m Map.! "TEXT"
+          mmId = fromRight $ parseId $ m Map.! "ID"
+          style = if Map.member "LOCALIZED_STYLE_REF" m
+                    then Just $ m Map.! "LOCALIZED_STYLE_REF"
+                    else Nothing
+          created = read $ m Map.! "CREATED"
+          modified = read $ m Map.! "MODIFIED"
+      in MmText text mmId style created modified
