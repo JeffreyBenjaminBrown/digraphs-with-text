@@ -43,7 +43,7 @@
     data MlTag = MlTag { title :: String 
                        , isStart :: Bool -- </ does not start; < does
                        , isEnd :: Bool -- /> ends; > does not
-                       , mmMap :: Map.Map String String
+                       , mlMap :: Map.Map String String
                        } | Comment deriving (Eq, Show)
 
 -- parsing generally
@@ -90,7 +90,7 @@
                return $ MlTag { title = title
                               , isStart = isStart
                               , isEnd = isEnd
-                              , mmMap = Map.fromList pairs
+                              , mlMap = Map.fromList pairs
                               }
       where endsItself =     (string "/>" >> return True) 
                          <|> (string ">" >> return False) :: Parser Bool
@@ -122,4 +122,5 @@
     parseId :: String -> Either ParseError Int
     parseId s = read <$> eParse (string "ID_" *> many digit) s
 
-    --parseArrow :: MmTag -> 
+    arrowDest :: MlTag -> Either ParseError Int
+    arrowDest m = parseId $ mlMap m Map.! "DESTINATION"
