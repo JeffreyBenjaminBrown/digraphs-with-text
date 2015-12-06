@@ -13,6 +13,9 @@
     -- </map_styles>
     -- </hook>
     -- </map>
+   -- styles: incomplete
+    -- within-node, e.g. LOCALIZED_STYLE_REF="styles.topic", this captures
+    -- but <font ...> tags outside of a node applicable to it, this does not
 
 -- init
     {-# LANGUAGE FlexibleContexts #-}
@@ -33,6 +36,7 @@
 
     data MmText = MmText { text :: String
                          , mmId :: Int
+                         , style :: Maybe String
                          , created :: Int
                          , modified :: Int }
 
@@ -113,4 +117,9 @@
 
 -- [mlTag] -> _
     tagToKeep :: MlTag -> Bool
-    tagToKeep t = elem (title t) ["node"] -- TODO: longer list
+    tagToKeep t = elem (title t) ["node","arrowlink"]
+
+    parseId :: String -> Either ParseError Int
+    parseId s = read <$> eParse (string "ID_" *> many digit) s
+
+    --parseArrow :: MmTag -> 

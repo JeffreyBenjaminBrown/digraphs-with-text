@@ -17,6 +17,7 @@
         , TestLabel "tAskNodes"   tAskNodes
         , TestLabel "tShowExpr"   tShowExpr
         , TestLabel "tParseMm"    tParseMm
+        , TestLabel "tMmTags"     tMmTags
       ]
 
 -- "globals"
@@ -102,7 +103,7 @@
       assertBool "expr 11" $ showExpr g1 11 == 
         "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
 
-  -- parse .mm
+  -- parse .mm(the xml format)
     tParseMm = TestList [tMmNodeText, tWord, tComment, tKeyValPair, 
       tStrip, tMlTag]
 
@@ -147,3 +148,9 @@
     tMmFile :: IO (Either ParseError [MlTag])
     tMmFile = do x <- readFile "data/tiny.mm" -- ANOMALY
                  return $ parseMmFile x
+
+  -- manip mmTags
+    tMmTags = TestList [tParseId]
+
+    tParseId = TestCase $ do
+      assertBool "parse ID strings" $ parseId "ID_123" == Right 123
