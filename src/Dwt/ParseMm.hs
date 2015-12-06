@@ -1,20 +1,9 @@
 -- usually folded
-  -- uses some functions by Jake Wheat
+  -- CREDITS: uses some functions by Jake Wheat
     -- https://github.com/JakeWheat/intro_to_parsing
     -- parse2 below is what Wheat called parseWithLeftOver
-  -- tags to skip -- NEAT: Maybe I did not need to write these
-    -- <map_styles>
-    -- <stylenode LOCALIZED_TEXT="styles.root_node">
-    -- <font NAME="SansSerif" SIZE="10" BOLD="false" ITALIC="false"/>
-    -- </stylenode>
-    -- <edge STYLE="hide_edge"/>
-    -- <cloud COLOR="#f0f0f0" SHAPE="ROUND_RECT"/>
-    -- <icon BUILTIN="yes"/>
-    -- </map_styles>
-    -- </hook>
-    -- </map>
-   -- styles: incomplete
-    -- within-node, e.g. LOCALIZED_STYLE_REF="styles.topic", this captures
+   -- styles|fonts: incomplete
+    -- within-node ones, e.g. LOCALIZED_STYLE_REF="styles.topic", this captures
     -- but <font ...> tags outside of a node applicable to it, this does not
 
 -- init
@@ -96,10 +85,6 @@
                          <|> (string ">" >> return False) :: Parser Bool
             startsItself  =  (try $ string "</" >> return False)
                          <|> (string "<" >> return True) :: Parser Bool
-      -- MYST
-        -- endsItself needs no try while startsItself does. Is that because
-        -- startsItself can read halfway through before discarding,
-        -- while endsItself recognizes inequality at the first character?
 
     comment :: Parser MlTag -- found in Text.ParserCombinators.Parsec.Combinator
     comment  = do string "<!--"
@@ -116,6 +101,8 @@
         Left e -> throwError e
 
 -- [mlTag] -> _
+  -- TODO ? Work with the Eithers rather than fighting them
+  -- TODO ? use safe Map lookups
     tagToKeep :: MlTag -> Bool
     tagToKeep t = elem (title t) ["node","arrowlink"]
 
