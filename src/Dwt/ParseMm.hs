@@ -127,3 +127,8 @@
           created = read $ m Map.! "CREATED"
           modified = read $ m Map.! "MODIFIED"
       in MmText text mmId style created modified
+
+-- ? LAST
+    -- from a list of MmNodes and MmArrows, generate a list of MmNodes and MmEdges
+    -- Thread the current ancestry through that calculation
+      -- at each descent, add to it; at each rise, pop its most recent
