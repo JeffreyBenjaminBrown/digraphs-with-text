@@ -104,7 +104,7 @@
 
   -- parse .mm
     tParseMm = TestList [tMmNodeText, tWord, tComment, tKeyValPair, 
-      tStrip, tMmTag]
+      tStrip, tMlTag]
 
     tMmNodeText = TestCase $ do
       assertBool "mmStr" $ eParse2 mmStr "\"aygaw\"bbbb"
@@ -134,16 +134,16 @@
         $ eParse (strip $ string "--") "-a--b-c--dd---"
         == Right                       "-ab-cdd-"
 
-    tMmTag = TestCase $ do
-      assertBool "parse mmTag" $ eParse mmTag "<hi a=\"1\" bb =\"22\" >"
-        == Right ( MmTag "hi" True False -- WHY can't I dollar these parens?
+    tMlTag = TestCase $ do
+      assertBool "parse mlTag" $ eParse mlTag "<hi a=\"1\" bb =\"22\" >"
+        == Right ( MlTag "hi" True False -- WHY can't I dollar these parens?
                          ( Map.fromList [("a","1"), ("bb","22")] )
                  )
-      assertBool "parse mmTag" $ eParse mmTag "</hi a=\"1\" bb =\"22\" />"
-        == Right ( MmTag "hi" False True -- WHY can't I dollar these parens?
+      assertBool "parse mlTag" $ eParse mlTag "</hi a=\"1\" bb =\"22\" />"
+        == Right ( MlTag "hi" False True -- WHY can't I dollar these parens?
                          ( Map.fromList [("a","1"), ("bb","22")] )
                  )
 
-    tMmFile :: IO (Either ParseError [MmTag])
+    tMmFile :: IO (Either ParseError [MlTag])
     tMmFile = do x <- readFile "data/tiny.mm" -- ANOMALY
                  return $ parseMmFile x

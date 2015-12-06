@@ -1,7 +1,7 @@
 -- usually folded
   -- uses some functions by Jake Wheat
     -- https://github.com/JakeWheat/intro_to_parsing
-    -- parse2 below is what Jake Wheat called parseWithLeftOver
+    -- parse2 below is what Wheat called parseWithLeftOver
   -- tags to skip -- NEAT: Maybe I did not need to write these
     -- <map_styles>
     -- <stylenode LOCALIZED_TEXT="styles.root_node">
@@ -36,12 +36,13 @@
                          , created :: Int
                          , modified :: Int }
 
-    data MmTag = MmTag { title :: String 
-                       , starts :: Bool, ends :: Bool
+    data MlTag = MlTag { title :: String 
+                       , isStart :: Bool -- </ does not start; < does
+                       , isEnd :: Bool -- /> ends; > does not
                        , mmMap :: Map.Map String String
                        } | Comment deriving (Eq, Show)
 
--- parse
+-- parsing generally
     parseWithEof :: Parser a -> String -> Either ParseError a
     parseWithEof p = parse (p <* eof) ""
 
@@ -52,7 +53,7 @@
     eParse2 p = parse ((,) <$> p <*> leftOver) ""
       where leftOver = manyTill anyToken eof
 
--- parsers
+-- parsing the .mm format
     lexeme :: Parser a -> Parser a
     lexeme p = p <* spaces
 
@@ -77,14 +78,14 @@
     keyValPair :: Parser (String,String)
     keyValPair = (,) <$> (lexeme word <* lexeme (char '=')) <*> lexeme mmStr
 
-    mmTag :: Parser MmTag -- IS tested but strangely
-    mmTag = do starts <- startsItself
+    mlTag :: Parser MlTag -- IS tested but strangely
+    mlTag = do isStart <- startsItself
                title <- lexeme word
                pairs <- many $ lexeme keyValPair
-               ends <- endsItself -- not use lexeme here, rather a level up
-               return $ MmTag { title = title
-                              , starts = starts
-                              , ends = ends
+               isEnd <- endsItself -- not use lexeme here, rather a level up
+               return $ MlTag { title = title
+                              , isStart = isStart
+                              , isEnd = isEnd
                               , mmMap = Map.fromList pairs
                               }
       where endsItself =     (string "/>" >> return True) 
@@ -96,7 +97,7 @@
         -- startsItself can read halfway through before discarding,
         -- while endsItself recognizes inequality at the first character?
 
-    comment :: Parser MmTag -- found in Text.ParserCombinators.Parsec.Combinator
+    comment :: Parser MlTag -- found in Text.ParserCombinators.Parsec.Combinator
     comment  = do string "<!--"
                   manyTill anyChar (try $ string "-->")
                   return Comment
@@ -104,10 +105,12 @@
     strip :: Parser a -> Parser [Char]
     strip p = many $ (skipMany $ try p) >> anyChar
 
-    parseMmFile :: String -> Either ParseError [MmTag]
+    parseMmFile :: String -> Either ParseError [MlTag]
       -- MYST ? how to unify this two-parse strategy with the usual parser idiom
     parseMmFile f = case eParse (strip comment) f of 
-        Right f' ->  eParse (many $ lexeme mmTag) f'
+        Right f' ->  eParse (many $ lexeme mlTag) f'
         Left e -> throwError e
 
--- [mmTag] -> _
+-- [mlTag] -> _
+    tagToKeep :: MlTag -> Bool
+    tagToKeep t = elem (title t) ["node"] -- TODO: longer list
