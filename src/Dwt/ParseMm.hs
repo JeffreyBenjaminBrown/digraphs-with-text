@@ -28,14 +28,19 @@
                        , mlMap :: Map.Map String String
                        } | Comment deriving (Eq, Show)
 
-    data TextNode = TextNode { text :: String -- built from MlTags, lossily
-                             , mmId :: Int
-                             , style :: Maybe String
-                             , created :: T.UTCTime
-                             , modified :: T.UTCTime } deriving (Eq, Show)
+    data MmNLab = MmNLab { text :: String
+                         , mmId :: Int
+                         , style :: Maybe String
+                         , created :: T.UTCTime
+                         , modified :: T.UTCTime } deriving (Eq, Show)
 
-    data MmObj = MmText TextNode | MmArrow {dest ::  Int}
+    data MmELab = TreeEdge | ArrowEdge -- labels for edges (FGL lingo)
+
+    data MmObj = MmText MmNLab | MmArrow {dest ::  Int}
       deriving (Eq, Show)
+      -- the xml is an interleaved nested list of nodes and arrows
+        -- the nesting matters; it lets succesion be implicit
+      -- to process such a list, I need a type that unifies those two things
 
 -- parsing generally
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -49,6 +54,7 @@
       where leftOver = manyTill anyToken eof
 
 -- parsing the .mm format
+  -- building to the mlTag parser
     lexeme :: Parser a -> Parser a
     lexeme p = p <* spaces
 
@@ -67,7 +73,7 @@
       $ many $ mmEscapedChar <|> satisfy (/= '"')
       where quot = char '"'
 
-    word :: Parser String -- that is, a Word outside of an MmNodeText
+    word :: Parser String -- that is, a Word outside of an MmNLabText
     word = many1 $ alphaNum <|> char '_'
 
     keyValPair :: Parser (String,String)
@@ -88,6 +94,7 @@
             startsItself  =  (try $ string "</" >> return False)
                          <|> (string "<" >> return True) :: Parser Bool
 
+  -- more
     comment :: Parser MlTag -- found in Text.ParserCombinators.Parsec.Combinator
     comment  = do string "<!--"
                   manyTill anyChar (try $ string "-->")
@@ -122,9 +129,10 @@
             dur = realToFrac $ T.secondsToDiffTime seconds
             start = T.UTCTime (T.fromGregorian 1970 1 1) 0
 
-  -- functions involving TextNode
-    mmText :: MlTag -> TextNode
-    mmText tag = 
+  -- functions involving MmNLab
+    mmNLab :: MlTag -> MmNLab -- this process is lossy
+      -- that is, the ml tag has more info than I use
+    mmNLab tag = 
       let m = mlMap tag
           text = m Map.! "TEXT"
           mmId = fromRight $ parseId $ m Map.! "ID"
@@ -133,14 +141,14 @@
                     else Nothing
           created = mmTimeToTime $ read $ m Map.! "CREATED"
           modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
-      in TextNode text mmId style created modified
+      in MmNLab text mmId style created modified
 
     mlArrowDest :: MlTag -> Either ParseError Int
     mlArrowDest m = parseId $ mlMap m Map.! "DESTINATION"
 
 -- ? LAST
---    f :: [TextNode] -> 
+--    f :: [MmObj] -> 
 
-    -- from a list of MmNodes and MmArrows, generate a list of MmNodes and MmEdges
+    -- from a list of MmNLabs and MmArrows, generate a list of MmNLabs and MmEdges
     -- Thread the current ancestry through that calculation
       -- at each descent, add to it; at each rise, pop its most recent

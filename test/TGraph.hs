@@ -105,10 +105,10 @@
         "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
 
   -- parse .mm(the xml format)
-    tParseMm = TestList [tMmNodeText, tWord, tComment, tKeyValPair, 
+    tParseMm = TestList [tMmNLabText, tWord, tComment, tKeyValPair, 
       tStrip, tMlTag]
 
-    tMmNodeText = TestCase $ do
+    tMmNLabText = TestCase $ do
       assertBool "mmStr" $ eParse2 mmStr "\"aygaw\"bbbb"
         == Right ("aygaw","bbbb")
       assertBool "the escape characters"
@@ -151,14 +151,14 @@
                  return $ parseMmFile x
 
   -- manip mmTags
-    tMmTags = TestList [tParseId, tMmObj]
+    tMmTags = TestList [tParseId, tMmNLab]
 
     tParseId = TestCase $ do
       assertBool "parse ID strings" $ parseId "ID_123" == Right 123
 
-    tMmObj = TestCase $ do
+    tMmNLab = TestCase $ do
       assertBool "parse an xml TEXT tag into an TextTag"
-        $ (mmText $ MlTag { 
+        $ (mmNLab $ MlTag { 
           title = "node"
           , isStart = True
           , isEnd = True
@@ -168,5 +168,5 @@
             , ("LOCALIZED_STYLE_REF","AutomaticLayout.level,2")
             , ("MODIFIED","1449389512135")
             , ("TEXT","c3, gold")]})
-        == TextNode "c3, gold" 1033943189 (Just "AutomaticLayout.level,2")
+        == MmNLab "c3, gold" 1033943189 (Just "AutomaticLayout.level,2")
              (read "2015-12-06 08:11:23 UTC") (read "2015-12-06 08:11:52 UTC")
