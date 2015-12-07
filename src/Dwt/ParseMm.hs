@@ -27,13 +27,13 @@
                        } | Comment deriving (Eq, Show)
 
     -- these are built from MlTags but discard a lot of information
-    data ArrowTag = Dest Int -- only knows its destination
-
-    data TextTag = TextTag { text :: String
+    data MmObj = MmText { text :: String
                          , mmId :: Int
                          , style :: Maybe String
                          , created :: T.UTCTime
-                         , modified :: T.UTCTime } deriving (Show, Eq)
+                         , modified :: T.UTCTime } 
+               | MmArrow {dest ::  Int}
+               deriving (Show, Eq)
 
 -- parsing generally
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -101,7 +101,7 @@
         Left e -> throwError e
 
 -- [mlTag] -> _
-  -- Things before TextTag
+  -- Things before MmText
    -- TODO ? Work with the Eithers and Nothings rather than fighting them
    -- TODO ? use safe Map lookups
     tagToKeep :: MlTag -> Bool
@@ -120,9 +120,8 @@
             dur = realToFrac $ T.secondsToDiffTime seconds
             start = T.UTCTime (T.fromGregorian 1970 1 1) 0
 
-  -- functions involving TextTag
-    -- the [MmTag] -> ([TextTag],[MmEdge]) function, and its two components
-    mmText :: MlTag -> TextTag
+  -- functions involving MmObj
+    mmText :: MlTag -> MmObj
     mmText tag = 
       let m = mlMap tag
           text = m Map.! "TEXT"
@@ -132,12 +131,10 @@
                     else Nothing
           created = mmTimeToTime $ read $ m Map.! "CREATED"
           modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
-      in TextTag text mmId style created modified
+      in MmText text mmId style created modified
 
     mlArrowDest :: MlTag -> Either ParseError Int
     mlArrowDest m = parseId $ mlMap m Map.! "DESTINATION"
-
-    -- f :: [MmTag] -> ([TextTag,
 
 -- ? LAST
     -- from a list of MmNodes and MmArrows, generate a list of MmNodes and MmEdges
