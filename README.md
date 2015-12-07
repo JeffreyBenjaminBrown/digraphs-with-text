@@ -10,9 +10,10 @@ The file data/minimalGraph.hs, 10 lines long, contains an example graph. It demo
 
 *  ch = change
 *  ins = insert
+*  lab = label
 *  mbr = member
-  In a a k-ary Rel, there are k AsPos Roles for k member Exprs, 
-  plus one more AsTplt Role for the Tplt (which must be k-ary).
+In a a k-ary Rel, there are k AsPos Roles for k member Exprs, 
+plus one more AsTplt Role for the Tplt (which must be k-ary).
 *  pos = position
 *  rel = relationship
 *  sub = substitute

@@ -1,4 +1,7 @@
 -- usually folded
+  -- TODO
+   -- ? Work with the Eithers and Nothings rather than fighting them
+   -- ? use safe Map lookups
   -- CREDITS: uses some functions by Jake Wheat
     -- https://github.com/JakeWheat/intro_to_parsing
     -- parse2 below is what Wheat called parseWithLeftOver
@@ -36,7 +39,7 @@
                          , created :: T.UTCTime
                          , modified :: T.UTCTime } deriving (Eq, Show)
 
-    data MmELab = TreeEdge | ArrowEdge -- labels for edges (FGL lingo)
+    data MmELab = TreeEdge | ArrowEdge deriving (Eq, Show)
 
     data MmObj = MmText MmNLab | MmArrow {dest ::  MmNode}
       deriving (Eq, Show)
@@ -115,8 +118,6 @@
 
 -- [mlTag] -> _
   -- Things before MmText
-   -- TODO ? Work with the Eithers and Nothings rather than fighting them
-   -- TODO ? use safe Map lookups
     tagToKeep :: MlTag -> Bool
     tagToKeep t = elem (title t) ["node","arrowlink"]
 
@@ -151,16 +152,28 @@
     mlArrowDest m = parseId $ mlMap m Map.! "DESTINATION"
 
 -- ? LAST
-    f :: [MlTag] -> Either String DwtSpec --Spec=([MmNLab],(MmNode,MmNode,MmELab)]
-    f [] = Right ([],[]) -- silly case; could arguably return Left
-    f (ht:tags) = if title ht == "node"
-      then let rootLab = readMmNLab ht 
-           in g [mmId rootLab] (tail tags) ([rootLab], [])
-      else Left "First MlTag does not represent an MmNode."
+    dwtSpec :: [MlTag] -> Either String DwtSpec
+    dwtSpec [] = Right ([],[]) -- silly case; could arguably return Left
+    dwtSpec tags =
+      let relevantTags = filter (flip elem ["node","arrowlink"] . title) tags
+          rootLab = readMmNLab $ head relevantTags
+            -- Assumes the first tag is a node, because it can't be an arrow.
+      in dwtSpec' [mmId rootLab] (tail relevantTags) ([rootLab], [])
 
-    g :: [MmNode] -> [MlTag] -> DwtSpec -> Either String DwtSpec
-    g [] [] spec = Right spec
-    g ancestry tags spec = case title ht of
-      "node" -> Right spec -- DUMMY
-      "arrowlink" -> Right spec -- DUMMY
+    dwtSpec' :: [MmNode] -> [MlTag] -> DwtSpec -> Either String DwtSpec
+    dwtSpec' [] [] spec = Right spec
+    dwtSpec' _ [] spec = Left "ran out of MmTags but not ancestors."
+    dwtSpec' ancestry tags spec@(nLabs,lEdges) = case title ht of
+      "node" -> case isStart ht of
+        False -> dwtSpec' (tail ancestry) (tail tags) spec
+        True -> case isEnd ht of
+          False -> dwtSpec' (mmId newNLab : ancestry) (tail tags) newSpec
+          True ->  dwtSpec'                 ancestry  (tail tags) newSpec
+          where newNLab = readMmNLab ht
+                newLEdge = (head ancestry, mmId newNLab, TreeEdge)
+                newSpec = (newNLab : nLabs, newLEdge : lEdges)
+      "arrowlink" -> let Right dest = mlArrowDest ht
+                         newLEdge = (head ancestry, dest, ArrowEdge)
+        in dwtSpec' ancestry (tail tags) (nLabs, newLEdge:lEdges)
+      _ -> Left "MmTag neither a node nor an arrow"
       where ht = head tags
