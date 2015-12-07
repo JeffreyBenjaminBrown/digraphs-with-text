@@ -105,10 +105,10 @@
         "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
 
   -- parse .mm(the xml format)
-    tParseMm = TestList [tMmNLabText, tWord, tComment, tKeyValPair, 
+    tParseMm = TestList [tMmStr, tWord, tComment, tKeyValPair, 
       tStrip, tMlTag]
 
-    tMmNLabText = TestCase $ do
+    tMmStr = TestCase $ do
       assertBool "mmStr" $ eParse2 mmStr "\"aygaw\"bbbb"
         == Right ("aygaw","bbbb")
       assertBool "the escape characters"

@@ -73,7 +73,7 @@
       $ many $ mmEscapedChar <|> satisfy (/= '"')
       where quot = char '"'
 
-    word :: Parser String -- that is, a Word outside of an MmNLabText
+    word :: Parser String -- that is, a Word outside of an MmNLab
     word = many1 $ alphaNum <|> char '_'
 
     keyValPair :: Parser (String,String)
