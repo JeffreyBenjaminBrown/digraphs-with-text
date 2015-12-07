@@ -1,8 +1,8 @@
 <map version="freeplane 1.3.0">
 <!--To view this file, download free mind mapping software Freeplane from http://freeplane.sourceforge.net -->
 <node TEXT="the root" ID="ID_1723255651" CREATED="1283093380553" MODIFIED="1449261674074">
-<hook NAME="AutomaticEdgeColor" COUNTER="5"/>
-<hook NAME="MapStyle" background="#d9e3e4" zoom="1.241">
+<hook NAME="AutomaticEdgeColor" COUNTER="11"/>
+<hook NAME="MapStyle" background="#d9e3e4" zoom="1.61">
 
 <map_styles>
 <stylenode LOCALIZED_TEXT="styles.root_node">
@@ -91,6 +91,12 @@
 </node>
 <node TEXT="fat node, with a newline right here:&#xa;these are the escape characters: &lt;&gt;&quot;&amp;&apos;&#xa;caret is not: ^" LOCALIZED_STYLE_REF="default" POSITION="right" ID="ID_1716485631" CREATED="1449193573345" MODIFIED="1449389442603">
 <edge COLOR="#ff00ff"/>
+</node>
+<node TEXT="times are 1/1000 of a second after the start of 1970" LOCALIZED_STYLE_REF="AutomaticLayout.level,2" POSITION="right" ID="ID_1709709076" CREATED="1449429231709" MODIFIED="1449460955842">
+<edge COLOR="#007c7c"/>
+<node TEXT="Sun Dec  6 11:10:39? PST 2015" ID="ID_12877281" CREATED="1449429045469" MODIFIED="1449429234894"/>
+<node TEXT="Sun Dec  6 11:11:39 PST 2015" ID="ID_7643424" CREATED="1449429103490" MODIFIED="1449429234920"/>
+<node TEXT="Sun Dec  6 11:13:39 PST 2015" ID="ID_910749086" CREATED="1449429224488" MODIFIED="1449429234949"/>
 </node>
 </node>
 </map>

@@ -6,7 +6,7 @@
     -- within-node ones, e.g. LOCALIZED_STYLE_REF="styles.topic", this captures
     -- but <font ...> tags outside of a node applicable to it, this does not
 
--- init
+-- lang, modules
     {-# LANGUAGE FlexibleContexts #-}
     module Dwt.ParseMm
       ( module Text.Parsec
@@ -17,11 +17,12 @@
     import Text.Parsec.String (Parser)
     import Control.Monad.Except
     import qualified Data.Map as Map
+    import qualified Data.Time.Clock as Time
 
 -- types
-    data Branch = Branch { branchText :: MmText
-                         , scrs :: [Branch]
-                         , links :: [MmText] }
+    -- TODO : rep times, which are 1/1000 of a second after the start of 1970
+    data MmEdge = MmScr   { from :: Int, to :: Int }
+                | MmArrow { from :: Int, to :: Int } deriving (Show, Eq)
 
     data MmText = MmText { text :: String
                          , mmId :: Int
@@ -101,7 +102,7 @@
         Left e -> throwError e
 
 -- [mlTag] -> _
-  -- TODO ? Work with the Eithers rather than fighting them
+  -- TODO ? Work with the Eithers and Nothings rather than fighting them
   -- TODO ? use safe Map lookups
     tagToKeep :: MlTag -> Bool
     tagToKeep t = elem (title t) ["node","arrowlink"]

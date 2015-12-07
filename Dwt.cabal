@@ -25,6 +25,7 @@ library
                        , containers 
                        , mtl
                        , parsec
+                       , time
   default-language:    Haskell2010
 
 test-suite new-template-test
