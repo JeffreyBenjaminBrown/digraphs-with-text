@@ -22,6 +22,8 @@
     import Dwt.Graph
 
 -- types
+    type MmNode = Int
+
     data MlTag = MlTag { title :: String 
                        , isStart :: Bool -- starting < is start; </ is not
                        , isEnd :: Bool   -- ending /> is end; > is not
@@ -29,18 +31,20 @@
                        } | Comment deriving (Eq, Show)
 
     data MmNLab = MmNLab { text :: String
-                         , mmId :: Int
+                         , mmId :: MmNode
                          , style :: Maybe String
                          , created :: T.UTCTime
                          , modified :: T.UTCTime } deriving (Eq, Show)
 
     data MmELab = TreeEdge | ArrowEdge -- labels for edges (FGL lingo)
 
-    data MmObj = MmText MmNLab | MmArrow {dest ::  Int}
+    data MmObj = MmText MmNLab | MmArrow {dest ::  MmNode}
       deriving (Eq, Show)
       -- the xml is an interleaved nested list of nodes and arrows
         -- the nesting matters; it lets succesion be implicit
       -- to process such a list, I need a type that unifies those two things
+
+    type DwtSpec = ( [MmNLab], [(MmNode,MmNode,MmELab)] )
 
 -- parsing generally
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -116,7 +120,7 @@
     tagToKeep :: MlTag -> Bool
     tagToKeep t = elem (title t) ["node","arrowlink"]
 
-    parseId :: String -> Either ParseError Int
+    parseId :: String -> Either ParseError MmNode
     parseId s = read <$> eParse (string "ID_" *> many digit) s
 
     fromRight :: Either a b -> b
@@ -143,12 +147,20 @@
           modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
       in MmNLab text mmId style created modified
 
-    mlArrowDest :: MlTag -> Either ParseError Int
+    mlArrowDest :: MlTag -> Either ParseError MmNode
     mlArrowDest m = parseId $ mlMap m Map.! "DESTINATION"
 
 -- ? LAST
---    f :: [MmObj] -> 
+    f :: [MlTag] -> Either String DwtSpec --Spec=([MmNLab],(MmNode,MmNode,MmELab)]
+    f [] = Right ([],[]) -- silly case; could arguably return Left
+    f (ht:tags) = if title ht == "node"
+      then let rootLab = readMmNLab ht 
+           in g [mmId rootLab] (tail tags) ([rootLab], [])
+      else Left "First MlTag does not represent an MmNode."
 
-    -- from a list of MmNLabs and MmArrows, generate a list of MmNLabs and MmEdges
-    -- Thread the current ancestry through that calculation
-      -- at each descent, add to it; at each rise, pop its most recent
+    g :: [MmNode] -> [MlTag] -> DwtSpec -> Either String DwtSpec
+    g [] [] spec = Right spec
+    g ancestry tags spec = case title ht of
+      "node" -> Right spec -- DUMMY
+      "arrowlink" -> Right spec -- DUMMY
+      where ht = head tags
