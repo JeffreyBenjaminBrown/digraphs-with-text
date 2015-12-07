@@ -130,9 +130,9 @@
             start = T.UTCTime (T.fromGregorian 1970 1 1) 0
 
   -- functions involving MmNLab
-    mmNLab :: MlTag -> MmNLab -- this process is lossy
+    readMmNLab :: MlTag -> MmNLab -- this process is lossy
       -- that is, the ml tag has more info than I use
-    mmNLab tag = 
+    readMmNLab tag = 
       let m = mlMap tag
           text = m Map.! "TEXT"
           mmId = fromRight $ parseId $ m Map.! "ID"
