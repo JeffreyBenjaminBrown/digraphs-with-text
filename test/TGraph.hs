@@ -7,6 +7,7 @@
     import Data.Either
     import System.IO
     import qualified Data.Map as Map
+    import Data.Time as T
 
     import Control.Monad.Except -- from mtl library
 
@@ -168,4 +169,4 @@
             , ("MODIFIED","1449389512135")
             , ("TEXT","c3, gold")]})
         == MmText "c3, gold" 1033943189 (Just "AutomaticLayout.level,2")
-             1449389483215 1449389512135
+             (read "2015-12-06 08:11:23 UTC") (read "2015-12-06 08:11:52 UTC")

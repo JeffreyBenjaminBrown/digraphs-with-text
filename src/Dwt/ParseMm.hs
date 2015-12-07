@@ -17,7 +17,7 @@
     import Text.Parsec.String (Parser)
     import Control.Monad.Except
     import qualified Data.Map as Map
-    import qualified Data.Time.Clock as Time
+    import qualified Data.Time as T
 
 -- types
     -- TODO : rep times, which are 1/1000 of a second after the start of 1970
@@ -27,8 +27,8 @@
     data MmText = MmText { text :: String
                          , mmId :: Int
                          , style :: Maybe String
-                         , created :: Int
-                         , modified :: Int } deriving (Show, Eq)
+                         , created :: T.UTCTime
+                         , modified :: T.UTCTime } deriving (Show, Eq)
 
     data MlTag = MlTag { title :: String 
                        , isStart :: Bool -- starting < is start; </ is not
@@ -117,6 +117,12 @@
     fromRight (Right b) = b
     fromRight (Left _) = error "fromRight: Left"
 
+    mmTimeToTime :: Int -> T.UTCTime
+    mmTimeToTime mt = T.addUTCTime dur start
+      where seconds = floor $ fromIntegral mt / 1000
+            dur = realToFrac $ T.secondsToDiffTime seconds
+            start = T.UTCTime (T.fromGregorian 1970 1 1) 0
+
     mmText :: MlTag -> MmText
     mmText tag = 
       let m = mlMap tag
@@ -125,8 +131,8 @@
           style = if Map.member "LOCALIZED_STYLE_REF" m
                     then Just $ m Map.! "LOCALIZED_STYLE_REF"
                     else Nothing
-          created = read $ m Map.! "CREATED"
-          modified = read $ m Map.! "MODIFIED"
+          created = mmTimeToTime $ read $ m Map.! "CREATED"
+          modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
       in MmText text mmId style created modified
 
 -- ? LAST
