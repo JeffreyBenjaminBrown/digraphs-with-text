@@ -20,7 +20,9 @@
     import Text.Parsec.String (Parser)
     import Control.Monad.Except
     import qualified Data.Map as Map
+    import qualified Data.Maybe as Mb
     import qualified Data.Time as T
+    import qualified Data.List as L
 
     import Dwt.Graph
 
@@ -49,7 +51,8 @@
 
     type DwtSpec = ( [MmNLab], [(MmNode,MmNode,MmELab)] )
 
--- parsing generally
+-- parsing
+  -- Parser a -> String -> _
     parseWithEof :: Parser a -> String -> Either ParseError a
     parseWithEof p = parse (p <* eof) ""
 
@@ -60,8 +63,8 @@
     eParse2 p = parse ((,) <$> p <*> leftOver) ""
       where leftOver = manyTill anyToken eof
 
--- parsing the .mm format
-  -- building to the mlTag parser
+  -- parsing the .mm format
+   -- elements of the mlTag parser
     lexeme :: Parser a -> Parser a
     lexeme p = p <* spaces
 
@@ -86,6 +89,7 @@
     keyValPair :: Parser (String,String)
     keyValPair = (,) <$> (lexeme word <* lexeme (char '=')) <*> lexeme mmStr
 
+   -- parsing tags and comments
     mlTag :: Parser MlTag -- IS tested but strangely
     mlTag = do isStart <- startsItself
                title <- lexeme word
@@ -101,7 +105,6 @@
             startsItself  =  (try $ string "</" >> return False)
                          <|> (string "<" >> return True) :: Parser Bool
 
-  -- more
     comment :: Parser MlTag -- found in Text.ParserCombinators.Parsec.Combinator
     comment  = do string "<!--"
                   manyTill anyChar (try $ string "-->")
@@ -116,8 +119,8 @@
         Right f' ->  eParse (many $ lexeme mlTag) f'
         Left e -> throwError e
 
--- [mlTag] -> _
-  -- Things before MmText
+-- [MlTag] -> _
+  -- functions for small things
     tagToKeep :: MlTag -> Bool
     tagToKeep t = elem (title t) ["node","arrowlink"]
 
@@ -134,7 +137,7 @@
             dur = realToFrac $ T.secondsToDiffTime seconds
             start = T.UTCTime (T.fromGregorian 1970 1 1) 0
 
-  -- functions involving MmNLab
+  -- MlTag -> _
     readMmNLab :: MlTag -> MmNLab -- this process is lossy
       -- that is, the ml tag has more info than I use
     readMmNLab tag = 
@@ -151,7 +154,7 @@
     mlArrowDest :: MlTag -> Either ParseError MmNode
     mlArrowDest m = parseId $ mlMap m Map.! "DESTINATION"
 
--- ? LAST
+  -- dwtSpec :: [MlTag] -> Either String DwtSpec
     dwtSpec :: [MlTag] -> Either String DwtSpec
     dwtSpec [] = Right ([],[]) -- silly case; could arguably return Left
     dwtSpec tags =
@@ -177,3 +180,9 @@
         in dwtSpec' ancestry (tail tags) (nLabs, newLEdge:lEdges)
       _ -> Left "MmTag neither a node nor an arrow"
       where ht = head tags
+
+-- DwtSpec -> _
+    styles :: DwtSpec -> [String]
+    styles = L.nub . Mb.mapMaybe style . fst
+
+    
