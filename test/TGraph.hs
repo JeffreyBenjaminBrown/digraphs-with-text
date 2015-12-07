@@ -151,13 +151,13 @@
                  return $ parseMmFile x
 
   -- manip mmTags
-    tMmTags = TestList [tParseId, tMmText]
+    tMmTags = TestList [tParseId, tTextTag]
 
     tParseId = TestCase $ do
       assertBool "parse ID strings" $ parseId "ID_123" == Right 123
 
-    tMmText = TestCase $ do
-      assertBool "parse an xml TEXT tag into an MmText"
+    tTextTag = TestCase $ do
+      assertBool "parse an xml TEXT tag into an TextTag"
         $ (mmText $ MlTag { 
           title = "node"
           , isStart = True
@@ -168,5 +168,5 @@
             , ("LOCALIZED_STYLE_REF","AutomaticLayout.level,2")
             , ("MODIFIED","1449389512135")
             , ("TEXT","c3, gold")]})
-        == MmText "c3, gold" 1033943189 (Just "AutomaticLayout.level,2")
+        == TextTag "c3, gold" 1033943189 (Just "AutomaticLayout.level,2")
              (read "2015-12-06 08:11:23 UTC") (read "2015-12-06 08:11:52 UTC")

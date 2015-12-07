@@ -20,21 +20,20 @@
     import qualified Data.Time as T
 
 -- types
-    -- TODO : rep times, which are 1/1000 of a second after the start of 1970
-    data MmEdge = MmScr   { from :: Int, to :: Int }
-                | MmArrow { from :: Int, to :: Int } deriving (Show, Eq)
-
-    data MmText = MmText { text :: String
-                         , mmId :: Int
-                         , style :: Maybe String
-                         , created :: T.UTCTime
-                         , modified :: T.UTCTime } deriving (Show, Eq)
-
     data MlTag = MlTag { title :: String 
                        , isStart :: Bool -- starting < is start; </ is not
                        , isEnd :: Bool   -- ending /> is end; > is not
                        , mlMap :: Map.Map String String
                        } | Comment deriving (Eq, Show)
+
+    -- these are built from MlTags but discard a lot of information
+    data ArrowTag = Dest Int -- only knows its destination
+
+    data TextTag = TextTag { text :: String
+                         , mmId :: Int
+                         , style :: Maybe String
+                         , created :: T.UTCTime
+                         , modified :: T.UTCTime } deriving (Show, Eq)
 
 -- parsing generally
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -102,16 +101,14 @@
         Left e -> throwError e
 
 -- [mlTag] -> _
-  -- TODO ? Work with the Eithers and Nothings rather than fighting them
-  -- TODO ? use safe Map lookups
+  -- Things before TextTag
+   -- TODO ? Work with the Eithers and Nothings rather than fighting them
+   -- TODO ? use safe Map lookups
     tagToKeep :: MlTag -> Bool
     tagToKeep t = elem (title t) ["node","arrowlink"]
 
     parseId :: String -> Either ParseError Int
     parseId s = read <$> eParse (string "ID_" *> many digit) s
-
-    arrowDest :: MlTag -> Either ParseError Int
-    arrowDest m = parseId $ mlMap m Map.! "DESTINATION"
 
     fromRight :: Either a b -> b
     fromRight (Right b) = b
@@ -123,7 +120,9 @@
             dur = realToFrac $ T.secondsToDiffTime seconds
             start = T.UTCTime (T.fromGregorian 1970 1 1) 0
 
-    mmText :: MlTag -> MmText
+  -- functions involving TextTag
+    -- the [MmTag] -> ([TextTag],[MmEdge]) function, and its two components
+    mmText :: MlTag -> TextTag
     mmText tag = 
       let m = mlMap tag
           text = m Map.! "TEXT"
@@ -133,7 +132,12 @@
                     else Nothing
           created = mmTimeToTime $ read $ m Map.! "CREATED"
           modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
-      in MmText text mmId style created modified
+      in TextTag text mmId style created modified
+
+    mlArrowDest :: MlTag -> Either ParseError Int
+    mlArrowDest m = parseId $ mlMap m Map.! "DESTINATION"
+
+    -- f :: [MmTag] -> ([TextTag,
 
 -- ? LAST
     -- from a list of MmNodes and MmArrows, generate a list of MmNodes and MmEdges
