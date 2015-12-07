@@ -19,6 +19,8 @@
     import qualified Data.Map as Map
     import qualified Data.Time as T
 
+    import Dwt.Graph
+
 -- types
     data MlTag = MlTag { title :: String 
                        , isStart :: Bool -- starting < is start; </ is not
@@ -26,14 +28,14 @@
                        , mlMap :: Map.Map String String
                        } | Comment deriving (Eq, Show)
 
-    -- these are built from MlTags but discard a lot of information
-    data MmObj = MmText { text :: String
-                         , mmId :: Int
-                         , style :: Maybe String
-                         , created :: T.UTCTime
-                         , modified :: T.UTCTime } 
-               | MmArrow {dest ::  Int}
-               deriving (Show, Eq)
+    data TextNode = TextNode { text :: String -- built from MlTags, lossily
+                             , mmId :: Int
+                             , style :: Maybe String
+                             , created :: T.UTCTime
+                             , modified :: T.UTCTime } deriving (Eq, Show)
+
+    data MmObj = MmText TextNode | MmArrow {dest ::  Int}
+      deriving (Eq, Show)
 
 -- parsing generally
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -120,8 +122,8 @@
             dur = realToFrac $ T.secondsToDiffTime seconds
             start = T.UTCTime (T.fromGregorian 1970 1 1) 0
 
-  -- functions involving MmObj
-    mmText :: MlTag -> MmObj
+  -- functions involving TextNode
+    mmText :: MlTag -> TextNode
     mmText tag = 
       let m = mlMap tag
           text = m Map.! "TEXT"
@@ -131,12 +133,14 @@
                     else Nothing
           created = mmTimeToTime $ read $ m Map.! "CREATED"
           modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
-      in MmText text mmId style created modified
+      in TextNode text mmId style created modified
 
     mlArrowDest :: MlTag -> Either ParseError Int
     mlArrowDest m = parseId $ mlMap m Map.! "DESTINATION"
 
 -- ? LAST
+--    f :: [TextNode] -> 
+
     -- from a list of MmNodes and MmArrows, generate a list of MmNodes and MmEdges
     -- Thread the current ancestry through that calculation
       -- at each descent, add to it; at each rise, pop its most recent

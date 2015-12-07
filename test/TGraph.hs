@@ -168,5 +168,5 @@
             , ("LOCALIZED_STYLE_REF","AutomaticLayout.level,2")
             , ("MODIFIED","1449389512135")
             , ("TEXT","c3, gold")]})
-        == MmText "c3, gold" 1033943189 (Just "AutomaticLayout.level,2")
+        == TextNode "c3, gold" 1033943189 (Just "AutomaticLayout.level,2")
              (read "2015-12-06 08:11:23 UTC") (read "2015-12-06 08:11:52 UTC")
