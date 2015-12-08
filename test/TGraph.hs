@@ -149,6 +149,13 @@
     tMmFile :: String -> IO (Either ParseError [MlTag])
     tMmFile filename = do x <- readFile filename -- ANOMALY, test by hand
                           return $ mlTags x
+      -- A test that worked!
+      --   x <- tMmFile "data/root+7.mm"
+      --   let y = fromRight $ dwtSpec $ fromRight x
+      --   result has 8 lnodes and 9 edges, which is correct
+      --          the two arrow edges are corect
+      --          and the first three edges
+      --          and the last tree edge
 
   -- manip mmTags
     tMmTags = TestList [tParseId, tMmNLab]
