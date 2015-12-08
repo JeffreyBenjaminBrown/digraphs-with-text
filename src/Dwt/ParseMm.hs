@@ -32,10 +32,10 @@
     type MmNode = Int
 
     data MlTag = MlTag { title :: String 
-                       , isStart :: Bool -- starting < is start; </ is not
-                       , isEnd :: Bool   -- ending /> is end; > is not
-                       , mlMap :: Map.Map String String
-                       } | Comment deriving (Eq, Show)
+      , isStart :: Bool -- leading < indicates start; </ indicates continuation.
+      , isEnd :: Bool   -- trailing /> indicates end; > indicates continuation.
+      , mlMap :: Map.Map String String
+      } | Comment deriving (Eq, Show)
 
     data MmNLab = MmNLab { text :: String -- inaccurate type name: hold both data
                          , mmId :: MmNode -- about the node label and other lnodes
@@ -174,7 +174,7 @@
     dwtSpec tags =
       let relevantTags = filter (flip elem ["node","arrowlink"] . title) tags
       in do rootLab <- readMmNLab $ head relevantTags
-            -- Assumes the first tag is a node, because it can't be an arrow.
+            -- Assumes first tag is a node. It can't be an arrow.
             dwtSpec' [mmId rootLab] (tail relevantTags) ([rootLab], [])
 
     dwtSpec' :: [MmNode] -> [MlTag] -> DwtSpec -> Either String DwtSpec
