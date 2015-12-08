@@ -143,10 +143,6 @@
     parseId :: String -> Either ParseError MmNode
     parseId s = read <$> eParse (string "ID_" *> many digit) s
 
-    fromRight :: Either a b -> b -- TODO ? BAD
-    fromRight (Right b) = b
-    fromRight (Left _) = error "fromRight: Left"
-
     mmTimeToTime :: Int -> T.UTCTime
     mmTimeToTime mt = T.addUTCTime dur start
       where seconds = floor $ fromIntegral mt / 1000
@@ -179,9 +175,9 @@
     dwtSpec [] = Right ([],[]) -- silly case; could arguably return Left
     dwtSpec tags =
       let relevantTags = filter (flip elem ["node","arrowlink"] . title) tags
-          rootLab = readMmNLabUsf $ head relevantTags
+      in do rootLab <- readMmNLab $ head relevantTags
             -- Assumes the first tag is a node, because it can't be an arrow.
-      in dwtSpec' [mmId rootLab] (tail relevantTags) ([rootLab], [])
+            dwtSpec' [mmId rootLab] (tail relevantTags) ([rootLab], [])
 
     dwtSpec' :: [MmNode] -> [MlTag] -> DwtSpec -> Either String DwtSpec
     dwtSpec' [] [] spec = Right spec
@@ -189,15 +185,15 @@
     dwtSpec' ancestry (t:ts) spec@(nLabs,lEdges) = case title t of
       "node" -> case isStart t of
         False -> dwtSpec' (tail ancestry) ts spec
-        True -> case isEnd t of
-          False -> dwtSpec' (mmId newNLab : ancestry) ts newSpec
-          True ->  dwtSpec'                 ancestry  ts newSpec
-          where newNLab = readMmNLabUsf t
-                newLEdge = (head ancestry, mmId newNLab, TreeEdge)
-                newSpec = (newNLab : nLabs, newLEdge : lEdges)
-      "arrowlink" -> let Right dest = mlArrowDestUsf t
-                         newLEdge = (head ancestry, dest, ArrowEdge)
-        in dwtSpec' ancestry ts (nLabs, newLEdge:lEdges)
+        True -> do newNLab <- readMmNLab t
+                   let newLEdge = (head ancestry, mmId newNLab, TreeEdge)
+                       newSpec = (newNLab : nLabs, newLEdge : lEdges)
+                     in case isEnd t of
+                       False -> dwtSpec' (mmId newNLab : ancestry) ts newSpec
+                       True ->  dwtSpec'                 ancestry  ts newSpec
+      "arrowlink" -> do dest <- mlArrowDestMe t
+                        let newLEdge = (head ancestry, dest, ArrowEdge)
+                          in dwtSpec' ancestry ts (nLabs, newLEdge:lEdges)
       _ -> Left "MmTag neither a node nor an arrow"
 
 -- DwtSpec -> _
@@ -226,6 +222,10 @@
         -- connect it to those
 
 -- deprecating: unsafe functions
+    fromRight :: Either a b -> b
+    fromRight (Right b) = b
+    fromRight (Left _) = error "fromRight: Left"
+
     mlArrowDestUsf :: MlTag -> Either ParseError MmNode
     mlArrowDestUsf t = parseId $ mlMap t Map.! "DESTINATION"
 
