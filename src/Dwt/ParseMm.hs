@@ -227,6 +227,7 @@
     frame spec = let ss = styles spec
       in ( negateMm $ foldl (\mm font -> insStr font mm) frameSansStyles ss
          , Map.fromList $ zip (styles spec) [-21,-22..] )
+      -- TODO ! this is not finished; the styles need a parent
 
     -- load into the frame
       -- for each MmNLab
