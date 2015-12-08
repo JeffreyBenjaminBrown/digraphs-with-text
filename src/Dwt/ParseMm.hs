@@ -195,20 +195,33 @@
       _ -> Left "MmTag neither a node nor an arrow"
 
 -- DwtSpec -> _
+    frameNodes :: Mindmap
+    frameNodes = mkGraph [ (0, Str "root|this graph")
+                           , (1, Str ".system")
+                             , (2, Str ".mm rels")
+                               , (3, stringToTplt "_ .mm/ _")
+                               , (4, stringToTplt "_ .mm~ _")
+                             , (5, Str "times")
+                               , (6, stringToTplt "_ was created on _")
+                               , (7, stringToTplt "_ was last modified on _")
+                             , (8, Str "styles") 
+                           , (9, Str "rels")
+                             , (10, stringToTplt "_ includes _") ] []
+
+    frame :: Mindmap
+    frame = conn [0,1] $ conn [0,9]
+      $ conn [1,2] $ conn [1,5] $ conn [1,8]
+      $ conn [2,3] $ conn [2,4]
+      $ conn [5,6] $ conn [5,7]
+      $ conn [9,10] $ frameNodes where conn = insRelUsf 10
+
     styles :: DwtSpec -> [String]
     styles = L.nub . Mb.mapMaybe style . fst
 
     -- make the graph frame
-      -- make a node for each style. number them 1-k. save k.
-      -- make a "mmStyles" category node, holding those
-      -- make "_ mm-succeeds _" and "_ mm-arrow _" rels
-      -- make a "mmEdge" category node, holding those
-      -- make a "mmSystem" category node, holding those categories
-      -- make "_ was created on _" and "_ was last modified on _" nodes
-      -- make a "system: time" category, holding those
-        -- this is not exclusive to the .mm format
       -- multiply all Nodes by (-1)
         -- this way no existing IDs will overlap them
+      -- make a node for each style. number them 1-k. save k.
       -- return the graph and a Map [String] Int for the fonts
         -- Map.fromList $ zip strings $ (*(-1)) <$> [1..]
 
@@ -218,6 +231,8 @@
         -- connect it to the corresponding style node
         -- create two more nodes for its created-on and modified-on times
         -- connect it to those
+        -- connect them to the system node
+      -- for each MnELab ...
 
 -- deprecating: unsafe functions
     fromRight :: Either a b -> b
