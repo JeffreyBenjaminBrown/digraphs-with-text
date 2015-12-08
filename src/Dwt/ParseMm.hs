@@ -219,18 +219,14 @@
     styles :: DwtSpec -> [String]
     styles = L.nub . Mb.mapMaybe style . fst
 
-    negateMindmap :: Mindmap -> Mindmap
-    negateMindmap m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
+    negateMm :: Mindmap -> Mindmap
+    negateMm m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
       where negAdj = map (\(label,n) -> (label,-n))
 
---    frame :: DwtSpec -> (Mindmap, Map.Map String Int)
---    frame spec = let ss = styles spec
---                     mm = foldl (?) frameSansStyles ss
-
---      in (mm, ?)
---        -- Map.fromList $ zip strings $ (*(-1)) <$> [1..]
---     and then negate indices
-        -- this way no existing IDs will overlap them
+    frame :: DwtSpec -> (Mindmap, Map.Map String Int) -- tested by hand, is good
+    frame spec = let ss = styles spec
+      in ( negateMm $ foldl (\mm font -> insStr font mm) frameSansStyles ss
+         , Map.fromList $ zip (styles spec) [-21,-22..] )
 
     -- load into the frame
       -- for each MmNLab
