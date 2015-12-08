@@ -155,9 +155,9 @@
     tagToKeep :: MlTag -> Bool
     tagToKeep t = elem (title t) ["node","arrowlink"]
 
-    readMmNLab :: MlTag -> MmNLab -- this process is lossy
+    readMmNLabUsf :: MlTag -> MmNLab -- this process is lossy
       -- that is, the ml tag has more info than I use
-    readMmNLab tag = 
+    readMmNLabUsf tag = 
       let m = mlMap tag
           text = m Map.! "TEXT"
           mmId = fromRight $ parseIdUsf $ m Map.! "ID"
@@ -168,10 +168,9 @@
           modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
       in MmNLab text mmId style created modified
 
-    -- MONADIFYING
-    readMmNLab' :: (MonadError String me) => MlTag -> me MmNLab -- is lossy
+    readMmNLab :: (MonadError String me) => MlTag -> me MmNLab -- is lossy
       -- that is, the ml tag has more info than readMnNLab uses
-    readMmNLab' tag = 
+    readMmNLab tag = 
       let m = mlMap tag
           style = Map.lookup "LOCALIZED_STYLE_REF" m -- style stays Maybe
           parseTime = mmTimeToTime . read
@@ -190,7 +189,7 @@
     dwtSpec [] = Right ([],[]) -- silly case; could arguably return Left
     dwtSpec tags =
       let relevantTags = filter (flip elem ["node","arrowlink"] . title) tags
-          rootLab = readMmNLab $ head relevantTags
+          rootLab = readMmNLabUsf $ head relevantTags
             -- Assumes the first tag is a node, because it can't be an arrow.
       in dwtSpec' [mmId rootLab] (tail relevantTags) ([rootLab], [])
 
@@ -203,7 +202,7 @@
         True -> case isEnd ht of
           False -> dwtSpec' (mmId newNLab : ancestry) (tail tags) newSpec
           True ->  dwtSpec'                 ancestry  (tail tags) newSpec
-          where newNLab = readMmNLab ht
+          where newNLab = readMmNLabUsf ht
                 newLEdge = (head ancestry, mmId newNLab, TreeEdge)
                 newSpec = (newNLab : nLabs, newLEdge : lEdges)
       "arrowlink" -> let Right dest = mlArrowDest ht

@@ -158,7 +158,7 @@
 
     tMmNLab = TestCase $ do
       assertBool "parse an xml TEXT tag into an TextTag"
-        $ (readMmNLab $ MlTag { 
+        $ (readMmNLabUsf $ MlTag { 
           title = "node"
           , isStart = True
           , isEnd = True
