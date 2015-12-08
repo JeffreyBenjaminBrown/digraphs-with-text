@@ -51,7 +51,7 @@
 
     type DwtSpec = ( [MmNLab], [(MmNode,MmNode,MmELab)] )
 
--- constructors
+-- constructors, helpers
     mmNLabDummy :: MmNLab
     mmNLabDummy = MmNLab "hi" 0 Nothing t t
       where t = T.UTCTime (T.fromGregorian 1989 11 30) 0
@@ -60,7 +60,13 @@
       => k -> Map.Map k a -> me a
     mapLookupMe k m = case Map.lookup k m of
       Just a -> return a
-      Nothing -> throwError $ "mapLookupMe: " ++ show k ++ " not in map."
+      Nothing -> throwError $ "mapLookupMe: " ++ show k ++ " not in map."   
+
+    eitherToMe :: (Show e, MonadError String me)
+      => (a -> Either e t) -> a -> me t
+    eitherToMe f x = case f x of
+      Right y -> return y
+      Left e -> throwError $ show e
 
 -- parsing
   -- Parser a -> String -> _
@@ -132,14 +138,8 @@
 
 -- functions of type (Functor f => f MlTag -> _), and their helpers
   -- helpers
-    parseId :: String -> Either ParseError MmNode -- TODO: not really Usf
-      -- rather, the other should be prefixed "Me" (MonadError)
+    parseId :: String -> Either ParseError MmNode
     parseId s = read <$> eParse (string "ID_" *> many digit) s
-
-    parseIdMe :: (MonadError String m) => String -> m MmNode
-    parseIdMe s = let e = parseId s
-      in case e of Right n -> return n
-                   Left e -> throwError $ show e
 
     fromRight :: Either a b -> b -- TODO ? BAD
     fromRight (Right b) = b
@@ -174,7 +174,7 @@
           style = Map.lookup "LOCALIZED_STYLE_REF" m -- style stays Maybe
           parseTime = mmTimeToTime . read
       in do text <- mapLookupMe "TEXT" m
-            mmId <- mapLookupMe "ID" m >>= parseIdMe
+            mmId <- mapLookupMe "ID" m >>= eitherToMe parseId
             created <- mapLookupMe "CREATED" m
             modified <- mapLookupMe "MODIFIED" m
             return $ MmNLab text mmId style (parseTime created) 
@@ -182,6 +182,9 @@
 
     mlArrowDest :: MlTag -> Either ParseError MmNode
     mlArrowDest m = parseId $ mlMap m Map.! "DESTINATION"
+
+--    mlArrowDestMe :: MlTag -> Either ParseError MmNode
+--    mlArrowDestMe m =
 
   -- dwtSpec :: [MlTag] -> Either String DwtSpec
     dwtSpec :: [MlTag] -> Either String DwtSpec
