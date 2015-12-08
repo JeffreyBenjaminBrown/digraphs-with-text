@@ -157,19 +157,6 @@
     tagToKeep :: MlTag -> Bool
     tagToKeep t = elem (title t) ["node","arrowlink"]
 
-    readMmNLabUsf :: MlTag -> MmNLab -- this process is lossy
-      -- that is, the ml tag has more info than I use
-    readMmNLabUsf tag = 
-      let m = mlMap tag
-          text = m Map.! "TEXT"
-          mmId = fromRight $ parseId $ m Map.! "ID"
-          style = if Map.member "LOCALIZED_STYLE_REF" m
-                    then Just $ m Map.! "LOCALIZED_STYLE_REF"
-                    else Nothing
-          created = mmTimeToTime $ read $ m Map.! "CREATED"
-          modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
-      in MmNLab text mmId style created modified
-
     readMmNLab :: (MonadError String me) => MlTag -> me MmNLab
     readMmNLab tag = 
       let m = mlMap tag
@@ -181,9 +168,6 @@
             modified <- mapLookupMe "MODIFIED" m
             return $ MmNLab text mmId style (parseTime created) 
                                             (parseTime modified)
-
-    mlArrowDestUsf :: MlTag -> Either ParseError MmNode
-    mlArrowDestUsf t = parseId $ mlMap t Map.! "DESTINATION"
 
     mlArrowDestMe :: (MonadError String me) => MlTag -> me MmNode
     mlArrowDestMe t = do x <- mapLookupMe "DESTINATION" $ mlMap t
@@ -202,20 +186,19 @@
     dwtSpec' :: [MmNode] -> [MlTag] -> DwtSpec -> Either String DwtSpec
     dwtSpec' [] [] spec = Right spec
     dwtSpec' _ [] spec = Left "ran out of MmTags but not ancestors."
-    dwtSpec' ancestry tags spec@(nLabs,lEdges) = case title ht of
-      "node" -> case isStart ht of
-        False -> dwtSpec' (tail ancestry) (tail tags) spec
-        True -> case isEnd ht of
-          False -> dwtSpec' (mmId newNLab : ancestry) (tail tags) newSpec
-          True ->  dwtSpec'                 ancestry  (tail tags) newSpec
-          where newNLab = readMmNLabUsf ht
+    dwtSpec' ancestry (t:ts) spec@(nLabs,lEdges) = case title t of
+      "node" -> case isStart t of
+        False -> dwtSpec' (tail ancestry) ts spec
+        True -> case isEnd t of
+          False -> dwtSpec' (mmId newNLab : ancestry) ts newSpec
+          True ->  dwtSpec'                 ancestry  ts newSpec
+          where newNLab = readMmNLabUsf t
                 newLEdge = (head ancestry, mmId newNLab, TreeEdge)
                 newSpec = (newNLab : nLabs, newLEdge : lEdges)
-      "arrowlink" -> let Right dest = mlArrowDestUsf ht
+      "arrowlink" -> let Right dest = mlArrowDestUsf t
                          newLEdge = (head ancestry, dest, ArrowEdge)
-        in dwtSpec' ancestry (tail tags) (nLabs, newLEdge:lEdges)
+        in dwtSpec' ancestry ts (nLabs, newLEdge:lEdges)
       _ -> Left "MmTag neither a node nor an arrow"
-      where ht = head tags
 
 -- DwtSpec -> _
     styles :: DwtSpec -> [String]
@@ -241,3 +224,20 @@
         -- connect it to the corresponding style node
         -- create two more nodes for its created-on and modified-on times
         -- connect it to those
+
+-- deprecating: unsafe functions
+    mlArrowDestUsf :: MlTag -> Either ParseError MmNode
+    mlArrowDestUsf t = parseId $ mlMap t Map.! "DESTINATION"
+
+    readMmNLabUsf :: MlTag -> MmNLab -- this process is lossy
+      -- that is, the ml tag has more info than I use
+    readMmNLabUsf tag = 
+      let m = mlMap tag
+          text = m Map.! "TEXT"
+          mmId = fromRight $ parseId $ m Map.! "ID"
+          style = if Map.member "LOCALIZED_STYLE_REF" m
+                    then Just $ m Map.! "LOCALIZED_STYLE_REF"
+                    else Nothing
+          created = mmTimeToTime $ read $ m Map.! "CREATED"
+          modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
+      in MmNLab text mmId style created modified
