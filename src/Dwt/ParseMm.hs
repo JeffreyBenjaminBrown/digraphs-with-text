@@ -168,8 +168,7 @@
           modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
       in MmNLab text mmId style created modified
 
-    readMmNLab :: (MonadError String me) => MlTag -> me MmNLab -- is lossy
-      -- that is, the ml tag has more info than readMnNLab uses
+    readMmNLab :: (MonadError String me) => MlTag -> me MmNLab
     readMmNLab tag = 
       let m = mlMap tag
           style = Map.lookup "LOCALIZED_STYLE_REF" m -- style stays Maybe
