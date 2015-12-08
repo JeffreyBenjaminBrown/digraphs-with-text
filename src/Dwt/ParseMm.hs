@@ -165,9 +165,8 @@
                                             (parseTime modified)
 
     mlArrowDestMe :: (MonadError String me) => MlTag -> me MmNode
-    mlArrowDestMe t = do x <- mapLookupMe "DESTINATION" $ mlMap t
-                         y <- eitherToMe parseId x
-                         return y
+    mlArrowDestMe t = (mapLookupMe "DESTINATION" $ mlMap t)
+                       >>= eitherToMe parseId
 
   -- dwtSpec :: [MlTag] -> Either String DwtSpec
     dwtSpec :: [MlTag] -> Either String DwtSpec
