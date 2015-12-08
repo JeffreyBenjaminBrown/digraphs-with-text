@@ -56,6 +56,12 @@
     mmNLabDummy = MmNLab "hi" 0 Nothing t t
       where t = T.UTCTime (T.fromGregorian 1989 11 30) 0
 
+    meMapLookup :: (Ord k, Show k, MonadError String me) -- TODO ? BAD
+      => k -> Map.Map k a -> me a
+    meMapLookup k m = case Map.lookup k m of
+      Just a -> return a
+      Nothing -> throwError $ "meMapLookup: " ++ show k ++ " not in map."
+
 -- parsing
   -- Parser a -> String -> _
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -124,17 +130,18 @@
         Right f' ->  eParse (many $ lexeme mlTag) f'
         Left e -> throwError e
 
--- [MlTag] -> _
-  -- smaller functions used by those of type Functor f => f MmTag -> _
-    parseIdUsf :: String -> Either ParseError MmNode
+-- functions of type (Functor f => f MlTag -> _), and their helpers
+  -- helpers
+    parseIdUsf :: String -> Either ParseError MmNode -- TODO: not really Usf
+      -- rather, the other should be prefixed "Me" (MonadError)
     parseIdUsf s = read <$> eParse (string "ID_" *> many digit) s
 
-    parseId :: String -> Either String MmNode
+    parseId :: (MonadError String m) => String -> m MmNode
     parseId s = let e = parseIdUsf s
       in case e of Right n -> return n
                    Left e -> throwError $ show e
 
-    fromRight :: Either a b -> b -- BAD?
+    fromRight :: Either a b -> b -- TODO ? BAD
     fromRight (Right b) = b
     fromRight (Left _) = error "fromRight: Left"
 
@@ -162,20 +169,18 @@
       in MmNLab text mmId style created modified
 
     -- MONADIFYING
---    readMmNLab' :: (MonadError m) => MlTag -> m MmNLab -- is lossy
---      -- that is, the ml tag has more info than readMnNLab uses
---    readMmNLab' tag = 
---      let m = mlMap tag
---      in do text <- Map.lookup "TEXT" m
---            mmId <- parseId $ m Map.! "ID"
---            return mmNLabDummy
-
---          style = if Map.member "LOCALIZED_STYLE_REF" m
---                    then Just $ m Map.! "LOCALIZED_STYLE_REF"
---                    else Nothing
---          created = mmTimeToTime $ read $ m Map.! "CREATED"
---          modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
---      in MmNLab text mmId style created modified
+    readMmNLab' :: (MonadError String me) => MlTag -> me MmNLab -- is lossy
+      -- that is, the ml tag has more info than readMnNLab uses
+    readMmNLab' tag = 
+      let m = mlMap tag
+          style = Map.lookup "LOCALIZED_STYLE_REF" m -- style stays Maybe
+          parseTime = mmTimeToTime . read
+      in do text <- meMapLookup "TEXT" m
+            mmId <- meMapLookup "ID" m >>= parseId
+            created <- meMapLookup "CREATED" m
+            modified <- meMapLookup "MODIFIED" m
+            return $ MmNLab text mmId style (parseTime created) 
+                                            (parseTime modified)
 
     mlArrowDest :: MlTag -> Either ParseError MmNode
     mlArrowDest m = parseIdUsf $ mlMap m Map.! "DESTINATION"
