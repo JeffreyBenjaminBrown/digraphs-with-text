@@ -149,6 +149,7 @@
     tMmFile :: String -> IO (Either ParseError [MlTag])
     tMmFile filename = do x <- readFile filename -- ANOMALY, test by hand
                           return $ mlTags x
+
       -- A test that worked!
       --   x <- tMmFile "data/root+7.mm"
       --   let y = fromRight $ dwtSpec $ fromRight x

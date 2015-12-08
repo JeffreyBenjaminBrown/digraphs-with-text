@@ -1,11 +1,13 @@
 -- usually folded
   -- TODO
-   -- ? Work with the Eithers and Nothings rather than fighting them
-   -- ? use safe Map lookups
+    -- ** Now that the parsing's done, what was the hangup in it?
+      -- Either ParseError _ not reconcilable with Either String _
+        -- surely an elegant solution exists?
+      -- more?
   -- CREDITS: uses some functions by Jake Wheat
     -- https://github.com/JakeWheat/intro_to_parsing
     -- parse2 below is what Wheat called parseWithLeftOver
-   -- styles|fonts: incomplete
+  -- styles|fonts: incomplete, ignoring
     -- within-node ones, e.g. LOCALIZED_STYLE_REF="styles.topic", this captures
     -- but <font ...> tags outside of a node applicable to it, this does not
 
@@ -35,9 +37,9 @@
                        , mlMap :: Map.Map String String
                        } | Comment deriving (Eq, Show)
 
-    data MmNLab = MmNLab { text :: String
-                         , mmId :: MmNode
-                         , style :: Maybe String
+    data MmNLab = MmNLab { text :: String -- inaccurate type name: hold both data
+                         , mmId :: MmNode -- about the node label and other lnodes
+                         , style :: Maybe String -- it will be connected to
                          , created :: T.UTCTime
                          , modified :: T.UTCTime } deriving (Eq, Show)
 
@@ -46,10 +48,10 @@
     data MmObj = MmText MmNLab | MmArrow {dest ::  MmNode}
       deriving (Eq, Show)
       -- the xml is an interleaved nested list of nodes and arrows
-        -- the nesting matters; it lets succesion be implicit
+        -- in which the nesting matters; it lets succesion be implicit
       -- to process such a list, I need a type that unifies those two things
 
-    type DwtSpec = ( [MmNLab], [(MmNode,MmNode,MmELab)] )
+    type DwtSpec = ( [MmNLab], [(MmNode,MmNode,MmELab)] ) -- (nodes,edges)
 
 -- constructors, helpers
     mmNLabDummy :: MmNLab
@@ -66,9 +68,8 @@
 
     eitherToMe :: (Show e, MonadError String me)
       => (a -> Either e t) -> a -> me t
-    eitherToMe f x = case f x of
-      Right y -> return y
-      Left e -> throwError $ show e
+    eitherToMe f x = case f x of Right y -> return y
+                                 Left e -> throwError $ show e
 
 -- parsing
   -- Parser a -> String -> _
@@ -132,10 +133,9 @@
     strip :: Parser a -> Parser [Char]
     strip p = many $ (skipMany $ try p) >> anyChar
 
-    mlTags :: String -> Either ParseError [MlTag] -- I WISH it was a parser.
-    mlTags f = case eParse (strip comment) f of 
-        Right f' ->  eParse (many $ lexeme mlTag) f'
-        Left e -> throwError e
+    mlTags :: String -> Either ParseError [MlTag]
+    mlTags file =     eParse (strip comment) file
+                  >>= eParse (many $ lexeme mlTag)
 
 -- functions of type (Functor f => f MlTag -> _), and their helpers
   -- helpers
