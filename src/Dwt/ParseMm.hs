@@ -132,9 +132,8 @@
     strip :: Parser a -> Parser [Char]
     strip p = many $ (skipMany $ try p) >> anyChar
 
-    parseMmFile :: String -> Either ParseError [MlTag]
-      -- MYST ? how to unify this two-parse strategy with the usual parser idiom
-    parseMmFile f = case eParse (strip comment) f of 
+    mlTags :: String -> Either ParseError [MlTag] -- I WISH it was a parser.
+    mlTags f = case eParse (strip comment) f of 
         Right f' ->  eParse (many $ lexeme mlTag) f'
         Left e -> throwError e
 

@@ -146,9 +146,9 @@
                          ( Map.fromList [("a","1"), ("bb","22")] )
                  )
 
-    tMmFile :: IO (Either ParseError [MlTag])
-    tMmFile = do x <- readFile "data/tiny.mm" -- ANOMALY
-                 return $ parseMmFile x
+    tMmFile :: String -> IO (Either ParseError [MlTag])
+    tMmFile filename = do x <- readFile filename -- ANOMALY, test by hand
+                          return $ mlTags x
 
   -- manip mmTags
     tMmTags = TestList [tParseId, tMmNLab]
