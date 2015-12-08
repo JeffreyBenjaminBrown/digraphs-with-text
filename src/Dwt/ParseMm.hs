@@ -195,7 +195,8 @@
       _ -> Left "MmTag neither a node nor an arrow"
 
 -- DwtSpec -> _
-    frameNodes :: Mindmap
+    -- WARNING: The Nodes of these objects are interdependent.
+    frameNodes :: Mindmap -- no styles and no edges in this one
     frameNodes = mkGraph [ (0, Str "root|this graph")
                            , (1, Str ".system")
                              , (2, Str ".mm rels")
@@ -208,8 +209,8 @@
                            , (9, Str "rels")
                              , (10, stringToTplt "_ includes _") ] []
 
-    frame :: Mindmap
-    frame = conn [0,1] $ conn [0,9]
+    frameSansStyles :: Mindmap -- counting Rels, this has 20 nodes
+    frameSansStyles = conn [0,1] $ conn [0,9]
       $ conn [1,2] $ conn [1,5] $ conn [1,8]
       $ conn [2,3] $ conn [2,4]
       $ conn [5,6] $ conn [5,7]
@@ -218,12 +219,18 @@
     styles :: DwtSpec -> [String]
     styles = L.nub . Mb.mapMaybe style . fst
 
-    -- make the graph frame
-      -- multiply all Nodes by (-1)
+    negateMindmap :: Mindmap -> Mindmap
+    negateMindmap m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
+      where negAdj = map (\(label,n) -> (label,-n))
+
+--    frame :: DwtSpec -> (Mindmap, Map.Map String Int)
+--    frame spec = let ss = styles spec
+--                     mm = foldl (?) frameSansStyles ss
+
+--      in (mm, ?)
+--        -- Map.fromList $ zip strings $ (*(-1)) <$> [1..]
+--     and then negate indices
         -- this way no existing IDs will overlap them
-      -- make a node for each style. number them 1-k. save k.
-      -- return the graph and a Map [String] Int for the fonts
-        -- Map.fromList $ zip strings $ (*(-1)) <$> [1..]
 
     -- load into the frame
       -- for each MmNLab
