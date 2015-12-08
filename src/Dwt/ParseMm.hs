@@ -56,6 +56,8 @@
     mmNLabDummy = MmNLab "hi" 0 Nothing t t
       where t = T.UTCTime (T.fromGregorian 1989 11 30) 0
 
+    -- TODO: This could use a higher-kinded function, lke eitherToMe, for Maybes
+      -- should in that case take also a String to show if Nothing happens
     mapLookupMe :: (Ord k, Show k, MonadError String me) -- TODO ? BAD
       => k -> Map.Map k a -> me a
     mapLookupMe k m = case Map.lookup k m of
@@ -180,11 +182,13 @@
             return $ MmNLab text mmId style (parseTime created) 
                                             (parseTime modified)
 
-    mlArrowDest :: MlTag -> Either ParseError MmNode
-    mlArrowDest m = parseId $ mlMap m Map.! "DESTINATION"
+    mlArrowDestUsf :: MlTag -> Either ParseError MmNode
+    mlArrowDestUsf t = parseId $ mlMap t Map.! "DESTINATION"
 
---    mlArrowDestMe :: MlTag -> Either ParseError MmNode
---    mlArrowDestMe m =
+    mlArrowDestMe :: (MonadError String me) => MlTag -> me MmNode
+    mlArrowDestMe t = do x <- mapLookupMe "DESTINATION" $ mlMap t
+                         y <- eitherToMe parseId x
+                         return y
 
   -- dwtSpec :: [MlTag] -> Either String DwtSpec
     dwtSpec :: [MlTag] -> Either String DwtSpec
@@ -207,7 +211,7 @@
           where newNLab = readMmNLabUsf ht
                 newLEdge = (head ancestry, mmId newNLab, TreeEdge)
                 newSpec = (newNLab : nLabs, newLEdge : lEdges)
-      "arrowlink" -> let Right dest = mlArrowDest ht
+      "arrowlink" -> let Right dest = mlArrowDestUsf ht
                          newLEdge = (head ancestry, dest, ArrowEdge)
         in dwtSpec' ancestry (tail tags) (nLabs, newLEdge:lEdges)
       _ -> Left "MmTag neither a node nor an arrow"
