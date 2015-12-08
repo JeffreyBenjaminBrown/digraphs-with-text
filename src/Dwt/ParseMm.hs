@@ -51,6 +51,11 @@
 
     type DwtSpec = ( [MmNLab], [(MmNode,MmNode,MmELab)] )
 
+-- constructors
+    mmNLabDummy :: MmNLab
+    mmNLabDummy = MmNLab "hi" 0 Nothing t t
+      where t = T.UTCTime (T.fromGregorian 1989 11 30) 0
+
 -- parsing
   -- Parser a -> String -> _
     parseWithEof :: Parser a -> String -> Either ParseError a
@@ -120,14 +125,16 @@
         Left e -> throwError e
 
 -- [MlTag] -> _
-  -- functions for small things
-    tagToKeep :: MlTag -> Bool
-    tagToKeep t = elem (title t) ["node","arrowlink"]
+  -- smaller functions used by those of type Functor f => f MmTag -> _
+    parseIdUsf :: String -> Either ParseError MmNode
+    parseIdUsf s = read <$> eParse (string "ID_" *> many digit) s
 
-    parseId :: String -> Either ParseError MmNode
-    parseId s = read <$> eParse (string "ID_" *> many digit) s
+    parseId :: String -> Either String MmNode
+    parseId s = let e = parseIdUsf s
+      in case e of Right n -> return n
+                   Left e -> throwError $ show e
 
-    fromRight :: Either a b -> b
+    fromRight :: Either a b -> b -- BAD?
     fromRight (Right b) = b
     fromRight (Left _) = error "fromRight: Left"
 
@@ -138,12 +145,15 @@
             start = T.UTCTime (T.fromGregorian 1970 1 1) 0
 
   -- MlTag -> _
+    tagToKeep :: MlTag -> Bool
+    tagToKeep t = elem (title t) ["node","arrowlink"]
+
     readMmNLab :: MlTag -> MmNLab -- this process is lossy
       -- that is, the ml tag has more info than I use
     readMmNLab tag = 
       let m = mlMap tag
           text = m Map.! "TEXT"
-          mmId = fromRight $ parseId $ m Map.! "ID"
+          mmId = fromRight $ parseIdUsf $ m Map.! "ID"
           style = if Map.member "LOCALIZED_STYLE_REF" m
                     then Just $ m Map.! "LOCALIZED_STYLE_REF"
                     else Nothing
@@ -151,8 +161,24 @@
           modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
       in MmNLab text mmId style created modified
 
+    -- MONADIFYING
+--    readMmNLab' :: (MonadError m) => MlTag -> m MmNLab -- is lossy
+--      -- that is, the ml tag has more info than readMnNLab uses
+--    readMmNLab' tag = 
+--      let m = mlMap tag
+--      in do text <- Map.lookup "TEXT" m
+--            mmId <- parseId $ m Map.! "ID"
+--            return mmNLabDummy
+
+--          style = if Map.member "LOCALIZED_STYLE_REF" m
+--                    then Just $ m Map.! "LOCALIZED_STYLE_REF"
+--                    else Nothing
+--          created = mmTimeToTime $ read $ m Map.! "CREATED"
+--          modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
+--      in MmNLab text mmId style created modified
+
     mlArrowDest :: MlTag -> Either ParseError MmNode
-    mlArrowDest m = parseId $ mlMap m Map.! "DESTINATION"
+    mlArrowDest m = parseIdUsf $ mlMap m Map.! "DESTINATION"
 
   -- dwtSpec :: [MlTag] -> Either String DwtSpec
     dwtSpec :: [MlTag] -> Either String DwtSpec
