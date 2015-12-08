@@ -154,7 +154,7 @@
     tMmTags = TestList [tParseId, tMmNLab]
 
     tParseId = TestCase $ do
-      assertBool "parse ID strings" $ parseIdUsf "ID_123" == Right 123
+      assertBool "parse ID strings" $ parseId "ID_123" == Right 123
 
     tMmNLab = TestCase $ do
       assertBool "parse an xml TEXT tag into an TextTag"

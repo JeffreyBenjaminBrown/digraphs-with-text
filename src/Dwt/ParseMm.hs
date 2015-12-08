@@ -56,11 +56,11 @@
     mmNLabDummy = MmNLab "hi" 0 Nothing t t
       where t = T.UTCTime (T.fromGregorian 1989 11 30) 0
 
-    meMapLookup :: (Ord k, Show k, MonadError String me) -- TODO ? BAD
+    mapLookupMe :: (Ord k, Show k, MonadError String me) -- TODO ? BAD
       => k -> Map.Map k a -> me a
-    meMapLookup k m = case Map.lookup k m of
+    mapLookupMe k m = case Map.lookup k m of
       Just a -> return a
-      Nothing -> throwError $ "meMapLookup: " ++ show k ++ " not in map."
+      Nothing -> throwError $ "mapLookupMe: " ++ show k ++ " not in map."
 
 -- parsing
   -- Parser a -> String -> _
@@ -132,12 +132,12 @@
 
 -- functions of type (Functor f => f MlTag -> _), and their helpers
   -- helpers
-    parseIdUsf :: String -> Either ParseError MmNode -- TODO: not really Usf
+    parseId :: String -> Either ParseError MmNode -- TODO: not really Usf
       -- rather, the other should be prefixed "Me" (MonadError)
-    parseIdUsf s = read <$> eParse (string "ID_" *> many digit) s
+    parseId s = read <$> eParse (string "ID_" *> many digit) s
 
-    parseId :: (MonadError String m) => String -> m MmNode
-    parseId s = let e = parseIdUsf s
+    parseIdMe :: (MonadError String m) => String -> m MmNode
+    parseIdMe s = let e = parseId s
       in case e of Right n -> return n
                    Left e -> throwError $ show e
 
@@ -160,7 +160,7 @@
     readMmNLabUsf tag = 
       let m = mlMap tag
           text = m Map.! "TEXT"
-          mmId = fromRight $ parseIdUsf $ m Map.! "ID"
+          mmId = fromRight $ parseId $ m Map.! "ID"
           style = if Map.member "LOCALIZED_STYLE_REF" m
                     then Just $ m Map.! "LOCALIZED_STYLE_REF"
                     else Nothing
@@ -173,15 +173,15 @@
       let m = mlMap tag
           style = Map.lookup "LOCALIZED_STYLE_REF" m -- style stays Maybe
           parseTime = mmTimeToTime . read
-      in do text <- meMapLookup "TEXT" m
-            mmId <- meMapLookup "ID" m >>= parseId
-            created <- meMapLookup "CREATED" m
-            modified <- meMapLookup "MODIFIED" m
+      in do text <- mapLookupMe "TEXT" m
+            mmId <- mapLookupMe "ID" m >>= parseIdMe
+            created <- mapLookupMe "CREATED" m
+            modified <- mapLookupMe "MODIFIED" m
             return $ MmNLab text mmId style (parseTime created) 
                                             (parseTime modified)
 
     mlArrowDest :: MlTag -> Either ParseError MmNode
-    mlArrowDest m = parseIdUsf $ mlMap m Map.! "DESTINATION"
+    mlArrowDest m = parseId $ mlMap m Map.! "DESTINATION"
 
   -- dwtSpec :: [MlTag] -> Either String DwtSpec
     dwtSpec :: [MlTag] -> Either String DwtSpec
