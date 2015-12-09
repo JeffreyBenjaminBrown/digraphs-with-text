@@ -1,7 +1,8 @@
 -- setup
     {-# LANGUAGE FlexibleContexts #-}
-    import Test.HUnit
     import Dwt
+    import Test.HUnit
+    import qualified Control.Lens.Lens as L -- not crit; for (&), only used once
     import qualified Data.List as List
     import Data.Maybe (fromJust)
     import Data.Either
@@ -56,6 +57,9 @@
 
     tSubInTplt = TestCase $ do
       assertBool "1" $ subInTplt (fromJust $ lab g1 1) ["man","peace"]
+        == "man wants peace"
+      assertBool "2" 
+        $ (lab g1 1 L.& fromJust L.& subInTplt $ ["man","peace"])
         == "man wants peace"
 
     tInsert = TestCase $ do
