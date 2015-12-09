@@ -74,7 +74,8 @@
   -- tests and lookups for smaller-than-graph types
     gelemM :: (MonadError String m) => Mindmap -> Node -> m ()
     gelemM g n = if gelem n g then return () 
-                              else throwError "gelemM: Node not in Mindmap"
+                              else throwError $ "gelemM: Node "
+                                   ++ show n ++ " not in Mindmap"
 
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr -- TODO test
     tpltAt g tn = case lab g tn of 

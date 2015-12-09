@@ -20,6 +20,7 @@
       ) where
     import Text.Parsec
     import Text.Parsec.String (Parser)
+    import Control.Monad (foldM)
     import Control.Monad.Except
     import qualified Data.Map as Map
     import qualified Data.Maybe as Mb
@@ -52,6 +53,7 @@
       -- to process such a list, I need a type that unifies those two things
 
     type DwtSpec = ( [MmNLab], [(MmNode,MmNode,MmELab)] ) -- (nodes,edges)
+    type DwtFrame = (Mindmap, Map.Map String Int)
 
 -- constructors, helpers
     mmNLabDummy :: MmNLab
@@ -207,7 +209,7 @@
                                , (7, stringToTplt "_ was last modified on _")
                              , (8, Str "styles") 
                            , (9, Str "rels")
-                             , (10, stringToTplt "_ includes _") ] []
+                             , (10, stringToTplt "_ instance/ _") ] []
 
     frameSansStyles :: Mindmap -- counting Rels, this has 20 nodes
     frameSansStyles = conn [0,1] $ conn [0,9]
@@ -223,19 +225,26 @@
     negateMm m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
       where negAdj = map (\(label,n) -> (label,-n))
 
-    frame :: DwtSpec -> (Mindmap, Map.Map String Int) -- tested by hand, is good
-    frame spec = let ss = styles spec
+    frameOrphanStyles :: DwtSpec -> DwtFrame
+     -- tested by hand, is good
+    frameOrphanStyles spec = let ss = styles spec
       in ( negateMm $ foldl (\mm font -> insStr font mm) frameSansStyles ss
          , Map.fromList $ zip (styles spec) [-21,-22..] )
-      -- TODO ! this is not finished; the styles need a parent
+
+    frame :: (MonadError String me) => DwtFrame -> me DwtFrame
+    frame (mm, mp) = do mm' <- foldM (\mm n -> insRel (-10) [-8, n] mm)
+                                       -- n is already negative
+                                     mm (Map.elems mp)
+                        return (mm',mp)
 
     -- load into the frame
       -- for each MmNLab
         -- add it keeping its ID intact
         -- connect it to the corresponding style node
-        -- create two more nodes for its created-on and modified-on times
-        -- connect it to those
-        -- connect them to the system node
+        -- aborted; was going to:
+          -- create two more nodes for its created-on and modified-on times
+          -- connect it to those
+          -- connect them to the system node
       -- for each MnELab ...
 
 -- deprecating: unsafe functions

@@ -154,13 +154,18 @@
     tMmFile filename = do x <- readFile filename -- ANOMALY, test by hand
                           return $ mlTags x
 
-      -- A test that worked!
-      --   x <- tMmFile "data/root+7.mm"
-      --   let y = fromRight $ dwtSpec $ fromRight x
-      --   result has 8 lnodes and 9 edges, which is correct
-      --          the two arrow edges are corect
-      --          and the first three edges
-      --          and the last tree edge
+      -- "tDwtSpec", by hand: works
+        -- x <- tMmFile "data/root+7.mm"
+        -- let y = fromRight $ dwtSpec $ fromRight x
+        -- result has 8 lnodes and 9 edges, which is correct
+        --        the two arrow edges are corect
+        --        and the first three edges
+        --        and the last tree edge
+
+    tFrame = do 
+      x <- tMmFile "data/root+22ish.mm" -- 22 because it needs styles
+      let y = fromRight $ dwtSpec $ fromRight x
+        in return (frame $ frameOrphanStyles y :: Either String DwtFrame)
 
   -- manip mmTags
     tMmTags = TestList [tParseId, tMmNLab]
