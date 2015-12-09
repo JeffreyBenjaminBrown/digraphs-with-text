@@ -209,14 +209,17 @@
                                , (7, stringToTplt "_ was last modified on _")
                              , (8, Str "styles") 
                            , (9, Str "rels")
-                             , (10, stringToTplt "_ instance/ _") ] []
+                             , (10, stringToTplt "_ instance/ _")
+                             , (11, stringToTplt "_ read as/ _") ] []
 
-    frameSansStyles :: Mindmap -- counting Rels, this has 20 nodes
+    frameSansStyles :: Mindmap -- counting Rels, this has 22 Nodes
+      -- so styles will occupy Nodes starting at 23
     frameSansStyles = conn [0,1] $ conn [0,9]
       $ conn [1,2] $ conn [1,5] $ conn [1,8]
       $ conn [2,3] $ conn [2,4]
       $ conn [5,6] $ conn [5,7]
-      $ conn [9,10] $ frameNodes where conn = insRelUsf 10
+      $ conn [9,10] $ conn [9,11] 
+      $ frameNodes where conn = insRelUsf 10
 
     styles :: DwtSpec -> [String]
     styles = L.nub . Mb.mapMaybe style . fst
@@ -226,16 +229,23 @@
       where negAdj = map (\(label,n) -> (label,-n))
 
     frameOrphanStyles :: DwtSpec -> DwtFrame
-     -- tested by hand, is good
     frameOrphanStyles spec = let ss = styles spec
       in ( negateMm $ foldl (\mm font -> insStr font mm) frameSansStyles ss
-         , Map.fromList $ zip (styles spec) [-21,-22..] )
+         , Map.fromList $ zip (styles spec) [-23,-24 ..] )
 
     frame :: (MonadError String me) => DwtFrame -> me DwtFrame
     frame (mm, mp) = do mm' <- foldM (\mm n -> insRel (-10) [-8, n] mm)
                                        -- n is already negative
                                      mm (Map.elems mp)
                         return (mm',mp)
+
+    loadNodes :: (MonadError String me) => (DwtSpec, DwtFrame) -> me Mindmap
+    loadNodes ( (ns,_), (mm, mp) ) =
+      let noded = foldl (\mm n -> insNode (mmId n, Str $ text n) mm) mm ns
+      in foldM (\mm n -> insRel (-11) [ mmId n
+                                      , (Map.!) mp $ Mb.fromJust $ style n
+                                      ] mm)
+               noded $ filter (Mb.isJust . style) ns
 
     -- load into the frame
       -- for each MmNLab

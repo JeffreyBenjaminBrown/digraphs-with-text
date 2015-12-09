@@ -163,9 +163,15 @@
         --        and the last tree edge
 
     tFrame = do 
-      x <- tMmFile "data/root+22ish.mm" -- 22 because it needs styles
+      x <- tMmFile "data/root+22ish.mm" -- root+22ish because it needs styles
       let y = fromRight $ dwtSpec $ fromRight x
         in return (frame $ frameOrphanStyles y :: Either String DwtFrame)
+
+    tLoadNodes = do 
+      mls <- tMmFile "data/root+22ish.mm" -- again, needs styles
+      let spec = fromRight $ dwtSpec $ fromRight mls
+          fr = frame $ frameOrphanStyles spec :: Either String DwtFrame
+        in return $ (loadNodes (spec, fromRight fr) :: Either String Mindmap)
 
   -- manip mmTags
     tMmTags = TestList [tParseId, tMmNLab]
