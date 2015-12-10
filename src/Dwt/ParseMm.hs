@@ -14,7 +14,7 @@
     -- but <font ...> tags outside of a node applicable to it, this does not
 
 -- lang, modules
-    {-# LANGUAGE FlexibleContexts #-}
+    {-# LANGUAGE FlexibleContexts, ViewPatterns #-}
     module Dwt.ParseMm
       ( module Text.Parsec
       , module Text.Parsec.String
@@ -74,6 +74,14 @@
       => (a -> Either e t) -> a -> me t
     eitherToMe f x = case f x of Right y -> return y
                                  Left e -> throwError $ show e
+
+    compressGraph :: Mindmap -> Mindmap
+    compressGraph g = let ns = nodes g
+                          ns' = [1 .. length ns]
+                          mp = Map.fromList $ zip ns ns'
+                          chNode n = mp Map.! n
+                          chAdj (b,n) = (b, mp Map.! n)
+      in gmap (\(a,b,lab,d) -> (map chAdj a, chNode b, lab, map chAdj d)) g
 
 -- parsing
   -- Parser a -> String -> _
