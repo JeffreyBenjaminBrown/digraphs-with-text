@@ -173,6 +173,13 @@
           fr = frame $ frameOrphanStyles spec :: Either String DwtFrame
         in return $ (loadNodes (spec, fromRight fr) :: Either String Mindmap)
 
+    -- tLoadEdges: works!
+      -- mls <- tMmFile "data/root+22ish.mm" -- again, needs styles
+      -- let spec = fromRight $ dwtSpec $ fromRight mls
+      -- let fr = frame $ frameOrphanStyles spec :: Either String DwtFrame
+      -- let fWithNodes = fromRight $ loadNodes (spec, fromRight fr)
+      -- let done = loadEdges spec fWithNodes :: Either String Mindmap      
+
   -- manip mmTags
     tMmTags = TestList [tParseId, tMmNLab]
 

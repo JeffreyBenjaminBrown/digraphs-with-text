@@ -80,8 +80,8 @@
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr -- TODO test
     tpltAt g tn = case lab g tn of 
       Just t@(Tplt a b) -> return $ t
-      Nothing           -> throwError "tpltAt: Node not in Mindmap"
-      _                 -> throwError "tpltAt: Node does not index a Tplt"
+      Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ "not in Mindmap"
+      _ -> throwError $ "tpltAt: Node " ++ show tn ++ " indexes not a Tplt"
 
     tpltArity :: (MonadError String m) => Expr -> m Arity
     tpltArity e = case e of Tplt a _ -> return a

@@ -1,6 +1,8 @@
 -- usually folded
   -- TODO
-    -- ** Now that the parsing's done, what was the hangup in it?
+    -- Make those magic numbers (e.g. 11, 23) into functions, ala edgeNode
+      -- defined right next to the data definitions that imply them
+    -- (Stale, premature): Now that the parsing's done, what was the hangup in it?
       -- Either ParseError _ not reconcilable with Either String _
         -- surely an elegant solution exists?
       -- more?
@@ -212,6 +214,10 @@
                              , (10, stringToTplt "_ instance/ _")
                              , (11, stringToTplt "_ read as/ _") ] []
 
+    edgeNode :: MmELab -> Node -- depends on frameNodes
+    edgeNode TreeEdge = -3 -- frame is later negated, so negate all indexes for it
+    edgeNode ArrowEdge = -4
+
     frameSansStyles :: Mindmap -- counting Rels, this has 22 Nodes
       -- so styles will occupy Nodes starting at 23
     frameSansStyles = conn [0,1] $ conn [0,9]
@@ -247,6 +253,11 @@
                                       ] mm)
                noded $ filter (Mb.isJust . style) ns
 
+    loadEdges :: (MonadError String me) => DwtSpec -> Mindmap -> me Mindmap
+    loadEdges (_,es) mm = foldM (\mm (from,to,kind) 
+                                  -> insRel (edgeNode kind) [from,to] mm
+                                ) mm es
+
     -- load into the frame
       -- for each MmNLab
         -- add it keeping its ID intact
@@ -255,7 +266,7 @@
           -- create two more nodes for its created-on and modified-on times
           -- connect it to those
           -- connect them to the system node
-      -- for each MnELab ...
+      -- for each MnELab: ?
 
 -- deprecating: unsafe functions
     fromRight :: Either a b -> b
