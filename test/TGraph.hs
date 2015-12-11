@@ -150,6 +150,28 @@
                          ( Map.fromList [("a","1"), ("bb","22")] )
                  )
 
+  -- manip mmTags
+    tMmTags = TestList [tParseId, tMmNLab]
+
+    tParseId = TestCase $ do
+      assertBool "parse ID strings" $ parseId "ID_123" == Right 123
+
+    tMmNLab = TestCase $ do
+      assertBool "parse an xml TEXT tag into an TextTag"
+        $ (readMmNLabUsf $ MlTag { 
+          title = "node"
+          , isStart = True
+          , isEnd = True
+          , mlMap = Map.fromList [
+              ("CREATED","1449389483215")
+            , ("ID","ID_1033943189")
+            , ("LOCALIZED_STYLE_REF","AutomaticLayout.level,2")
+            , ("MODIFIED","1449389512135")
+            , ("TEXT","c3, gold")]})
+        == MmNLab "c3, gold" 1033943189 (Just "AutomaticLayout.level,2")
+             (read "2015-12-06 08:11:23 UTC") (read "2015-12-06 08:11:52 UTC")
+
+  -- parse a whole file
     tMmFile :: String -> IO (Either ParseError [MlTag])
     tMmFile filename = do x <- readFile filename -- ANOMALY, test by hand
                           return $ mlTags x
@@ -172,24 +194,3 @@
       let spec = fromRight $ dwtSpec $ fromRight mls
           fr = frame $ frameOrphanStyles spec :: Either String DwtFrame
         in return $ (loadNodes (spec, fromRight fr) :: Either String Mindmap)
-
-  -- manip mmTags
-    tMmTags = TestList [tParseId, tMmNLab]
-
-    tParseId = TestCase $ do
-      assertBool "parse ID strings" $ parseId "ID_123" == Right 123
-
-    tMmNLab = TestCase $ do
-      assertBool "parse an xml TEXT tag into an TextTag"
-        $ (readMmNLabUsf $ MlTag { 
-          title = "node"
-          , isStart = True
-          , isEnd = True
-          , mlMap = Map.fromList [
-              ("CREATED","1449389483215")
-            , ("ID","ID_1033943189")
-            , ("LOCALIZED_STYLE_REF","AutomaticLayout.level,2")
-            , ("MODIFIED","1449389512135")
-            , ("TEXT","c3, gold")]})
-        == MmNLab "c3, gold" 1033943189 (Just "AutomaticLayout.level,2")
-             (read "2015-12-06 08:11:23 UTC") (read "2015-12-06 08:11:52 UTC")
