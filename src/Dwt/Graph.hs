@@ -123,6 +123,9 @@
             listIntersect [] = []
             listIntersect (x:xs) = foldl intersect x xs
 
+    allRels :: Mindmap -> Node -> [Node]
+    allRels = pre
+
 -- view
     showExpr :: Mindmap -> Node -> String -- TODO: Either|Maybe
       -- BEWARE ? infinite loops

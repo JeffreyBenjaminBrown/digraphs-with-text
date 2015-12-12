@@ -22,6 +22,7 @@
       ) where
     import Text.Parsec
     import Text.Parsec.String (Parser)
+    import Data.Text (stripEnd,pack,unpack)
     import Control.Monad (foldM)
     import Control.Monad.Except
     import qualified Data.Map as Map
@@ -38,7 +39,8 @@
       , isStart :: Bool -- leading < indicates start; </ indicates continuation.
       , isEnd :: Bool   -- trailing /> indicates end; > indicates continuation.
       , mlMap :: Map.Map String String
-      } | Comment deriving (Eq, Show)
+      } | PoorText String 
+        | Comment deriving (Eq, Show)
 
     data MmNLab = MmNLab { text :: String -- inaccurate type name: hold both data
                          , mmId :: MmNode -- about the node label and other lnodes
@@ -124,7 +126,19 @@
     keyValPair = (,) <$> (lexeme word <* lexeme (char '=')) <*> lexeme mmStr
 
    -- parsing tags and comments
-    mlTag :: Parser MlTag -- IS tested but strangely
+    richText :: Parser MlTag
+    richText =  do spacey <- lexeme (string "<html>")
+                             *> lexeme (string "<head>")
+                             *> lexeme (string "</head>")
+                             *> lexeme (string "<body>")
+                                *> lexeme (string "<p>")
+                                  *> many (satisfy (/= '<'))
+                                <* lexeme (string "</p>")
+                             <* lexeme (string "</body>")
+                          <* lexeme (string "</html>")
+                   return $ PoorText $ unpack $ stripEnd $ pack spacey
+
+    mlTag :: Parser MlTag -- is tested but strangely
     mlTag = do isStart <- startsItself
                title <- lexeme word
                pairs <- many $ lexeme keyValPair
@@ -149,7 +163,8 @@
 
     mlTags :: String -> Either ParseError [MlTag]
     mlTags file =     eParse (strip comment) file
-                  >>= eParse (many $ lexeme mlTag)
+                  >>= eParse ( many ( (try $ lexeme richText) 
+                                    <|> lexeme mlTag ) )
 
 -- functions of type (Functor f => f MlTag -> _), and their helpers
   -- helpers
@@ -267,16 +282,6 @@
     loadEdges (_,es) mm = foldM (\mm (from,to,kind) 
                                   -> insRel (edgeNode kind) [from,to] mm
                                 ) mm es
-
-    -- load into the frame
-      -- for each MmNLab
-        -- add it keeping its ID intact
-        -- connect it to the corresponding style node
-        -- aborted; was going to:
-          -- create two more nodes for its created-on and modified-on times
-          -- connect it to those
-          -- connect them to the system node
-      -- for each MnELab: ?
 
 -- deprecating: unsafe functions
     fromRight :: Either a b -> b
