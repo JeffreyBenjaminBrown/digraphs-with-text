@@ -3,7 +3,7 @@
 
 -- start with a .mm file with no html text
   -- -- the file must have no hypertext tags
-mls <- tMmFile "data/agent.mm"
+mls <- mmToMlTags "data/agent.mm"
 
 -- this slightly-longer-than-necessary process turns it into a Mindmap called g
 let spec = fromRight $ dwtSpec $ fromRight mls

@@ -197,6 +197,11 @@
     mlArrowDestMe t = (mapLookupMe "DESTINATION" $ mlMap t)
                        >>= eitherToMe parseId
 
+  -- file -> [MlTag]
+    mmToMlTags :: String -> IO (Either ParseError [MlTag])
+    mmToMlTags filename = do x <- readFile filename
+                             return $ mlTags x
+
   -- dwtSpec :: [MlTag] -> Either String DwtSpec
     dwtSpec :: [MlTag] -> Either String DwtSpec
     dwtSpec [] = Right ([],[]) -- silly case; could arguably return Left

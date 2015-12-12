@@ -172,25 +172,21 @@
              (read "2015-12-06 08:11:23 UTC") (read "2015-12-06 08:11:52 UTC")
 
   -- parse a whole file
-    tMmFile :: String -> IO (Either ParseError [MlTag])
-    tMmFile filename = do x <- readFile filename -- ANOMALY, test by hand
-                          return $ mlTags x
-
-      -- "tDwtSpec", by hand: works
-        -- x <- tMmFile "data/root+7.mm"
-        -- let y = fromRight $ dwtSpec $ fromRight x
-        -- result has 8 lnodes and 9 edges, which is correct
-        --        the two arrow edges are corect
-        --        and the first three edges
-        --        and the last tree edge
+    -- "tDwtSpec", by hand: works
+      -- x <- mmToMlTags "data/root+7.mm"
+      -- let y = fromRight $ dwtSpec $ fromRight x
+      -- result has 8 lnodes and 9 edges, which is correct
+      --        the two arrow edges are corect
+      --        and the first three edges
+      --        and the last tree edge
 
     tFrame = do 
-      x <- tMmFile "data/root+22ish.mm" -- root+22ish because it needs styles
+      x <- mmToMlTags "data/root+22ish.mm" -- root+22ish because it needs styles
       let y = fromRight $ dwtSpec $ fromRight x
         in return (frame $ frameOrphanStyles y :: Either String DwtFrame)
 
     tLoadNodes = do 
-      mls <- tMmFile "data/root+22ish.mm" -- again, needs styles
+      mls <- mmToMlTags "data/root+22ish.mm" -- again, needs styles
       let spec = fromRight $ dwtSpec $ fromRight mls
           fr = frame $ frameOrphanStyles spec :: Either String DwtFrame
         in return $ (loadNodes (spec, fromRight fr) :: Either String Mindmap)
