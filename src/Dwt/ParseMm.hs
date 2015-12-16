@@ -161,6 +161,11 @@
     strip :: Parser a -> Parser [Char]
     strip p = many $ (skipMany $ try p) >> anyChar
 
+    stripRichTags :: [MlTag] -> [MlTag]
+    stripRichTags = filter $ \t -> case t of
+      MlTag "richcontent" _ _ _ -> False
+      _ -> True
+
     mlTags :: String -> Either ParseError [MlTag]
     mlTags file =     eParse (strip comment) file
                   >>= eParse ( many ( (try $ lexeme richText) 
@@ -201,6 +206,21 @@
     mmToMlTags :: String -> IO (Either ParseError [MlTag])
     mmToMlTags filename = do x <- readFile filename
                              return $ mlTags x
+
+    -- MAYBE THE PROBLEM is that node isStart|isEnd is getting confused
+    collapseRich :: [MlTag] -> [MlTag]
+    collapseRich [] = []
+    collapseRich [a] = [a]
+    collapseRich (a:b:x) = f (a,b) : collapseRich (b:x) where
+      f :: (MlTag,MlTag) -> MlTag
+      f (a,b) = case b of
+        PoorText s -> case a of
+          MlTag a b c mp -> MlTag a b c mp'
+            where mp' = Map.insert "TEXT" newText mp
+                  newText = maybe s
+                                  (++ "[ERROR ? two text values]" ++ s)
+                                  (Map.lookup "TEXT" mp)
+        _ -> a
 
   -- dwtSpec :: [MlTag] -> Either String DwtSpec
     dwtSpec :: [MlTag] -> Either String DwtSpec
