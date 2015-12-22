@@ -53,7 +53,9 @@
 
 -- tests
   -- buildGraph
-    tBuildGraph = TestList [tSubInTplt, tInsert, tInsRelM]
+    tBuildGraph = TestList [ TestLabel "tSubInTplt" tSubInTplt
+                           , TestLabel "tInsert" tInsert
+                           , TestLabel "tInsRelM" tInsRelM]
 
     tSubInTplt = TestCase $ do
       assertBool "1" $ subInTplt (fromJust $ lab g1 1) ["man","peace"]
@@ -78,7 +80,8 @@
             == Left "tpltAt: Node does not index a Tplt"
 
   -- ask, minor
-    tAskMinor = TestList [tGelemM, tTpltArity]
+    tAskMinor = TestList [ TestLabel "tGelemM" tGelemM
+                         , TestLabel "tTpltArity" tTpltArity ]
 
     tGelemM = TestCase $ do
       assertBool "1" $ gelemM g1 0 == Right ()
@@ -90,7 +93,8 @@
       assertBool "j3" $ tpltArity (Str "rig") == Left "tpltArity: Expr not a Tplt"
 
   -- ask [Node]
-    tAskNodes = TestList [tUsers, tMatchRel]
+    tAskNodes = TestList [ TestLabel "tUsers" tUsers
+                         , TestLabel "tMatchRel" tMatchRel]
 
     tUsers = TestCase $ do
       assertBool "1" $ users g1 0 == Right [5,6,8]
@@ -109,8 +113,12 @@
         "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
 
   -- parse .mm(the xml format)
-    tParseMm = TestList [tMmStr, tWord, tComment, tKeyValPair, 
-      tStrip, tMlTag]
+    tParseMm = TestList [ TestLabel "tMmStr" tMmStr
+                        , TestLabel "tWord" tWord
+                        , TestLabel "tComment" tComment
+                        , TestLabel "tKeyValPair" tKeyValPair
+                        , TestLabel "tStrip" tStrip
+                        , TestLabel "tMlTag" tMlTag]
 
     tMmStr = TestCase $ do
       assertBool "mmStr" $ eParse2 mmStr "\"aygaw\"bbbb"
@@ -151,7 +159,8 @@
                  )
 
   -- manip mmTags
-    tMmTags = TestList [tParseId, tMmNLab]
+    tMmTags = TestList [ TestLabel "tParseId" tParseId
+                       , TestLabel "tMmNLab" tMmNLab ]
 
     tParseId = TestCase $ do
       assertBool "parse ID strings" $ parseId "ID_123" == Right 123
