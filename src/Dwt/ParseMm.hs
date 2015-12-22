@@ -20,6 +20,9 @@
       , module Text.Parsec.String
       , module Dwt.ParseMm
       ) where
+
+    import Dwt.Graph
+
     import Text.Parsec
     import Text.Parsec.String (Parser)
     import Data.Text (stripEnd,pack,unpack)
@@ -30,10 +33,8 @@
     import qualified Data.Time as T
     import qualified Data.List as L
 
-    import Dwt.Graph
-
 -- types
-    type MmNode = Int
+    type MmNode = Int -- TODO ? remove; just use FGL.Node
 
     data MlTag = MlTag { title :: String 
       , isStart :: Bool -- leading < indicates start; </ indicates continuation.
@@ -58,6 +59,9 @@
 
     type DwtSpec = ( [MmNLab], [(MmNode,MmNode,MmELab)] ) -- (nodes,edges)
     type DwtFrame = (Mindmap, Map.Map String Int)
+      -- TRICKY : the map is, I *believe*, from style strings to style nodes
+        -- style strings being, e.g., "default" or "AutomaticLayout.level.root"
+        -- and the mapped-to node being the one that represents that style
 
 -- constructors, helpers
     mmNLabDummy :: MmNLab
