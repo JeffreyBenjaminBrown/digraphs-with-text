@@ -71,13 +71,13 @@
       assertBool "1" $ (insRel 2 [0,0] g1 :: Either String Mindmap)
             == (Right $ insRelUsf  2 [0,0] g1)
       assertBool "2" $ (insRel 15 [0,0] g1 :: Either String Mindmap)
-            == Left "gelemM: Node not in Mindmap"
+            == Left "gelemM: Node 15 not in Mindmap"
       assertBool "3" $ (insRel 2 [100,0] g1 :: Either String Mindmap)
-            == Left "gelemM: Node not in Mindmap"
+            == Left "gelemM: Node 100 not in Mindmap"
       assertBool "4" $ (insRel 2 [1,1,1] g1 :: Either String Mindmap)
             == Left "nodesMatchTplt: Tplt Arity /= number of member Nodes"
       assertBool "5" $ (insRel 0 [1,1,1] g1 :: Either String Mindmap)
-            == Left "tpltAt: Node does not index a Tplt"
+            == Left "tpltAt: Node 0 indexes not a Tplt"
 
   -- ask, minor
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM
@@ -85,7 +85,7 @@
 
     tGelemM = TestCase $ do
       assertBool "1" $ gelemM g1 0 == Right ()
-      assertBool "1" $ gelemM g1 100 == Left "gelemM: Node not in Mindmap"
+      assertBool "1" $ gelemM g1 100 == Left "gelemM: Node 100 not in Mindmap"
 
     tTpltArity = TestCase $ do
       assertBool "j1" $ tpltArity (Tplt 3 []) == Right 3
