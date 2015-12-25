@@ -22,9 +22,9 @@
             (_,tpltNode,_) = head ledges
               -- head because Tplt sorts first, before Rel, in Ord Expr 
             Just tpltLab = lab g tpltNode :: Maybe Expr
-            members = map (\(_,m,_)-> m) $ tail ledges :: [Node]
+            memberNodes = map (\(_,m,_)-> m) $ tail ledges :: [Node]
         in prefixRel tpltNode $ subInTplt tpltLab 
-             $ map (bracket . showExpr g) members
+             $ map (bracket . showExpr g) memberNodes
       where prefixRel tn s = show n ++ ":" ++ show tn ++ " " ++ s
             bracket s = "[" ++ s ++ "]"
 
