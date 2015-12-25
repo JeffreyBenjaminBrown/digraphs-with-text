@@ -5,28 +5,37 @@
     import Dwt.Graph
     import Data.List (sortOn, intercalate)
 
-    showExpr :: Mindmap -> Node -> String -- TODO: Either|Maybe
-      -- BEWARE ? infinite loops
-        -- if the graph is recursive, this could infinite loop
-          -- such cycles seem unlikely to be intende, b/c recursive statements are
-          -- confusing; c.f. Godel's impossibility theorem
-        -- a solution: while building, keep list of visited nodes
-          -- if visiting one already listed, display it as just its Node
-          -- or Node ++ "already displayed higher in this (node view?)"
-    showExpr g n = case lab g n of
-      Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
-      Just (Str s) ->     (show n) ++ ": "       ++ s
-      Just (Tplt _ ts) -> ":" ++ (show n) ++ " " ++ intercalate "_" ts
-      Just (Rel _) ->
+    _showExpr :: (Node -> String) -> (Node -> String) -> 
+      (Node -> Node -> String) -> Mindmap -> Node -> String
+    _showExpr strPrefix tpltPrefix relPrefix g n = case lab g n of
+      Nothing          -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
+      Just (Str s)     -> strPrefix n ++ s
+      Just (Tplt _ ts) -> tpltPrefix n ++ intercalate "_" ts
+      Just (Rel _)     ->
         let ledges = sortOn edgeLabel $ out g n
             (_,tpltNode,_) = head ledges
               -- head because Tplt sorts first, before Rel, in Ord Expr 
             Just tpltLab = lab g tpltNode :: Maybe Expr
             memberNodes = map (\(_,m,_)-> m) $ tail ledges :: [Node]
-        in prefixRel tpltNode $ subInTplt tpltLab 
-             $ map (bracket . showExpr g) memberNodes
-      where prefixRel tn s = show n ++ ":" ++ show tn ++ " " ++ s
-            bracket s = "[" ++ s ++ "]"
+        in (relPrefix n tpltNode ++) $ subInTplt tpltLab 
+             $ map (bracket . _showExpr strPrefix tpltPrefix relPrefix g) 
+                   memberNodes
+      where bracket s = "[" ++ s ++ "]"
+
+    showExpr :: Mindmap -> Node -> String
+    showExpr g n = _showExpr strPrefix tpltPrefix relPrefix g n where
+      strPrefix n = show n ++ ": "
+      tpltPrefix n = ":" ++ show n ++ " "
+      relPrefix n tn = show n ++ ":" ++ show tn ++ " "
+
+    showtExpr :: Mindmap -> Node -> String -- show tersely, without Nodes
+    showtExpr g n = _showExpr strPrefix tpltPrefix relPrefix g n where
+      strPrefix n = ""
+      tpltPrefix n = ""
+      relPrefix n tn = ""
 
     view :: Mindmap -> [Node] -> IO ()
     view g ns = mapM_ putStrLn $ map (showExpr g) ns
+
+    viewt :: Mindmap -> [Node] -> IO () -- view tersely, without Nodes
+    viewt g ns = mapM_ putStrLn $ map (showtExpr g) ns
