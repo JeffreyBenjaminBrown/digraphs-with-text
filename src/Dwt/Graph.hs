@@ -14,7 +14,7 @@
     import Data.Maybe (isJust, catMaybes, fromJust)
     import Control.Monad (mapM_)
     import Control.Monad.Except (MonadError, throwError)
-    import qualified Data.Text as T
+    import Data.Text (splitOn, pack, unpack)
 
 -- types
     type Arity = Int -- relationships, which some expressions are, have arities
@@ -28,7 +28,7 @@
 -- build
   -- Tplt <-> String
     splitTpltStr :: String -> [String]
-    splitTpltStr t = map T.unpack $ T.splitOn (T.pack "_") (T.pack t)
+    splitTpltStr t = map unpack $ splitOn (pack "_") (pack t)
 
     stringToTplt :: String -> Expr
     stringToTplt s = Tplt (length ss-1) ss -- even length=0 works
