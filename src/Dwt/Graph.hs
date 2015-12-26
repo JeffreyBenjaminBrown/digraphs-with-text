@@ -3,7 +3,12 @@
 
     module Dwt.Graph
       ( module Data.Graph.Inductive
-      , module Dwt.Graph
+      , Arity, RelPos, Expr(..), Role(..), Mindmap
+      , splitTpltStr, stringToTplt, subInTplt
+      , insStr, insTplt, insRel, chExprAt
+      , gelemM, tpltAt, tpltArity, nodesMatchTplt
+      , users, specUsersUsf, specUsers, matchRel, allRels
+      , insRelUsf, chExprAtUsf, usersUsf
       ) where
 
     import Data.Graph.Inductive
