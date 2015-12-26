@@ -1,18 +1,12 @@
--- parse
-  -- run "stack ghci" and load the test suite
-    :l test/TGraph.hs 
+-- file io
+  -- load
+  x <- readFile "untracked/data/agent.dwt" -- dwt = txt
+  let g = read x :: Mindmap
 
-  -- start with a .mm file with no html text
-      -- -- the file must have no hypertext tags
-    mls <- mmToMlTags "data/agent.mm"
-    let mls2 = stripRichTags $ fromRight mls
-    let mls3 = collapseRich $ fromRight mls
+  -- save
+  writeFile "untracked/data/agent.dwt" $ show g
 
-  -- this slightly-longer-than-necessary process turns it into a Mindmap called g
-    let spec = fromRight $ dwtSpec mls3
-    let fr = frame $ frameOrphanStyles spec :: Either String DwtFrame
-    let fWithNodes = fromRight $ loadNodes (spec, fromRight fr)
-    let g = compressGraph $ fromRight $ loadEdges spec fWithNodes
+  -- If I ever want to prune for speed, I can prune every .mm/ and .mm~ rels which is not the only arity-2 rel involving its endpoints.
 
 -- futz
   -- some important nodes
