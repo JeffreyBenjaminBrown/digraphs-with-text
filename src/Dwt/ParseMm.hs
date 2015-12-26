@@ -69,14 +69,6 @@
     mmNLabDummy = MmNLab "hi" 0 Nothing t t
       where t = T.UTCTime (T.fromGregorian 1989 11 30) 0
 
-    compressGraph :: Mindmap -> Mindmap
-    compressGraph g = let ns = nodes g
-                          ns' = [1 .. length ns]
-                          mp = Map.fromList $ zip ns ns'
-                          chNode n = mp Map.! n
-                          chAdj (b,n) = (b, mp Map.! n)
-      in gmap (\(a,b,lab,d) -> (map chAdj a, chNode b, lab, map chAdj d)) g
-
 -- parsing
   -- Parser a -> String -> _
     parseWithEof :: Parser a -> String -> Either ParseError a

@@ -4,11 +4,13 @@
     module Dwt.Graph
       ( module Data.Graph.Inductive
       , Arity, RelPos, Expr(..), Role(..), Mindmap
-      , splitTpltStr, stringToTplt, subInTplt
-      , insStr, insTplt, insRel, chExprAt
-      , gelemM, tpltAt, tpltArity, nodesMatchTplt
-      , users, specUsersUsf, specUsers, matchRel, allRels
-      , insRelUsf, chExprAtUsf, usersUsf
+      , splitTpltStr, stringToTplt, subInTplt -- Tplt
+      , insStr, insTplt, insRel -- build Mindmap
+      , chExprAt, compressGraph -- edit Mindmap
+      -- query Mindmap
+        , gelemM, tpltAt, tpltArity, nodesMatchTplt -- minor
+        , users, specUsersUsf, specUsers, matchRel, allRels -- .. -> [Node]
+      , insRelUsf, chExprAtUsf, usersUsf -- unsafe, duplicates
       ) where
 
     import Data.Graph.Inductive
@@ -72,6 +74,14 @@
       gelemM g n
       return $ chExprAtUsf g n e
 
+    compressGraph :: Mindmap -> Mindmap
+    compressGraph g = let ns = nodes g
+                          ns' = [1 .. length ns]
+                          mp = Map.fromList $ zip ns ns'
+                          chNode n = mp Map.! n
+                          chAdj (b,n) = (b, mp Map.! n)
+      in gmap (\(a,b,lab,d) -> (map chAdj a, chNode b, lab, map chAdj d)) g
+
     -- chMbr :: Role -> Node -> Node -> Mindmap -> Mindmap
     -- chMbr role newMbr user g = ... -- TODO
 
@@ -99,7 +109,7 @@
         else return ()
       _ -> throwError "nodesMatchTplt: Expr not a Tplt"
 
-  -- Mindmap -> ...stuff... -> [Node]
+  -- .. -> [Node]
     users :: (MonadError String m) => Mindmap -> Node -> m [Node]
     users g n = do gelemM g n
                    return $ [m | (m,n,label) <- inn g n]
