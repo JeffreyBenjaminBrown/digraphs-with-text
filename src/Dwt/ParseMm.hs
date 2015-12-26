@@ -18,7 +18,26 @@
     module Dwt.ParseMm
       ( module Text.Parsec
       , module Text.Parsec.String
-      , module Dwt.ParseMm
+      , MmNode, MlTag(..), MmNLab(..), MmELab(..), MmObj(..), DwtSpec, DwtFrame
+      , mmNLabDummy
+      -- parsing
+        -- Parser a -> String -> _
+          , parseWithEof, eParse, eParse2
+        -- parsing the .mm format
+          -- elements of the mlTag parser
+            , lexeme, mmEscapedChar, mmStr, word, keyValPair
+          -- parsing tags and comments
+            , richText, mlTag, comment, strip, stripRichTags, mlTags
+        -- functions of type (Functor f => f MlTag -> _), and their helpers
+          , parseId, mmTimeToTime -- helpers
+          , tagToKeep, readMmNLab, mlArrowDestMe -- MlTag -> _
+          , mmToMlTags, collapseRich -- file -> [MlTag]
+          , dwtSpec, dwtSpec' -- dwtSpec :: [MlTag] -> Either String DwtSpec
+      -- DwtSpec -> _
+        , frameNodes, edgeNode, frameSansStyles, styles, negateMm
+        , frameOrphanStyles, frame, loadNodes, loadEdges
+      -- deprecating, unsafe
+        , fromRight, mlArrowDestUsf, readMmNLabUsf
       ) where
 
     import Dwt.Graph
