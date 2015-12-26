@@ -1,5 +1,3 @@
--- TODO: ParseMm.hs has things that belong higher, maybe here
-
 -- pragmas, export, import
     {-# LANGUAGE FlexibleContexts #-}
 
