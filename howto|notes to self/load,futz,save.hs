@@ -1,10 +1,6 @@
--- file io
-  -- load
+-- load
   x <- readFile "untracked/data/agent.dwt" -- dwt = txt
   let g = read x :: Mindmap
-
-  -- save
-  writeFile "untracked/data/agent.dwt" $ show g
 
   -- If I ever want to prune for speed, I can prune every .mm/ and .mm~ rels which is not the only arity-2 rel involving its endpoints.
 
@@ -35,3 +31,6 @@
       -- problem ? does not include 29 (.mm/) and 30 (.mm~).
 
     matchRel g [Just 22,Nothing,Nothing] -- number of Exprs with nonstandard font
+
+  -- save
+  writeFile "untracked/data/agent.dwt" $ show g
