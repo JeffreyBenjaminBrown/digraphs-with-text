@@ -18,7 +18,7 @@
     module Dwt.ParseMm
       ( module Text.Parsec
       , module Text.Parsec.String
-      , MmNode, MlTag(..), MmNLab(..), MmELab(..), MmObj(..), DwtSpec, DwtFrame
+      , MlTag(..), MmNLab(..), MmELab(..), MmObj(..), DwtSpec, DwtFrame
       , mmNLabDummy
       -- parsing
         -- Parser a -> String -> _
@@ -26,7 +26,7 @@
         -- parsing the .mm format
           -- elements of the mlTag parser
             , lexeme, mmEscapedChar, mmStr, word, keyValPair
-          -- parsing tags and comments
+          -- tags and comments
             , richText, mlTag, comment, strip, stripRichTags, mlTags
         -- functions of type (Functor f => f MlTag -> _), and their helpers
           , parseId, mmTimeToTime -- helpers
@@ -54,8 +54,6 @@
     import qualified Data.List as L
 
 -- types
-    type MmNode = Int -- TODO ? remove; just use FGL.Node
-
     data MlTag = MlTag { title :: String 
       , isStart :: Bool -- leading < indicates start; </ indicates continuation.
       , isEnd :: Bool   -- trailing /> indicates end; > indicates continuation.
@@ -64,20 +62,20 @@
         | Comment deriving (Eq, Show)
 
     data MmNLab = MmNLab { text :: String -- inaccurate type name: hold both data
-                         , mmId :: MmNode -- about the node label and other lnodes
+                         , mmId :: Node -- about the node label and other lnodes
                          , style :: Maybe String -- it will be connected to
                          , created :: T.UTCTime
                          , modified :: T.UTCTime } deriving (Eq, Show)
 
     data MmELab = TreeEdge | ArrowEdge deriving (Eq, Show)
 
-    data MmObj = MmText MmNLab | MmArrow {dest ::  MmNode}
+    data MmObj = MmText MmNLab | MmArrow {dest ::  Node}
       deriving (Eq, Show)
       -- the xml is an interleaved nested list of nodes and arrows
         -- in which the nesting matters; it lets succesion be implicit
       -- to process such a list, I need a type that unifies those two things
 
-    type DwtSpec = ( [MmNLab], [(MmNode,MmNode,MmELab)] ) -- (nodes,edges)
+    type DwtSpec = ( [MmNLab], [(Node,Node,MmELab)] ) -- (nodes,edges)
     type DwtFrame = (Mindmap, Map.Map String Int)
       -- TRICKY : the map is, I *believe*, from style strings to style nodes
         -- style strings being, e.g., "default" or "AutomaticLayout.level.root"
@@ -174,7 +172,7 @@
 
 -- functions of type (Functor f => f MlTag -> _), and their helpers
   -- helpers
-    parseId :: String -> Either ParseError MmNode
+    parseId :: String -> Either ParseError Node
     parseId s = read <$> eParse (string "ID_" *> many digit) s
 
     mmTimeToTime :: Int -> T.UTCTime
@@ -199,7 +197,7 @@
             return $ MmNLab text mmId style (parseTime created) 
                                             (parseTime modified)
 
-    mlArrowDestMe :: (MonadError String me) => MlTag -> me MmNode
+    mlArrowDestMe :: (MonadError String me) => MlTag -> me Node
     mlArrowDestMe t = (mapLookupMe "DESTINATION" $ mlMap t)
                        >>= eitherToMe parseId
 
@@ -208,7 +206,7 @@
     mmToMlTags filename = do x <- readFile filename
                              return $ mlTags x
 
-    -- MAYBE THE PROBLEM is that node isStart|isEnd is getting confused
+    -- MAYBE THE HTML PROBLEM is that node isStart|isEnd is getting confused
     collapseRich :: [MlTag] -> [MlTag]
     collapseRich [] = []
     collapseRich [a] = [a]
@@ -232,7 +230,7 @@
             -- Assumes first tag is a node. It can't be an arrow.
             dwtSpec' [mmId rootLab] (tail relevantTags) ([rootLab], [])
 
-    dwtSpec' :: [MmNode] -> [MlTag] -> DwtSpec -> Either String DwtSpec
+    dwtSpec' :: [Node] -> [MlTag] -> DwtSpec -> Either String DwtSpec
     dwtSpec' [] [] spec = Right spec
     dwtSpec' _ [] spec = Left "ran out of MmTags but not ancestors."
     dwtSpec' ancestry (t:ts) spec@(nLabs,lEdges) = case title t of
@@ -314,7 +312,7 @@
     fromRight (Right b) = b
     fromRight (Left _) = error "fromRight: Left"
 
-    mlArrowDestUsf :: MlTag -> Either ParseError MmNode
+    mlArrowDestUsf :: MlTag -> Either ParseError Node
     mlArrowDestUsf t = parseId $ mlMap t Map.! "DESTINATION"
 
     readMmNLabUsf :: MlTag -> MmNLab -- this process is lossy
