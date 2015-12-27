@@ -75,7 +75,7 @@
       gelemM g n
       return $ chExprAtUsf g n e
 
-    compressGraph :: Mindmap -> Mindmap
+    compressGraph :: DynGraph gr => gr a b -> gr a b
     compressGraph g = let ns = nodes g
                           ns' = [1 .. length ns]
                           mp = Map.fromList $ zip ns ns'
