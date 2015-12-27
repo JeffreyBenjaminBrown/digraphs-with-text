@@ -5,7 +5,7 @@
 
   -- start with a .mm file with no html text
       -- -- the file must have no hypertext tags
-    mls <- mmToMlTags "data/agent.mm"
+    mls <- mmToMlTags "untracked/data/agent.mm"
     let mls2 = stripRichTags $ fromRight mls
     let mls3 = collapseRich $ fromRight mls
 
