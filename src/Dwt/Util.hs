@@ -3,9 +3,16 @@
       ( module Dwt.Util
       ) where
 
+    import Data.Graph.Inductive
     import qualified Data.Map as Map
     import Control.Monad.Except (MonadError, throwError)
 
+-- for graphs
+    negateGraph :: Graph Gr => Gr a b -> Gr a b
+    negateGraph m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
+      where negAdj = map (\(label,n) -> (label,-n))
+
+-- for monads
     -- TODO: This could use a higher-kinded function, lke eitherToMe, for Maybes
       -- should in that case take also a String to show if Nothing happens
     mapLookupMe :: (Ord k, Show k, Show a, MonadError String me) => -- TODO: bad?
