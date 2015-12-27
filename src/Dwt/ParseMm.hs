@@ -261,8 +261,7 @@
                              , (8, Str "styles") 
                            , (9, Str "rels")
                              , (10, stringToTplt "_ instance/ _")
-                             , (11, stringToTplt "_ read as/ _") 
-                               -- TODO: change to "uses font"
+                             , (11, stringToTplt "_ uses font/ _") 
                              , (12, stringToTplt "_ then read-> _")
                          ] []
 
@@ -273,7 +272,7 @@
 
     stylesNode = -8 :: Node
     instanceNode = -10 :: Node
-    readAsNode = -11 :: Node     -- TODO: change to "uses font"
+    usesFontNode = -11 :: Node
 
     frameSansStyles :: Mindmap -- counting Rels, this has 24 Nodes
       -- so styles will occupy Nodes starting at 25
@@ -311,7 +310,7 @@
     loadNodes :: (MonadError String me) => (DwtSpec, DwtFrame) -> me Mindmap
     loadNodes ( (ns,_), (mm, mp) ) =
       let noded = foldl (\mm n -> insNode (mmId n, Str $ text n) mm) mm ns
-      in foldM (\mm n -> insRel (readAsNode) [ mmId n
+      in foldM (\mm n -> insRel (usesFontNode) [ mmId n
                                       , (Map.!) mp $ Mb.fromJust $ style n
                                       ] mm)
                noded $ filter (Mb.isJust . style) ns
