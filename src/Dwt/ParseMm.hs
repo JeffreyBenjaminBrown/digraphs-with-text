@@ -199,7 +199,7 @@
     mmToMlTags filename = do x <- readFile filename
                              return $ mlTags x
 
-    -- MAYBE THE HTML PROBLEM is that node isStart|isEnd is getting confused
+    -- TODO : is the HTML PROBLEM that node isStart|isEnd is getting confused?
     collapseRich :: [MlTag] -> [MlTag]
     collapseRich [] = []
     collapseRich [a] = [a]
@@ -258,7 +258,7 @@
                              , (12, stringToTplt "_ then read-> _")
                          ] []
 
-    -- the frame is later negated, so negate all indexes for it
+    -- the frame is later negated, so here I negate all Nodes referring to it
     edgeNode :: MmELab -> Node
     edgeNode TreeEdge = -3
     edgeNode ArrowEdge = -4
@@ -267,8 +267,7 @@
     instanceNode = -10 :: Node
     usesFontNode = -11 :: Node
 
-    frameSansStyles :: Mindmap -- counting Rels, this has 24 Nodes
-      -- so styles will occupy Nodes starting at 25
+    frameSansStyles :: Mindmap 
     frameSansStyles = conn [0,1] $ conn [0,9]
       $ conn [1,2] $ conn [1,5] $ conn [1,8]
       $ conn [2,3] $ conn [2,4]
@@ -276,7 +275,7 @@
       $ conn [9,10] $ conn [9,11] $ conn [9,12]
       $ frameNodes where conn = insRelUsf (-instanceNode)
 
-    firstStyleNode = -25 :: Node
+    firstStyleNode = -25 :: Node -- because frameSansStyles has 24 Nodes
 
   -- </WARNING>
     styles :: DwtSpec -> [String]
