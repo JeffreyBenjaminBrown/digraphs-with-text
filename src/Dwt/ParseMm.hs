@@ -34,8 +34,8 @@
           , mmToMlTags, collapseRich -- file -> [MlTag]
           , dwtSpec, dwtSpec' -- dwtSpec :: [MlTag] -> Either String DwtSpec
       -- DwtSpec -> _
-        , frameNodes, edgeNode, frameSansStyles, styles, negateMm
-        , frameOrphanStyles, frame, loadNodes, loadEdges
+        , frameNodes, edgeNode, frameSansStyles, firstStyleNode
+        , styles, negateMm, frameOrphanStyles, frame, loadNodes, loadEdges
       -- deprecating, unsafe
         , fromRight, mlArrowDestUsf, readMmNLabUsf
       ) where
@@ -248,7 +248,7 @@
       _ -> Left "MmTag neither a node nor an arrow"
 
 -- DwtSpec -> _
-    -- WARNING: The Nodes of these objects are interdependent.
+  -- WARNING: The Nodes of these functions are interdependent.
     frameNodes :: Mindmap -- no styles and no edges in this one
     frameNodes = mkGraph [ (0, Str "root|this graph")
                            , (1, Str ".system")
@@ -261,21 +261,32 @@
                              , (8, Str "styles") 
                            , (9, Str "rels")
                              , (10, stringToTplt "_ instance/ _")
-                             , (11, stringToTplt "_ read as/ _") ] []
+                             , (11, stringToTplt "_ read as/ _") 
+                               -- TODO: change to "uses font"
+                             , (12, stringToTplt "_ then read-> _")
+                         ] []
 
-    edgeNode :: MmELab -> Node -- depends on frameNodes
-    edgeNode TreeEdge = -3 -- frame is later negated, so negate all indexes for it
+    -- the frame is later negated, so negate all indexes for it
+    edgeNode :: MmELab -> Node
+    edgeNode TreeEdge = -3
     edgeNode ArrowEdge = -4
 
-    frameSansStyles :: Mindmap -- counting Rels, this has 22 Nodes
-      -- so styles will occupy Nodes starting at 23
+    stylesNode = -8 :: Node
+    instanceNode = -10 :: Node
+    readAsNode = -11 :: Node     -- TODO: change to "uses font"
+
+    frameSansStyles :: Mindmap -- counting Rels, this has 24 Nodes
+      -- so styles will occupy Nodes starting at 25
     frameSansStyles = conn [0,1] $ conn [0,9]
       $ conn [1,2] $ conn [1,5] $ conn [1,8]
       $ conn [2,3] $ conn [2,4]
       $ conn [5,6] $ conn [5,7]
-      $ conn [9,10] $ conn [9,11] 
-      $ frameNodes where conn = insRelUsf 10
+      $ conn [9,10] $ conn [9,11] $ conn [9,12]
+      $ frameNodes where conn = insRelUsf (-instanceNode)
 
+    firstStyleNode = -25 :: Node
+
+  -- </WARNING>
     styles :: DwtSpec -> [String]
     styles = L.nub . Mb.mapMaybe style . fst
 
@@ -286,10 +297,13 @@
     frameOrphanStyles :: DwtSpec -> DwtFrame
     frameOrphanStyles spec = let ss = styles spec
       in ( negateMm $ foldl (\mm font -> insStr font mm) frameSansStyles ss
-         , Map.fromList $ zip (styles spec) [-23,-24 ..] )
+         , Map.fromList $ zip (styles spec) 
+                              [firstStyleNode, firstStyleNode-1 ..]
+         )
 
     frame :: (MonadError String me) => DwtFrame -> me DwtFrame
-    frame (mm, mp) = do mm' <- foldM (\mm n -> insRel (-10) [-8, n] mm)
+    frame (mm, mp) = do mm' <- foldM (\mm n -> insRel (instanceNode) 
+                                                      [stylesNode, n] mm)
                                        -- n is already negative
                                      mm (Map.elems mp)
                         return (mm',mp)
@@ -297,7 +311,7 @@
     loadNodes :: (MonadError String me) => (DwtSpec, DwtFrame) -> me Mindmap
     loadNodes ( (ns,_), (mm, mp) ) =
       let noded = foldl (\mm n -> insNode (mmId n, Str $ text n) mm) mm ns
-      in foldM (\mm n -> insRel (-11) [ mmId n
+      in foldM (\mm n -> insRel (readAsNode) [ mmId n
                                       , (Map.!) mp $ Mb.fromJust $ style n
                                       ] mm)
                noded $ filter (Mb.isJust . style) ns
