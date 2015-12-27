@@ -28,7 +28,7 @@
           , dwtSpec, dwtSpec' -- dwtSpec :: [MlTag] -> Either String DwtSpec
       -- DwtSpec -> _
         , frameNodes, edgeNode, frameSansStyles, firstStyleNode
-        , styles, negateMm, frameOrphanStyles, frame, loadNodes, loadEdges
+        , styles, negateGraph, frameOrphanStyles, frame, loadNodes, loadEdges
       -- deprecating, unsafe
         , fromRight, mlArrowDestUsf, readMmNLabUsf
       ) where
@@ -281,13 +281,13 @@
     styles :: DwtSpec -> [String]
     styles = L.nub . Mb.mapMaybe style . fst
 
-    negateMm :: Mindmap -> Mindmap
-    negateMm m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
+    negateGraph :: Graph Gr => Gr a b -> Gr a b
+    negateGraph m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
       where negAdj = map (\(label,n) -> (label,-n))
 
     frameOrphanStyles :: DwtSpec -> DwtFrame
     frameOrphanStyles spec = let ss = styles spec
-      in ( negateMm $ foldl (\mm font -> insStr font mm) frameSansStyles ss
+      in ( negateGraph $ foldl (\mm font -> insStr font mm) frameSansStyles ss
          , Map.fromList $ zip (styles spec) 
                               [firstStyleNode, firstStyleNode-1 ..]
          )
