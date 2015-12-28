@@ -6,16 +6,16 @@
 
 -- futz
   -- some important nodes
-    view g $ pre g 763 -- lets see every Rel involving the root
+    view g $ pre g 1755 -- lets see every Rel involving the root
     view g $ nodes $ labfilter (== stringToTplt "_ .mm/ _") g
 
-  -- how I found that
+  -- how I found that (Nodes obsolete, method still valid)
     length $ nodes g
-    matchRel g [Just 30,Nothing,Just 400]
+    matchRel g [Just 32,Nothing,Just 400]
     showExpr g 1583
-    matchRel g [Just 30,Nothing,Just 584]
+    matchRel g [Just 32,Nothing,Just 584]
     showExpr g 1600
-    matchRel g [Just 30,Nothing,Just 274]
+    matchRel g [Just 32,Nothing,Just 274]
     showExpr g 1753
     -- now I know the root Node is 763
     view g $ pre g 763 -- lets see every Rel involving the root
