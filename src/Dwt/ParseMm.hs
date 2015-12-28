@@ -60,7 +60,7 @@
                          , created :: T.UTCTime
                          , modified :: T.UTCTime } deriving (Eq, Show)
 
-    data MmELab = TreeEdge | ArrowEdge deriving (Eq, Show)
+    data MmELab = TreeEdge | ArrowEdge | ThenReadEdge deriving (Eq, Show)
 
     data MmObj = MmText MmNLab | MmArrow {dest ::  Node}
       deriving (Eq, Show)
@@ -254,7 +254,7 @@
                              , (8, Str "styles") 
                            , (9, Str "rels")
                              , (10, stringToTplt "_ instance/ _")
-                             , (11, stringToTplt "_ uses font/ _") 
+                             , (11, stringToTplt "_ uses font-> _")
                              , (12, stringToTplt "_ then read-> _")
                          ] []
 
@@ -262,6 +262,7 @@
     edgeNode :: MmELab -> Node
     edgeNode TreeEdge = -3
     edgeNode ArrowEdge = -4
+    edgeNode ThenReadEdge = -12 -- yes, it belongs under "rels", not ".mm rels"
 
     stylesNode = -8 :: Node
     instanceNode = -10 :: Node
@@ -304,7 +305,7 @@
                noded $ filter (Mb.isJust . style) ns
 
     loadEdges :: (MonadError String me) => DwtSpec -> Mindmap -> me Mindmap
-    loadEdges (_,es) mm = foldM (\mm (from,to,kind) 
+    loadEdges (_,es) mm = foldM (\mm (from,to,kind)
                                   -> insRel (edgeNode kind) [from,to] mm
                                 ) mm es
 
