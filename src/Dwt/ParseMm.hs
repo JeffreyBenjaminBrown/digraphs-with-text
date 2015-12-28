@@ -239,15 +239,15 @@
         False -> dwtSpec' (tail ancestry) prevParent ts spec
         True -> do
           newNLab <- readMmNLab t
-          let newLEdge = (head ancestry, mmId newNLab, TreeEdge)
-              newSpec = (newNLab : nLabs, newLEdge : lEdges)
+          let treeEdge = (head ancestry, mmId newNLab, TreeEdge)
+              newSpec = (newNLab : nLabs, treeEdge : lEdges)
           case isEnd t of
             False -> dwtSpec' (mmId newNLab : ancestry) parent     ts newSpec
             True ->  dwtSpec'                 ancestry  prevParent ts newSpec
       "arrowlink" -> do 
         dest <- mlArrowDestMe t
-        let newLEdge = (head ancestry, dest, ArrowEdge)
-        dwtSpec' ancestry prevParent ts (nLabs, newLEdge:lEdges)
+        let arrowEdge = (head ancestry, dest, ArrowEdge)
+        dwtSpec' ancestry prevParent ts (nLabs, arrowEdge:lEdges)
       _ -> Left "MmTag neither a node nor an arrow"
       where parent = Just $ head ancestry
 
