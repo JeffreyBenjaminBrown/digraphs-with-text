@@ -229,24 +229,27 @@
       -- but the Nothing above is correct; initially there is no previous parent
     dwtSpec' :: [Node] -> -- ancestors. its head is the nearest (deepest).
                 Maybe Node -> -- the nearest ancestor at last call
-                [MlTag] -> -- these are being transferred to the DwtSpec
+                [MlTag] -> -- the .mm file data, being transferred to the DwtSpec
                 DwtSpec -> -- this accretes the result
                 Either String DwtSpec -- the result
     dwtSpec' [] _ [] spec = Right spec
     dwtSpec' _  _ [] spec = Left "ran out of MmTags but not ancestors."
     dwtSpec' ancestry prevParent (t:ts) spec@(nLabs,lEdges) = case title t of
       "node" -> case isStart t of
-        False -> dwtSpec' (tail ancestry) Nothing ts spec
-        True -> do newNLab <- readMmNLab t
-                   let newLEdge = (head ancestry, mmId newNLab, TreeEdge)
-                       newSpec = (newNLab : nLabs, newLEdge : lEdges)
-                     in case isEnd t of
-                       False -> dwtSpec' (mmId newNLab : ancestry) Nothing ts newSpec
-                       True ->  dwtSpec'                 ancestry  Nothing ts newSpec
-      "arrowlink" -> do dest <- mlArrowDestMe t
-                        let newLEdge = (head ancestry, dest, ArrowEdge)
-                          in dwtSpec' ancestry Nothing ts (nLabs, newLEdge:lEdges)
+        False -> dwtSpec' (tail ancestry) prevParent ts spec
+        True -> do
+          newNLab <- readMmNLab t
+          let newLEdge = (head ancestry, mmId newNLab, TreeEdge)
+              newSpec = (newNLab : nLabs, newLEdge : lEdges)
+          case isEnd t of
+            False -> dwtSpec' (mmId newNLab : ancestry) parent     ts newSpec
+            True ->  dwtSpec'                 ancestry  prevParent ts newSpec
+      "arrowlink" -> do 
+        dest <- mlArrowDestMe t
+        let newLEdge = (head ancestry, dest, ArrowEdge)
+        dwtSpec' ancestry prevParent ts (nLabs, newLEdge:lEdges)
       _ -> Left "MmTag neither a node nor an arrow"
+      where parent = Just $ head ancestry
 
 -- DwtSpec -> _
   -- WARNING: The Nodes of these functions are interdependent.
