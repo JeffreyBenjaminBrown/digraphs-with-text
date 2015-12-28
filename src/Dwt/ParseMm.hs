@@ -51,7 +51,7 @@
       , isStart :: Bool -- leading < indicates start; </ indicates continuation.
       , isEnd :: Bool   -- trailing /> indicates end; > indicates continuation.
       , mlMap :: Map.Map String String
-      } | PoorText String 
+      } | PoorText String -- TODO: HTML tags currently break import
         | Comment deriving (Eq, Show)
 
     data MmNLab = MmNLab { text :: String -- inaccurate type name: hold both data
@@ -221,23 +221,31 @@
       let relevantTags = filter (flip elem ["node","arrowlink"] . title) tags
       in do rootLab <- readMmNLab $ head relevantTags
             -- Assumes first tag is a node. It can't be an arrow.
-            dwtSpec' [mmId rootLab] (tail relevantTags) ([rootLab], [])
+            dwtSpec' [mmId rootLab] Nothing (tail relevantTags) ([rootLab], [])
 
-    dwtSpec' :: [Node] -> [MlTag] -> DwtSpec -> Either String DwtSpec
-    dwtSpec' [] [] spec = Right spec
-    dwtSpec' _ [] spec = Left "ran out of MmTags but not ancestors."
-    dwtSpec' ancestry (t:ts) spec@(nLabs,lEdges) = case title t of
+    -- TODO: keep track of what, in the last call, the nearest ancestor was
+      -- if it is still that, then create a ThenReadEdge
+    -- TODO: the Nothings below are placeholders; they should all be Just something
+      -- but the Nothing above is correct; initially there is no previous parent
+    dwtSpec' :: [Node] -> -- ancestors. its head is the nearest (deepest).
+                Maybe Node -> -- the nearest ancestor at last call
+                [MlTag] -> -- these are being transferred to the DwtSpec
+                DwtSpec -> -- this accretes the result
+                Either String DwtSpec -- the result
+    dwtSpec' [] _ [] spec = Right spec
+    dwtSpec' _  _ [] spec = Left "ran out of MmTags but not ancestors."
+    dwtSpec' ancestry prevParent (t:ts) spec@(nLabs,lEdges) = case title t of
       "node" -> case isStart t of
-        False -> dwtSpec' (tail ancestry) ts spec
+        False -> dwtSpec' (tail ancestry) Nothing ts spec
         True -> do newNLab <- readMmNLab t
                    let newLEdge = (head ancestry, mmId newNLab, TreeEdge)
                        newSpec = (newNLab : nLabs, newLEdge : lEdges)
                      in case isEnd t of
-                       False -> dwtSpec' (mmId newNLab : ancestry) ts newSpec
-                       True ->  dwtSpec'                 ancestry  ts newSpec
+                       False -> dwtSpec' (mmId newNLab : ancestry) Nothing ts newSpec
+                       True ->  dwtSpec'                 ancestry  Nothing ts newSpec
       "arrowlink" -> do dest <- mlArrowDestMe t
                         let newLEdge = (head ancestry, dest, ArrowEdge)
-                          in dwtSpec' ancestry ts (nLabs, newLEdge:lEdges)
+                          in dwtSpec' ancestry Nothing ts (nLabs, newLEdge:lEdges)
       _ -> Left "MmTag neither a node nor an arrow"
 
 -- DwtSpec -> _
@@ -304,6 +312,7 @@
                                       ] mm)
                noded $ filter (Mb.isJust . style) ns
 
+    -- TODO: connect imported graph's root to frame's root
     loadEdges :: (MonadError String me) => DwtSpec -> Mindmap -> me Mindmap
     loadEdges (_,es) mm = foldM (\mm (from,to,kind)
                                   -> insRel (edgeNode kind) [from,to] mm
