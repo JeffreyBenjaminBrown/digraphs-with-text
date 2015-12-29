@@ -1,3 +1,6 @@
+-- TODO: find an automatic way to check for unused functions
+  -- otherwise when pattern matching, if the function name handed one of the patterns is misspelled, I can get a "non-exhaustive patterns" exception
+
 -- pragmas, export, import
     {-# LANGUAGE FlexibleContexts #-}
 
