@@ -69,6 +69,7 @@
       -- to process such a list, I need a type that unifies those two things
 
     type DwtSpec = ( [MmNLab], [(Node,Node,MmELab)] ) -- (nodes,edges)
+
     type DwtFrame = (Mindmap, Map.Map String Int)
       -- TRICKY : the map is, I *believe*, from style strings to style nodes
         -- style strings being, e.g., "default" or "AutomaticLayout.level.root"
@@ -215,41 +216,57 @@
         _ -> a
 
   -- dwtSpec :: [MlTag] -> Either String DwtSpec
+    data SpecMakerState = S { -- constructor name okay because not exported
+        ancestry :: [Node] -- its head is the nearest (deepest)
+      , prevNode :: Maybe Node
+      , prevParent :: Maybe Node -- the head of the previous ancestry
+      }
+
     dwtSpec :: [MlTag] -> Either String DwtSpec
     dwtSpec [] = Right ([],[]) -- silly case; could arguably return Left
     dwtSpec tags =
       let relevantTags = filter (flip elem ["node","arrowlink"] . title) tags
       in do rootLab <- readMmNLab $ head relevantTags
             -- Assumes first tag is a node. It can't be an arrow.
-            dwtSpec' [mmId rootLab] Nothing (tail relevantTags) ([rootLab], [])
+            dwtSpec' (S [mmId rootLab] Nothing Nothing)
+                     (tail relevantTags)
+                     ([rootLab], [])
 
-    -- TODO: keep track of what, in the last call, the nearest ancestor was
-      -- if it is still that, then create a ThenReadEdge
-    -- TODO: the Nothings below are placeholders; they should all be Just something
-      -- but the Nothing above is correct; initially there is no previous parent
-    dwtSpec' :: [Node] -> -- ancestors. its head is the nearest (deepest).
-                Maybe Node -> -- the nearest ancestor at last call
+    -- STRATEGY
+      -- for TreeEdges: keep track of all ancestors.
+        -- whenever a new Node is added, connect it to the nearest ancestor.
+        -- ("nearest ancestor" and "parent" are synonymous.)
+      -- for ThenReadEdges: keep track of what, in the last call, 
+        -- the nearest ancestor was. If it is unchanged, then
+        -- make a ThenReadEdge from the previous node to this one.
+    dwtSpec' :: SpecMakerState ->
                 [MlTag] -> -- the .mm file data, being transferred to the DwtSpec
                 DwtSpec -> -- this accretes the result
                 Either String DwtSpec -- the result
-    dwtSpec' [] _ [] spec = Right spec
-    dwtSpec' _  _ [] spec = Left "ran out of MmTags but not ancestors."
-    dwtSpec' ancestry prevParent (t:ts) spec@(nLabs,lEdges) = case title t of
+    dwtSpec' (S [] _ _) [] spec = Right spec
+    dwtSpec' _          [] spec = Left "ran out of MmTags but not ancestors."
+    dwtSpec' (S as mpn mpp)
+             (t:ts)
+             spec@(nLabs,lEdges) = case title t of
       "node" -> case isStart t of
-        False -> dwtSpec' (tail ancestry) prevParent ts spec
+        False -> dwtSpec' (S (tail as) mpn mpp) ts spec
         True -> do
           newNLab <- readMmNLab t
-          let treeEdge = (head ancestry, mmId newNLab, TreeEdge)
-              newSpec = (newNLab : nLabs, treeEdge : lEdges)
-          case isEnd t of
-            False -> dwtSpec' (mmId newNLab : ancestry) parent     ts newSpec
-            True ->  dwtSpec'                 ancestry  prevParent ts newSpec
-      "arrowlink" -> do 
+          let newNode = mmId newNLab
+              treeEdge = (head as, mmId newNLab, TreeEdge)
+              newEdges = if Just parent == mpp
+                then let thenReadEdge = (Mb.fromJust mpn, newNode, ThenReadEdge)
+                  in [treeEdge,thenReadEdge]
+                else [treeEdge]
+              newSpec = (newNLab : nLabs, newEdges ++ lEdges)
+              newAncestors = if isEnd t then as else (newNode : as)
+          dwtSpec' (S newAncestors (Just newNode) $ Just parent ) ts newSpec
+      "arrowlink" -> do
         dest <- mlArrowDestMe t
-        let arrowEdge = (head ancestry, dest, ArrowEdge)
-        dwtSpec' ancestry prevParent ts (nLabs, arrowEdge:lEdges)
+        let arrowEdge = (head as, dest, ArrowEdge)
+        dwtSpec' (S as mpn mpp) ts (nLabs, arrowEdge:lEdges)
       _ -> Left "MmTag neither a node nor an arrow"
-      where parent = Just $ head ancestry
+      where parent = head as
 
 -- DwtSpec -> _
   -- WARNING: The Nodes of these functions are interdependent.
