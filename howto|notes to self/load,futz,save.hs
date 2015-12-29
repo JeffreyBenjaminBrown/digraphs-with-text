@@ -6,8 +6,9 @@
 
 -- futz
   -- some important nodes
-    view g $ pre g 1755 -- lets see every Rel involving the root
-    view g $ nodes $ labfilter (== stringToTplt "_ .mm/ _") g
+    view g $ pre g 765 -- lets see every Rel involving the root
+    view g $ nodes $ labfilter (== stringToTplt "_ .mm/ _") g -- Node 32
+    view g $ nodes $ labfilter (== stringToTplt "_ then read-> _") g -- Node 23
 
   -- how I found that (Nodes obsolete, method still valid)
     length $ nodes g
