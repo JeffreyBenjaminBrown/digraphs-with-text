@@ -7,7 +7,7 @@
     -- but <font ...> tags outside of a node applicable to it, this does not
 
 -- lang, modules
-    {-# LANGUAGE FlexibleContexts, ViewPatterns #-}
+    {-# LANGUAGE FlexibleContexts  #-}
     module Dwt.ParseMm
       ( module Text.Parsec
       , module Text.Parsec.String
