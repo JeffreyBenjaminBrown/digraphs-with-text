@@ -1,5 +1,6 @@
 -- TODO: find an automatic way to check for unused functions
-  -- otherwise when pattern matching, if the function name handed one of the patterns is misspelled, I can get a "non-exhaustive patterns" exception
+  -- otherwise when pattern matching, if the function name handed one of the 
+  -- patterns is misspelled, I can get a "non-exhaustive patterns" exception
 
 -- pragmas, export, import
     {-# LANGUAGE FlexibleContexts #-}
@@ -30,7 +31,7 @@
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     data Expr = Str String | Tplt Arity [String] | Rel Arity
       deriving (Show,Read,Eq,Ord)
-    data Role = AsTplt | AsPos RelPos
+    data Role = AsTplt | AsPos RelPos -- TODO ? AsTplt,AsPos -> RelTplt,RelMbr
       deriving (Show,Read,Eq,Ord)
     type Mindmap = Gr Expr Role
 
@@ -74,7 +75,7 @@
 
   -- edit
     chExprAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
-    chExprAt g n e = do -- TODO : test
+    chExprAt g n e = do -- TODO: test. TODO? absorb def of chExprAtUsf.
       gelemM g n
       return $ chExprAtUsf g n e
 

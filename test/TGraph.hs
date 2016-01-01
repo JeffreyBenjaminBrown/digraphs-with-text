@@ -37,10 +37,10 @@
         , (9, stringToTplt "statement _ is _")
         , (10, Str "dubious"  )
         , (11, Rel 2          )
-      ] [ (5,1, AsTplt), (5,0, AsPos 1), (5,4,AsPos 2)
-        , (6,2, AsTplt), (6,0, AsPos 1), (6,3,AsPos 2)
-        , (8,7, AsTplt), (8,0, AsPos 1), (8,3,AsPos 2), (8,4,AsPos 3) 
-        , (11,9,AsTplt), (11,5,AsPos 1), (11,10,AsPos 2)
+      ] [ (5,1, AsTplt), (5,0, AsPos 1), (5,4,AsPos 2) -- dog wants brandy
+        , (6,2, AsTplt), (6,0, AsPos 1), (6,3,AsPos 2) -- dog needs water
+        , (8,7, AsTplt), (8,0, AsPos 1), (8,3,AsPos 2), (8,4,AsPos 3) -- dog needs water for brandy
+        , (11,9,AsTplt), (11,5,AsPos 1), (11,10,AsPos 2) -- [dog wants brandy] is dubious
       ]
 
     g1' =   insRelUsf 9 [5,10] 
