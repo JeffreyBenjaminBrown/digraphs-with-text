@@ -27,13 +27,17 @@
     import Data.Text (splitOn, pack, unpack)
 
 -- types
-    type Arity = Int -- relationships, which some expressions are, have arities
-    type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
-    data Expr = Str String | Tplt Arity [String] | Rel Arity
-      deriving (Show,Read,Eq,Ord)
+    -- Exprs (expressions) play Roles in Rels (relationships).
+    -- Each Arity-k Rel emits k+1 Edges toward the other Exprs:
+      -- one Edge connects it to its RelTplt (relationship template)
+      -- an Edge connects it to each of its k RelMbrs (relationship members)
+    type Mindmap = Gr Expr Role
     data Role = RelTplt | RelMbr RelPos
       deriving (Show,Read,Eq,Ord)
-    type Mindmap = Gr Expr Role
+    data Expr = Str String | Tplt Arity [String] | Rel Arity
+      deriving (Show,Read,Eq,Ord)
+    type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
+    type Arity = Int
 
 -- build
   -- Tplt <-> String
