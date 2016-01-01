@@ -31,7 +31,7 @@
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     data Expr = Str String | Tplt Arity [String] | Rel Arity
       deriving (Show,Read,Eq,Ord)
-    data Role = AsTplt | AsPos RelPos -- TODO ? AsTplt,AsPos -> RelTplt,RelMbr
+    data Role = RelTplt | RelMbr RelPos
       deriving (Show,Read,Eq,Ord)
     type Mindmap = Gr Expr Role
 
@@ -68,8 +68,8 @@
          return $ let 
              newNode = head $ newNodes 1 g
              f []     g = g
-             f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
-             g' =                insEdge (newNode, tn, AsTplt)
+             f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
+             g' =                insEdge (newNode, tn, RelTplt)
                                $ insNode (newNode, Rel a) g
            in f (zip ns [1..a]) g'
 
@@ -136,8 +136,8 @@
     matchRel g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, RelPos)]
-            f (Just n, 0) = specUsersUsf g AsTplt    arity n
-            f (Just n, k) = specUsersUsf g (AsPos k) arity n
+            f (Just n, 0) = specUsersUsf g RelTplt    arity n
+            f (Just n, k) = specUsersUsf g (RelMbr k) arity n
             listIntersect [] = []
             listIntersect (x:xs) = foldl intersect x xs
 
@@ -155,8 +155,8 @@
               -- by finding Str or Rel where expected Tplt
             newNode = head $ newNodes 1 g
             f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, AsPos $ snd p) g
-            g' =                insEdge (newNode, t, AsTplt)
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
+            g' =                insEdge (newNode, t, RelTplt)
                               $ insNode (newNode, Rel ti) g
 
     chExprAtUsf :: Mindmap -> Node -> Expr -> Mindmap
