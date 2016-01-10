@@ -12,7 +12,7 @@
       , insStr, insTplt, insRel -- build Mindmap
       , chNonRelAt -- edit Mindmap
       -- query Mindmap
-        , gelemM, hasLEdgeM, tpltAt, tpltArity, nodesMatchTplt -- minor
+        , gelemM, hasLEdgeM, isTplt, tpltAt, tpltArity, nodesMatchTplt -- minor
         , users, specUsersUsf, specUsers, matchRel, allRels -- .. -> [Node]
       , insRelUsf, chNonRelAtUsf, usersUsf -- unsafe, duplicates
       ) where
@@ -98,33 +98,40 @@
 -- query
   -- tests and lookups for smaller-than-graph types
     gelemM :: (MonadError String m) => Mindmap -> Node -> m ()
-    gelemM g n = if gelem n g then return () 
-                              else throwError $ "gelemM: Node "
-                                   ++ show n ++ " not in Mindmap"
+    gelemM g n = if gelem n g 
+      then return () 
+      else throwError $ "gelemM: Node " ++ show n ++ " absent."
 
     hasLEdgeM :: (MonadError String m) => Mindmap -> LEdge Role -> m ()
     hasLEdgeM g le = if hasLEdge g le
       then return ()
-      else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " not in Mindmap"
+      else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
 
-    --tpltForRelAt
+    -- tpltForRelAt :: (MonadError String m) => Mindmap -> Node
 
-    tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr -- TODO test
+    isTplt :: (MonadError String m) => Mindmap -> Node -> m Bool
+    isTplt g n = case lab g n of
+      Just t@(Tplt _ _) -> return True
+      Nothing -> throwError $ "isTplt: Node " ++ show n ++ " absent."
+      _ -> return False
+
+    -- TODO ? rewrite using isTplt
+    tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
     tpltAt g tn = case lab g tn of 
       Just t@(Tplt _ _) -> return $ t
-      Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ "not in Mindmap"
-      _ -> throwError $ "tpltAt: Node " ++ show tn ++ " indexes not a Tplt"
+      Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
+      _ -> throwError $ "tpltAt: Node " ++ show tn ++ " indexes not a Tplt."
 
     tpltArity :: (MonadError String m) => Expr -> m Arity
     tpltArity e = case e of Tplt a _ -> return a
-                            _        -> throwError "tpltArity: Expr not a Tplt"
+                            _        -> throwError "tpltArity: Expr not a Tplt."
 
     nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m () -- TODO test
     nodesMatchTplt ns e = case e of
       Tplt k _ -> if k /= length ns 
-        then throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes"
+        then throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes."
         else return ()
-      _ -> throwError "nodesMatchTplt: Expr not a Tplt"
+      _ -> throwError "nodesMatchTplt: Expr not a Tplt."
 
   -- .. -> [Node]
     users :: (MonadError String m) => Mindmap -> Node -> m [Node]
@@ -159,7 +166,7 @@
 -- deprecating: non-monadic, unsafe, duplicate functions
     insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap
     insRelUsf t ns g = if ti /= length ns -- t is tplt, otherwise like ns
-        then error "insRelUsf: Tplt Arity /= number of members Nodes"
+        then error "insRelUsf: Tplt Arity /= number of members Nodes."
         else if any (==False) $ map (flip gelem g) $ (t:ns)
           then error "insRelUsf: One of those Nodes is not in the Mindmap." 
         else f (zip ns [1..ti]) g'

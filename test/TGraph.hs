@@ -71,27 +71,33 @@
       assertBool "1" $ (insRel 2 [0,0] g1 :: Either String Mindmap)
             == (Right $ insRelUsf  2 [0,0] g1)
       assertBool "2" $ (insRel 15 [0,0] g1 :: Either String Mindmap)
-            == Left "gelemM: Node 15 not in Mindmap"
+            == Left "gelemM: Node 15 absent."
       assertBool "3" $ (insRel 2 [100,0] g1 :: Either String Mindmap)
-            == Left "gelemM: Node 100 not in Mindmap"
+            == Left "gelemM: Node 100 absent."
       assertBool "4" $ (insRel 2 [1,1,1] g1 :: Either String Mindmap)
-            == Left "nodesMatchTplt: Tplt Arity /= number of member Nodes"
+            == Left "nodesMatchTplt: Tplt Arity /= number of member Nodes."
       assertBool "5" $ (insRel 0 [1,1,1] g1 :: Either String Mindmap)
-            == Left "tpltAt: Node 0 indexes not a Tplt"
+            == Left "tpltAt: Node 0 indexes not a Tplt."
 
   -- ask, minor
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM
                          , TestLabel "tHasLEdgeM" tHasLEdgeM
+                         , TestLabel "tIsTplt" tIsTplt
                          , TestLabel "tTpltAt" tTpltAt
                          , TestLabel "tTpltArity" tTpltArity ]
 
     tGelemM = TestCase $ do
       assertBool "1" $ gelemM g1 0 == Right ()
-      assertBool "2" $ gelemM g1 100 == Left "gelemM: Node 100 not in Mindmap"
+      assertBool "2" $ gelemM g1 100 == Left "gelemM: Node 100 absent."
 
     tHasLEdgeM = TestCase $ do
       assertBool "has it" $ hasLEdgeM g1 (5,0,RelMbr 1) == Right ()
       assertBool "lacks it" $ isLeft $ hasLEdgeM g1 (5,0,RelMbr 2)
+
+    tIsTplt = TestCase $ do
+      assertBool "is template" $ isTplt g1 1 == Right True
+      assertBool "is not template" $ isTplt g1 0 == Right False
+      assertBool "missing" $ isLeft $ isTplt g1 (-1)
 
     tTpltAt = TestCase $ do
       assertBool "1" $ tpltAt g1 1 == ( Right $ Tplt 2 [""," wants ",""] )
@@ -101,7 +107,8 @@
     tTpltArity = TestCase $ do
       assertBool "j1" $ tpltArity (Tplt 3 []) == Right 3
       assertBool "j2" $ isLeft $ tpltArity (Str "nog")
-      assertBool "j3" $ tpltArity (Str "rig") == Left "tpltArity: Expr not a Tplt"
+      assertBool "j3" $ tpltArity (Str "rig") == 
+        Left "tpltArity: Expr not a Tplt."
 
   -- ask [Node]
     tAskNodes = TestList [ TestLabel "tUsers" tUsers
