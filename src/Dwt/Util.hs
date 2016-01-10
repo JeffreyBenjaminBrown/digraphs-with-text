@@ -1,6 +1,7 @@
     {-# LANGUAGE FlexibleContexts #-}
     module Dwt.Util
-      ( module Dwt.Util
+      ( negateGraph, compressGraph
+      , mapLookupMe, eitherToMe
       ) where
 
     import Data.Graph.Inductive
