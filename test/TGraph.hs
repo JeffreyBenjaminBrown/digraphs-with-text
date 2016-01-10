@@ -39,8 +39,10 @@
         , (11, Rel 2          )
       ] [ (5,1, RelTplt), (5,0, RelMbr 1), (5,4,RelMbr 2) -- dog wants brandy
         , (6,2, RelTplt), (6,0, RelMbr 1), (6,3,RelMbr 2) -- dog needs water
-        , (8,7, RelTplt), (8,0, RelMbr 1), (8,3,RelMbr 2), (8,4,RelMbr 3) -- dog needs water for brandy
-        , (11,9,RelTplt), (11,5,RelMbr 1), (11,10,RelMbr 2) -- [dog wants brandy] is dubious
+        , (8,7, RelTplt), (8,0, RelMbr 1), (8,3,RelMbr 2), (8,4,RelMbr 3) 
+          -- dog needs water for brandy
+        , (11,9,RelTplt), (11,5,RelMbr 1), (11,10,RelMbr 2) 
+          -- [dog wants brandy] is dubious
       ]
 
     g1' =   insRelUsf 9 [5,10] 

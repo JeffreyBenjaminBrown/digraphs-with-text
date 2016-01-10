@@ -88,6 +88,7 @@
       gelemM g n
       return $ chNonRelAtUsf g n e
 
+    -- TODO
     chMbr :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
     chMbr g user newMbr role = do
       gelemM g user
