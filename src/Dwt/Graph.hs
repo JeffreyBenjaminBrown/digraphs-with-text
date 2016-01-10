@@ -12,8 +12,11 @@
       , insStr, insTplt, insRel -- build Mindmap
       , chNonRelAt -- edit Mindmap
       -- query Mindmap
-        , gelemM, hasLEdgeM, isTplt, tpltAt, tpltArity, nodesMatchTplt -- minor
-        , users, specUsersUsf, specUsers, matchRel, allRels -- .. -> [Node]
+        -- minor
+          , gelemM, hasLEdgeM, isStr, isTplt, isRel
+          , tpltAt, tpltArity, nodesMatchTplt
+        -- .. -> [Node]
+          , users, specUsersUsf, specUsers, matchRel, allRels
       , insRelUsf, chNonRelAtUsf, usersUsf -- unsafe, duplicates
       ) where
 
@@ -107,13 +110,26 @@
       then return ()
       else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
 
-    -- tpltForRelAt :: (MonadError String m) => Mindmap -> Node
+    isExprConstructor :: (MonadError String m) => (Expr -> Bool) ->
+      Mindmap -> Node -> m Bool
+    isExprConstructor pred g n = case mExpr of 
+        Nothing -> throwError $ "isTplt: Node " ++ show n ++ " absent."
+        Just expr ->  return $ pred expr
+      where mExpr = lab g n
+
+    isStr :: (MonadError String m) => Mindmap -> Node -> m Bool
+    isStr = isExprConstructor (\expr -> case expr of Str _ -> True; 
+                                                     _ -> False)
 
     isTplt :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isTplt g n = case lab g n of
-      Just t@(Tplt _ _) -> return True
-      Nothing -> throwError $ "isTplt: Node " ++ show n ++ " absent."
-      _ -> return False
+    isTplt = isExprConstructor (\expr -> case expr of Tplt _ _ -> True; 
+                                                      _ -> False)
+
+    isRel :: (MonadError String m) => Mindmap -> Node -> m Bool
+    isRel = isExprConstructor (\expr -> case expr of Rel _ -> True; 
+                                                     _ -> False)
+
+    -- tpltForRelAt :: (MonadError String m) => Mindmap -> Node
 
     -- TODO ? rewrite using isTplt
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
