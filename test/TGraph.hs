@@ -81,11 +81,16 @@
 
   -- ask, minor
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM
+                         , TestLabel "tHasLEdgeM" tHasLEdgeM
                          , TestLabel "tTpltArity" tTpltArity ]
 
     tGelemM = TestCase $ do
       assertBool "1" $ gelemM g1 0 == Right ()
-      assertBool "1" $ gelemM g1 100 == Left "gelemM: Node 100 not in Mindmap"
+      assertBool "2" $ gelemM g1 100 == Left "gelemM: Node 100 not in Mindmap"
+
+    tHasLEdgeM = TestCase $ do
+      assertBool "has it" $ hasLEdgeM g1 (5,0,RelMbr 1) == Right ()
+      assertBool "lacks it" $ isLeft $ hasLEdgeM g1 (5,0,RelMbr 2)
 
     tTpltArity = TestCase $ do
       assertBool "j1" $ tpltArity (Tplt 3 []) == Right 3

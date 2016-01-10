@@ -12,7 +12,7 @@
       , insStr, insTplt, insRel -- build Mindmap
       , chNonRelAt -- edit Mindmap
       -- query Mindmap
-        , gelemM, tpltAt, tpltArity, nodesMatchTplt -- minor
+        , gelemM, hasLEdgeM, tpltAt, tpltArity, nodesMatchTplt -- minor
         , users, specUsersUsf, specUsers, matchRel, allRels -- .. -> [Node]
       , insRelUsf, chNonRelAtUsf, usersUsf -- unsafe, duplicates
       ) where
@@ -85,8 +85,12 @@
       gelemM g n
       return $ chNonRelAtUsf g n e
 
-    -- chMbr :: Role -> Node -> Node -> Mindmap -> Mindmap
-    -- chMbr role newMbr user g = ... -- TODO
+    chMbr :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
+    chMbr g user newMbr role = do
+      gelemM g user
+      gelemM g newMbr
+      return g  -- DUMMY
+      -- use delLEdge, not delEdge
 
 -- query
   -- tests and lookups for smaller-than-graph types
@@ -94,6 +98,11 @@
     gelemM g n = if gelem n g then return () 
                               else throwError $ "gelemM: Node "
                                    ++ show n ++ " not in Mindmap"
+
+    hasLEdgeM :: (MonadError String m) => Mindmap -> LEdge Role -> m ()
+    hasLEdgeM g le = if hasLEdge g le
+      then return ()
+      else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " not in Mindmap"
 
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr -- TODO test
     tpltAt g tn = case lab g tn of 
