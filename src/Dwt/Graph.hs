@@ -87,12 +87,11 @@
 
   -- edit
     chNonRelAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
-    chNonRelAt g n e = do -- todo: test. todo? absorb def of chNonRelAtUsf.
-      -- todo ? make sure e is Tplt or Str and that it matches the label of n in g
+    chNonRelAt g n e = do -- todo? absorb def of chNonRelAtUsf.
+      -- todo ? verify e is Tplt or Str, and that it matches the label of n in g
       gelemM g n
       return $ chNonRelAtUsf g n e
 
-    -- TODO
     chMbr :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
     chMbr g user newMbr role = do
       isRel g user
@@ -119,7 +118,7 @@
       Mindmap -> Node -> m Bool
     isExprConstructor pred g n = case mExpr of 
         Nothing -> throwError $ "Node " ++ show n ++ " absent."
-          -- TODO ? report the using function (isStr, isTplt, isRel) in the error
+          -- todo ? report the using function (isStr, isTplt, isRel) in the error
         Just expr ->  return $ pred expr
       where mExpr = lab g n
 
