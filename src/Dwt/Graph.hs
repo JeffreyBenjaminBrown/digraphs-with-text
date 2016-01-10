@@ -10,11 +10,11 @@
       , Arity, RelPos, Expr(..), Role(..), Mindmap
       , splitTpltStr, stringToTplt, subInTplt -- Tplt
       , insStr, insTplt, insRel -- build Mindmap
-      , chExprAt, compressGraph -- edit Mindmap
+      , chNonRelAt, compressGraph -- edit Mindmap
       -- query Mindmap
         , gelemM, tpltAt, tpltArity, nodesMatchTplt -- minor
         , users, specUsersUsf, specUsers, matchRel, allRels -- .. -> [Node]
-      , insRelUsf, chExprAtUsf, usersUsf -- unsafe, duplicates
+      , insRelUsf, chNonRelAtUsf, usersUsf -- unsafe, duplicates
       ) where
 
     import Data.Graph.Inductive
@@ -80,10 +80,10 @@
            in f (zip ns [1..a]) g'
 
   -- edit
-    chExprAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
-    chExprAt g n e = do -- TODO: test. TODO? absorb def of chExprAtUsf.
+    chNonRelAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
+    chNonRelAt g n e = do -- TODO: test. TODO? absorb def of chNonRelAtUsf.
       gelemM g n
-      return $ chExprAtUsf g n e
+      return $ chNonRelAtUsf g n e
 
     compressGraph :: DynGraph gr => gr a b -> gr a b
     compressGraph g = let ns = nodes g
@@ -165,8 +165,8 @@
             g' =                insEdge (newNode, t, RelTplt)
                               $ insNode (newNode, Rel ti) g
 
-    chExprAtUsf :: Mindmap -> Node -> Expr -> Mindmap
-    chExprAtUsf g n e = let (Just (a,b,c,d),g') = match n g
+    chNonRelAtUsf :: Mindmap -> Node -> Expr -> Mindmap
+    chNonRelAtUsf g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'
 
     usersUsf :: Mindmap ->  Node -> [Node] -- TODO: test
