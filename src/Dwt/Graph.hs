@@ -160,11 +160,11 @@
 
   -- .. -> [Node]
     users :: (MonadError String m) => Mindmap -> Node -> m [Node]
-    users g n = do gelemM g n -- lpre would be a little better than inn
+    users g n = do gelemM g n
                    return [m | (m,label) <- lpre g n]
 
-    specUsersUsf :: Mindmap -> Role -> Arity -> Node -> [Node] --todo: test
-    specUsersUsf g r k n = -- all k-ary Rels using Node n in Role r
+    specUsersUsf :: Mindmap -> Arity -> Node -> Role -> [Node] --todo: test
+    specUsersUsf g k n r = -- all k-ary Rels using Node n in Role r
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,r') <- inn g n, r' == r, isKAryRel m]
 
@@ -180,8 +180,8 @@
     matchRel g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, RelPos)]
-            f (Just n, 0) = specUsersUsf g RelTplt    arity n
-            f (Just n, k) = specUsersUsf g (RelMbr k) arity n
+            f (Just n, 0) = specUsersUsf g arity n RelTplt
+            f (Just n, k) = specUsersUsf g arity n (RelMbr k)
             listIntersect [] = []
             listIntersect (x:xs) = foldl intersect x xs
 
