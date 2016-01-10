@@ -10,7 +10,7 @@
       , Arity, RelPos, Expr(..), Role(..), Mindmap
       , splitTpltStr, stringToTplt, subInTplt -- Tplt
       , insStr, insTplt, insRel -- build Mindmap
-      , chNonRelAt, compressGraph -- edit Mindmap
+      , chNonRelAt -- edit Mindmap
       -- query Mindmap
         , gelemM, tpltAt, tpltArity, nodesMatchTplt -- minor
         , users, specUsersUsf, specUsers, matchRel, allRels -- .. -> [Node]
@@ -84,14 +84,6 @@
     chNonRelAt g n e = do -- TODO: test. TODO? absorb def of chNonRelAtUsf.
       gelemM g n
       return $ chNonRelAtUsf g n e
-
-    compressGraph :: DynGraph gr => gr a b -> gr a b
-    compressGraph g = let ns = nodes g
-                          ns' = [1 .. length ns]
-                          mp = Map.fromList $ zip ns ns'
-                          chNode n = mp Map.! n
-                          chAdj (b,n) = (b, mp Map.! n)
-      in gmap (\(a,b,lab,d) -> (map chAdj a, chNode b, lab, map chAdj d)) g
 
     -- chMbr :: Role -> Node -> Node -> Mindmap -> Mindmap
     -- chMbr role newMbr user g = ... -- TODO
