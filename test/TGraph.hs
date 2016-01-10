@@ -77,13 +77,14 @@
       assertBool "4" $ (insRel 2 [1,1,1] g1 :: Either String Mindmap)
             == Left "nodesMatchTplt: Tplt Arity /= number of member Nodes."
       assertBool "5" $ (insRel 0 [1,1,1] g1 :: Either String Mindmap)
-            == Left "tpltAt: Node 0 indexes not a Tplt."
+            == Left "tpltAt: LNode 0 not a Tplt."
 
   -- ask, minor
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM
                          , TestLabel "tHasLEdgeM" tHasLEdgeM
                          , TestLabel "tIsTplt" tIsTplt
                          , TestLabel "tTpltAt" tTpltAt
+                         , TestLabel "tTpltForRelAt" tTpltForRelAt
                          , TestLabel "tTpltArity" tTpltArity ]
 
     tGelemM = TestCase $ do
@@ -100,9 +101,15 @@
       assertBool "missing" $ isLeft $ isTplt g1 (-1)
 
     tTpltAt = TestCase $ do
-      assertBool "1" $ tpltAt g1 1 == ( Right $ Tplt 2 [""," wants ",""] )
+      assertBool "normal" $ tpltAt g1 1 == ( Right $ Tplt 2 [""," wants ",""] )
       assertBool "notATplt" $ isLeft $ tpltAt g1 0
       assertBool "absent" $ isLeft $ tpltAt g1 (-1)
+
+    tTpltForRelAt = TestCase $ do
+      assertBool "normal" $ tpltForRelAt g1 5 ==
+        ( Right $ Tplt 2 [""," wants ",""] )
+      assertBool "not a Rel" $ isLeft $ tpltForRelAt g1 1
+      assertBool "absent" $ isLeft $ tpltForRelAt g1 (-1)
 
     tTpltArity = TestCase $ do
       assertBool "j1" $ tpltArity (Tplt 3 []) == Right 3

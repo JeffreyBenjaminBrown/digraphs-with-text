@@ -14,7 +14,7 @@
       -- query Mindmap
         -- minor
           , gelemM, hasLEdgeM, isStr, isTplt, isRel
-          , tpltAt, tpltArity, nodesMatchTplt
+          , tpltAt, tpltForRelAt, tpltArity, nodesMatchTplt
         -- .. -> [Node]
           , users, specUsersUsf, specUsers, matchRel, allRels
       , insRelUsf, chNonRelAtUsf, usersUsf -- unsafe, duplicates
@@ -118,25 +118,30 @@
       where mExpr = lab g n
 
     isStr :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isStr = isExprConstructor (\expr -> case expr of Str _ -> True; 
-                                                     _ -> False)
+    isStr = isExprConstructor (\x -> case x of Str _ -> True; _ -> False)
 
     isTplt :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isTplt = isExprConstructor (\expr -> case expr of Tplt _ _ -> True; 
-                                                      _ -> False)
+    isTplt = isExprConstructor (\x -> case x of Tplt _ _ -> True; _ -> False)
 
     isRel :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isRel = isExprConstructor (\expr -> case expr of Rel _ -> True; 
-                                                     _ -> False)
-
-    -- tpltForRelAt :: (MonadError String m) => Mindmap -> Node
+    isRel = isExprConstructor (\x -> case x of Rel _ -> True; _ -> False)
 
     -- TODO ? rewrite using isTplt
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
     tpltAt g tn = case lab g tn of 
       Just t@(Tplt _ _) -> return $ t
       Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
-      _ -> throwError $ "tpltAt: Node " ++ show tn ++ " indexes not a Tplt."
+      _ -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
+
+    tpltForRelAt :: (MonadError String m) => Mindmap -> Node -> m Expr
+    tpltForRelAt g rn = do
+      ir <-isRel g rn
+      if not ir
+        then throwError $ "tpltForRelAt: LNode " ++ show rn ++ " not a Rel."
+        else return $ fromJust $ lab g 
+          $ head [n | (n,RelTplt) <- lsuc g rn] -- TODO ? head unsafe
+            -- but is only unsafe if graph takes an invalid state
+            -- because each Rel should have exactly one Tplt
 
     tpltArity :: (MonadError String m) => Expr -> m Arity
     tpltArity e = case e of Tplt a _ -> return a
