@@ -10,7 +10,7 @@
       , Arity, RelPos, Expr(..), Role(..), Mindmap
       , splitTpltStr, stringToTplt, subInTplt -- Tplt
       , insStr, insTplt, insRel -- build Mindmap
-      , chNonRelAt -- edit Mindmap
+      , chNonRelAt, chMbr -- edit Mindmap
       -- query Mindmap
         -- minor
           , gelemM, hasLEdgeM, isStr, isTplt, isRel
@@ -88,19 +88,20 @@
   -- edit
     chNonRelAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
     chNonRelAt g n e = do -- todo: test. todo? absorb def of chNonRelAtUsf.
+      -- todo ? make sure e is Tplt or Str and that it matches the label of n in g
       gelemM g n
       return $ chNonRelAtUsf g n e
 
     -- TODO
     chMbr :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
     chMbr g user newMbr role = do
-      gelemM g user
+      isRel g user
       gelemM g newMbr
-      -- emul ? return $ [m | (m,n,label) <- inn g n]
-      -- check that user emits an edge labeled "role"
-      -- use delLEdge, not delEdge
-      -- use insEdge (it is for LEdges)
-      return g  -- DUMMY
+      let oldMbr = head [n | (n,lab) <- lsuc g user, lab == role]
+        -- todo ? head is unsafe, and it conflicts with the intended change that
+        -- the RelMbr at a given RelPos will be potentially multiple
+      return $ delLEdge (user,oldMbr,role)
+             $ insEdge (user,newMbr,role) g
 
 -- query
   -- tests and lookups for smaller-than-graph types
@@ -117,7 +118,8 @@
     isExprConstructor :: (MonadError String m) => (Expr -> Bool) ->
       Mindmap -> Node -> m Bool
     isExprConstructor pred g n = case mExpr of 
-        Nothing -> throwError $ "isTplt: Node " ++ show n ++ " absent."
+        Nothing -> throwError $ "Node " ++ show n ++ " absent."
+          -- TODO ? report the using function (isStr, isTplt, isRel) in the error
         Just expr ->  return $ pred expr
       where mExpr = lab g n
 

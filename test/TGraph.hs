@@ -57,7 +57,9 @@
   -- buildGraph
     tBuildGraph = TestList [ TestLabel "tSubInTplt" tSubInTplt
                            , TestLabel "tInsert" tInsert
-                           , TestLabel "tInsRelM" tInsRelM]
+                           , TestLabel "tInsRelM" tInsRelM
+                           , TestLabel "tChNonRelAt" tChNonRelAt
+                           , TestLabel "tChMbr" tChMbr]
 
     tSubInTplt = TestCase $ do
       assertBool "1" $ subInTplt (fromJust $ lab g1 1) ["man","peace"]
@@ -80,6 +82,14 @@
             == Left "nodesMatchTplt: Tplt Arity /= number of member Nodes."
       assertBool "5" $ (insRel 0 [1,1,1] g1 :: Either String Mindmap)
             == Left "tpltAt: LNode 0 not a Tplt."
+
+    tChNonRelAt = TestCase $ do
+      let gCat = fromRight $ chNonRelAt g1 0 $ Str "cat"
+      assertBool "1" $ Str "cat" == (lab' $ fromJust $ fst $ match 0 $ gCat)
+
+    tChMbr = TestCase $ do
+      let gDogDog = fromRight $ chMbr g1 5 0 (RelMbr 2)
+      assertBool "1" $ showExpr gDogDog 5 == "5:1 [0: dog] wants [0: dog]"
 
   -- ask, minor
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM
