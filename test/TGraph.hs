@@ -82,6 +82,7 @@
   -- ask, minor
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM
                          , TestLabel "tHasLEdgeM" tHasLEdgeM
+                         , TestLabel "tTpltAt" tTpltAt
                          , TestLabel "tTpltArity" tTpltArity ]
 
     tGelemM = TestCase $ do
@@ -91,6 +92,11 @@
     tHasLEdgeM = TestCase $ do
       assertBool "has it" $ hasLEdgeM g1 (5,0,RelMbr 1) == Right ()
       assertBool "lacks it" $ isLeft $ hasLEdgeM g1 (5,0,RelMbr 2)
+
+    tTpltAt = TestCase $ do
+      assertBool "1" $ tpltAt g1 1 == ( Right $ Tplt 2 [""," wants ",""] )
+      assertBool "notATplt" $ isLeft $ tpltAt g1 0
+      assertBool "absent" $ isLeft $ tpltAt g1 (-1)
 
     tTpltArity = TestCase $ do
       assertBool "j1" $ tpltArity (Tplt 3 []) == Right 3

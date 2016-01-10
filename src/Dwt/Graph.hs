@@ -89,8 +89,11 @@
     chMbr g user newMbr role = do
       gelemM g user
       gelemM g newMbr
-      return g  -- DUMMY
+      -- emul ? return $ [m | (m,n,label) <- inn g n]
+      -- check that user emits an edge labeled "role"
       -- use delLEdge, not delEdge
+      -- use insEdge (it is for LEdges)
+      return g  -- DUMMY
 
 -- query
   -- tests and lookups for smaller-than-graph types
@@ -104,9 +107,11 @@
       then return ()
       else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " not in Mindmap"
 
+    --tpltForRelAt
+
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr -- TODO test
     tpltAt g tn = case lab g tn of 
-      Just t@(Tplt a b) -> return $ t
+      Just t@(Tplt _ _) -> return $ t
       Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ "not in Mindmap"
       _ -> throwError $ "tpltAt: Node " ++ show tn ++ " indexes not a Tplt"
 
