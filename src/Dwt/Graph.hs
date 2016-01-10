@@ -114,22 +114,22 @@
       then return ()
       else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
 
-    isExprConstructor :: (MonadError String m) => (Expr -> Bool) ->
+    _isExprConstructor :: (MonadError String m) => (Expr -> Bool) ->
       Mindmap -> Node -> m Bool
-    isExprConstructor pred g n = case mExpr of 
+    _isExprConstructor pred g n = case mExpr of 
         Nothing -> throwError $ "Node " ++ show n ++ " absent."
           -- todo ? report the using function (isStr, isTplt, isRel) in the error
         Just expr ->  return $ pred expr
       where mExpr = lab g n
 
     isStr :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isStr = isExprConstructor (\x -> case x of Str _ -> True; _ -> False)
+    isStr = _isExprConstructor (\x -> case x of Str _ -> True; _ -> False)
 
     isTplt :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isTplt = isExprConstructor (\x -> case x of Tplt _ _ -> True; _ -> False)
+    isTplt = _isExprConstructor (\x -> case x of Tplt _ _ -> True; _ -> False)
 
     isRel :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isRel = isExprConstructor (\x -> case x of Rel _ -> True; _ -> False)
+    isRel = _isExprConstructor (\x -> case x of Rel _ -> True; _ -> False)
 
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
     tpltAt g tn = case lab g tn of -- todo ? rewrite using isTplt
