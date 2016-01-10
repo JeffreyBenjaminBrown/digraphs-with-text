@@ -160,8 +160,8 @@
 
   -- .. -> [Node]
     users :: (MonadError String m) => Mindmap -> Node -> m [Node]
-    users g n = do gelemM g n
-                   return $ [m | (m,n,label) <- inn g n]
+    users g n = do gelemM g n -- lpre would be a little better than inn
+                   return [m | (m,label) <- lpre g n]
 
     specUsersUsf :: Mindmap -> Role -> Arity -> Node -> [Node] --todo: test
     specUsersUsf g r k n = -- all k-ary Rels using Node n in Role r
