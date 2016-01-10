@@ -34,6 +34,8 @@
     -- Each Arity-k Rel emits k+1 Edges toward the other Exprs:
       -- one connects it to its RelTplt (relationship template)
       -- k more connect it to each of its k RelMbrs (relationship members)
+    -- data/minmalGraph.hs demonstrates these types (over like 20 lines)
+
     type Mindmap = Gr Expr Role
     data Role = RelTplt | RelMbr RelPos
       deriving (Show,Read,Eq,Ord)
