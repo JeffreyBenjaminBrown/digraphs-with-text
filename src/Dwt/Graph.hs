@@ -84,7 +84,7 @@
 
   -- edit
     chNonRelAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
-    chNonRelAt g n e = do -- TODO: test. TODO? absorb def of chNonRelAtUsf.
+    chNonRelAt g n e = do -- todo: test. todo? absorb def of chNonRelAtUsf.
       gelemM g n
       return $ chNonRelAtUsf g n e
 
@@ -126,9 +126,8 @@
     isRel :: (MonadError String m) => Mindmap -> Node -> m Bool
     isRel = isExprConstructor (\x -> case x of Rel _ -> True; _ -> False)
 
-    -- TODO ? rewrite using isTplt
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
-    tpltAt g tn = case lab g tn of 
+    tpltAt g tn = case lab g tn of -- todo ? rewrite using isTplt
       Just t@(Tplt _ _) -> return $ t
       Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
       _ -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
@@ -139,7 +138,7 @@
       if not ir
         then throwError $ "tpltForRelAt: LNode " ++ show rn ++ " not a Rel."
         else return $ fromJust $ lab g 
-          $ head [n | (n,RelTplt) <- lsuc g rn] -- TODO ? head unsafe
+          $ head [n | (n,RelTplt) <- lsuc g rn] -- todo ? head unsafe
             -- but is only unsafe if graph takes an invalid state
             -- because each Rel should have exactly one Tplt
 
@@ -147,7 +146,7 @@
     tpltArity e = case e of Tplt a _ -> return a
                             _        -> throwError "tpltArity: Expr not a Tplt."
 
-    nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m () -- TODO test
+    nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m () -- todo:test
     nodesMatchTplt ns e = case e of
       Tplt k _ -> if k /= length ns 
         then throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes."
@@ -159,12 +158,12 @@
     users g n = do gelemM g n
                    return $ [m | (m,n,label) <- inn g n]
 
-    specUsersUsf :: Mindmap -> Role -> Arity -> Node -> [Node] --TODO test
+    specUsersUsf :: Mindmap -> Role -> Arity -> Node -> [Node] --todo: test
     specUsersUsf g r k n = -- all k-ary Rels using Node n in Role r
       let isKAryRel m = lab g m == (Just $ Rel k)
       in [m | (m,n,r') <- inn g n, r' == r, isKAryRel m]
 
-    specUsers :: (MonadError String m) => -- TODO: test
+    specUsers :: (MonadError String m) => -- todo: test
       Mindmap -> Role -> Arity -> Node -> m [Node]
     specUsers g r k n = do -- all k-ary Rels using Node n in Role r
       gelemM g n
@@ -203,5 +202,5 @@
     chNonRelAtUsf g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'
 
-    usersUsf :: Mindmap ->  Node -> [Node] -- TODO: test
+    usersUsf :: Mindmap ->  Node -> [Node] -- todo: test
     usersUsf g n = [m | (m,n,label) <- inn g n]
