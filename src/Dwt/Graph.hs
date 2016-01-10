@@ -40,8 +40,9 @@
     data Role = RelTplt | RelMbr RelPos
       deriving (Show,Read,Eq,Ord)
     data Expr = Str String | Tplt Arity [String] | Rel Arity
+      -- TODO ? deduce the Arity of a Tplt from its [String]
       -- TODO ? deduce from the graph the Arity of a Rel
-        -- rather than carrying it explicitly in the Rel constructor
+        -- rather than carrying it redundantly in the Rel constructor
       deriving (Show,Read,Eq,Ord)
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int

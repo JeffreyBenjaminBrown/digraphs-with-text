@@ -5,7 +5,7 @@
     g1, g2 :: Mindmap
     g1 = mkGraph
       [   (0, Str "dog"       )
-        , (1, stringToTplt "_ wants _" ) -- produces a Rel with Arity 2
+        , (1, stringToTplt "_ wants _" ) -- produces a Tplt with Arity 2
         , (3, Str "water"     )
         , (4, Rel 2           )
       ] [ -- "dog wants water"
@@ -27,6 +27,6 @@
           (4,1,RelTplt), (4,0, RelMbr 1), (4,3,RelMbr 2),
         -- "[dog wants water] is dubious"
           (7,5,RelTplt),
-          (7,4,RelMbr 1), -- Node 4, the first Member of this Rel is itself a Rel
+          (7,4,RelMbr 1), -- Node 4, the first Member of this Rel, is itself a Rel
           (7,6,RelMbr 2)
       ]
