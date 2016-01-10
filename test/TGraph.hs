@@ -131,11 +131,15 @@
 
   -- ask [Node]
     tAskNodes = TestList [ TestLabel "tUsers" tUsers
+                         , TestLabel "tSpecUsers" tSpecUsers
                          , TestLabel "tMatchRel" tMatchRel]
 
     tUsers = TestCase $ do
       assertBool "1" $ users g1 0 == Right [5,6,8]
       assertBool "2" $ isLeft $ (users g1 100 :: Either String [Dwt.Node])
+
+    tSpecUsers = TestCase $ do
+      assertBool "1" $ specUsers g1 2 0 (RelMbr 1) == Right [5,6]
 
     tMatchRel = TestCase $ do
       assertBool "1--"  $ matchRel g1 [Just 1,  Nothing, Nothing] == [5]

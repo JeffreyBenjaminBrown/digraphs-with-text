@@ -163,18 +163,15 @@
     users g n = do gelemM g n
                    return [m | (m,label) <- lpre g n]
 
-    specUsersUsf :: Mindmap -> Arity -> Node -> Role -> [Node] --todo: test
+    specUsersUsf :: Mindmap -> Arity -> Node -> Role -> [Node]
     specUsersUsf g k n r = -- all k-ary Rels using Node n in Role r
-      let isKAryRel m = lab g m == (Just $ Rel k)
-      in [m | (m,n,r') <- inn g n, r' == r, isKAryRel m]
+      [m | (m,r') <- lpre g n, r' == r, lab g m == (Just $ Rel k)]
 
-    specUsers :: (MonadError String m) => -- todo: test
-      Mindmap -> Role -> Arity -> Node -> m [Node]
-    specUsers g r k n = do -- all k-ary Rels using Node n in Role r
+    specUsers :: (MonadError String m) =>
+      Mindmap -> Arity -> Node -> Role -> m [Node]
+    specUsers g k n r = do -- all k-ary Rels using Node n in Role r
       gelemM g n
-      return $ let isKAryRel m = lab g m == (Just $ Rel k)
-        in [m | (m,_,r') <- inn g n, r' == r, isKAryRel m]
-          -- the _ is always n
+      return $ specUsersUsf g k n r
 
     matchRel :: Mindmap -> [Maybe Node] -> [Node]
     matchRel g mns = listIntersect $ map f jns
