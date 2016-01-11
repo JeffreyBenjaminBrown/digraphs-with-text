@@ -9,7 +9,7 @@
       ( module Data.Graph.Inductive
       , Arity, RelPos, Expr(..), Role(..), Mindmap
       , splitTpltStr, stringToTplt, subInTplt -- Tplt
-      , insStr, insTplt, insRel -- build Mindmap
+      , insStr, insTplt, insRel, insColl -- build Mindmap
       , chNonRelAt, chMbr -- edit Mindmap
       -- query Mindmap
         -- minor

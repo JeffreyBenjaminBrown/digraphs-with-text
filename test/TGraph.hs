@@ -58,6 +58,7 @@
     tBuildGraph = TestList [ TestLabel "tSubInTplt" tSubInTplt
                            , TestLabel "tInsert" tInsert
                            , TestLabel "tInsRelM" tInsRelM
+                           , TestLabel "tInsColl" tInsColl
                            , TestLabel "tChNonRelAt" tChNonRelAt
                            , TestLabel "tChMbr" tChMbr]
 
@@ -82,6 +83,16 @@
             == Left "nodesMatchTplt: Tplt Arity /= number of member Nodes."
       assertBool "5" $ (insRel 0 [1,1,1] g1 :: Either String Mindmap)
             == Left "tpltAt: LNode 0 not a Tplt."
+
+    tInsColl = TestCase $ do
+      let gg = fromRight $ insColl "things" [0,3,4] g1
+      assertBool "new 12th node" 
+        $ (lab' $ fromJust $ fst $ match 12 gg) == Coll "things"
+      assertBool "3 new edges" 
+        $ lsuc gg 12 == [(0,CollMbr),(3,CollMbr),(4,CollMbr)]
+      assertBool "only 1 new node, only 3 new edges"
+        $    (length $ nodes g1) + 1 == (length $ nodes gg)
+          && (length $ edges g1) + 3 == (length $ edges gg)
 
     tChNonRelAt = TestCase $ do
       let gCat = fromRight $ chNonRelAt g1 0 $ Str "cat"
