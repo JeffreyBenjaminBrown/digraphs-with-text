@@ -14,7 +14,9 @@
       Nothing          -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
       Just (Str s)     -> strPrefix n ++ s
       Just (Tplt _ ts) -> tpltPrefix n ++ intercalate "_" ts
---      Just (Coll s) -> collPrefix n ++ map ..
+      Just (Coll s)    -> collPrefix n ++ s ++ ": "
+        ++ ( intercalate ", " 
+           $ map show_in_brackets [m | (m,CollMbr) <- lsuc g n] )
       Just (Rel _)     ->
         let ledges = sortOn edgeLabel $ out g n
             (_,tpltNode,_) = head ledges
@@ -22,10 +24,10 @@
             Just tpltLab = lab g tpltNode :: Maybe Expr
             memberNodes = map (\(_,m,_)-> m) $ tail ledges :: [Node]
         in (relPrefix n tpltNode ++) $ subInTplt tpltLab 
-             $ map ( bracket 
-                   . _showExpr strPrefix tpltPrefix relPrefix collPrefix g
-                   ) memberNodes
+             $ map show_in_brackets memberNodes
       where bracket s = "[" ++ s ++ "]"
+            show_in_brackets = bracket
+              . _showExpr strPrefix tpltPrefix relPrefix collPrefix g
 
     showExpr :: Mindmap -> Node -> String
     showExpr g n = _showExpr strPrefix tpltPrefix relPrefix collPrefix g n where
