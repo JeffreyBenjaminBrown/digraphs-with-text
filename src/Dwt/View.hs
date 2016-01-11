@@ -5,12 +5,16 @@
     import Dwt.Graph
     import Data.List (sortOn, intercalate)
 
-    _showExpr :: (Node -> String) -> (Node -> String) -> 
-      (Node -> Node -> String) -> Mindmap -> Node -> String
+    _showExpr :: (Node -> String) -> 
+                 (Node -> String) -> 
+                 (Node -> Node -> String) ->
+                 -- (Node -> String) ->  -- TODO: colls
+                 Mindmap -> Node -> String
     _showExpr strPrefix tpltPrefix relPrefix g n = case lab g n of
       Nothing          -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
       Just (Str s)     -> strPrefix n ++ s
       Just (Tplt _ ts) -> tpltPrefix n ++ intercalate "_" ts
+      -- Just (Coll s) ->  -- TODO
       Just (Rel _)     ->
         let ledges = sortOn edgeLabel $ out g n
             (_,tpltNode,_) = head ledges

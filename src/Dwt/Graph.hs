@@ -15,7 +15,7 @@
         -- minor
           , gelemM, hasLEdgeM, isStr, isTplt, isRel
           , tpltAt, tpltForRelAt, tpltArity, nodesMatchTplt
-v        -- .. -> [Node]
+        -- .. -> [Node]
           , users, specUsersUsf, specUsers, matchRel, allRels
       , insRelUsf, chNonRelAtUsf -- unsafe, duplicates
       ) where
@@ -37,12 +37,13 @@ v        -- .. -> [Node]
     -- data/minmalGraph.hs demonstrates these types (over like 20 lines)
 
     type Mindmap = Gr Expr Role
-    data Role = RelTplt | RelMbr RelPos
+    data Role = RelTplt | RelMbr RelPos | CollMbr
       deriving (Show,Read,Eq,Ord)
-    data Expr = Str String | Tplt Arity [String] | Rel Arity
-      -- TODO ? deduce the Arity of a Tplt from its [String]
-      -- TODO ? deduce from the graph the Arity of a Rel
-        -- rather than carrying it redundantly in the Rel constructor
+    data Expr = Str String
+              | Tplt Arity [String] -- TODO ? deduce Arity from the [String]
+              | Rel Arity -- TODO ? deduce Arity from the graph, rather than
+                          -- carrying it redundantly in the Rel constructor
+              | Coll String
       deriving (Show,Read,Eq,Ord)
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
@@ -84,6 +85,13 @@ v        -- .. -> [Node]
              g' =                insEdge (newNode, tn, RelTplt)
                                $ insNode (newNode, Rel a) g
            in f (zip ns [1..a]) g'
+
+    insColl :: (MonadError String m) => String -> [Node] -> Mindmap -> m Mindmap
+    insColl prefix ns g = do
+      mapM_ (gelemM g) ns
+      let newNode = head $ newNodes 1 g
+          newEdges = map (\n -> (newNode,n,CollMbr)) ns
+      return $ insEdges newEdges $ insNode (newNode,Coll prefix) g
 
   -- edit
     chNonRelAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
