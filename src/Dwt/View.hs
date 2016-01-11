@@ -8,13 +8,13 @@
     _showExpr :: (Node -> String) -> 
                  (Node -> String) -> 
                  (Node -> Node -> String) ->
-                 -- (Node -> String) ->  -- TODO: colls
+                 (Node -> String) ->
                  Mindmap -> Node -> String
-    _showExpr strPrefix tpltPrefix relPrefix g n = case lab g n of
+    _showExpr strPrefix tpltPrefix relPrefix collPrefix g n = case lab g n of
       Nothing          -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
       Just (Str s)     -> strPrefix n ++ s
       Just (Tplt _ ts) -> tpltPrefix n ++ intercalate "_" ts
-      -- Just (Coll s) ->  -- TODO
+--      Just (Coll s) -> collPrefix n ++ map ..
       Just (Rel _)     ->
         let ledges = sortOn edgeLabel $ out g n
             (_,tpltNode,_) = head ledges
@@ -22,21 +22,24 @@
             Just tpltLab = lab g tpltNode :: Maybe Expr
             memberNodes = map (\(_,m,_)-> m) $ tail ledges :: [Node]
         in (relPrefix n tpltNode ++) $ subInTplt tpltLab 
-             $ map (bracket . _showExpr strPrefix tpltPrefix relPrefix g) 
-                   memberNodes
+             $ map ( bracket 
+                   . _showExpr strPrefix tpltPrefix relPrefix collPrefix g
+                   ) memberNodes
       where bracket s = "[" ++ s ++ "]"
 
     showExpr :: Mindmap -> Node -> String
-    showExpr g n = _showExpr strPrefix tpltPrefix relPrefix g n where
+    showExpr g n = _showExpr strPrefix tpltPrefix relPrefix collPrefix g n where
       strPrefix n = show n ++ ": "
       tpltPrefix n = ":" ++ show n ++ " "
       relPrefix n tn = show n ++ ":" ++ show tn ++ " "
+      collPrefix = strPrefix
 
     showtExpr :: Mindmap -> Node -> String -- show tersely, without Nodes
-    showtExpr g n = _showExpr strPrefix tpltPrefix relPrefix g n where
+    showtExpr g n = _showExpr strPrefix tpltPrefix relPrefix collPrefix g n where
       strPrefix n = ""
       tpltPrefix n = ""
       relPrefix n tn = ""
+      collPrefix = strPrefix
 
     view :: Mindmap -> [Node] -> IO ()
     view g ns = mapM_ putStrLn $ map (showExpr g) ns
