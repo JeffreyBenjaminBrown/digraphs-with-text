@@ -15,9 +15,9 @@
         -- minor
           , gelemM, hasLEdgeM, isStr, isTplt, isRel
           , tpltAt, tpltForRelAt, tpltArity, nodesMatchTplt
-        -- .. -> [Node]
+v        -- .. -> [Node]
           , users, specUsersUsf, specUsers, matchRel, allRels
-      , insRelUsf, chNonRelAtUsf, usersUsf -- unsafe, duplicates
+      , insRelUsf, chNonRelAtUsf -- unsafe, duplicates
       ) where
 
     import Data.Graph.Inductive
@@ -186,6 +186,7 @@
     allRels = pre
 
 -- deprecating: non-monadic, unsafe, duplicate functions
+    -- used in TGraph.hs
     insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap
     insRelUsf t ns g = if ti /= length ns -- t is tplt, otherwise like ns
         then error "insRelUsf: Tplt Arity /= number of members Nodes."
@@ -200,9 +201,7 @@
             g' =                insEdge (newNode, t, RelTplt)
                               $ insNode (newNode, Rel ti) g
 
+    -- used by chNonRelAt
     chNonRelAtUsf :: Mindmap -> Node -> Expr -> Mindmap
     chNonRelAtUsf g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'
-
-    usersUsf :: Mindmap ->  Node -> [Node] -- todo: test
-    usersUsf g n = [m | (m,n,label) <- inn g n]
