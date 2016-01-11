@@ -18,11 +18,11 @@
         ++ ( intercalate ", " 
            $ map show_in_brackets [m | (m,CollMbr) <- lsuc g n] )
       Just (Rel _)     ->
-        let ledges = sortOn edgeLabel $ out g n
-            (_,tpltNode,_) = head ledges
-              -- head because Tplt sorts first, before Rel, in Ord Expr 
+        let elts = sortOn snd $ lsuc g n -- elts = Mbrs + Tplt
+            (tpltNode,RelTplt) = head elts
+              -- head because RelTplt goes before RelMbr in Ord Role
             Just tpltLab = lab g tpltNode :: Maybe Expr
-            memberNodes = map (\(_,m,_)-> m) $ tail ledges :: [Node]
+            memberNodes = map fst $ tail elts :: [Node]
         in (relPrefix n tpltNode ++) $ subInTplt tpltLab 
              $ map show_in_brackets memberNodes
       where bracket s = "[" ++ s ++ "]"

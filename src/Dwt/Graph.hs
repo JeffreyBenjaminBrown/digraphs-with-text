@@ -41,8 +41,7 @@
       deriving (Show,Read,Eq,Ord)
     data Expr = Str String
               | Tplt Arity [String] -- TODO ? deduce Arity from the [String]
-              | Rel Arity -- TODO ? deduce Arity from the graph, rather than
-                          -- carrying it redundantly in the Rel constructor
+              | Rel Arity -- TODO ? deduce Arity from the associated Tplt
               | Coll String
       deriving (Show,Read,Eq,Ord)
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
