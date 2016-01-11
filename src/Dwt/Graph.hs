@@ -13,7 +13,7 @@
       , chNonRelAt, chMbr -- edit Mindmap
       -- query Mindmap
         -- minor
-          , gelemM, hasLEdgeM, isStr, isTplt, isRel
+          , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl
           , tpltAt, tpltForRelAt, tpltArity, nodesMatchTplt
         -- .. -> [Node]
           , users, specUsersUsf, specUsers, matchRel, allRels
@@ -105,8 +105,7 @@
       isRel g user
       gelemM g newMbr
       let oldMbr = head [n | (n,lab) <- lsuc g user, lab == role]
-        -- todo ? head is unsafe, and it conflicts with the intended change that
-        -- the RelMbr at a given RelPos will be potentially multiple
+        -- todo ? head is unsafe
       return $ delLEdge (user,oldMbr,role)
              $ insEdge (user,newMbr,role) g
 
@@ -138,6 +137,9 @@
 
     isRel :: (MonadError String m) => Mindmap -> Node -> m Bool
     isRel = _isExprConstructor (\x -> case x of Rel _ -> True; _ -> False)
+
+    isColl :: (MonadError String m) => Mindmap -> Node -> m Bool
+    isColl = _isExprConstructor (\x -> case x of Coll _ -> True; _ -> False)
 
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
     tpltAt g tn = case lab g tn of -- todo ? rewrite using isTplt
