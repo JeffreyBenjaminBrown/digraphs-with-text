@@ -1,4 +1,7 @@
 -- usually folded
+  -- WARMING: readMmFile cannot handle .mm files with html content
+    -- a file (call it x.mm) with no html content will return nothing 
+    -- when you run this command: egrep "^\W*<html" x.mm
   -- CREDITS: uses some functions by Jake Wheat
     -- https://github.com/JakeWheat/intro_to_parsing
     -- parse2 below is what Wheat called parseWithLeftOver
@@ -12,9 +15,10 @@
       ( module Text.Parsec
       , module Text.Parsec.String
       , MlTag(..), MmNLab(..), MmELab(..), MmObj(..), DwtSpec, DwtFrame
+      , readMmFile -- the final product
       , mmNLabDummy
       -- parsing
-        -- Parser a -> String -> _
+vv        -- Parser a -> String -> _
           , parseWithEof, eParse, eParse2
         -- parsing the .mm format
           -- elements of the mlTag parser
@@ -51,7 +55,7 @@
       , isStart :: Bool -- leading < indicates start; </ indicates continuation.
       , isEnd :: Bool   -- trailing /> indicates end; > indicates continuation.
       , mlMap :: Map.Map String String
-      } | PoorText String -- TODO: HTML tags currently break import
+      } | PoorText String -- todo : HTML tags currently break import
         | Comment deriving (Eq, Show)
 
     data MmNLab = MmNLab { text :: String -- inaccurate type name: hold both data
@@ -200,7 +204,7 @@
     mmToMlTags filename = do x <- readFile filename
                              return $ mlTags x
 
-    -- TODO : is the HTML PROBLEM that node isStart|isEnd is getting confused?
+    -- todo : is the HTML PROBLEM that node isStart|isEnd is getting confused?
     collapseRich :: [MlTag] -> [MlTag]
     collapseRich [] = []
     collapseRich [a] = [a]
@@ -332,12 +336,22 @@
                                       ] mm)
                noded $ filter (Mb.isJust . style) ns
 
-    -- TODO: connect imported graph's root to frame's root
+    -- todo: connect imported graph's root to frame's root
     loadEdges :: (MonadError String me) => DwtSpec -> Mindmap -> me Mindmap
     loadEdges (_,es) mm = foldM (\mm (from,to,kind)
                                   -> insRel (edgeNode kind) [from,to] mm
                                 ) mm es
 
+  -- -- the file must have no hypertext tags
+    readMmFile :: String -> IO Mindmap
+    readMmFile s = do -- todo: work with the Either, do not fight it
+      mls <- mmToMlTags "untracked/data/agent.mm"
+      let mls2 = collapseRich $ stripRichTags $ fromRight mls
+      let spec = fromRight $ dwtSpec mls2
+      let fr = frame $ frameOrphanStyles spec
+      let fWithNodes = fromRight $ loadNodes (spec, fromRight fr)
+      return $ compressGraph $ fromRight $ loadEdges spec fWithNodes
+  
 -- deprecating: unsafe functions
     fromRight :: Either a b -> b
     fromRight (Right b) = b
