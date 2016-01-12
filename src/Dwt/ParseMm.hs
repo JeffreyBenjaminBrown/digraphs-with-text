@@ -18,7 +18,7 @@
       , readMmFile -- the final product
       , mmNLabDummy
       -- parsing
-vv        -- Parser a -> String -> _
+        -- Parser a -> String -> _
           , parseWithEof, eParse, eParse2
         -- parsing the .mm format
           -- elements of the mlTag parser
