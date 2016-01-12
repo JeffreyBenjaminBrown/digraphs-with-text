@@ -11,7 +11,7 @@
 
 -- lang, modules
     {-# LANGUAGE FlexibleContexts  #-}
-    module Dwt.ParseMm
+    module Dwt.MmParse
       ( module Text.Parsec
       , module Text.Parsec.String
       , MlTag(..), MmNLab(..), MmELab(..), MmObj(..), DwtSpec, DwtFrame
