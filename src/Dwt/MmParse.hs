@@ -1,7 +1,10 @@
 -- usually folded
-  -- WARMING: readMmFile cannot handle .mm files with html content
-    -- a file (call it x.mm) with no html content will return nothing 
-    -- when you run this command: egrep "^\W*<html" x.mm
+  -- WARMINGS: 
+    -- readMmFile cannot handle .mm files with html content
+      -- a file (call it x.mm) with no html content will return nothing 
+      -- when you run this command: egrep "^\W*<html" x.mm
+    -- stripRichText and collapseRich seem to be about completely different things
+      -- I say "seem" because I'm not sure.
   -- CREDITS: uses some functions by Jake Wheat
     -- https://github.com/JakeWheat/intro_to_parsing
     -- parse2 below is what Wheat called parseWithLeftOver
@@ -330,11 +333,13 @@
     readMmFile s = do -- todo: work with the Either, do not fight it
       mls <- mmToMlTags "untracked/data/agent.mm"
       let mls2 = collapseRich $ stripRichTags $ fromRight mls
+        -- worrying: for a while stripRichTags was not being used
+        -- and it seems to have no effect (based on a Unix diff command)
       let spec = fromRight $ dwtSpec mls2
       let fr = frame $ frameOrphanStyles spec
       let fWithNodes = fromRight $ loadNodes (spec, fromRight fr)
       return $ compressGraph $ fromRight $ loadEdges spec fWithNodes
-  
+
 -- deprecating: unsafe functions
     fromRight :: Either a b -> b
     fromRight (Right b) = b
