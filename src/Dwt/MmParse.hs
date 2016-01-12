@@ -39,6 +39,7 @@
 
     import Dwt.Graph
     import Dwt.Util
+    import Dwt.Parse
 
     import Text.Parsec
     import Text.Parsec.String (Parser)
@@ -84,19 +85,7 @@
     mmNLabDummy = MmNLab "hi" 0 Nothing t t
       where t = T.UTCTime (T.fromGregorian 1989 11 30) 0
 
--- parsing
-  -- Parser a -> String -> _
-    parseWithEof :: Parser a -> String -> Either ParseError a
-    parseWithEof p = parse (p <* eof) ""
-
-    eParse :: Parser a -> String -> Either ParseError a
-    eParse p = parse p ""
-
-    eParse2 :: Parser a -> String -> Either ParseError (a,String)
-    eParse2 p = parse ((,) <$> p <*> leftOver) ""
-      where leftOver = manyTill anyToken eof
-
-  -- parsing the .mm format
+-- parsing the .mm format
    -- elements of the mlTag parser
     lexeme :: Parser a -> Parser a
     lexeme p = p <* spaces
@@ -309,8 +298,8 @@
       $ frameNodes where conn = insRelUsf (-instanceNode)
 
     firstStyleNode = -25 :: Node -- because frameSansStyles has 24 Nodes
-
   -- </WARNING>
+
     styles :: DwtSpec -> [String]
     styles = L.nub . Mb.mapMaybe style . fst
 
@@ -342,7 +331,8 @@
                                   -> insRel (edgeNode kind) [from,to] mm
                                 ) mm es
 
-  -- -- the file must have no hypertext tags
+-- the final product
+    -- WARNING: the file must have no hypertext tags
     readMmFile :: String -> IO Mindmap
     readMmFile s = do -- todo: work with the Either, do not fight it
       mls <- mmToMlTags "untracked/data/agent.mm"
