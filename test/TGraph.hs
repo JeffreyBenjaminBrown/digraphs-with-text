@@ -1,6 +1,8 @@
 -- setup
     {-# LANGUAGE FlexibleContexts #-}
     import Dwt
+    import Dwt.Parse
+
     import Test.HUnit
     import qualified Control.Lens.Lens as L -- not crit; for (&), only used once
     import qualified Data.List as List

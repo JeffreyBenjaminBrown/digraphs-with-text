@@ -12,9 +12,7 @@
 -- lang, modules
     {-# LANGUAGE FlexibleContexts  #-}
     module Dwt.MmParse
-      ( module Text.Parsec
-      , module Text.Parsec.String
-      , MlTag(..), MmNLab(..), MmELab(..), MmObj(..), DwtSpec, DwtFrame
+      ( MlTag(..), MmNLab(..), MmELab(..), MmObj(..), DwtSpec, DwtFrame
       , readMmFile -- the final product
       , mmNLabDummy
       -- parsing
@@ -41,8 +39,6 @@
     import Dwt.Util
     import Dwt.Parse
 
-    import Text.Parsec
-    import Text.Parsec.String (Parser)
     import Data.Text (stripEnd,pack,unpack)
     import Control.Monad (foldM)
     import Control.Monad.Except (MonadError)
@@ -87,9 +83,6 @@
 
 -- parsing the .mm format
    -- elements of the mlTag parser
-    lexeme :: Parser a -> Parser a
-    lexeme p = p <* spaces
-
     mmEscapedChar :: Parser Char
     mmEscapedChar = mmLeftAngle <|> mmNewline <|> mmRightAngle 
         <|> mmCaret <|> mmAmpersand <|> mmApostrophe

@@ -1,9 +1,14 @@
     module Dwt.Parse
       ( module Dwt.Parse
+      , module Text.Parsec
+      , Parser
       ) where
 
     import Text.Parsec
     import Text.Parsec.String (Parser)
+
+    lexeme :: Parser a -> Parser a
+    lexeme p = p <* spaces
 
 -- Parser a -> String -> _
     parseWithEof :: Parser a -> String -> Either ParseError a
