@@ -131,10 +131,10 @@
       assertBool "absent" $ isLeft $ tpltAt g1 (-1)
 
     tTpltForRelAt = TestCase $ do
-      assertBool "normal" $ tpltForRelAt g1 5 ==
+      assertBool "normal" $ relTpltAt g1 5 ==
         ( Right $ Tplt 2 [""," wants ",""] )
-      assertBool "not a Rel" $ isLeft $ tpltForRelAt g1 1
-      assertBool "absent" $ isLeft $ tpltForRelAt g1 (-1)
+      assertBool "not a Rel" $ isLeft $ relTpltAt g1 1
+      assertBool "absent" $ isLeft $ relTpltAt g1 (-1)
 
     tTpltArity = TestCase $ do
       assertBool "j1" $ tpltArity (Tplt 3 []) == Right 3

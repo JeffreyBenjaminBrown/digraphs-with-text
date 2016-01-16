@@ -14,7 +14,7 @@
       -- query Mindmap
         -- minor
           , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl
-          , tpltAt, tpltForRelAt, tpltArity, nodesMatchTplt
+          , tpltAt, relTpltAt, tpltArity, nodesMatchTplt
         -- .. -> [Node]
           , users, specUsersUsf, specUsers, matchRel, allRels
       , insRelUsf, chNonRelAtUsf -- unsafe, duplicates
@@ -110,18 +110,19 @@
 
 -- query
   -- tests and lookups for smaller-than-graph types
-    gelemM :: (MonadError String m) => Mindmap -> Node -> m ()
+    gelemM :: (MonadError String m, Graph gr) => gr a b -> Node -> m ()
     gelemM g n = if gelem n g 
       then return () 
       else throwError $ "gelemM: Node " ++ show n ++ " absent."
 
-    hasLEdgeM :: (MonadError String m) => Mindmap -> LEdge Role -> m ()
+    hasLEdgeM :: (MonadError String m, Graph gr, Eq b, Show b) => 
+      gr a b -> LEdge b -> m ()
     hasLEdgeM g le = if hasLEdge g le
       then return ()
       else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
 
-    _isExprConstructor :: (MonadError String m) => (Expr -> Bool) ->
-      Mindmap -> Node -> m Bool
+    _isExprConstructor :: (MonadError String m, Graph gr) => (a -> Bool) ->
+      gr a b -> Node -> m Bool
     _isExprConstructor pred g n = case mExpr of 
         Nothing -> throwError $ "Node " ++ show n ++ " absent."
           -- todo ? report the using function (isStr, isTplt, isRel) in the error
@@ -146,11 +147,11 @@
       Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
       _ -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
 
-    tpltForRelAt :: (MonadError String m) => Mindmap -> Node -> m Expr
-    tpltForRelAt g rn = do
+    relTpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
+    relTpltAt g rn = do
       ir <-isRel g rn
       if not ir
-        then throwError $ "tpltForRelAt: LNode " ++ show rn ++ " not a Rel."
+        then throwError $ "relTpltAt: LNode " ++ show rn ++ " not a Rel."
         else return $ fromJust $ lab g 
           $ head [n | (n,RelTplt) <- lsuc g rn] -- todo ? head unsafe
             -- but is only unsafe if graph takes an invalid state
