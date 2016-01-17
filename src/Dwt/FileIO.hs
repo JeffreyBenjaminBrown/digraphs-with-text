@@ -27,6 +27,13 @@
     groupEdges es = map (sortOn (\(_,_,c)->c))
       $ _groupEdges es []
 
-    graphToText g = concat $ map (++ "\n") $ 
-         (map show $ labNodes g)
-      ++ (map (concat . intersperse "," . map show) $ groupEdges $ labEdges g)
+    showNodes g = concat 
+      $ intersperse ",\n"
+      $ (map show $ labNodes g)
+
+    showEdges g = concat 
+      $ intersperse ",\n"
+      $ (map (concat . intersperse "," . map show) $ groupEdges $ labEdges g)
+
+    graphToText g = "mkGraph [\n" ++ showNodes g ++ "\n][\n"
+                                  ++ showEdges g ++ "\n]\n"

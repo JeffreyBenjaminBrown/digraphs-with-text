@@ -1,8 +1,8 @@
--- load
-  x <- readFile "untracked/data/agent.dwt" -- dwt = txt
-  let g = read x :: Mindmap
+-- TODO: load, save, parse together; futz elsewhere
 
-  -- If I ever want to prune for speed, I can prune every .mm/ and .mm~ rels which is not the only arity-2 rel involving its endpoints.
+-- load
+  gf <- readFile "data/agent.dwt"
+  let g = read gf :: Mindmap
 
 -- futz
   -- some important nodes
@@ -34,4 +34,4 @@
     matchRel g [Just 22,Nothing,Nothing] -- number of Exprs with nonstandard font
 
   -- save
-  writeFile "untracked/data/agent.dwt" $ show g
+  writeFile "data/agent.dwt" $ graphToText g
