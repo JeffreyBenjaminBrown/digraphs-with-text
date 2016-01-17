@@ -1,10 +1,3 @@
--- TODO: load, save, parse together; futz elsewhere
-
--- load
-  gf <- readFile "data/agent.dwt"
-  let g = read gf :: Mindmap
-
--- futz
   -- some important nodes
     view g $ pre g 765 -- lets see every Rel involving the root
     view g $ nodes $ labfilter (== stringToTplt "_ .mm/ _") g -- Node 32
@@ -32,6 +25,3 @@
       -- problem ? does not include 29 (.mm/) and 30 (.mm~).
 
     matchRel g [Just 22,Nothing,Nothing] -- number of Exprs with nonstandard font
-
-  -- save
-  writeFile "data/agent.dwt" $ graphToText g

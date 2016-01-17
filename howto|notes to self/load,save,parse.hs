@@ -1,3 +1,9 @@
+-- load
+  gf <- readFile "data/agent.dwt"
+  let g = read gf :: Mindmap
+
+-- save
+  writeFile "data/agent.dwt" $ graphToText g
 
 -- parse
   -- run "stack ghci" and load the test suite
