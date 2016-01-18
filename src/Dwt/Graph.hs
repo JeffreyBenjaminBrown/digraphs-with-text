@@ -51,6 +51,9 @@
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
 
+    type RelSpec = [Maybe Node] -- to spec an Arity k Rel, should be length k+1
+                                -- first is RelTplt, others RelPos, in order
+
 -- build
   -- Tplt <-> String
     splitTpltStr :: String -> [String]
