@@ -5,8 +5,8 @@
     import Dwt.Graph
     import Data.List (sortOn, intercalate)
 
-    _showExpr :: (Node -> String) -> 
-                 (Node -> String) -> 
+    _showExpr :: (Node -> String) ->
+                 (Node -> String) ->
                  (Node -> Node -> String) ->
                  (Node -> String) ->
                  Mindmap -> Node -> String
@@ -36,8 +36,8 @@
       relPrefix n tn = show n ++ ":" ++ show tn ++ " "
       collPrefix = strPrefix
 
-    showtExpr :: Mindmap -> Node -> String -- show tersely, without Nodes
-    showtExpr g n = _showExpr strPrefix tpltPrefix relPrefix collPrefix g n where
+    showExprT :: Mindmap -> Node -> String -- show tersely, without Nodes
+    showExprT g n = _showExpr strPrefix tpltPrefix relPrefix collPrefix g n where
       strPrefix n = ""
       tpltPrefix n = ""
       relPrefix n tn = ""
@@ -46,5 +46,5 @@
     view :: Mindmap -> [Node] -> IO ()
     view g ns = mapM_ putStrLn $ map (showExpr g) ns
 
-    viewt :: Mindmap -> [Node] -> IO () -- view tersely, without Nodes
-    viewt g ns = mapM_ putStrLn $ map (showtExpr g) ns
+    viewT :: Mindmap -> [Node] -> IO () -- view tersely, without Nodes
+    viewT g ns = mapM_ putStrLn $ map (showExprT g) ns
