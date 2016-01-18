@@ -102,7 +102,8 @@
 
     tChMbr = TestCase $ do
       let gDogDog = fromRight $ chMbr g1 5 0 (RelMbr 2)
-      assertBool "1" $ showExpr gDogDog 5 == "5:1 [0: dog] wants [0: dog]"
+      assertBool "1" $ showExpr Map.empty gDogDog 5 
+                       == "5:1 [0: dog] wants [0: dog]"
 
   -- ask, minor
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM
@@ -162,9 +163,12 @@
 
   -- show
     tShowExpr = TestCase $ do
-      assertBool "expr 5" $ showExpr g1 5 == "5:1 [0: dog] wants [4: brandy]"
-      assertBool "expr 11" $ showExpr g1 11 == 
-        "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
+      assertBool "expr 5" $ showExpr Map.empty g1 5 
+                            == "5:1 [0: dog] wants [4: brandy]"
+      assertBool "expr 11" $ showExpr Map.empty g1 11
+        == "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
+      assertBool "expr 11" $ showExpr (Map.fromList [(0,"SUB")]) g1 11 
+        == "11:9 statement [5:1 [SUB] wants [4: brandy]] is [10: dubious]"
 
   -- parse .mm(the xml format)
     tParseMm = TestList [ TestLabel "tMmStr" tMmStr
