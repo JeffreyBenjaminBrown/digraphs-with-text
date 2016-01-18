@@ -16,7 +16,7 @@
         -- it assumes that elts with the same first coord are contiguous
         -- in a more general func, that could be forced by sorting first (1 way)
       -- "take the first coord" could be a function argument (the 2nd way)
-    _groupEdges :: [LEdge b] -> -- what's left of the input
+    _groupEdges :: [LEdge b] -> -- "decumulator?", what's left of the input
                    [[LEdge b]] -> -- accumulator, recursive
                    [[LEdge b]]
     _groupEdges [] els = els

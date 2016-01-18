@@ -1,6 +1,10 @@
--- TODO: find an automatic way to check for unused functions
-  -- otherwise when pattern matching, if the function name handed one of the 
-  -- patterns is misspelled, I can get a "non-exhaustive patterns" exception
+-- usually folded
+  -- PROB: view should not be type .. ->  IO ()
+  -- WANT
+    -- parents, children: count per node
+  -- "todo": find an automatic way to check for unused functions
+    -- otherwise when pattern matching, if the function name handed one of the 
+    -- patterns is misspelled, I can get a "non-exhaustive patterns" exception
 
 -- pragmas, export, import
     {-# LANGUAGE FlexibleContexts #-}

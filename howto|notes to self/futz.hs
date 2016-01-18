@@ -1,5 +1,31 @@
+-- 2016 01 16
+do ? sep punct from RelTplt [String]
+  currently : stringToTplt "_ uses font-> _"
+    mixes punctuation, a display choice, with description of the relationship
+
+How to find all nodes using a Tplt
+    > labfilter (== stringToTplt "_ uses font-> _") g
+      mkGraph [(24,Tplt 2 [""," uses font-> ",""])] []
+    > view g $ pre g 24
+      [The links here to Default Style could be deleted.]
+
+How to find all gold nodes:
+    In Freeplane, I see the node with this text
+        = already big enough to sort within
+    is gold.
+    > labfilter (== Str "= already big enough to sort within") g
+      1182
+    > view g $ pre g 1182
+      1526:24 [1182: = already big enough to sort within] uses font-> [7: AutomaticLayout.level,2]
+        ..
+    > let gold = 7 :: Dwt.Node
+    > view g $ pre g gold
+  
+Compress (depth) keeping only gold
+
+-- earlier
   -- some important nodes
-    view g $ pre g 765 -- lets see every Rel involving the root
+    view g $ pre g 771 -- lets see every Rel involving the root
     view g $ nodes $ labfilter (== stringToTplt "_ .mm/ _") g -- Node 32
     view g $ nodes $ labfilter (== stringToTplt "_ then read-> _") g -- Node 23
 
