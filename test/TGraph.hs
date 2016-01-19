@@ -103,7 +103,9 @@
     tChMbr = TestCase $ do
       let gDogDog = fromRight $ chMbr g1 5 0 (RelMbr 2)
       assertBool "1" $ showExpr Map.empty gDogDog 5 
-                       == "5:1 [0: dog] wants [0: dog]"
+                       == "5:1 \171\&0: dog\187 wants \171\&0: dog\187"
+        -- (\& == empty string) is to distinguish from longer number
+        -- if special char followed by a non-digit, no \& necessary
 
   -- ask, minor
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM
@@ -164,11 +166,11 @@
   -- show
     tShowExpr = TestCase $ do
       assertBool "expr 5" $ showExpr Map.empty g1 5 
-                            == "5:1 [0: dog] wants [4: brandy]"
+                            == "5:1 \171\&0: dog\187 wants \171\&4: brandy\187"
       assertBool "expr 11" $ showExpr Map.empty g1 11
-        == "11:9 statement [5:1 [0: dog] wants [4: brandy]] is [10: dubious]"
+        == "11:9 statement \171\&5:1 \171\&0: dog\187 wants \171\&4: brandy\187\187 is \171\&10: dubious\187"
       assertBool "expr 11" $ showExpr (Map.fromList [(0,"SUB")]) g1 11 
-        == "11:9 statement [5:1 [SUB] wants [4: brandy]] is [10: dubious]"
+        == "11:9 statement \171\&5:1 \171SUB\187 wants \171\&4: brandy\187\187 is \171\&10: dubious\187"
 
   -- parse .mm(the xml format)
     tParseMm = TestList [ TestLabel "tMmStr" tMmStr

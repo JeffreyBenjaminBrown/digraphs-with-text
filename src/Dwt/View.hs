@@ -1,7 +1,3 @@
--- shorthand
-  -- pfx = prefix
-
---
     module Dwt.View
       ( module Dwt.View
       ) where
@@ -10,12 +6,12 @@
     import Data.List (sortOn, intercalate)
     import qualified Data.Map as Map
 
--- engine
-    _showExpr :: Map.Map Node String -> -- substitutions
-                 (Node -> String) ->
-                 (Node -> String) ->
-                 (Node -> Node -> String) ->
-                 (Node -> String) ->
+-- showExpr
+    _showExpr :: Map.Map Node String ->      -- substitutions
+                 (Node -> String) ->         -- how to prefix Strs
+                 (Node -> String) ->         -- how to prefix Tplts
+                 (Node -> Node -> String) -> -- how to prefix Rels
+                 (Node -> String) ->         -- how to prefix Colls
                  Mindmap -> Node -> String
     _showExpr subs strPfx tpltPfx relPfx collPfx g n =
       case Map.lookup n subs of
@@ -35,11 +31,10 @@
                 memberNodes = map fst $ tail elts :: [Node]
             in (relPfx n tpltNode ++) $ subInTplt tpltLab 
                  $ map show_in_brackets memberNodes
-          where bracket s = "[" ++ s ++ "]"
+          where bracket s = "\171" ++ s ++ "\187"
                 show_in_brackets = bracket
                   . _showExpr subs strPfx tpltPfx relPfx collPfx g
 
--- things that use it
     showExpr :: Map.Map Node String -> Mindmap -> Node -> String
     showExpr subs g n = _showExpr subs strPfx tpltPfx relPfx collPfx g n where
       strPfx n = show n ++ ": "
@@ -47,13 +42,15 @@
       relPfx n tn = show n ++ ":" ++ show tn ++ " "
       collPfx = strPfx
 
-    showExprT :: Map.Map Node String -> Mindmap -> Node -> String -- show tersely, without Nodes
+    -- show tersely, without Nodes
+    showExprT :: Map.Map Node String -> Mindmap -> Node -> String
     showExprT subs g n = _showExpr subs strPfx tpltPfx relPfx collPfx g n where
       strPfx n = ""
       tpltPfx n = ""
       relPfx n tn = ""
       collPfx = strPfx
 
+-- view
     view :: Mindmap -> [Node] -> IO ()
     view g ns = mapM_ putStrLn $ map (showExpr Map.empty g) ns
 
