@@ -67,7 +67,7 @@
       where ss = splitTpltStr s
 
     subInTplt :: Expr -> [String] -> String
-    subInTplt (Tplt k ts) ss = let pairList = zip ts $ ss ++ [""] 
+    subInTplt (Tplt _ ts) ss = let pairList = zip ts $ ss ++ [""] 
       -- append "" because there are n+1 segments in an n-ary Tplt; 
         -- zipper ends early otherwise
       in foldl (\s (a,b) -> s++a++b) "" pairList
