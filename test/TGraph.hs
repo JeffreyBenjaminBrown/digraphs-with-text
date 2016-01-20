@@ -55,6 +55,15 @@
           $ insTplt "_ needs _" $ insTplt "_ wants _"
           $ insStr "dog"        $ empty :: Mindmap
 
+    relSpec = Map.fromList [ (RelTplt, It)
+                           , (RelMbr 1, NodeSpec 0)
+                           , (RelMbr 2, Any)
+                           ]
+    relSpecNonsense = Map.fromList [ (RelTplt, NodeSpec 0) -- "dog" Str, not Tplt
+                                   , (RelMbr 1, It)
+                                   , (RelMbr 2, Any)
+                                   ]
+
 -- tests
   -- buildGraph
     tBuildGraph = TestList [ TestLabel "tSubInTplt" tSubInTplt
@@ -148,7 +157,9 @@
   -- ask [Node]
     tAskNodes = TestList [ TestLabel "tUsers" tUsers
                          , TestLabel "tSpecUsers" tSpecUsers
-                         , TestLabel "tMatchRel" tMatchRel]
+                         , TestLabel "tMatchRel" tMatchRel
+                         , TestLabel "tMatchRel'" tMatchRel'
+                         ]
 
     tUsers = TestCase $ do
       assertBool "1" $ users g1 0 == Right [5,6,8]
@@ -163,6 +174,10 @@
       assertBool "-0-"  $ matchRel g1 [Nothing, Just 0,  Nothing] == [5,6]
       assertBool "--3"  $ matchRel g1 [Nothing, Nothing, Just 4 ] == [5]
       assertBool "---4" $ matchRel g1 [Nothing, Nothing, Nothing, Just 4] == [8]
+
+    tMatchRel' = TestCase $ do
+      assertBool "dog in first pos" $ matchRel' g1 relSpec == [5,6,8]
+      assertBool "nothing should match" $ matchRel' g1 relSpecNonsense == []
 
   -- show
     tShowExpr = TestCase $ do

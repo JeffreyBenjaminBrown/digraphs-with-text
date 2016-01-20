@@ -12,6 +12,7 @@
     module Dwt.Graph
       ( module Data.Graph.Inductive
       , Arity, RelPos, Expr(..), Role(..), Mindmap
+      , NodeSpec(..), RelSpec, RelSpec'
       , splitTpltStr, stringToTplt, subInTplt -- Tplt
       , insStr, insTplt, insRel, insColl -- build Mindmap
       , chNonRelAt, chMbr -- edit Mindmap
@@ -21,7 +22,7 @@
           , tpltAt, relTpltAt, tpltArity, nodesMatchTplt
         -- .. -> [Node]
           , users, specUsersUsf', specUsersUsf, specUsers
-          , redundancySubs, matchRel
+          , redundancySubs, matchRel', matchRel
       , insRelUsf, chNonRelAtUsf -- unsafe, duplicates
       ) where
 
@@ -53,7 +54,7 @@
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
 
-    data NodeSpec = It | Any | NodeSpec Node
+    data NodeSpec = It | Any | NodeSpec Node deriving (Show,Eq)
     -- REPLACING second with first
     type RelSpec' = Map.Map Role NodeSpec -- TODO: Role should not be ColMbr
     type RelSpec = [Maybe Node] -- to spec an Arity k Rel, should be length k+1
@@ -188,11 +189,11 @@
     -- MAYBE REPLACING second with first
     specUsersUsf' :: Mindmap -> Node -> Role -> [Node]
     specUsersUsf' g n r = -- all Rels using Node n in Role r
-      [m | (m,r) <- lpre g n]
+      [m | (m,r') <- lpre g n, r==r']
 
     specUsersUsf :: Mindmap -> Arity -> Node -> Role -> [Node]
     specUsersUsf g k n r = -- all k-ary Rels using Node n in Role r
-      [m | (m,r) <- lpre g n, lab g m == (Just $ Rel k)]
+      [m | (m,r') <- lpre g n, r'==r, lab g m == (Just $ Rel k)]
 
     specUsers :: (MonadError String m) =>
       Mindmap -> Arity -> Node -> Role -> m [Node]
@@ -208,9 +209,15 @@
 --    matchRel' :: Mindmap -> RelSpec -> [Node] -- TODO: check validt before execg
 --    matchRel' g spec =
 --      -- keep the SpecItems that spec a node
---      -- DETOUR: would be better with a specUser that needs no arity
 --      -- for each key, specUser g arity 
---      map (specUsersUsf g arity n) relSpec
+--      map (specUsersUsf g n) relSpec
+
+    matchRel' :: Mindmap -> RelSpec' -> [Node]
+    matchRel' g spec = listIntersect 
+      $ map (\(r,NodeSpec n) -> specUsersUsf' g n r)
+      $ Map.toList
+      $ Map.filter (\ns -> case ns of NodeSpec n -> True; _ -> False) 
+                   spec
 
     matchRel :: Mindmap -> [Maybe Node] -> [Node]
     matchRel g mns = listIntersect $ map f jns
