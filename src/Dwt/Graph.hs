@@ -200,7 +200,11 @@
 
     -- REPLACING second with first
 --    matchRel' :: Mindmap -> RelSpec -> [Node]
-  --  matchRel g spec =
+--    matchRel' g spec =
+--      -- keep the SpecItems that spec a node
+--      -- DETOUR: would be better with a specUser that needs no arity
+--      -- for each key, specUser g arity 
+--      map (specUsersUsf g arity n) relSpec
 
     matchRel :: Mindmap -> [Maybe Node] -> [Node]
     matchRel g mns = listIntersect $ map f jns
