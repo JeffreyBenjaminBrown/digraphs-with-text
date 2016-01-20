@@ -20,7 +20,7 @@
           , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl
           , tpltAt, relTpltAt, tpltArity, nodesMatchTplt
         -- .. -> [Node]
-          , users, specUsersUsf, specUsers, matchRel, allRels
+          , users, specUsersUsf, specUsers, redundancySubs, matchRel
       , insRelUsf, chNonRelAtUsf -- unsafe, duplicates
       ) where
 
@@ -190,6 +190,10 @@
       gelemM g n
       return $ specUsersUsf g k n r
 
+    redundancySubs :: [Maybe Node] -> Map.Map Node String
+    redundancySubs mns = Map.fromList 
+      $ map (\n -> (n,show n)) $ catMaybes mns
+
     matchRel :: Mindmap -> [Maybe Node] -> [Node]
     matchRel g mns = listIntersect $ map f jns
       where arity = length mns - 1
@@ -198,9 +202,6 @@
             f (Just n, k) = specUsersUsf g arity n (RelMbr k)
             listIntersect [] = []
             listIntersect (x:xs) = foldl intersect x xs
-
-    allRels :: Mindmap -> Node -> [Node]
-    allRels = pre
 
 -- deprecating: non-monadic, unsafe, duplicate functions (used elsewhere)
     insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap
