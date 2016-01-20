@@ -20,7 +20,8 @@
           , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl
           , tpltAt, relTpltAt, tpltArity, nodesMatchTplt
         -- .. -> [Node]
-          , users, specUsersUsf, specUsers, redundancySubs, matchRel
+          , users, specUsersUsf', specUsersUsf, specUsers
+          , redundancySubs, matchRel
       , insRelUsf, chNonRelAtUsf -- unsafe, duplicates
       ) where
 
@@ -184,6 +185,11 @@
     users g n = do gelemM g n
                    return [m | (m,label) <- lpre g n]
 
+    -- MAYBE REPLACING second with first
+    specUsersUsf' :: Mindmap -> Node -> Role -> [Node]
+    specUsersUsf' g n r = -- all Rels using Node n in Role r
+      [m | (m,r) <- lpre g n]
+
     specUsersUsf :: Mindmap -> Arity -> Node -> Role -> [Node]
     specUsersUsf g k n r = -- all k-ary Rels using Node n in Role r
       [m | (m,r) <- lpre g n, lab g m == (Just $ Rel k)]
@@ -199,7 +205,7 @@
       $ map (\n -> (n,show n)) $ catMaybes mns
 
     -- REPLACING second with first
---    matchRel' :: Mindmap -> RelSpec -> [Node]
+--    matchRel' :: Mindmap -> RelSpec -> [Node] -- TODO: check validt before execg
 --    matchRel' g spec =
 --      -- keep the SpecItems that spec a node
 --      -- DETOUR: would be better with a specUser that needs no arity

@@ -155,7 +155,8 @@
       assertBool "2" $ isLeft $ (users g1 100 :: Either String [Dwt.Node])
 
     tSpecUsers = TestCase $ do
-      assertBool "1" $ specUsers g1 2 0 (RelMbr 1) == Right [5,6]
+      assertBool "with Arity"    $ specUsers g1 2 0 (RelMbr 1) == Right [5,6]
+      assertBool "without Arity" $ specUsersUsf' g1 0 (RelMbr 1) == [5,6,8]
 
     tMatchRel = TestCase $ do
       assertBool "1--"  $ matchRel g1 [Just 1,  Nothing, Nothing] == [5]
