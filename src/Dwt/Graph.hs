@@ -52,9 +52,9 @@
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
 
-    data X = It | Any | XNode Node
+    data NodeSpec = It | Any | NodeSpec Node
     -- REPLACING second with first
-    type RelSpec' = Map.Map Role X -- TODO: Role should not be ColMbr
+    type RelSpec' = Map.Map Role NodeSpec -- TODO: Role should not be ColMbr
     type RelSpec = [Maybe Node] -- to spec an Arity k Rel, should be length k+1
                                 -- first is RelTplt, others RelPos, in order
 
@@ -186,7 +186,7 @@
 
     specUsersUsf :: Mindmap -> Arity -> Node -> Role -> [Node]
     specUsersUsf g k n r = -- all k-ary Rels using Node n in Role r
-      [m | (m,r') <- lpre g n, r' == r, lab g m == (Just $ Rel k)]
+      [m | (m,r) <- lpre g n, lab g m == (Just $ Rel k)]
 
     specUsers :: (MonadError String m) =>
       Mindmap -> Arity -> Node -> Role -> m [Node]
@@ -206,6 +206,7 @@
     matchRel g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, RelPos)]
+              -- kind of cheating; using RelPos 0 for RelTplt
             f (Just n, 0) = specUsersUsf g arity n RelTplt
             f (Just n, k) = specUsersUsf g arity n (RelMbr k)
 
