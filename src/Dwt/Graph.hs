@@ -202,22 +202,24 @@
     redundancySubs mns = Map.fromList 
       $ map (\n -> (n,show n)) $ catMaybes mns
 
-    matchRel' :: Mindmap -> RelSpec -> [Node]
-    matchRel' g spec = listIntersect 
+    matchRel :: Mindmap -> RelSpec -> [Node]
+    matchRel g spec = listIntersect 
       $ map (\(r,NodeSpec n) -> specUsersUsf' g n r)
       $ Map.toList
       $ Map.filter (\ns -> case ns of NodeSpec n -> True; _ -> False) 
                    spec
 
-    matchRel :: Mindmap -> [Maybe Node] -> [Node]
-    matchRel g mns = listIntersect $ map f jns
+-- deprecating
+  -- matchRel is better
+    matchRel' :: Mindmap -> [Maybe Node] -> [Node]
+    matchRel' g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, RelPos)]
               -- kind of cheating; using RelPos 0 for RelTplt
             f (Just n, 0) = specUsersUsf g arity n RelTplt
             f (Just n, k) = specUsersUsf g arity n (RelMbr k)
 
--- deprecating: non-monadic, unsafe, duplicate functions (used elsewhere)
+  -- non-monadic, unsafe, duplicate functions (used elsewhere)
     insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap
     insRelUsf t ns g = if ti /= length ns -- t is tplt, otherwise like ns
         then error "insRelUsf: Tplt Arity /= number of members Nodes."

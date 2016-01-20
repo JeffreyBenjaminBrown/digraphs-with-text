@@ -69,8 +69,9 @@
 -- convenient shorthand
     (n,j) = (Nothing,Just)
 
-    vm :: Mindmap -> [Maybe Node] -> IO () -- view match
-    vm g mns = viewS (redundancySubs mns) g (matchRel g mns)
+    -- TODO: make vm, like vm' but using matchRel, not matchRel'
+    vm' :: Mindmap -> [Maybe Node] -> IO () -- view match
+    vm' g mns = viewS (redundancySubs mns) g (matchRel' g mns)
 
     va :: Mindmap -> Node -> IO () -- view all rels
     va g n = viewS (Map.fromList [(n,show n)]) g $ pre g n
