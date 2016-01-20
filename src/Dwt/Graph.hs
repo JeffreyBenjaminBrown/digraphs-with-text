@@ -24,6 +24,7 @@
       , insRelUsf, chNonRelAtUsf -- unsafe, duplicates
       ) where
 
+    import Dwt.Util
     import Data.Graph.Inductive
     import Data.Either (partitionEithers)
     import Data.List (intersect)
@@ -51,6 +52,9 @@
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
 
+    data X = It | Any | XNode Node
+    -- REPLACING second with first
+    type RelSpec' = Map.Map Role X -- TODO: Role should not be ColMbr
     type RelSpec = [Maybe Node] -- to spec an Arity k Rel, should be length k+1
                                 -- first is RelTplt, others RelPos, in order
 
@@ -194,14 +198,16 @@
     redundancySubs mns = Map.fromList 
       $ map (\n -> (n,show n)) $ catMaybes mns
 
+    -- REPLACING second with first
+--    matchRel' :: Mindmap -> RelSpec -> [Node]
+  --  matchRel g spec =
+
     matchRel :: Mindmap -> [Maybe Node] -> [Node]
     matchRel g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, RelPos)]
             f (Just n, 0) = specUsersUsf g arity n RelTplt
             f (Just n, k) = specUsersUsf g arity n (RelMbr k)
-            listIntersect [] = []
-            listIntersect (x:xs) = foldl intersect x xs
 
 -- deprecating: non-monadic, unsafe, duplicate functions (used elsewhere)
     insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap

@@ -1,12 +1,17 @@
     {-# LANGUAGE FlexibleContexts #-}
     module Dwt.Util
-      ( negateGraph, compressGraph
-      , mapLookupMe, eitherToMe
+      ( listIntersect
+      , negateGraph, compressGraph -- for graphs
+      , mapLookupMe, eitherToMe -- for monads
       ) where
 
     import Data.Graph.Inductive
+    import Data.List (intersect)
     import qualified Data.Map as Map
     import Control.Monad.Except (MonadError, throwError)
+
+    listIntersect [] = []
+    listIntersect (x:xs) = foldl intersect x xs
 
 -- for graphs
     negateGraph :: Graph Gr => Gr a b -> Gr a b
