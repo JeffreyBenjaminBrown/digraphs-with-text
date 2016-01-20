@@ -12,7 +12,7 @@
     module Dwt.Graph
       ( module Data.Graph.Inductive
       , Arity, RelPos, Expr(..), Role(..), Mindmap
-      , NodeSpec(..), RelSpec, RelSpec'
+      , NodeSpec(..), RelSpec
       , splitTpltStr, stringToTplt, subInTplt -- Tplt
       , insStr, insTplt, insRel, insColl -- build Mindmap
       , chNonRelAt, chMbr -- edit Mindmap
@@ -55,10 +55,7 @@
     type Arity = Int
 
     data NodeSpec = It | Any | NodeSpec Node deriving (Show,Eq)
-    -- REPLACING second with first
-    type RelSpec' = Map.Map Role NodeSpec -- TODO: Role should not be ColMbr
-    type RelSpec = [Maybe Node] -- to spec an Arity k Rel, should be length k+1
-                                -- first is RelTplt, others RelPos, in order
+    type RelSpec = Map.Map Role NodeSpec -- TODO: Role should not be ColMbr
 
 -- build
   -- Tplt <-> String
@@ -205,14 +202,7 @@
     redundancySubs mns = Map.fromList 
       $ map (\n -> (n,show n)) $ catMaybes mns
 
-    -- REPLACING second with first
---    matchRel' :: Mindmap -> RelSpec -> [Node] -- TODO: check validt before execg
---    matchRel' g spec =
---      -- keep the SpecItems that spec a node
---      -- for each key, specUser g arity 
---      map (specUsersUsf g n) relSpec
-
-    matchRel' :: Mindmap -> RelSpec' -> [Node]
+    matchRel' :: Mindmap -> RelSpec -> [Node]
     matchRel' g spec = listIntersect 
       $ map (\(r,NodeSpec n) -> specUsersUsf' g n r)
       $ Map.toList
