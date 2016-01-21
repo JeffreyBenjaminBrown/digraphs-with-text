@@ -200,9 +200,13 @@
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM
                          , TestLabel "tHasLEdgeM" tHasLEdgeM
                          , TestLabel "tIsTplt" tIsTplt
+                         , TestLabel "tIsTplt" tIsTplt'
                          , TestLabel "tTpltAt" tTpltAt
+                         , TestLabel "tTpltAt'" tTpltAt'
                          , TestLabel "tTpltForRelAt" tTpltForRelAt
-                         , TestLabel "tTpltArity" tTpltArity ]
+                         , TestLabel "tTpltForRelAt'" tTpltForRelAt'
+                         , TestLabel "tTpltArity" tTpltArity
+                         , TestLabel "tTpltArity'" tTpltArity' ]
 
     tGelemM = TestCase $ do
       assertBool "1" $ gelemM g1 0 == Right ()
@@ -217,10 +221,20 @@
       assertBool "is not template" $ isTplt g1 0 == Right False
       assertBool "missing" $ isLeft $ isTplt g1 (-1)
 
+    tIsTplt' = TestCase $ do
+      assertBool "is template" $ isTplt' g1' 1 == Right True
+      assertBool "is not template" $ isTplt' g1' 0 == Right False
+      assertBool "missing" $ isLeft $ isTplt' g1' (-1)
+
     tTpltAt = TestCase $ do
       assertBool "normal" $ tpltAt g1 1 == ( Right $ Tplt 2 [""," wants ",""] )
       assertBool "notATplt" $ isLeft $ tpltAt g1 0
       assertBool "absent" $ isLeft $ tpltAt g1 (-1)
+
+    tTpltAt' = TestCase $ do
+      assertBool "normal" $ tpltAt' g1' 1 == ( Right $ Tplt' [""," wants ",""] )
+      assertBool "notATplt" $ isLeft $ tpltAt' g1' 0
+      assertBool "absent" $ isLeft $ tpltAt' g1' (-1)
 
     tTpltForRelAt = TestCase $ do
       assertBool "normal" $ relTpltAt g1 5 ==
@@ -228,11 +242,26 @@
       assertBool "not a Rel" $ isLeft $ relTpltAt g1 1
       assertBool "absent" $ isLeft $ relTpltAt g1 (-1)
 
+    tTpltForRelAt' = TestCase $ do
+      assertBool "normal" $ relTpltAt' g1' 5 ==
+        ( Right $ Tplt' [""," wants ",""] )
+      assertBool "not a Rel" $ isLeft $ relTpltAt' g1' 1
+      assertBool "absent" $ isLeft $ relTpltAt' g1' (-1)
+
     tTpltArity = TestCase $ do
       assertBool "j1" $ tpltArity (Tplt 3 []) == Right 3
       assertBool "j2" $ isLeft $ tpltArity (Str "nog")
       assertBool "j3" $ tpltArity (Str "rig") == 
         Left "tpltArity: Expr not a Tplt."
+
+    tTpltArity' = TestCase $ do
+      assertBool "arity 0" $
+        tpltArity' (Tplt' ["no args possible here"]) == Right 0
+      assertBool "arity 1" $ 
+        tpltArity' (Tplt' ["one arg","possible here"]) == Right 1
+      assertBool "Str is not Tplt" $ isLeft $ tpltArity' (Str' "nog")
+      assertBool "Str is not Tplt, error message" $ 
+        tpltArity' (Str' "rig") == Left "tpltArity: Expr not a Tplt."
 
   -- ask [Node]
     tAskNodes = TestList [ TestLabel "tUsers" tUsers
