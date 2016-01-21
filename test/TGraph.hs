@@ -266,8 +266,9 @@
   -- ask [Node]
     tAskNodes = TestList [ TestLabel "tUsers" tUsers
                          , TestLabel "tSpecUsers" tSpecUsers
+                         , TestLabel "tSpecUsers'" tSpecUsers'
                          , TestLabel "tMatchRel" tMatchRel
-                         , TestLabel "tMatchRel'" tMatchRel'
+                         , TestLabel "tMatchRelOld" tMatchRelOld
                          ]
 
     tUsers = TestCase $ do
@@ -278,11 +279,17 @@
       assertBool "with Arity"    $ specUsers g1 2 0 (RelMbr 1) == Right [5,6]
       assertBool "without Arity" $ specUsersUsf g1 0 (RelMbr 1) == [5,6,8]
 
+    tSpecUsers' = TestCase $ do
+      assertBool "with Arity"    $ specUsers' g1' 0 (RelMbr 1) == Right [5,6,8]
+      assertBool "without Arity" $ specUsersUsf g1' 0 (RelMbr 1) == [5,6,8]
+
     tMatchRel = TestCase $ do
       assertBool "dog in first pos" $ matchRel g1 relSpec == [5,6,8]
+      assertBool "dog in first pos" $ matchRel g1' relSpec == [5,6,8]
       assertBool "nothing should match" $ matchRel g1 relSpecNonsense == []
+      assertBool "nothing should match" $ matchRel g1' relSpecNonsense == []
 
-    tMatchRel' = TestCase $ do
+    tMatchRelOld = TestCase $ do
       assertBool "1--"  $ matchRelOld g1 [Just 1,  n,      n      ] == [5]
       assertBool "-0-"  $ matchRelOld g1 [n,       Just 0, n      ] == [5,6]
       assertBool "--3"  $ matchRelOld g1 [n,       n,      Just 4 ] == [5]
