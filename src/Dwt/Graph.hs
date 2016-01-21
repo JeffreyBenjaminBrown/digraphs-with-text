@@ -233,14 +233,14 @@
     specUsersUsf g n r = [m | (m,r') <- lpre g n, r==r']
 
     redundancySubs :: RelSpec -> Map.Map Node String
-    redundancySubs m = Map.fromList $
-      map (\(NodeSpec n) -> (n,show n)) 
-      $ Map.elems
-      $ Map.filter (\nspec -> case nspec of NodeSpec n -> True; _ -> False) m
+    redundancySubs = Map.fromList 
+      . map (\(NodeSpec n) -> (n,show n))
+      . Map.elems
+      . Map.filter (\nspec -> case nspec of NodeSpec n -> True; _ -> False)
 
+    -- TODO: use specUsers (the safe version)
     matchRel :: Graph gr => gr a Role -> RelSpec -> [Node]
-    matchRel g spec = listIntersect 
-      $ map (\(r,NodeSpec n) -> specUsersUsf g n r)
-      $ Map.toList
-      $ Map.filter (\ns -> case ns of NodeSpec n -> True; _ -> False) 
-                   spec
+    matchRel g = listIntersect 
+      . map (\(r,NodeSpec n) -> specUsersUsf g n r)
+      . Map.toList
+      . Map.filter (\ns -> case ns of NodeSpec n -> True; _ -> False) 
