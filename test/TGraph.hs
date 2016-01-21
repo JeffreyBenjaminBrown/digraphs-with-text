@@ -20,6 +20,7 @@
         , TestLabel "tAskMinor"   tAskMinor
         , TestLabel "tAskNodes"   tAskNodes
         , TestLabel "tShowExpr"   tShowExpr
+        , TestLabel "tShowExpr'"  tShowExpr'
         , TestLabel "tParseMm"    tParseMm
         , TestLabel "tMmTags"     tMmTags
       ]
@@ -304,6 +305,14 @@
       assertBool "expr 11" $ showExpr (Map.fromList [(0,"SUB")]) g1 11 
         == "11:9 statement \171\&5:1 \171SUB\187 wants \171\&4: brandy\187\187 is \171\&10: dubious\187"
 
+    tShowExpr' = TestCase $ do
+      assertBool "expr 5" $ showExpr' Map.empty g1' 5 
+                            == "5:1 \171\&0: dog\187 wants \171\&4: brandy\187"
+      assertBool "expr 11" $ showExpr' Map.empty g1' 11
+        == "11:9 statement \171\&5:1 \171\&0: dog\187 wants \171\&4: brandy\187\187 is \171\&10: dubious\187"
+      assertBool "expr 11" $ showExpr' (Map.fromList [(0,"SUB")]) g1' 11 
+        == "11:9 statement \171\&5:1 \171SUB\187 wants \171\&4: brandy\187\187 is \171\&10: dubious\187"
+
   -- parse .mm(the xml format)
     tParseMm = TestList [ TestLabel "tMmStr" tMmStr
                         , TestLabel "tWord" tWord
@@ -372,6 +381,7 @@
         == MmNLab "c3, gold" 1033943189 (Just "AutomaticLayout.level,2")
              (read "2015-12-06 08:11:23 UTC") (read "2015-12-06 08:11:52 UTC")
 
+-- testing by hand
   -- parse a whole file
     -- "tDwtSpec", by hand: works
       -- x <- mmToMlTags "data/root+7.mm"
@@ -386,8 +396,19 @@
       let y = fromRight $ dwtSpec $ fromRight x
         in return (frame $ frameOrphanStyles y :: Either String DwtFrame)
 
+    tFrame' = do 
+      x <- mmToMlTags "data/root+22ish.mm" -- root+22ish because it needs styles
+      let y = fromRight $ dwtSpec $ fromRight x
+        in return (frame' $ frameOrphanStyles' y :: Either String DwtFrame')
+
     tLoadNodes = do 
       mls <- mmToMlTags "data/root+22ish.mm" -- again, needs styles
       let spec = fromRight $ dwtSpec $ fromRight mls
           fr = frame $ frameOrphanStyles spec :: Either String DwtFrame
         in return $ (loadNodes (spec, fromRight fr) :: Either String Mindmap)
+
+    tLoadNodes' = do 
+      mls <- mmToMlTags "data/root+22ish.mm" -- again, needs styles
+      let spec = fromRight $ dwtSpec $ fromRight mls
+          fr = frame' $ frameOrphanStyles' spec :: Either String DwtFrame'
+        in return $ (loadNodes' (spec, fromRight fr) :: Either String Mindmap')

@@ -15,27 +15,28 @@
 -- lang, modules
     {-# LANGUAGE FlexibleContexts  #-}
     module Dwt.MmParse
-      ( MlTag(..), MmNLab(..), MmELab(..), MmObj(..), DwtSpec, DwtFrame
-      , readMmFile -- the final product
-      , mmNLabDummy
-      -- parsing
-        -- Parser a -> String -> _
-          , parseWithEof, eParse, eParse2
-        -- parsing the .mm format
-          -- elements of the mlTag parser
-            , lexeme, mmEscapedChar, mmStr, word, keyValPair
-          -- tags and comments
-            , richText, mlTag, comment, strip, stripRichTags, mlTags
-        -- functions of type (Functor f => f MlTag -> _), and their helpers
-          , parseId, mmTimeToTime -- helpers
-          , tagToKeep, readMmNLab, mlArrowDestMe -- MlTag -> _
-          , mmToMlTags, collapseRich -- file -> [MlTag]
-          , dwtSpec, _dwtSpec -- dwtSpec :: [MlTag] -> Either String DwtSpec
-      -- DwtSpec -> _
-        , frameNodes, edgeNode, frameSansStyles, firstStyleNode
-        , styles, frameOrphanStyles, frame, loadNodes, loadEdges
-      -- deprecating, unsafe
-        , fromRight, mlArrowDestUsf, readMmNLabUsf
+      ( module Dwt.MmParse
+--        MlTag(..), MmNLab(..), MmELab(..), MmObj(..), DwtSpec, DwtFrame
+--      , readMmFile -- the final product
+--      , mmNLabDummy
+--      -- parsing
+--        -- Parser a -> String -> _
+--          , parseWithEof, eParse, eParse2
+--        -- parsing the .mm format
+--          -- elements of the mlTag parser
+--            , lexeme, mmEscapedChar, mmStr, word, keyValPair
+--          -- tags and comments
+--            , richText, mlTag, comment, strip, stripRichTags, mlTags
+--        -- functions of type (Functor f => f MlTag -> _), and their helpers
+--          , parseId, mmTimeToTime -- helpers
+--          , tagToKeep, readMmNLab, mlArrowDestMe -- MlTag -> _
+--          , mmToMlTags, collapseRich -- file -> [MlTag]
+--          , dwtSpec, _dwtSpec -- dwtSpec :: [MlTag] -> Either String DwtSpec
+--      -- DwtSpec -> _
+--        , frameNodes, edgeNode, frameSansStyles, firstStyleNode
+--        , styles, frameOrphanStyles, frame, loadNodes, loadEdges
+--      -- deprecating, unsafe
+--        , fromRight, mlArrowDestUsf, readMmNLabUsf
       ) where
 
     import Dwt.Graph
@@ -348,7 +349,6 @@
                                        -- n is already negative
                                      mm (Map.elems mp)
                         return (mm',mp)
-
 
     frame' :: (MonadError String me) => DwtFrame' -> me DwtFrame'
     frame' (mm, mp) = do mm' <- foldM (\mm n -> insRel' (instanceNode) 
