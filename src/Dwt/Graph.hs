@@ -156,14 +156,12 @@
 -- query
   -- tests and lookups for smaller-than-graph types
     gelemM :: (MonadError String m, Graph gr) => gr a b -> Node -> m ()
-    gelemM g n = if gelem n g 
-      then return () 
+    gelemM g n = if gelem n g then return () 
       else throwError $ "gelemM: Node " ++ show n ++ " absent."
 
     hasLEdgeM :: (MonadError String m, Graph gr, Eq b, Show b) => 
       gr a b -> LEdge b -> m ()
-    hasLEdgeM g le = if hasLEdge g le
-      then return ()
+    hasLEdgeM g le = if hasLEdge g le then return ()
       else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
 
     _isExprConstructor :: (MonadError String m, Graph gr) => (a -> Bool) ->
@@ -194,10 +192,10 @@
       Coll _ ->  case f of Coll _ -> True;  _ -> False
 
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
-    tpltAt g tn = case lab g tn of -- todo ? rewrite using isTplt
-      Just t@(Tplt _) -> return $ t
+    tpltAt g tn = case lab g tn of
+      Just t@(Tplt _) -> return t
       Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
-      _ -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
+      _       -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
 
     relTpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
     relTpltAt g rn = do
@@ -214,10 +212,10 @@
                             _       -> error "tpltArity: Expr not a Tplt."
 
     nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m ()
-    nodesMatchTplt ns e = case e of -- TODO ! test
-      Tplt _ -> if (tpltArity e) /= length ns
-        then throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes."
-        else return ()
+    nodesMatchTplt ns e = case e of
+      Tplt _ -> if (tpltArity e) == length ns
+        then return ()
+        else throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes." 
       _ -> throwError "nodesMatchTplt: Expr not a Tplt."
 
   -- .. -> [Node]
@@ -225,7 +223,12 @@
     users g n = do gelemM g n
                    return [m | (m,label) <- lpre g n]
 
-    -- MAYBE REPLACING second with first
+    specUsers :: (MonadError String m) =>
+      Mindmap -> Node -> Role -> m [Node]
+    specUsers g n r = do -- Rels (of any Arity) using Node n in Role r
+      gelemM g n
+      specUsersUsfOld g n r
+
     specUsersUsf :: (Graph gr) => gr a Role -> Node -> Role -> [Node]
     specUsersUsf g n r = -- Rels using Node n in Role r
       [m | (m,r') <- lpre g n, r==r']
@@ -234,12 +237,6 @@
       Mindmap -> Node -> Role -> m [Node]
     specUsersUsfOld g n r = do -- Rels (of any Arity) using Node n in Role r
       return [m | (m,r') <- lpre g n, r'==r, lab g m == (Just $ Rel)]
-
-    specUsers :: (MonadError String m) =>
-      Mindmap -> Node -> Role -> m [Node]
-    specUsers g n r = do -- Rels (of any Arity) using Node n in Role r
-      gelemM g n
-      specUsersUsfOld g n r
 
     redundancySubs :: RelSpec -> Map.Map Node String
     redundancySubs m = Map.fromList $
