@@ -151,12 +151,12 @@
 
     tTpltArity = TestCase $ do
       assertBool "arity 0" $
-        tpltArity (Tplt ["no args possible here"]) == Right 0
+        tpltArity (Tplt ["no args possible here"]) == 0
       assertBool "arity 1" $ 
-        tpltArity (Tplt ["one arg","possible here"]) == Right 1
-      assertBool "Str is not Tplt" $ isLeft $ tpltArity (Str "nog")
-      assertBool "Str is not Tplt, error message" $ 
-        tpltArity (Str "rig") == Left "tpltArity: Expr not a Tplt."
+        tpltArity (Tplt ["one arg","possible here"]) == 1
+      -- ? how to test the following
+      -- assertBool "Str is not Tplt" $ tpltArity (Str "nog")
+        -- == error "tpltArity: Expr not a Tplt."
 
   -- ask [Node]
     tAskNodes = TestList [ TestLabel "tUsers" tUsers

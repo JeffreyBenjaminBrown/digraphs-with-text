@@ -93,7 +93,7 @@
     insRel tn ns g =
       do mapM_ (gelemM g) $ tn:ns
          t <- tpltAt g tn
-         a <- tpltArity t
+         let a = tpltArity t
          nodesMatchTplt ns t
          return $ let 
              newNode = head $ newNodes 1 g
@@ -178,17 +178,15 @@
     relTpltArity :: (MonadError String m) => Mindmap -> Node -> m Arity
     relTpltArity g rn = do
       t <- relTpltAt g rn
-      tpltArity t
+      return $ tpltArity t
 
-    tpltArity :: (MonadError String m) => Expr -> m Arity -- todo ? no MonadError
-    tpltArity e = case e of Tplt ss -> return $ length ss - 1
-                            _       -> throwError "tpltArity: Expr not a Tplt."
+    tpltArity :: Expr -> Arity
+    tpltArity e = case e of Tplt ss -> length ss - 1
+                            _       -> error "tpltArity: Expr not a Tplt."
 
     nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m ()
     nodesMatchTplt ns e = case e of -- TODO ! test
-      Tplt _ -> do
-        a <- tpltArity e
-        if a /= length ns
+      Tplt _ -> if (tpltArity e) /= length ns
         then throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes."
         else return ()
       _ -> throwError "nodesMatchTplt: Expr not a Tplt."
@@ -237,7 +235,7 @@
         else f (zip ns [1..ta]) g'
       where te@(Tplt ts) = fromJust $ lab g t -- can also error:
               -- by finding Str or Rel where expected Tplt
-            ta = fromRight $ tpltArity te
+            ta = tpltArity te
             newNode = head $ newNodes 1 g
             f []     g = g
             f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
