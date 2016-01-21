@@ -47,9 +47,7 @@
     type Arity = Int
 
     -- REPLACING second with first
-    type Mindmap' = Gr Expr Role
-    data Role' = RelTplt' | RelMbr' RelPos | CollMbr'
-      deriving (Show,Read,Eq,Ord)
+    type Mindmap' = Gr Expr' Role
     data Expr' = Str' String
               | Tplt' [String]
               | Rel'
@@ -77,8 +75,17 @@
     stringToTplt s = Tplt (length ss-1) ss -- even length=0 works
       where ss = splitTpltStr s
 
+    stringToTplt' :: String -> Expr'
+    stringToTplt' = Tplt' . splitTpltStr -- even length=0 works
+
     subInTplt :: Expr -> [String] -> String
     subInTplt (Tplt _ ts) ss = let pairList = zip ts $ ss ++ [""] 
+      -- append "" because there are n+1 segments in an n-ary Tplt; 
+        -- zipper ends early otherwise
+      in foldl (\s (a,b) -> s++a++b) "" pairList
+
+    subInTplt' :: Expr' -> [String] -> String -- todo ? test length, use Either
+    subInTplt' (Tplt' ts) ss = let pairList = zip ts $ ss ++ [""] 
       -- append "" because there are n+1 segments in an n-ary Tplt; 
         -- zipper ends early otherwise
       in foldl (\s (a,b) -> s++a++b) "" pairList
@@ -86,6 +93,10 @@
   -- insert
     insStr :: String -> Mindmap -> Mindmap
     insStr str g = insNode (int, Str str) g
+      where int = head $ newNodes 1 g
+
+    insStr' :: String -> Mindmap' -> Mindmap'
+    insStr' str g = insNode (int, Str' str) g
       where int = head $ newNodes 1 g
 
     insTplt :: String -> Mindmap -> Mindmap
