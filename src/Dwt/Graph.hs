@@ -128,6 +128,13 @@
           newEdges = map (\n -> (newNode,n,CollMbr)) ns
       return $ insEdges newEdges $ insNode (newNode,Coll prefix) g
 
+    insColl' :: (MonadError String m) => String -> [Node] -> Mindmap' -> m Mindmap'
+    insColl' prefix ns g = do
+      mapM_ (gelemM g) ns
+      let newNode = head $ newNodes 1 g
+          newEdges = map (\n -> (newNode,n,CollMbr)) ns
+      return $ insEdges newEdges $ insNode (newNode,Coll' prefix) g
+
   -- edit
     chNonRelAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
     chNonRelAt g n e = do -- todo? absorb def of chNonRelAtUsf.
@@ -135,9 +142,24 @@
       gelemM g n
       return $ chNonRelAtUsf g n e
 
+    chNonRelAt' :: (MonadError String m) => Mindmap' -> Node -> Expr' -> m Mindmap'
+    chNonRelAt' g n e = do -- todo? absorb def of chNonRelAtUsf.
+      -- todo ? verify e is Tplt or Str, and that it matches the label of n in g
+      gelemM g n
+      return $ chNonRelAtUsf' g n e
+
     chMbr :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
     chMbr g user newMbr role = do
       isRel g user
+      gelemM g newMbr
+      let oldMbr = head [n | (n,lab) <- lsuc g user, lab == role]
+        -- todo ? head is unsafe
+      return $ delLEdge (user,oldMbr,role)
+             $ insEdge (user,newMbr,role) g
+
+    chMbr' :: (MonadError String m) => Mindmap' -> Node -> Node -> Role -> m Mindmap'
+    chMbr' g user newMbr role = do
+      isRel' g user
       gelemM g newMbr
       let oldMbr = head [n | (n,lab) <- lsuc g user, lab == role]
         -- todo ? head is unsafe
@@ -221,6 +243,11 @@
             -- but is only unsafe if graph takes an invalid state
             -- because each Rel should have exactly one Tplt
 
+    relTpltArity :: (MonadError String m) => Mindmap' -> Node -> m Arity
+    relTpltArity g rn = do
+      t <- relTpltAt' g rn
+      tpltArity' t
+
     tpltArity :: (MonadError String m) => Expr -> m Arity
     tpltArity e = case e of Tplt a _ -> return a
                             _        -> throwError "tpltArity: Expr not a Tplt."
@@ -246,18 +273,23 @@
       _ -> throwError "nodesMatchTplt: Expr not a Tplt."
 
   -- .. -> [Node]
-    users :: (MonadError String m) => Mindmap -> Node -> m [Node]
+    users :: (MonadError String m, Graph gr) => gr a b -> Node -> m [Node]
     users g n = do gelemM g n
                    return [m | (m,label) <- lpre g n]
 
     -- MAYBE REPLACING second with first
-    specUsersUsf :: Mindmap -> Node -> Role -> [Node]
+    specUsersUsf :: (Graph gr) => gr a Role -> Node -> Role -> [Node]
     specUsersUsf g n r = -- all Rels using Node n in Role r
       [m | (m,r') <- lpre g n, r==r']
 
     specUsersUsfOld :: Mindmap -> Arity -> Node -> Role -> [Node]
     specUsersUsfOld g k n r = -- all k-ary Rels using Node n in Role r
       [m | (m,r') <- lpre g n, r'==r, lab g m == (Just $ Rel k)]
+
+    specUsersUsfOld' :: (MonadError String m) => 
+      Mindmap' -> Arity -> Node -> Role -> m [Node]
+    specUsersUsfOld' g k n r = do -- Rels (of any Arity) using Node n in Role r
+      return [m | (m,r') <- lpre g n, r'==r, lab g m == (Just $ Rel')]
 
     specUsers :: (MonadError String m) =>
       Mindmap -> Arity -> Node -> Role -> m [Node]
@@ -302,4 +334,8 @@
 
     chNonRelAtUsf :: Mindmap -> Node -> Expr -> Mindmap
     chNonRelAtUsf g n e = let (Just (a,b,c,d),g') = match n g
+      in (a,b,e,d) & g'
+
+    chNonRelAtUsf' :: Mindmap' -> Node -> Expr' -> Mindmap'
+    chNonRelAtUsf' g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'
