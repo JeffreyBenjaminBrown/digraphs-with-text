@@ -50,16 +50,20 @@
     type Arity = Int
 
     type Mindmap = Gr Expr Role
-    data Role = RelTplt | RelMbr RelPos | CollMbr
-      deriving (Show,Read,Eq,Ord)
     data Expr = Str String
               | Tplt [String]
               | Rel
               | Coll String
       deriving (Show,Read,Eq,Ord)
+    data Role = RelTplt | RelMbr RelPos | CollMbr
+      deriving (Show,Read,Eq,Ord)
 
     data NodeSpec = It | Any | NodeSpec Node deriving (Show,Eq)
-    type RelSpec = Map.Map Role NodeSpec -- TODO: Role should not be ColMbr
+    type RelSpec = Map.Map Role NodeSpec 
+      -- if well-formed: 
+        -- has a Tplt, and RelPoss from 1 to the Tplt's Arity
+        -- has no ColMbr
+      -- todo ? any RelPos mapped to Any could be omitted
 
 -- build
   -- Tplt <-> String
@@ -74,6 +78,7 @@
       -- append "" because there are n+1 segments in an n-ary Tplt; 
         -- zipper ends early otherwise
       in foldl (\s (a,b) -> s++a++b) "" pairList
+    subInTplt _ _ = error "subInTplt: not a Tplt"
 
   -- insert
     insStr :: String -> Mindmap -> Mindmap
@@ -175,7 +180,7 @@
       t <- relTpltAt g rn
       tpltArity t
 
-    tpltArity :: (MonadError String m) => Expr -> m Arity
+    tpltArity :: (MonadError String m) => Expr -> m Arity -- todo ? no MonadError
     tpltArity e = case e of Tplt ss -> return $ length ss - 1
                             _       -> throwError "tpltArity: Expr not a Tplt."
 
