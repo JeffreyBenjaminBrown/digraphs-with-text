@@ -17,7 +17,7 @@
 --      , NodeSpec(..), RelSpec
 --      , splitStringForTplt, stringToTplt, subInTplt -- Tplt
 --      , insStr, insTplt, insRel, insRelUsf, insColl -- build Mindmap
---      , chNonUserAt, chNonUserAtUsf, chMbr -- edit Mindmap
+--      , chNonUserAt, chNonUserAtUsf, chRelMbr -- edit Mindmap
 --      -- query Mindmap
 --        -- minor
 --          , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl, isLikeExpr
@@ -140,12 +140,16 @@
     chNonUserAtUsf g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'
 
-    chMbr :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
-    chMbr g user newMbr role = do
+    chRelMbr :: (MonadError String m) => 
+      Mindmap -> Node -> Node -> Role -> m Mindmap
+    chRelMbr g user newMbr role = do
       isRel g user
       gelemM g newMbr
-      let oldMbr = head [n | (n,lab) <- lsuc g user, lab == role]
-        -- todo ? head is unsafe
+      let candidates = [n | (n,lab) <- lsuc g user, lab == role]
+      if length candidates /= 1
+        then throwError "chRelMbr: invalid graph state, or RelPos out of range"
+        else return ()
+      let oldMbr = head candidates
       return $ delLEdge (user,oldMbr,role)
              $ insEdge (user,newMbr,role) g
 

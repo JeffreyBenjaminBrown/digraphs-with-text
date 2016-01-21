@@ -121,11 +121,13 @@
         isLeft $ chNonUserAt g1 4  $ stringToTplt "_ is _" -- LNode 4 is a Str
 
     tChMbr = TestCase $ do
-      let gDogDog = fromRight $ chMbr g1 5 0 (RelMbr 2)
+      let gDogDog = fromRight $ chRelMbr g1 5 0 (RelMbr 2)
+      let gImpossible         = chRelMbr g1 5 0 (RelMbr 99) -- 99 is too high
       assertBool "1" $ showExpr Map.empty gDogDog 5 
                        == "5:1 \171\&0: dog\187 wants \171\&0: dog\187"
         -- (\& == empty string) is to distinguish from longer number
         -- if special char followed by a non-digit, no \& necessary
+      assertBool "RelPos out of range" $ isLeft gImpossible
 
   -- ask, minor
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM
