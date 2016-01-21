@@ -81,7 +81,7 @@
         == "man wants peace"
 
     tInsert = TestCase $ do
-      assertBool "stringToTplt (and thereby splitTpltStr), insRelUsf, insStr, insTplt" $ g1 == g1'
+      assertBool "stringToTplt (and thereby splitStringForTplt), insRelUsf, insStr, insTplt" $ g1 == g1'
 
     tInsRelM = TestCase $ do
       assertBool "1" $ (insRel 2 [0,0] g1 :: Either String Mindmap)

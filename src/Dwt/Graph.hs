@@ -13,7 +13,7 @@
       ( module Data.Graph.Inductive
       , Arity, RelPos, Expr(..), Role(..), Mindmap
       , NodeSpec(..), RelSpec
-      , splitTpltStr, stringToTplt, subInTplt -- Tplt
+      , splitStringForTplt, stringToTplt, subInTplt -- Tplt
       , insStr, insTplt, insRel, insColl -- build Mindmap
       , chNonRelAt, chMbr -- edit Mindmap
       -- query Mindmap
@@ -68,15 +68,15 @@
 
 -- build
   -- Tplt <-> String
-    splitTpltStr :: String -> [String]
-    splitTpltStr t = map unpack $ splitOn (pack "_") (pack t)
+    splitStringForTplt :: String -> [String]
+    splitStringForTplt t = map unpack $ splitOn (pack "_") (pack t)
 
     stringToTplt :: String -> Expr
     stringToTplt s = Tplt (length ss-1) ss -- even length=0 works
-      where ss = splitTpltStr s
+      where ss = splitStringForTplt s
 
     stringToTplt' :: String -> Expr'
-    stringToTplt' = Tplt' . splitTpltStr -- even length=0 works
+    stringToTplt' = Tplt' . splitStringForTplt -- even length=0 works
 
     subInTplt :: Expr -> [String] -> String
     subInTplt (Tplt _ ts) ss = let pairList = zip ts $ ss ++ [""] 
