@@ -43,6 +43,19 @@
       -- k more connect it to each of its k RelMbrs (relationship members)
     -- data/minmalGraph.hs demonstrates these types (over like 20 lines)
 
+    type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
+    type Arity = Int
+
+    -- REPLACING second with first
+    type Mindmap' = Gr Expr Role
+    data Role' = RelTplt' | RelMbr' RelPos | CollMbr'
+      deriving (Show,Read,Eq,Ord)
+    data Expr' = Str' String
+              | Tplt' [String]
+              | Rel'
+              | Coll' String
+      deriving (Show,Read,Eq,Ord)
+
     type Mindmap = Gr Expr Role
     data Role = RelTplt | RelMbr RelPos | CollMbr
       deriving (Show,Read,Eq,Ord)
@@ -51,8 +64,6 @@
               | Rel Arity -- TODO ? deduce Arity from the associated Tplt
               | Coll String
       deriving (Show,Read,Eq,Ord)
-    type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
-    type Arity = Int
 
     data NodeSpec = It | Any | NodeSpec Node deriving (Show,Eq)
     type RelSpec = Map.Map Role NodeSpec -- TODO: Role should not be ColMbr
