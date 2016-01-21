@@ -30,7 +30,7 @@
           , parseId, mmTimeToTime -- helpers
           , tagToKeep, readMmNLab, mlArrowDestMe -- MlTag -> _
           , mmToMlTags, collapseRich -- file -> [MlTag]
-          , dwtSpec, dwtSpec' -- dwtSpec :: [MlTag] -> Either String DwtSpec
+          , dwtSpec, _dwtSpec -- dwtSpec :: [MlTag] -> Either String DwtSpec
       -- DwtSpec -> _
         , frameNodes, edgeNode, frameSansStyles, firstStyleNode
         , styles, frameOrphanStyles, frame, loadNodes, loadEdges
@@ -222,7 +222,7 @@
       let relevantTags = filter (flip elem ["node","arrowlink"] . title) tags
       in do rootLab <- readMmNLab $ head relevantTags
             -- Assumes first tag is a node. It can't be an arrow.
-            dwtSpec' (S [mmId rootLab] Nothing Nothing)
+            _dwtSpec (S [mmId rootLab] Nothing Nothing)
                      (tail relevantTags)
                      ([rootLab], [])
 
@@ -233,17 +233,17 @@
       -- for ThenReadEdges: keep track of what, in the last call, 
         -- the nearest ancestor was. If it is unchanged, then
         -- make a ThenReadEdge from the previous node to this one.
-    dwtSpec' :: SpecMakerState ->
+    _dwtSpec :: SpecMakerState ->
                 [MlTag] -> -- the .mm file data, being transferred to the DwtSpec
                 DwtSpec -> -- this accretes the result
                 Either String DwtSpec -- the result
-    dwtSpec' (S [] _ _) [] spec = Right spec
-    dwtSpec' _          [] spec = Left "ran out of MmTags but not ancestors."
-    dwtSpec' (S as mpn mpp)
+    _dwtSpec (S [] _ _) [] spec = Right spec
+    _dwtSpec _          [] spec = Left "ran out of MmTags but not ancestors."
+    _dwtSpec (S as mpn mpp)
              (t:ts)
              spec@(nLabs,lEdges) = case title t of
       "node" -> case isStart t of
-        False -> dwtSpec' (S (tail as) mpn mpp) ts spec
+        False -> _dwtSpec (S (tail as) mpn mpp) ts spec
         True -> do
           newNLab <- readMmNLab t
           let newNode = mmId newNLab
@@ -254,11 +254,11 @@
                 else [treeEdge]
               newSpec = (newNLab : nLabs, newEdges ++ lEdges)
               newAncestors = if isEnd t then as else (newNode : as)
-          dwtSpec' (S newAncestors (Just newNode) $ Just parent ) ts newSpec
+          _dwtSpec (S newAncestors (Just newNode) $ Just parent ) ts newSpec
       "arrowlink" -> do
         dest <- mlArrowDestMe t
         let arrowEdge = (head as, dest, ArrowEdge)
-        dwtSpec' (S as mpn mpp) ts (nLabs, arrowEdge:lEdges)
+        _dwtSpec (S as mpn mpp) ts (nLabs, arrowEdge:lEdges)
       _ -> Left "MmTag neither a node nor an arrow"
       where parent = head as
 
