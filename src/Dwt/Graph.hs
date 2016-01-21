@@ -24,7 +24,7 @@
 --          , tpltAt, relTpltAt, tpltArity, nodesMatchTplt
 --        -- .. -> [Node]
 --          , users, specUsers, specUsersUsf
---          , redundancySubs, matchRel
+--          , redundancySubs, matchRelUsf
 --      ) 
     where
 
@@ -126,7 +126,7 @@
   -- edit
     chNonUserAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
       -- Strs and Tplts are used but are not users. (Rels and Colls use them.)
-    chNonUserAt g n e' = do -- todo? absorb def of chNonUserAtUsf.
+    chNonUserAt g n e' = do
       let me = lab g n
       let mismatch = throwError $ "chNonUserAt: constructor mismatch"
       case me of
@@ -239,8 +239,8 @@
       . Map.filter (\nspec -> case nspec of NodeSpec n -> True; _ -> False)
 
     -- TODO: use specUsers (the safe version)
-    matchRel :: Graph gr => gr a Role -> RelSpec -> [Node]
-    matchRel g = listIntersect 
+    matchRelUsf :: Graph gr => gr a Role -> RelSpec -> [Node]
+    matchRelUsf g = listIntersect 
       . map (\(r,NodeSpec n) -> specUsersUsf g n r)
       . Map.toList
       . Map.filter (\ns -> case ns of NodeSpec n -> True; _ -> False) 

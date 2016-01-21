@@ -25,11 +25,11 @@
 
   -- how I found that (Nodes obsolete, method still valid)
     length $ nodes g
-    matchRel g [Just 32,Nothing,Just 400]
+    matchRelUsf g [Just 32,Nothing,Just 400]
     showExpr g 1583
-    matchRel g [Just 32,Nothing,Just 584]
+    matchRelUsf g [Just 32,Nothing,Just 584]
     showExpr g 1600
-    matchRel g [Just 32,Nothing,Just 274]
+    matchRelUsf g [Just 32,Nothing,Just 274]
     showExpr g 1753
     -- now I know the root Node is 763
     view g $ pre g 763 -- lets see every Rel involving the root
@@ -44,4 +44,4 @@
     -- rels: 24
       -- problem ? does not include 29 (.mm/) and 30 (.mm~).
 
-    matchRel g [Just 22,Nothing,Nothing] -- number of Exprs with nonstandard font
+    matchRelUsf g [j 22,n,n] -- Exprs with nonstandard font
