@@ -261,19 +261,19 @@
 -- DwtSpec -> _
   -- WARNING: The Nodes of these functions are interdependent.
     frameNodes' :: Mindmap -- no styles and no edges in this one
-    frameNodes' = mkGraph [ (0, Str' "root|this graph")
-                           , (1, Str' ".system")
-                             , (2, Str' ".mm rels")
-                               , (3, stringToTplt' "_ .mm/ _")
-                               , (4, stringToTplt' "_ .mm~ _")
-                             , (5, Str' "times")
-                               , (6, stringToTplt' "_ was created on _")
-                               , (7, stringToTplt' "_ was last modified on _")
-                             , (8, Str' "styles") 
-                           , (9, Str' "rels")
-                             , (10, stringToTplt' "_ instance/ _")
-                             , (11, stringToTplt' "_ uses font-> _")
-                             , (12, stringToTplt' "_ then read-> _")
+    frameNodes' = mkGraph [ (0, Str "root|this graph")
+                           , (1, Str ".system")
+                             , (2, Str ".mm rels")
+                               , (3, stringToTplt "_ .mm/ _")
+                               , (4, stringToTplt "_ .mm~ _")
+                             , (5, Str "times")
+                               , (6, stringToTplt "_ was created on _")
+                               , (7, stringToTplt "_ was last modified on _")
+                             , (8, Str "styles") 
+                           , (9, Str "rels")
+                             , (10, stringToTplt "_ instance/ _")
+                             , (11, stringToTplt "_ uses font-> _")
+                             , (12, stringToTplt "_ then read-> _")
                          ] []
 
     -- the frame is later negated, so here I negate all Nodes referring to it
@@ -302,13 +302,13 @@
 
     frameOrphanStyles' :: DwtSpec -> DwtFrame'
     frameOrphanStyles' spec = let ss = styles spec
-      in ( negateGraph $ foldl (\mm font -> insStr' font mm) frameSansStyles' ss
+      in ( negateGraph $ foldl (\mm font -> insStr font mm) frameSansStyles' ss
          , Map.fromList $ zip (styles spec) 
                               [firstStyleNode, firstStyleNode-1 ..]
          )
 
     frame' :: (MonadError String me) => DwtFrame' -> me DwtFrame'
-    frame' (mm, mp) = do mm' <- foldM (\mm n -> insRel' (instanceNode) 
+    frame' (mm, mp) = do mm' <- foldM (\mm n -> insRel (instanceNode) 
                                                         [stylesNode, n] mm)
                                         -- n is already negative
                                       mm (Map.elems mp)
@@ -316,8 +316,8 @@
 
     loadNodes' :: (MonadError String me) => (DwtSpec, DwtFrame') -> me Mindmap
     loadNodes' ( (ns,_), (mm, mp) ) =
-      let noded = foldl (\mm n -> insNode (mmId n, Str' $ text n) mm) mm ns
-      in foldM (\mm n -> insRel' (usesFontNode) 
+      let noded = foldl (\mm n -> insNode (mmId n, Str $ text n) mm) mm ns
+      in foldM (\mm n -> insRel (usesFontNode) 
                                  [ mmId n
                                  , (Map.!) mp $ Mb.fromJust $ style n
                                  ] mm)
@@ -326,7 +326,7 @@
     -- todo: connect imported graph's root to frame's root
     loadEdges' :: (MonadError String me) => DwtSpec -> Mindmap -> me Mindmap
     loadEdges' (_,es) mm = foldM (\mm (from,to,kind)
-                                   -> insRel' (edgeNode kind) [from,to] mm
+                                   -> insRel (edgeNode kind) [from,to] mm
                                  ) mm es
 
 -- the final product
