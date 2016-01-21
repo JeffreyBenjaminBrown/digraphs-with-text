@@ -21,8 +21,8 @@
           , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl
           , tpltAt, relTpltAt, tpltArity, nodesMatchTplt
         -- .. -> [Node]
-          , users, specUsersUsf', specUsersUsf, specUsers
-          , redundancySubs, matchRel', matchRel
+          , users, specUsersUsf, specUsersUsfOld, specUsers
+          , redundancySubs, matchRel, matchRelOld
       , insRelUsf, chNonRelAtUsf -- unsafe, duplicates
       ) where
 
@@ -251,19 +251,19 @@
                    return [m | (m,label) <- lpre g n]
 
     -- MAYBE REPLACING second with first
-    specUsersUsf' :: Mindmap -> Node -> Role -> [Node]
-    specUsersUsf' g n r = -- all Rels using Node n in Role r
+    specUsersUsf :: Mindmap -> Node -> Role -> [Node]
+    specUsersUsf g n r = -- all Rels using Node n in Role r
       [m | (m,r') <- lpre g n, r==r']
 
-    specUsersUsf :: Mindmap -> Arity -> Node -> Role -> [Node]
-    specUsersUsf g k n r = -- all k-ary Rels using Node n in Role r
+    specUsersUsfOld :: Mindmap -> Arity -> Node -> Role -> [Node]
+    specUsersUsfOld g k n r = -- all k-ary Rels using Node n in Role r
       [m | (m,r') <- lpre g n, r'==r, lab g m == (Just $ Rel k)]
 
     specUsers :: (MonadError String m) =>
       Mindmap -> Arity -> Node -> Role -> m [Node]
     specUsers g k n r = do -- all k-ary Rels using Node n in Role r
       gelemM g n
-      return $ specUsersUsf g k n r
+      return $ specUsersUsfOld g k n r
 
     redundancySubs :: [Maybe Node] -> Map.Map Node String
     redundancySubs mns = Map.fromList 
@@ -271,20 +271,19 @@
 
     matchRel :: Mindmap -> RelSpec -> [Node]
     matchRel g spec = listIntersect 
-      $ map (\(r,NodeSpec n) -> specUsersUsf' g n r)
+      $ map (\(r,NodeSpec n) -> specUsersUsf g n r)
       $ Map.toList
       $ Map.filter (\ns -> case ns of NodeSpec n -> True; _ -> False) 
                    spec
 
 -- deprecating
-  -- matchRel is better
-    matchRel' :: Mindmap -> [Maybe Node] -> [Node]
-    matchRel' g mns = listIntersect $ map f jns
+    matchRelOld :: Mindmap -> [Maybe Node] -> [Node]
+    matchRelOld g mns = listIntersect $ map f jns
       where arity = length mns - 1
             jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, RelPos)]
               -- kind of cheating; using RelPos 0 for RelTplt
-            f (Just n, 0) = specUsersUsf g arity n RelTplt
-            f (Just n, k) = specUsersUsf g arity n (RelMbr k)
+            f (Just n, 0) = specUsersUsfOld g arity n RelTplt
+            f (Just n, k) = specUsersUsfOld g arity n (RelMbr k)
 
   -- non-monadic, unsafe, duplicate functions (used elsewhere)
     insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap

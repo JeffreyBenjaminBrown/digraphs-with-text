@@ -71,7 +71,7 @@
 
     -- TODO: make vm, like vm' but using matchRel, not matchRel'
     vm' :: Mindmap -> [Maybe Node] -> IO () -- view match
-    vm' g mns = viewS (redundancySubs mns) g (matchRel' g mns)
+    vm' g mns = viewS (redundancySubs mns) g (matchRelOld g mns)
 
     va :: Mindmap -> Node -> IO () -- view all rels
     va g n = viewS (Map.fromList [(n,show n)]) g $ pre g n
