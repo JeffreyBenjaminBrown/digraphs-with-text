@@ -2,7 +2,7 @@
     module Dwt.Util
       ( listIntersect
       , negateGraph, compressGraph -- for graphs
-      , mapLookupMe, eitherToMe -- for monads
+      , mapLookupMe, eitherToMe, fromRight -- for monads
       ) where
 
     import Data.Graph.Inductive
@@ -41,3 +41,7 @@
       (a -> Either e t) -> a -> me t
     eitherToMe f x = case f x of Right y -> return y
                                  Left e -> throwError $ show e
+
+    fromRight :: Either a b -> b
+    fromRight (Right r) = r
+    fromRight _ = error "fromRight applied to Left"

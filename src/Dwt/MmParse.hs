@@ -377,10 +377,6 @@
       return $ compressGraph $ fromRight $ loadEdges spec fWithNodes
 
 -- deprecating: unsafe functions
-    fromRight :: Either a b -> b
-    fromRight (Right b) = b
-    fromRight (Left _) = error "fromRight: Left"
-
     mlArrowDestUsf :: MlTag -> Either ParseError Node
     mlArrowDestUsf t = parseId $ mlMap t Map.! "DESTINATION"
 

@@ -361,6 +361,21 @@
             g' =                insEdge (newNode, t, RelTplt)
                               $ insNode (newNode, Rel ti) g
 
+    insRelUsf' :: Node -> [Node] -> Mindmap' -> Mindmap'
+    insRelUsf' t ns g = if ta /= length ns -- t is tplt, otherwise like ns
+        then error "insRelUsf: Tplt Arity /= number of members Nodes."
+        else if any (==False) $ map (flip gelem g) $ (t:ns)
+          then error "insRelUsf: One of those Nodes is not in the Mindmap." 
+        else f (zip ns [1..ta]) g'
+      where te@(Tplt' ts) = fromJust $ lab g t -- can also error:
+              -- by finding Str or Rel where expected Tplt
+            ta = fromRight $ tpltArity' te
+            newNode = head $ newNodes 1 g
+            f []     g = g
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
+            g' =                insEdge (newNode, t, RelTplt)
+                              $ insNode (newNode, Rel') g
+
     chNonRelAtUsf :: Mindmap -> Node -> Expr -> Mindmap
     chNonRelAtUsf g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'
