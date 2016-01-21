@@ -23,7 +23,7 @@
 --          , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl, isLikeExpr
 --          , tpltAt, relTpltAt, tpltArity, nodesMatchTplt
 --        -- .. -> [Node]
---          , users, specUsersUsf, specUsersUsfOld, specUsers
+--          , users, specUsers, specUsersUsf
 --          , redundancySubs, matchRel
 --      ) 
     where
@@ -223,20 +223,14 @@
     users g n = do gelemM g n
                    return [m | (m,label) <- lpre g n]
 
-    specUsers :: (MonadError String m) =>
-      Mindmap -> Node -> Role -> m [Node]
-    specUsers g n r = do -- Rels (of any Arity) using Node n in Role r
+    -- Rels using Node n in Role r
+    specUsers :: (MonadError String m) => Mindmap -> Node -> Role -> m [Node]
+    specUsers g n r = do
       gelemM g n
-      specUsersUsfOld g n r
+      return $ specUsersUsf g n r
 
     specUsersUsf :: (Graph gr) => gr a Role -> Node -> Role -> [Node]
-    specUsersUsf g n r = -- Rels using Node n in Role r
-      [m | (m,r') <- lpre g n, r==r']
-
-    specUsersUsfOld :: (MonadError String m) => 
-      Mindmap -> Node -> Role -> m [Node]
-    specUsersUsfOld g n r = do -- Rels (of any Arity) using Node n in Role r
-      return [m | (m,r') <- lpre g n, r'==r, lab g m == (Just $ Rel)]
+    specUsersUsf g n r = [m | (m,r') <- lpre g n, r==r']
 
     redundancySubs :: RelSpec -> Map.Map Node String
     redundancySubs m = Map.fromList $
