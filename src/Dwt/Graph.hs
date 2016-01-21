@@ -168,14 +168,26 @@
     isStr :: (MonadError String m) => Mindmap -> Node -> m Bool
     isStr = _isExprConstructor (\x -> case x of Str _ -> True; _ -> False)
 
+    isStr' :: (MonadError String m) => Mindmap' -> Node -> m Bool
+    isStr' = _isExprConstructor (\x -> case x of Str' _ -> True; _ -> False)
+
     isTplt :: (MonadError String m) => Mindmap -> Node -> m Bool
     isTplt = _isExprConstructor (\x -> case x of Tplt _ _ -> True; _ -> False)
+
+    isTplt' :: (MonadError String m) => Mindmap' -> Node -> m Bool
+    isTplt' = _isExprConstructor (\x -> case x of Tplt' _ -> True; _ -> False)
 
     isRel :: (MonadError String m) => Mindmap -> Node -> m Bool
     isRel = _isExprConstructor (\x -> case x of Rel _ -> True; _ -> False)
 
+    isRel' :: (MonadError String m) => Mindmap' -> Node -> m Bool
+    isRel' = _isExprConstructor (\x -> case x of Rel' -> True; _ -> False)
+
     isColl :: (MonadError String m) => Mindmap -> Node -> m Bool
     isColl = _isExprConstructor (\x -> case x of Coll _ -> True; _ -> False)
+
+    isColl' :: (MonadError String m) => Mindmap' -> Node -> m Bool
+    isColl' = _isExprConstructor (\x -> case x of Coll' _ -> True; _ -> False)
 
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
     tpltAt g tn = case lab g tn of -- todo ? rewrite using isTplt
@@ -199,6 +211,16 @@
             -- but is only unsafe if graph takes an invalid state
             -- because each Rel should have exactly one Tplt
 
+    relTpltAt' :: (MonadError String m) => Mindmap' -> Node -> m Expr'
+    relTpltAt' g rn = do
+      ir <-isRel' g rn
+      if not ir
+        then throwError $ "relTpltAt: LNode " ++ show rn ++ " not a Rel."
+        else return $ fromJust $ lab g 
+          $ head [n | (n,RelTplt) <- lsuc g rn] -- todo ? head unsafe
+            -- but is only unsafe if graph takes an invalid state
+            -- because each Rel should have exactly one Tplt
+
     tpltArity :: (MonadError String m) => Expr -> m Arity
     tpltArity e = case e of Tplt a _ -> return a
                             _        -> throwError "tpltArity: Expr not a Tplt."
@@ -210,6 +232,15 @@
     nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m () -- todo:test
     nodesMatchTplt ns e = case e of
       Tplt k _ -> if k /= length ns 
+        then throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes."
+        else return ()
+      _ -> throwError "nodesMatchTplt: Expr not a Tplt."
+
+    nodesMatchTplt' :: (MonadError String m) => [Node] -> Expr' -> m ()
+    nodesMatchTplt' ns e = case e of -- TODO ! test
+      Tplt' _ -> do
+        a <- tpltArity' e
+        if a /= length ns
         then throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes."
         else return ()
       _ -> throwError "nodesMatchTplt: Expr not a Tplt."
