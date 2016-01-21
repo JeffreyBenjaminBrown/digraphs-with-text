@@ -20,7 +20,7 @@
 --      , chNonUserAt, chMbr -- edit Mindmap
 --      -- query Mindmap
 --        -- minor
---          , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl
+--          , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl, isLikeExpr
 --          , tpltAt, relTpltAt, tpltArity, nodesMatchTplt
 --        -- .. -> [Node]
 --          , users, specUsersUsf, specUsersUsfOld, specUsers
@@ -112,10 +112,15 @@
   -- edit
     chNonUserAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
       -- Strs and Tplts are used but are not users. (Rels and Colls use them.)
-    chNonUserAt g n e = do -- todo? absorb def of chNonUserAtUsf.
-      -- todo ? verify e is Tplt or Str, and that it matches the label of n in g
-      gelemM g n
-      return $ chNonUserAtUsf g n e
+    chNonUserAt g n e' = do -- todo? absorb def of chNonUserAtUsf.
+      let me = lab g n
+      let bork = throwError $ "chNonUserAt: constructor mismatch"
+      case me of
+        Just e@(Str _)  -> if isLikeExpr e e' then return () else bork
+        Just e@(Tplt _) -> if isLikeExpr e e' then return () else bork
+        Nothing -> throwError $ "chNonUserAt: Node " ++ show n ++ " absent."
+        _       -> throwError $ "chNonUserAt: Node " ++ show n ++ " is a user."
+      return $ chNonUserAtUsf g n e'
 
     chMbr :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
     chMbr g user newMbr role = do
@@ -158,6 +163,13 @@
 
     isColl :: (MonadError String m) => Mindmap -> Node -> m Bool
     isColl = _isExprConstructor (\x -> case x of Coll _ -> True; _ -> False)
+
+    isLikeExpr :: Expr -> Expr -> Bool
+    isLikeExpr e f = case e of
+      Str _  ->  case f of Str _  -> True;  _ -> False
+      Tplt _ ->  case f of Tplt _ -> True;  _ -> False
+      Rel    ->  case f of Rel    -> True;  _ -> False
+      Coll _ ->  case f of Coll _ -> True;  _ -> False
 
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
     tpltAt g tn = case lab g tn of -- todo ? rewrite using isTplt
