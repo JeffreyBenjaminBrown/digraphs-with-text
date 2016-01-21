@@ -107,7 +107,7 @@
           && (length $ edges g1) + 3 == (length $ edges gg)
 
     tChNonRelAt = TestCase $ do
-      let gCat = fromRight $ chNonRelAt g1 0 $ Str "cat"
+      let gCat = fromRight $ chNonUserAt g1 0 $ Str "cat"
       assertBool "1" $ Str "cat" == (lab' $ fromJust $ fst $ match 0 $ gCat)
 
     tChMbr = TestCase $ do

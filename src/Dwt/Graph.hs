@@ -17,7 +17,7 @@
 --      , NodeSpec(..), RelSpec
 --      , splitStringForTplt, stringToTplt, subInTplt -- Tplt
 --      , insStr, insTplt, insRel, insColl -- build Mindmap
---      , chNonRelAt, chMbr -- edit Mindmap
+--      , chNonUserAt, chMbr -- edit Mindmap
 --      -- query Mindmap
 --        -- minor
 --          , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl
@@ -25,7 +25,7 @@
 --        -- .. -> [Node]
 --          , users, specUsersUsf, specUsersUsfOld, specUsers
 --          , redundancySubs, matchRel
---      , insRelUsf, chNonRelAtUsf -- unsafe, duplicates
+--      , insRelUsf, chNonUserAtUsf -- unsafe, duplicates
 --      ) 
     where
 
@@ -95,13 +95,12 @@
          t <- tpltAt g tn
          let a = tpltArity t
          nodesMatchTplt ns t
-         return $ let 
-             newNode = head $ newNodes 1 g
-             f []     g = g
-             f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
-             g' =                insEdge (newNode, tn, RelTplt)
-                               $ insNode (newNode, Rel) g
-           in f (zip ns [1..a]) g'
+         return $ f (zip ns [1..a]) g'
+      where newNode = head $ newNodes 1 g
+            f []     g = g
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
+            g' =                insEdge (newNode, tn, RelTplt)
+                              $ insNode (newNode, Rel) g
 
     insColl :: (MonadError String m) => String -> [Node] -> Mindmap -> m Mindmap
     insColl prefix ns g = do
@@ -111,11 +110,12 @@
       return $ insEdges newEdges $ insNode (newNode,Coll prefix) g
 
   -- edit
-    chNonRelAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
-    chNonRelAt g n e = do -- todo? absorb def of chNonRelAtUsf.
+    chNonUserAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
+      -- Strs and Tplts are used but are not users. (Rels and Colls use them.)
+    chNonUserAt g n e = do -- todo? absorb def of chNonUserAtUsf.
       -- todo ? verify e is Tplt or Str, and that it matches the label of n in g
       gelemM g n
-      return $ chNonRelAtUsf g n e
+      return $ chNonUserAtUsf g n e
 
     chMbr :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
     chMbr g user newMbr role = do
@@ -174,11 +174,6 @@
           $ head [n | (n,RelTplt) <- lsuc g rn] -- todo ? head unsafe
             -- but is only unsafe if graph takes an invalid state
             -- because each Rel should have exactly one Tplt
-
-    relTpltArity :: (MonadError String m) => Mindmap -> Node -> m Arity
-    relTpltArity g rn = do
-      t <- relTpltAt g rn
-      return $ tpltArity t
 
     tpltArity :: Expr -> Arity
     tpltArity e = case e of Tplt ss -> length ss - 1
@@ -242,6 +237,6 @@
             g' =                insEdge (newNode, t, RelTplt)
                               $ insNode (newNode, Rel) g
 
-    chNonRelAtUsf :: Mindmap -> Node -> Expr -> Mindmap
-    chNonRelAtUsf g n e = let (Just (a,b,c,d),g') = match n g
+    chNonUserAtUsf :: Mindmap -> Node -> Expr -> Mindmap
+    chNonUserAtUsf g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'
