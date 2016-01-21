@@ -11,20 +11,23 @@
 
     module Dwt.Graph
       ( module Data.Graph.Inductive
-      , Arity, RelPos, Expr(..), Role(..), Mindmap
-      , NodeSpec(..), RelSpec
-      , splitStringForTplt, stringToTplt, subInTplt -- Tplt
-      , insStr, insTplt, insRel, insColl -- build Mindmap
-      , chNonRelAt, chMbr -- edit Mindmap
-      -- query Mindmap
-        -- minor
-          , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl
-          , tpltAt, relTpltAt, tpltArity, nodesMatchTplt
-        -- .. -> [Node]
-          , users, specUsersUsf, specUsersUsfOld, specUsers
-          , redundancySubs, matchRel, matchRelOld
-      , insRelUsf, chNonRelAtUsf -- unsafe, duplicates
-      ) where
+      , module Dwt.Graph
+      )
+--      , Arity, RelPos, Expr(..), Role(..), Mindmap
+--      , NodeSpec(..), RelSpec
+--      , splitStringForTplt, stringToTplt, subInTplt -- Tplt
+--      , insStr, insTplt, insRel, insColl -- build Mindmap
+--      , chNonRelAt, chMbr -- edit Mindmap
+--      -- query Mindmap
+--        -- minor
+--          , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl
+--          , tpltAt, relTpltAt, tpltArity, nodesMatchTplt
+--        -- .. -> [Node]
+--          , users, specUsersUsf, specUsersUsfOld, specUsers
+--          , redundancySubs, matchRel, matchRelOld
+--      , insRelUsf, chNonRelAtUsf -- unsafe, duplicates
+--      ) 
+    where
 
     import Dwt.Util
     import Data.Graph.Inductive
