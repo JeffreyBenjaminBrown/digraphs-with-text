@@ -88,7 +88,7 @@
     insRel tn ns g =
       do mapM_ (gelemM g) $ tn:ns
          t <- tpltAt g tn
-         a <- tpltArity' t
+         a <- tpltArity t
          nodesMatchTplt ns t
          return $ let 
              newNode = head $ newNodes 1 g
@@ -110,7 +110,7 @@
     chNonRelAt g n e = do -- todo? absorb def of chNonRelAtUsf.
       -- todo ? verify e is Tplt or Str, and that it matches the label of n in g
       gelemM g n
-      return $ chNonRelAtUsf' g n e
+      return $ chNonRelAtUsf g n e
 
     chMbr' :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
     chMbr' g user newMbr role = do
@@ -173,16 +173,16 @@
     relTpltArity :: (MonadError String m) => Mindmap -> Node -> m Arity
     relTpltArity g rn = do
       t <- relTpltAt g rn
-      tpltArity' t
+      tpltArity t
 
-    tpltArity' :: (MonadError String m) => Expr -> m Arity
-    tpltArity' e = case e of Tplt ss -> return $ length ss - 1
-                             _      -> throwError "tpltArity: Expr not a Tplt."
+    tpltArity :: (MonadError String m) => Expr -> m Arity
+    tpltArity e = case e of Tplt ss -> return $ length ss - 1
+                            _       -> throwError "tpltArity: Expr not a Tplt."
 
     nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m ()
     nodesMatchTplt ns e = case e of -- TODO ! test
       Tplt _ -> do
-        a <- tpltArity' e
+        a <- tpltArity e
         if a /= length ns
         then throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes."
         else return ()
@@ -198,16 +198,16 @@
     specUsersUsf g n r = -- Rels using Node n in Role r
       [m | (m,r') <- lpre g n, r==r']
 
-    specUsersUsfOld' :: (MonadError String m) => 
+    specUsersUsfOld :: (MonadError String m) => 
       Mindmap -> Node -> Role -> m [Node]
-    specUsersUsfOld' g n r = do -- Rels (of any Arity) using Node n in Role r
+    specUsersUsfOld g n r = do -- Rels (of any Arity) using Node n in Role r
       return [m | (m,r') <- lpre g n, r'==r, lab g m == (Just $ Rel)]
 
-    specUsers' :: (MonadError String m) =>
+    specUsers :: (MonadError String m) =>
       Mindmap -> Node -> Role -> m [Node]
-    specUsers' g n r = do -- Rels (of any Arity) using Node n in Role r
+    specUsers g n r = do -- Rels (of any Arity) using Node n in Role r
       gelemM g n
-      specUsersUsfOld' g n r
+      specUsersUsfOld g n r
 
     redundancySubs' :: RelSpec -> Map.Map Node String
     redundancySubs' m = Map.fromList $
@@ -232,13 +232,13 @@
         else f (zip ns [1..ta]) g'
       where te@(Tplt ts) = fromJust $ lab g t -- can also error:
               -- by finding Str or Rel where expected Tplt
-            ta = fromRight $ tpltArity' te
+            ta = fromRight $ tpltArity te
             newNode = head $ newNodes 1 g
             f []     g = g
             f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
             g' =                insEdge (newNode, t, RelTplt)
                               $ insNode (newNode, Rel) g
 
-    chNonRelAtUsf' :: Mindmap -> Node -> Expr -> Mindmap
-    chNonRelAtUsf' g n e = let (Just (a,b,c,d),g') = match n g
+    chNonRelAtUsf :: Mindmap -> Node -> Expr -> Mindmap
+    chNonRelAtUsf g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'

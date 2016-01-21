@@ -123,7 +123,7 @@
                          , TestLabel "tIsTplt" tIsTplt
                          , TestLabel "tTpltAt" tTpltAt
                          , TestLabel "tTpltForRelAt" tTpltForRelAt
-                         , TestLabel "tTpltArity'" tTpltArity' ]
+                         , TestLabel "tTpltArity" tTpltArity ]
 
     tGelemM = TestCase $ do
       assertBool "1" $ gelemM g1 0 == Right ()
@@ -149,18 +149,18 @@
       assertBool "not a Rel" $ isLeft $ relTpltAt g1 1
       assertBool "absent" $ isLeft $ relTpltAt g1 (-1)
 
-    tTpltArity' = TestCase $ do
+    tTpltArity = TestCase $ do
       assertBool "arity 0" $
-        tpltArity' (Tplt ["no args possible here"]) == Right 0
+        tpltArity (Tplt ["no args possible here"]) == Right 0
       assertBool "arity 1" $ 
-        tpltArity' (Tplt ["one arg","possible here"]) == Right 1
-      assertBool "Str is not Tplt" $ isLeft $ tpltArity' (Str "nog")
+        tpltArity (Tplt ["one arg","possible here"]) == Right 1
+      assertBool "Str is not Tplt" $ isLeft $ tpltArity (Str "nog")
       assertBool "Str is not Tplt, error message" $ 
-        tpltArity' (Str "rig") == Left "tpltArity: Expr not a Tplt."
+        tpltArity (Str "rig") == Left "tpltArity: Expr not a Tplt."
 
   -- ask [Node]
     tAskNodes = TestList [ TestLabel "tUsers" tUsers
-                         , TestLabel "tSpecUsers'" tSpecUsers'
+                         , TestLabel "tSpecUsers" tSpecUsers
                          , TestLabel "tMatchRel" tMatchRel
                          ]
 
@@ -168,8 +168,8 @@
       assertBool "1" $ users g1 0 == Right [5,6,8]
       assertBool "2" $ isLeft $ (users g1 100 :: Either String [Dwt.Node])
 
-    tSpecUsers' = TestCase $ do
-      assertBool "with Arity"    $ specUsers' g1 0 (RelMbr 1) == Right [5,6,8]
+    tSpecUsers = TestCase $ do
+      assertBool "with Arity"    $ specUsers g1 0 (RelMbr 1) == Right [5,6,8]
       assertBool "without Arity" $ specUsersUsf g1 0 (RelMbr 1) == [5,6,8]
 
     tMatchRel = TestCase $ do
@@ -256,13 +256,13 @@
              (read "2015-12-06 08:11:23 UTC") (read "2015-12-06 08:11:52 UTC")
 
 -- testing by hand
-    tFrame' = do 
+    tFrame = do 
       x <- mmToMlTags "data/root+22ish.mm" -- root+22ish because it needs styles
       let y = fromRight $ dwtSpec $ fromRight x
-        in return (frame' $ frameOrphanStyles' y :: Either String DwtFrame')
+        in return (frame $ frameOrphanStyles y :: Either String DwtFrame)
 
-    tLoadNodes' = do 
+    tLoadNodes = do 
       mls <- mmToMlTags "data/root+22ish.mm" -- again, needs styles
       let spec = fromRight $ dwtSpec $ fromRight mls
-          fr = frame' $ frameOrphanStyles' spec :: Either String DwtFrame'
-        in return $ (loadNodes' (spec, fromRight fr) :: Either String Mindmap)
+          fr = frame $ frameOrphanStyles spec :: Either String DwtFrame
+        in return $ (loadNodes (spec, fromRight fr) :: Either String Mindmap)

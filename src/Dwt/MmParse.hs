@@ -75,7 +75,7 @@
 
     type DwtSpec = ( [MmNLab], [(Node,Node,MmELab)] ) -- (nodes,edges)
 
-    type DwtFrame' = (Mindmap, Map.Map String Int)
+    type DwtFrame = (Mindmap, Map.Map String Int)
       -- TRICKY : the map is, I *believe*, from style strings to style nodes
         -- style strings being, e.g., "default" or "AutomaticLayout.level.root"
         -- and the mapped-to node being the one that represents that style
@@ -260,8 +260,8 @@
 
 -- DwtSpec -> _
   -- WARNING: The Nodes of these functions are interdependent.
-    frameNodes' :: Mindmap -- no styles and no edges in this one
-    frameNodes' = mkGraph [ (0, Str "root|this graph")
+    frameNodes :: Mindmap -- no styles and no edges in this one
+    frameNodes = mkGraph [ (0, Str "root|this graph")
                            , (1, Str ".system")
                              , (2, Str ".mm rels")
                                , (3, stringToTplt "_ .mm/ _")
@@ -286,13 +286,13 @@
     instanceNode = -10 :: Node
     usesFontNode = -11 :: Node
 
-    frameSansStyles' :: Mindmap
-    frameSansStyles' = conn [0,1] $ conn [0,9]
+    frameSansStyles :: Mindmap
+    frameSansStyles = conn [0,1] $ conn [0,9]
       $ conn [1,2] $ conn [1,5] $ conn [1,8]
       $ conn [2,3] $ conn [2,4]
       $ conn [5,6] $ conn [5,7]
       $ conn [9,10] $ conn [9,11] $ conn [9,12]
-      $ frameNodes' where conn = insRelUsf (-instanceNode)
+      $ frameNodes where conn = insRelUsf (-instanceNode)
 
     firstStyleNode = -25 :: Node -- because frameSansStyles has 24 Nodes
   -- </WARNING>
@@ -300,22 +300,22 @@
     styles :: DwtSpec -> [String]
     styles = L.nub . Mb.mapMaybe style . fst
 
-    frameOrphanStyles' :: DwtSpec -> DwtFrame'
-    frameOrphanStyles' spec = let ss = styles spec
-      in ( negateGraph $ foldl (\mm font -> insStr font mm) frameSansStyles' ss
+    frameOrphanStyles :: DwtSpec -> DwtFrame
+    frameOrphanStyles spec = let ss = styles spec
+      in ( negateGraph $ foldl (\mm font -> insStr font mm) frameSansStyles ss
          , Map.fromList $ zip (styles spec) 
                               [firstStyleNode, firstStyleNode-1 ..]
          )
 
-    frame' :: (MonadError String me) => DwtFrame' -> me DwtFrame'
-    frame' (mm, mp) = do mm' <- foldM (\mm n -> insRel (instanceNode) 
-                                                        [stylesNode, n] mm)
-                                        -- n is already negative
-                                      mm (Map.elems mp)
-                         return (mm',mp)
+    frame :: (MonadError String me) => DwtFrame -> me DwtFrame
+    frame (mm, mp) = do mm' <- foldM (\mm n -> insRel (instanceNode) 
+                                                      [stylesNode, n] mm)
+                                       -- n is already negative
+                                     mm (Map.elems mp)
+                        return (mm',mp)
 
-    loadNodes' :: (MonadError String me) => (DwtSpec, DwtFrame') -> me Mindmap
-    loadNodes' ( (ns,_), (mm, mp) ) =
+    loadNodes :: (MonadError String me) => (DwtSpec, DwtFrame) -> me Mindmap
+    loadNodes ( (ns,_), (mm, mp) ) =
       let noded = foldl (\mm n -> insNode (mmId n, Str $ text n) mm) mm ns
       in foldM (\mm n -> insRel (usesFontNode) 
                                  [ mmId n
@@ -323,24 +323,24 @@
                                  ] mm)
                noded $ filter (Mb.isJust . style) ns
 
-    -- todo: connect imported graph's root to frame's root
-    loadEdges' :: (MonadError String me) => DwtSpec -> Mindmap -> me Mindmap
-    loadEdges' (_,es) mm = foldM (\mm (from,to,kind)
+    -- todo: connect imported graph's root to frames root
+    loadEdges :: (MonadError String me) => DwtSpec -> Mindmap -> me Mindmap
+    loadEdges (_,es) mm = foldM (\mm (from,to,kind)
                                    -> insRel (edgeNode kind) [from,to] mm
                                  ) mm es
 
 -- the final product
     -- WARNING: the file must have no hypertext tags
-    readMmFile' :: String -> IO Mindmap
-    readMmFile' s = do -- todo: work with the Either, do not fight it
+    readMmFile :: String -> IO Mindmap
+    readMmFile s = do -- todo: work with the Either, do not fight it
       mls <- mmToMlTags "untracked/data/agent.mm"
       let mls2 = collapseRich $ stripRichTags $ fromRight mls
         -- worrying: for a while stripRichTags was not being used
         -- and it seems to have no effect (based on a Unix diff command)
       let spec = fromRight $ dwtSpec mls2
-      let fr = frame' $ frameOrphanStyles' spec
-      let fWithNodes = fromRight $ loadNodes' (spec, fromRight fr)
-      return $ compressGraph $ fromRight $ loadEdges' spec fWithNodes
+      let fr = frame $ frameOrphanStyles spec
+      let fWithNodes = fromRight $ loadNodes (spec, fromRight fr)
+      return $ compressGraph $ fromRight $ loadEdges spec fWithNodes
 
 -- deprecating: unsafe functions
     mlArrowDestUsf :: MlTag -> Either ParseError Node
