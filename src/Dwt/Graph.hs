@@ -114,10 +114,10 @@
       -- Strs and Tplts are used but are not users. (Rels and Colls use them.)
     chNonUserAt g n e' = do -- todo? absorb def of chNonUserAtUsf.
       let me = lab g n
-      let bork = throwError $ "chNonUserAt: constructor mismatch"
+      let mismatch = throwError $ "chNonUserAt: constructor mismatch"
       case me of
-        Just e@(Str _)  -> if isLikeExpr e e' then return () else bork
-        Just e@(Tplt _) -> if isLikeExpr e e' then return () else bork
+        Just e@(Str _)  -> if isLikeExpr e e' then return () else mismatch
+        Just e@(Tplt _) -> if isLikeExpr e e' then return () else mismatch
         Nothing -> throwError $ "chNonUserAt: Node " ++ show n ++ " absent."
         _       -> throwError $ "chNonUserAt: Node " ++ show n ++ " is a user."
       return $ chNonUserAtUsf g n e'

@@ -108,7 +108,17 @@
 
     tChNonRelAt = TestCase $ do
       let gCat = fromRight $ chNonUserAt g1 0 $ Str "cat"
-      assertBool "1" $ Str "cat" == (lab' $ fromJust $ fst $ match 0 $ gCat)
+      let gUses = fromRight $ chNonUserAt g1 1 $ stringToTplt "_ uses _"
+      assertBool "change Str" $ 
+        Str "cat" == (lab' $ fromJust $ fst $ match 0 $ gCat)
+      assertBool "change Tplt" $ 
+        stringToTplt "_ uses _" == (lab' $ fromJust $ fst $ match 1 $ gUses)
+      assertBool "not in graph" $
+        isLeft $ chNonUserAt g1 15  $ stringToTplt "_ uses _"
+      assertBool "change Rel" $
+        isLeft $ chNonUserAt g1 11  $ Coll "moshke"
+      assertBool "constructor mismatch" $
+        isLeft $ chNonUserAt g1 4  $ stringToTplt "_ is _" -- LNode 4 is a Str
 
     tChMbr = TestCase $ do
       let gDogDog = fromRight $ chMbr g1 5 0 (RelMbr 2)
