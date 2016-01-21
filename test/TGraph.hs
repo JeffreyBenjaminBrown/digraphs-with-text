@@ -48,14 +48,6 @@
           -- [dog wants brandy] is dubious
       ]
 
-    g1Alt =   insRelUsf 9 [5,10] 
-          $ insStr "dubious"    $ insTplt "statement _ is _"
-          $ insRelUsf 7 [0,3,4]    $ insTplt "_ needs _ for _"
-          $ insRelUsf 2 [0,3]      $ insRelUsf 1 [0,4]
-          $ insStr "brandy"     $ insStr "water"
-          $ insTplt "_ needs _" $ insTplt "_ wants _"
-          $ insStr "dog"        $ empty :: Mindmap
-
     g1Alt' =   insRelUsf' 9 [5,10] 
           $ insStr'"dubious"     $ insTplt'"statement _ is _"
           $ insRelUsf' 7 [0,3,4] $ insTplt'"_ needs _ for _"
