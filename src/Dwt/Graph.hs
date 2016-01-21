@@ -324,6 +324,12 @@
     redundancySubs mns = Map.fromList 
       $ map (\n -> (n,show n)) $ catMaybes mns
 
+    redundancySubs' :: RelSpec -> Map.Map Node String
+    redundancySubs' m = Map.fromList $
+      map (\(NodeSpec n) -> (n,show n)) 
+      $ Map.elems
+      $ Map.filter (\nspec -> case nspec of NodeSpec n -> True; _ -> False) m
+
     matchRel :: Graph gr => gr a Role -> RelSpec -> [Node]
     matchRel g spec = listIntersect 
       $ map (\(r,NodeSpec n) -> specUsersUsf g n r)

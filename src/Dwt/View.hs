@@ -121,12 +121,16 @@
     viewST' subs g ns = mapM_ putStrLn $ map (showExprT' subs g) ns
 
 -- convenient shorthand
-    (n,j) = (Nothing,Just)
+    (n,j,ns) = (Nothing,Just,NodeSpec)
 
-    -- TODO: make vm, like vm' but using matchRel, not matchRel'
-    vm' :: Mindmap -> [Maybe Node] -> IO () -- view match
-    vm' g mns = viewS (redundancySubs mns) g (matchRelOld g mns)
+    vm :: Mindmap -> [Maybe Node] -> IO () -- view match
+    vm g mns = viewS (redundancySubs mns) g (matchRelOld g mns)
+
+    vm' :: Mindmap' -> RelSpec -> IO () -- view match
+    vm' g spec = viewS' (redundancySubs' spec) g (matchRel g spec)
 
     va :: Mindmap -> Node -> IO () -- view all rels
     va g n = viewS (Map.fromList [(n,show n)]) g $ pre g n
 
+    va' :: Mindmap' -> Node -> IO () -- view all rels
+    va' g n = viewS' (Map.fromList [(n,show n)]) g $ pre g n
