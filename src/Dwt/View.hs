@@ -51,17 +51,16 @@
       collPfx = strPfx
 
 -- view
-    view' :: Mindmap -> [Node] -> IO ()
-    view' g ns = mapM_ putStrLn $ map (showExpr Map.empty g) ns
+    view :: Mindmap -> [Node] -> IO ()
+    view g ns = mapM_ putStrLn $ map (showExpr Map.empty g) ns
 
     -- view tersely, without Nodes
-
     viewT :: Mindmap -> [Node] -> IO ()
     viewT g ns = mapM_ putStrLn $ map (showExprT Map.empty g) ns
 
     -- view with substitutions
-    viewS' :: Map.Map Node String -> Mindmap -> [Node] -> IO ()
-    viewS' subs g ns = mapM_ putStrLn $ map (showExpr subs g) ns
+    viewS :: Map.Map Node String -> Mindmap -> [Node] -> IO ()
+    viewS subs g ns = mapM_ putStrLn $ map (showExpr subs g) ns
 
     -- view with substitutions, tersely 
     viewST :: Map.Map Node String -> Mindmap -> [Node] -> IO ()
@@ -70,8 +69,8 @@
 -- convenient shorthand
     (n,j,ns) = (Nothing,Just,NodeSpec)
 
-    vm' :: Mindmap -> RelSpec -> IO () -- view match
-    vm' g spec = viewS' (redundancySubs' spec) g (matchRel g spec)
+    vm :: Mindmap -> RelSpec -> IO () -- view match
+    vm g spec = viewS (redundancySubs spec) g (matchRel g spec)
 
     va :: Mindmap -> Node -> IO () -- view all rels
-    va g n = viewS' (Map.fromList [(n,show n)]) g $ pre g n
+    va g n = viewS (Map.fromList [(n,show n)]) g $ pre g n

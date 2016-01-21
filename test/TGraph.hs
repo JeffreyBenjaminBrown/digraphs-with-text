@@ -68,11 +68,11 @@
 -- tests
   -- buildGraph
     tBuildGraph = TestList [ TestLabel "tSubInTplt" tSubInTplt
-                           , TestLabel "tInsert'" tInsert'
-                           , TestLabel "tInsRelM" tInsRelM'
+                           , TestLabel "tInsert" tInsert
+                           , TestLabel "tInsRelM" tInsRelM
                            , TestLabel "tInsColl" tInsColl
                            , TestLabel "tChNonRelAt" tChNonRelAt
-                           , TestLabel "tChMbr'" tChMbr']
+                           , TestLabel "tChMbr" tChMbr]
 
     tSubInTplt = TestCase $ do
       assertBool "1" $ subInTplt (fromJust $ lab g1 1) ["man","peace"]
@@ -81,10 +81,10 @@
         $ (lab g1 1 L.& fromJust L.& subInTplt $ ["man","peace"])
         == "man wants peace"
 
-    tInsert' = TestCase $ do
+    tInsert = TestCase $ do
       assertBool "stringToTplt (and thereby splitStringForTplt), insRelUsf, insStr, insTplt" $ g1 == g1Alt
 
-    tInsRelM' = TestCase $ do
+    tInsRelM = TestCase $ do
       assertBool "1" $ (insRel 2 [0,0] g1 :: Either String Mindmap)
             == (Right $ insRelUsf  2 [0,0] g1)
       assertBool "2" $ (insRel 15 [0,0] g1 :: Either String Mindmap)
@@ -110,8 +110,8 @@
       let gCat = fromRight $ chNonRelAt g1 0 $ Str "cat"
       assertBool "1" $ Str "cat" == (lab' $ fromJust $ fst $ match 0 $ gCat)
 
-    tChMbr' = TestCase $ do
-      let gDogDog = fromRight $ chMbr' g1 5 0 (RelMbr 2)
+    tChMbr = TestCase $ do
+      let gDogDog = fromRight $ chMbr g1 5 0 (RelMbr 2)
       assertBool "1" $ showExpr Map.empty gDogDog 5 
                        == "5:1 \171\&0: dog\187 wants \171\&0: dog\187"
         -- (\& == empty string) is to distinguish from longer number

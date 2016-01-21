@@ -112,8 +112,8 @@
       gelemM g n
       return $ chNonRelAtUsf g n e
 
-    chMbr' :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
-    chMbr' g user newMbr role = do
+    chMbr :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
+    chMbr g user newMbr role = do
       isRel g user
       gelemM g newMbr
       let oldMbr = head [n | (n,lab) <- lsuc g user, lab == role]
@@ -209,8 +209,8 @@
       gelemM g n
       specUsersUsfOld g n r
 
-    redundancySubs' :: RelSpec -> Map.Map Node String
-    redundancySubs' m = Map.fromList $
+    redundancySubs :: RelSpec -> Map.Map Node String
+    redundancySubs m = Map.fromList $
       map (\(NodeSpec n) -> (n,show n)) 
       $ Map.elems
       $ Map.filter (\nspec -> case nspec of NodeSpec n -> True; _ -> False) m
