@@ -79,6 +79,11 @@
         -- style strings being, e.g., "default" or "AutomaticLayout.level.root"
         -- and the mapped-to node being the one that represents that style
 
+    type DwtFrame' = (Mindmap', Map.Map String Int)
+      -- TRICKY : the map is, I *believe*, from style strings to style nodes
+        -- style strings being, e.g., "default" or "AutomaticLayout.level.root"
+        -- and the mapped-to node being the one that represents that style
+
 -- constructors, helpers
     mmNLabDummy :: MmNLab
     mmNLabDummy = MmNLab "hi" 0 Nothing t t
@@ -275,6 +280,22 @@
                              , (12, stringToTplt "_ then read-> _")
                          ] []
 
+    frameNodes' :: Mindmap' -- no styles and no edges in this one
+    frameNodes' = mkGraph [ (0, Str' "root|this graph")
+                           , (1, Str' ".system")
+                             , (2, Str' ".mm rels")
+                               , (3, stringToTplt' "_ .mm/ _")
+                               , (4, stringToTplt' "_ .mm~ _")
+                             , (5, Str' "times")
+                               , (6, stringToTplt' "_ was created on _")
+                               , (7, stringToTplt' "_ was last modified on _")
+                             , (8, Str' "styles") 
+                           , (9, Str' "rels")
+                             , (10, stringToTplt' "_ instance/ _")
+                             , (11, stringToTplt' "_ uses font-> _")
+                             , (12, stringToTplt' "_ then read-> _")
+                         ] []
+
     -- the frame is later negated, so here I negate all Nodes referring to it
     edgeNode :: MmELab -> Node
     edgeNode TreeEdge = -3
@@ -285,13 +306,21 @@
     instanceNode = -10 :: Node
     usesFontNode = -11 :: Node
 
-    frameSansStyles :: Mindmap 
+    frameSansStyles :: Mindmap
     frameSansStyles = conn [0,1] $ conn [0,9]
       $ conn [1,2] $ conn [1,5] $ conn [1,8]
       $ conn [2,3] $ conn [2,4]
       $ conn [5,6] $ conn [5,7]
       $ conn [9,10] $ conn [9,11] $ conn [9,12]
       $ frameNodes where conn = insRelUsf (-instanceNode)
+
+--    frameSansStyles' :: Either String Mindmap'
+--    frameSansStyles' = conn [0,1] $ conn [0,9]
+--      $ conn [1,2] $ conn [1,5] $ conn [1,8]
+--      $ conn [2,3] $ conn [2,4]
+--      $ conn [5,6] $ conn [5,7]
+--      $ conn [9,10] $ conn [9,11] $ conn [9,12]
+--      $ frameNodes where conn = insRel (-instanceNode)
 
     firstStyleNode = -25 :: Node -- because frameSansStyles has 24 Nodes
   -- </WARNING>
@@ -305,6 +334,13 @@
          , Map.fromList $ zip (styles spec) 
                               [firstStyleNode, firstStyleNode-1 ..]
          )
+
+--    frameOrphanStyles' :: DwtSpec -> DwtFrame'
+--    frameOrphanStyles' spec = let ss = styles spec
+--      in ( negateGraph $ foldl (\mm font -> insStr' font mm) frameSansStyles' ss
+--         , Map.fromList $ zip (styles spec) 
+--                              [firstStyleNode, firstStyleNode-1 ..]
+--         )
 
     frame :: (MonadError String me) => DwtFrame -> me DwtFrame
     frame (mm, mp) = do mm' <- foldM (\mm n -> insRel (instanceNode) 
