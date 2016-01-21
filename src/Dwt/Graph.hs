@@ -103,6 +103,10 @@
     insTplt s g = insNode (newNode, stringToTplt s) g
       where newNode = head $ newNodes 1 g
 
+    insTplt' :: String -> Mindmap' -> Mindmap'
+    insTplt' s g = insNode (newNode, stringToTplt' s) g
+      where newNode = head $ newNodes 1 g
+
     insRel :: (MonadError String m) => Node -> [Node] -> Mindmap -> m Mindmap
     insRel tn ns g =
       do mapM_ (gelemM g) $ tn:ns
@@ -179,6 +183,12 @@
       Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
       _ -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
 
+    tpltAt' :: (MonadError String m) => Mindmap' -> Node -> m Expr'
+    tpltAt' g tn = case lab g tn of -- todo ? rewrite using isTplt
+      Just t@(Tplt' _) -> return $ t
+      Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
+      _ -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
+
     relTpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
     relTpltAt g rn = do
       ir <-isRel g rn
@@ -192,6 +202,10 @@
     tpltArity :: (MonadError String m) => Expr -> m Arity
     tpltArity e = case e of Tplt a _ -> return a
                             _        -> throwError "tpltArity: Expr not a Tplt."
+
+    tpltArity' :: (MonadError String m) => Expr' -> m Arity
+    tpltArity' e = case e of Tplt' ss -> return $ length ss - 1
+                             _      -> throwError "tpltArity: Expr not a Tplt."
 
     nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m () -- todo:test
     nodesMatchTplt ns e = case e of
