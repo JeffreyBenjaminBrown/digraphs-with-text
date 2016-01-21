@@ -49,7 +49,7 @@
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
 
-    type Mindmap' = Gr Expr' Role
+    type Mindmap = Gr Expr' Role
     data Role = RelTplt | RelMbr RelPos | CollMbr
       deriving (Show,Read,Eq,Ord)
     data Expr' = Str' String
@@ -76,15 +76,15 @@
       in foldl (\s (a,b) -> s++a++b) "" pairList
 
   -- insert
-    insStr' :: String -> Mindmap' -> Mindmap'
+    insStr' :: String -> Mindmap -> Mindmap
     insStr' str g = insNode (int, Str' str) g
       where int = head $ newNodes 1 g
 
-    insTplt' :: String -> Mindmap' -> Mindmap'
+    insTplt' :: String -> Mindmap -> Mindmap
     insTplt' s g = insNode (newNode, stringToTplt' s) g
       where newNode = head $ newNodes 1 g
 
-    insRel' :: (MonadError String m) => Node -> [Node] -> Mindmap' -> m Mindmap'
+    insRel' :: (MonadError String m) => Node -> [Node] -> Mindmap -> m Mindmap
     insRel' tn ns g =
       do mapM_ (gelemM g) $ tn:ns
          t <- tpltAt' g tn
@@ -98,7 +98,7 @@
                                $ insNode (newNode, Rel') g
            in f (zip ns [1..a]) g'
 
-    insColl' :: (MonadError String m) => String -> [Node] -> Mindmap' -> m Mindmap'
+    insColl' :: (MonadError String m) => String -> [Node] -> Mindmap -> m Mindmap
     insColl' prefix ns g = do
       mapM_ (gelemM g) ns
       let newNode = head $ newNodes 1 g
@@ -106,13 +106,13 @@
       return $ insEdges newEdges $ insNode (newNode,Coll' prefix) g
 
   -- edit
-    chNonRelAt' :: (MonadError String m) => Mindmap' -> Node -> Expr' -> m Mindmap'
+    chNonRelAt' :: (MonadError String m) => Mindmap -> Node -> Expr' -> m Mindmap
     chNonRelAt' g n e = do -- todo? absorb def of chNonRelAtUsf.
       -- todo ? verify e is Tplt or Str, and that it matches the label of n in g
       gelemM g n
       return $ chNonRelAtUsf' g n e
 
-    chMbr' :: (MonadError String m) => Mindmap' -> Node -> Node -> Role -> m Mindmap'
+    chMbr' :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
     chMbr' g user newMbr role = do
       isRel' g user
       gelemM g newMbr
@@ -142,25 +142,25 @@
         Just expr ->  return $ pred expr
       where mExpr = lab g n
 
-    isStr' :: (MonadError String m) => Mindmap' -> Node -> m Bool
+    isStr' :: (MonadError String m) => Mindmap -> Node -> m Bool
     isStr' = _isExprConstructor (\x -> case x of Str' _ -> True; _ -> False)
 
-    isTplt' :: (MonadError String m) => Mindmap' -> Node -> m Bool
+    isTplt' :: (MonadError String m) => Mindmap -> Node -> m Bool
     isTplt' = _isExprConstructor (\x -> case x of Tplt' _ -> True; _ -> False)
 
-    isRel' :: (MonadError String m) => Mindmap' -> Node -> m Bool
+    isRel' :: (MonadError String m) => Mindmap -> Node -> m Bool
     isRel' = _isExprConstructor (\x -> case x of Rel' -> True; _ -> False)
 
-    isColl' :: (MonadError String m) => Mindmap' -> Node -> m Bool
+    isColl' :: (MonadError String m) => Mindmap -> Node -> m Bool
     isColl' = _isExprConstructor (\x -> case x of Coll' _ -> True; _ -> False)
 
-    tpltAt' :: (MonadError String m) => Mindmap' -> Node -> m Expr'
+    tpltAt' :: (MonadError String m) => Mindmap -> Node -> m Expr'
     tpltAt' g tn = case lab g tn of -- todo ? rewrite using isTplt
       Just t@(Tplt' _) -> return $ t
       Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
       _ -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
 
-    relTpltAt' :: (MonadError String m) => Mindmap' -> Node -> m Expr'
+    relTpltAt' :: (MonadError String m) => Mindmap -> Node -> m Expr'
     relTpltAt' g rn = do
       ir <-isRel' g rn
       if not ir
@@ -170,7 +170,7 @@
             -- but is only unsafe if graph takes an invalid state
             -- because each Rel should have exactly one Tplt
 
-    relTpltArity :: (MonadError String m) => Mindmap' -> Node -> m Arity
+    relTpltArity :: (MonadError String m) => Mindmap -> Node -> m Arity
     relTpltArity g rn = do
       t <- relTpltAt' g rn
       tpltArity' t
@@ -199,12 +199,12 @@
       [m | (m,r') <- lpre g n, r==r']
 
     specUsersUsfOld' :: (MonadError String m) => 
-      Mindmap' -> Node -> Role -> m [Node]
+      Mindmap -> Node -> Role -> m [Node]
     specUsersUsfOld' g n r = do -- Rels (of any Arity) using Node n in Role r
       return [m | (m,r') <- lpre g n, r'==r, lab g m == (Just $ Rel')]
 
     specUsers' :: (MonadError String m) =>
-      Mindmap' -> Node -> Role -> m [Node]
+      Mindmap -> Node -> Role -> m [Node]
     specUsers' g n r = do -- Rels (of any Arity) using Node n in Role r
       gelemM g n
       specUsersUsfOld' g n r
@@ -224,7 +224,7 @@
 
 -- deprecating
   -- non-monadic, unsafe, duplicate functions (used elsewhere)
-    insRelUsf' :: Node -> [Node] -> Mindmap' -> Mindmap'
+    insRelUsf' :: Node -> [Node] -> Mindmap -> Mindmap
     insRelUsf' t ns g = if ta /= length ns -- t is tplt, otherwise like ns
         then error "insRelUsf: Tplt Arity /= number of members Nodes."
         else if any (==False) $ map (flip gelem g) $ (t:ns)
@@ -239,6 +239,6 @@
             g' =                insEdge (newNode, t, RelTplt)
                               $ insNode (newNode, Rel') g
 
-    chNonRelAtUsf' :: Mindmap' -> Node -> Expr' -> Mindmap'
+    chNonRelAtUsf' :: Mindmap -> Node -> Expr' -> Mindmap
     chNonRelAtUsf' g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'

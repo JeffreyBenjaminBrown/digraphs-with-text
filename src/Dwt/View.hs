@@ -12,7 +12,7 @@
                   (Node -> String) ->         -- how to prefix Tplts
                   (Node -> Node -> String) -> -- how to prefix Rels
                   (Node -> String) ->         -- how to prefix Colls
-                  Mindmap' -> Node -> String
+                  Mindmap -> Node -> String
     _showExpr' subs strPfx tpltPfx relPfx collPfx g n =
       case Map.lookup n subs of
         Just s -> s
@@ -35,7 +35,7 @@
                 show_in_brackets = bracket
                   . _showExpr' subs strPfx tpltPfx relPfx collPfx g
 
-    showExpr' :: Map.Map Node String -> Mindmap' -> Node -> String
+    showExpr' :: Map.Map Node String -> Mindmap -> Node -> String
     showExpr' subs g n = _showExpr' subs strPfx tpltPfx relPfx collPfx g n where
       strPfx n = show n ++ ": "
       tpltPfx n = ":" ++ show n ++ " "
@@ -43,7 +43,7 @@
       collPfx = strPfx
 
     -- show tersely, without Nodes
-    showExprT' :: Map.Map Node String -> Mindmap' -> Node -> String
+    showExprT' :: Map.Map Node String -> Mindmap -> Node -> String
     showExprT' subs g n = _showExpr' subs strPfx tpltPfx relPfx collPfx g n where
       strPfx n = ""
       tpltPfx n = ""
@@ -51,27 +51,27 @@
       collPfx = strPfx
 
 -- view
-    view' :: Mindmap' -> [Node] -> IO ()
+    view' :: Mindmap -> [Node] -> IO ()
     view' g ns = mapM_ putStrLn $ map (showExpr' Map.empty g) ns
 
     -- view tersely, without Nodes
 
-    viewT' :: Mindmap' -> [Node] -> IO ()
+    viewT' :: Mindmap -> [Node] -> IO ()
     viewT' g ns = mapM_ putStrLn $ map (showExprT' Map.empty g) ns
 
     -- view with substitutions
-    viewS' :: Map.Map Node String -> Mindmap' -> [Node] -> IO ()
+    viewS' :: Map.Map Node String -> Mindmap -> [Node] -> IO ()
     viewS' subs g ns = mapM_ putStrLn $ map (showExpr' subs g) ns
 
     -- view with substitutions, tersely 
-    viewST' :: Map.Map Node String -> Mindmap' -> [Node] -> IO ()
+    viewST' :: Map.Map Node String -> Mindmap -> [Node] -> IO ()
     viewST' subs g ns = mapM_ putStrLn $ map (showExprT' subs g) ns
 
 -- convenient shorthand
     (n,j,ns) = (Nothing,Just,NodeSpec)
 
-    vm' :: Mindmap' -> RelSpec -> IO () -- view match
+    vm' :: Mindmap -> RelSpec -> IO () -- view match
     vm' g spec = viewS' (redundancySubs' spec) g (matchRel g spec)
 
-    va' :: Mindmap' -> Node -> IO () -- view all rels
+    va' :: Mindmap -> Node -> IO () -- view all rels
     va' g n = viewS' (Map.fromList [(n,show n)]) g $ pre g n

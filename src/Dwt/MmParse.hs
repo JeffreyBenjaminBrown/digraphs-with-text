@@ -75,7 +75,7 @@
 
     type DwtSpec = ( [MmNLab], [(Node,Node,MmELab)] ) -- (nodes,edges)
 
-    type DwtFrame' = (Mindmap', Map.Map String Int)
+    type DwtFrame' = (Mindmap, Map.Map String Int)
       -- TRICKY : the map is, I *believe*, from style strings to style nodes
         -- style strings being, e.g., "default" or "AutomaticLayout.level.root"
         -- and the mapped-to node being the one that represents that style
@@ -260,7 +260,7 @@
 
 -- DwtSpec -> _
   -- WARNING: The Nodes of these functions are interdependent.
-    frameNodes' :: Mindmap' -- no styles and no edges in this one
+    frameNodes' :: Mindmap -- no styles and no edges in this one
     frameNodes' = mkGraph [ (0, Str' "root|this graph")
                            , (1, Str' ".system")
                              , (2, Str' ".mm rels")
@@ -286,7 +286,7 @@
     instanceNode = -10 :: Node
     usesFontNode = -11 :: Node
 
-    frameSansStyles' :: Mindmap'
+    frameSansStyles' :: Mindmap
     frameSansStyles' = conn [0,1] $ conn [0,9]
       $ conn [1,2] $ conn [1,5] $ conn [1,8]
       $ conn [2,3] $ conn [2,4]
@@ -314,7 +314,7 @@
                                       mm (Map.elems mp)
                          return (mm',mp)
 
-    loadNodes' :: (MonadError String me) => (DwtSpec, DwtFrame') -> me Mindmap'
+    loadNodes' :: (MonadError String me) => (DwtSpec, DwtFrame') -> me Mindmap
     loadNodes' ( (ns,_), (mm, mp) ) =
       let noded = foldl (\mm n -> insNode (mmId n, Str' $ text n) mm) mm ns
       in foldM (\mm n -> insRel' (usesFontNode) 
@@ -324,14 +324,14 @@
                noded $ filter (Mb.isJust . style) ns
 
     -- todo: connect imported graph's root to frame's root
-    loadEdges' :: (MonadError String me) => DwtSpec -> Mindmap' -> me Mindmap'
+    loadEdges' :: (MonadError String me) => DwtSpec -> Mindmap -> me Mindmap
     loadEdges' (_,es) mm = foldM (\mm (from,to,kind)
                                    -> insRel' (edgeNode kind) [from,to] mm
                                  ) mm es
 
 -- the final product
     -- WARNING: the file must have no hypertext tags
-    readMmFile' :: String -> IO Mindmap'
+    readMmFile' :: String -> IO Mindmap
     readMmFile' s = do -- todo: work with the Either, do not fight it
       mls <- mmToMlTags "untracked/data/agent.mm"
       let mls2 = collapseRich $ stripRichTags $ fromRight mls
