@@ -43,8 +43,8 @@
       collPfx = strPfx
 
     -- show tersely, without Nodes
-    showExprT' :: Map.Map Node String -> Mindmap -> Node -> String
-    showExprT' subs g n = _showExpr subs strPfx tpltPfx relPfx collPfx g n where
+    showExprT :: Map.Map Node String -> Mindmap -> Node -> String
+    showExprT subs g n = _showExpr subs strPfx tpltPfx relPfx collPfx g n where
       strPfx n = ""
       tpltPfx n = ""
       relPfx n tn = ""
@@ -56,16 +56,16 @@
 
     -- view tersely, without Nodes
 
-    viewT' :: Mindmap -> [Node] -> IO ()
-    viewT' g ns = mapM_ putStrLn $ map (showExprT' Map.empty g) ns
+    viewT :: Mindmap -> [Node] -> IO ()
+    viewT g ns = mapM_ putStrLn $ map (showExprT Map.empty g) ns
 
     -- view with substitutions
     viewS' :: Map.Map Node String -> Mindmap -> [Node] -> IO ()
     viewS' subs g ns = mapM_ putStrLn $ map (showExpr subs g) ns
 
     -- view with substitutions, tersely 
-    viewST' :: Map.Map Node String -> Mindmap -> [Node] -> IO ()
-    viewST' subs g ns = mapM_ putStrLn $ map (showExprT' subs g) ns
+    viewST :: Map.Map Node String -> Mindmap -> [Node] -> IO ()
+    viewST subs g ns = mapM_ putStrLn $ map (showExprT subs g) ns
 
 -- convenient shorthand
     (n,j,ns) = (Nothing,Just,NodeSpec)
@@ -73,5 +73,5 @@
     vm' :: Mindmap -> RelSpec -> IO () -- view match
     vm' g spec = viewS' (redundancySubs' spec) g (matchRel g spec)
 
-    va' :: Mindmap -> Node -> IO () -- view all rels
-    va' g n = viewS' (Map.fromList [(n,show n)]) g $ pre g n
+    va :: Mindmap -> Node -> IO () -- view all rels
+    va g n = viewS' (Map.fromList [(n,show n)]) g $ pre g n

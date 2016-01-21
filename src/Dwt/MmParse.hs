@@ -292,7 +292,7 @@
       $ conn [2,3] $ conn [2,4]
       $ conn [5,6] $ conn [5,7]
       $ conn [9,10] $ conn [9,11] $ conn [9,12]
-      $ frameNodes' where conn = insRelUsf' (-instanceNode)
+      $ frameNodes' where conn = insRelUsf (-instanceNode)
 
     firstStyleNode = -25 :: Node -- because frameSansStyles has 24 Nodes
   -- </WARNING>

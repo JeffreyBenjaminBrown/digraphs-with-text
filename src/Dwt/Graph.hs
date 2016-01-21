@@ -87,7 +87,7 @@
     insRel :: (MonadError String m) => Node -> [Node] -> Mindmap -> m Mindmap
     insRel tn ns g =
       do mapM_ (gelemM g) $ tn:ns
-         t <- tpltAt' g tn
+         t <- tpltAt g tn
          a <- tpltArity' t
          nodesMatchTplt ns t
          return $ let 
@@ -106,8 +106,8 @@
       return $ insEdges newEdges $ insNode (newNode,Coll prefix) g
 
   -- edit
-    chNonRelAt' :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
-    chNonRelAt' g n e = do -- todo? absorb def of chNonRelAtUsf.
+    chNonRelAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
+    chNonRelAt g n e = do -- todo? absorb def of chNonRelAtUsf.
       -- todo ? verify e is Tplt or Str, and that it matches the label of n in g
       gelemM g n
       return $ chNonRelAtUsf' g n e
@@ -154,14 +154,14 @@
     isColl :: (MonadError String m) => Mindmap -> Node -> m Bool
     isColl = _isExprConstructor (\x -> case x of Coll _ -> True; _ -> False)
 
-    tpltAt' :: (MonadError String m) => Mindmap -> Node -> m Expr
-    tpltAt' g tn = case lab g tn of -- todo ? rewrite using isTplt
+    tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
+    tpltAt g tn = case lab g tn of -- todo ? rewrite using isTplt
       Just t@(Tplt _) -> return $ t
       Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
       _ -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
 
-    relTpltAt' :: (MonadError String m) => Mindmap -> Node -> m Expr
-    relTpltAt' g rn = do
+    relTpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
+    relTpltAt g rn = do
       ir <-isRel g rn
       if not ir
         then throwError $ "relTpltAt: LNode " ++ show rn ++ " not a Rel."
@@ -172,7 +172,7 @@
 
     relTpltArity :: (MonadError String m) => Mindmap -> Node -> m Arity
     relTpltArity g rn = do
-      t <- relTpltAt' g rn
+      t <- relTpltAt g rn
       tpltArity' t
 
     tpltArity' :: (MonadError String m) => Expr -> m Arity
@@ -224,8 +224,8 @@
 
 -- deprecating
   -- non-monadic, unsafe, duplicate functions (used elsewhere)
-    insRelUsf' :: Node -> [Node] -> Mindmap -> Mindmap
-    insRelUsf' t ns g = if ta /= length ns -- t is tplt, otherwise like ns
+    insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap
+    insRelUsf t ns g = if ta /= length ns -- t is tplt, otherwise like ns
         then error "insRelUsf: Tplt Arity /= number of members Nodes."
         else if any (==False) $ map (flip gelem g) $ (t:ns)
           then error "insRelUsf: One of those Nodes is not in the Mindmap." 

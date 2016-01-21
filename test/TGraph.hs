@@ -48,10 +48,10 @@
           -- [dog wants brandy] is dubious
       ]
 
-    g1Alt =   insRelUsf' 9 [5,10] 
+    g1Alt =   insRelUsf 9 [5,10] 
           $ insStr"dubious"     $ insTplt"statement _ is _"
-          $ insRelUsf' 7 [0,3,4] $ insTplt"_ needs _ for _"
-          $ insRelUsf' 2 [0,3]   $ insRelUsf' 1 [0,4]
+          $ insRelUsf 7 [0,3,4] $ insTplt"_ needs _ for _"
+          $ insRelUsf 2 [0,3]   $ insRelUsf 1 [0,4]
           $ insStr"brandy"      $ insStr"water"
           $ insTplt"_ needs _"  $ insTplt"_ wants _"
           $ insStr"dog"         $ empty :: Mindmap
@@ -71,7 +71,7 @@
                            , TestLabel "tInsert'" tInsert'
                            , TestLabel "tInsRelM" tInsRelM'
                            , TestLabel "tInsColl" tInsColl
-                           , TestLabel "tChNonRelAt'" tChNonRelAt'
+                           , TestLabel "tChNonRelAt" tChNonRelAt
                            , TestLabel "tChMbr'" tChMbr']
 
     tSubInTplt = TestCase $ do
@@ -86,7 +86,7 @@
 
     tInsRelM' = TestCase $ do
       assertBool "1" $ (insRel 2 [0,0] g1 :: Either String Mindmap)
-            == (Right $ insRelUsf'  2 [0,0] g1)
+            == (Right $ insRelUsf  2 [0,0] g1)
       assertBool "2" $ (insRel 15 [0,0] g1 :: Either String Mindmap)
             == Left "gelemM: Node 15 absent."
       assertBool "3" $ (insRel 2 [100,0] g1 :: Either String Mindmap)
@@ -106,8 +106,8 @@
         $    (length $ nodes g1) + 1 == (length $ nodes gg)
           && (length $ edges g1) + 3 == (length $ edges gg)
 
-    tChNonRelAt' = TestCase $ do
-      let gCat = fromRight $ chNonRelAt' g1 0 $ Str "cat"
+    tChNonRelAt = TestCase $ do
+      let gCat = fromRight $ chNonRelAt g1 0 $ Str "cat"
       assertBool "1" $ Str "cat" == (lab' $ fromJust $ fst $ match 0 $ gCat)
 
     tChMbr' = TestCase $ do
@@ -121,8 +121,8 @@
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM
                          , TestLabel "tHasLEdgeM" tHasLEdgeM
                          , TestLabel "tIsTplt" tIsTplt
-                         , TestLabel "tTpltAt'" tTpltAt'
-                         , TestLabel "tTpltForRelAt'" tTpltForRelAt'
+                         , TestLabel "tTpltAt" tTpltAt
+                         , TestLabel "tTpltForRelAt" tTpltForRelAt
                          , TestLabel "tTpltArity'" tTpltArity' ]
 
     tGelemM = TestCase $ do
@@ -138,16 +138,16 @@
       assertBool "is not template" $ isTplt g1 0 == Right False
       assertBool "missing" $ isLeft $ isTplt g1 (-1)
 
-    tTpltAt' = TestCase $ do
-      assertBool "normal" $ tpltAt' g1 1 == ( Right $ Tplt [""," wants ",""] )
-      assertBool "notATplt" $ isLeft $ tpltAt' g1 0
-      assertBool "absent" $ isLeft $ tpltAt' g1 (-1)
+    tTpltAt = TestCase $ do
+      assertBool "normal" $ tpltAt g1 1 == ( Right $ Tplt [""," wants ",""] )
+      assertBool "notATplt" $ isLeft $ tpltAt g1 0
+      assertBool "absent" $ isLeft $ tpltAt g1 (-1)
 
-    tTpltForRelAt' = TestCase $ do
-      assertBool "normal" $ relTpltAt' g1 5 ==
+    tTpltForRelAt = TestCase $ do
+      assertBool "normal" $ relTpltAt g1 5 ==
         ( Right $ Tplt [""," wants ",""] )
-      assertBool "not a Rel" $ isLeft $ relTpltAt' g1 1
-      assertBool "absent" $ isLeft $ relTpltAt' g1 (-1)
+      assertBool "not a Rel" $ isLeft $ relTpltAt g1 1
+      assertBool "absent" $ isLeft $ relTpltAt g1 (-1)
 
     tTpltArity' = TestCase $ do
       assertBool "arity 0" $
