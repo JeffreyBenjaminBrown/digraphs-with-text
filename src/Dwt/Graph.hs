@@ -16,8 +16,8 @@
 --      , Arity, RelPos, Expr(..), Role(..), Mindmap
 --      , NodeSpec(..), RelSpec
 --      , splitStringForTplt, stringToTplt, subInTplt -- Tplt
---      , insStr, insTplt, insRel, insColl -- build Mindmap
---      , chNonUserAt, chMbr -- edit Mindmap
+--      , insStr, insTplt, insRel, insRelUsf, insColl -- build Mindmap
+--      , chNonUserAt, chNonUserAtUsf, chMbr -- edit Mindmap
 --      -- query Mindmap
 --        -- minor
 --          , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl, isLikeExpr
@@ -25,7 +25,6 @@
 --        -- .. -> [Node]
 --          , users, specUsersUsf, specUsersUsfOld, specUsers
 --          , redundancySubs, matchRel
---      , insRelUsf, chNonUserAtUsf -- unsafe, duplicates
 --      ) 
     where
 
@@ -102,6 +101,21 @@
             g' =                insEdge (newNode, tn, RelTplt)
                               $ insNode (newNode, Rel) g
 
+    insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap
+    insRelUsf t ns g = if ta /= length ns -- t is tplt, otherwise like ns
+        then error "insRelUsf: Tplt Arity /= number of members Nodes."
+        else if any (==False) $ map (flip gelem g) $ (t:ns)
+          then error "insRelUsf: One of those Nodes is not in the Mindmap." 
+        else f (zip ns [1..ta]) g'
+      where te@(Tplt ts) = fromJust $ lab g t -- can also error:
+              -- by finding Str or Rel where expected Tplt
+            ta = tpltArity te
+            newNode = head $ newNodes 1 g
+            f []     g = g
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
+            g' =                insEdge (newNode, t, RelTplt)
+                              $ insNode (newNode, Rel) g
+
     insColl :: (MonadError String m) => String -> [Node] -> Mindmap -> m Mindmap
     insColl prefix ns g = do
       mapM_ (gelemM g) ns
@@ -121,6 +135,10 @@
         Nothing -> throwError $ "chNonUserAt: Node " ++ show n ++ " absent."
         _       -> throwError $ "chNonUserAt: Node " ++ show n ++ " is a user."
       return $ chNonUserAtUsf g n e'
+
+    chNonUserAtUsf :: Mindmap -> Node -> Expr -> Mindmap
+    chNonUserAtUsf g n e = let (Just (a,b,c,d),g') = match n g
+      in (a,b,e,d) & g'
 
     chMbr :: (MonadError String m) => Mindmap -> Node -> Node -> Role -> m Mindmap
     chMbr g user newMbr role = do
@@ -231,24 +249,3 @@
       $ Map.toList
       $ Map.filter (\ns -> case ns of NodeSpec n -> True; _ -> False) 
                    spec
-
--- deprecating
-  -- non-monadic, unsafe, duplicate functions (used elsewhere)
-    insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap
-    insRelUsf t ns g = if ta /= length ns -- t is tplt, otherwise like ns
-        then error "insRelUsf: Tplt Arity /= number of members Nodes."
-        else if any (==False) $ map (flip gelem g) $ (t:ns)
-          then error "insRelUsf: One of those Nodes is not in the Mindmap." 
-        else f (zip ns [1..ta]) g'
-      where te@(Tplt ts) = fromJust $ lab g t -- can also error:
-              -- by finding Str or Rel where expected Tplt
-            ta = tpltArity te
-            newNode = head $ newNodes 1 g
-            f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
-            g' =                insEdge (newNode, t, RelTplt)
-                              $ insNode (newNode, Rel) g
-
-    chNonUserAtUsf :: Mindmap -> Node -> Expr -> Mindmap
-    chNonUserAtUsf g n e = let (Just (a,b,c,d),g') = match n g
-      in (a,b,e,d) & g'
