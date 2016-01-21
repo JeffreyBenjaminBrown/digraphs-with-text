@@ -24,7 +24,7 @@
 --          , tpltAt, relTpltAt, tpltArity, nodesMatchTplt
 --        -- .. -> [Node]
 --          , users, specUsersUsf, specUsersUsfOld, specUsers
---          , redundancySubs, matchRel, matchRelOld
+--          , redundancySubs, matchRel
 --      , insRelUsf, chNonRelAtUsf -- unsafe, duplicates
 --      ) 
     where
@@ -338,14 +338,6 @@
                    spec
 
 -- deprecating
-    matchRelOld :: Mindmap -> [Maybe Node] -> [Node]
-    matchRelOld g mns = listIntersect $ map f jns
-      where arity = length mns - 1
-            jns = filter (isJust . fst) $ zip mns [0..] :: [(Maybe Node, RelPos)]
-              -- kind of cheating; using RelPos 0 for RelTplt
-            f (Just n, 0) = specUsersUsfOld g arity n RelTplt
-            f (Just n, k) = specUsersUsfOld g arity n (RelMbr k)
-
   -- non-monadic, unsafe, duplicate functions (used elsewhere)
     insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap
     insRelUsf t ns g = if ti /= length ns -- t is tplt, otherwise like ns

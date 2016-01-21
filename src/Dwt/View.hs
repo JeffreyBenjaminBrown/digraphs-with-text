@@ -123,9 +123,6 @@
 -- convenient shorthand
     (n,j,ns) = (Nothing,Just,NodeSpec)
 
-    vm :: Mindmap -> [Maybe Node] -> IO () -- view match
-    vm g mns = viewS (redundancySubs mns) g (matchRelOld g mns)
-
     vm' :: Mindmap' -> RelSpec -> IO () -- view match
     vm' g spec = viewS' (redundancySubs' spec) g (matchRel g spec)
 
