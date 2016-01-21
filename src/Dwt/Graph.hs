@@ -121,6 +121,20 @@
                                $ insNode (newNode, Rel a) g
            in f (zip ns [1..a]) g'
 
+    insRel' :: (MonadError String m) => Node -> [Node] -> Mindmap' -> m Mindmap'
+    insRel' tn ns g =
+      do mapM_ (gelemM g) $ tn:ns
+         t <- tpltAt' g tn
+         a <- tpltArity' t
+         nodesMatchTplt' ns t
+         return $ let 
+             newNode = head $ newNodes 1 g
+             f []     g = g
+             f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
+             g' =                insEdge (newNode, tn, RelTplt)
+                               $ insNode (newNode, Rel') g
+           in f (zip ns [1..a]) g'
+
     insColl :: (MonadError String m) => String -> [Node] -> Mindmap -> m Mindmap
     insColl prefix ns g = do
       mapM_ (gelemM g) ns
@@ -279,29 +293,35 @@
 
     -- MAYBE REPLACING second with first
     specUsersUsf :: (Graph gr) => gr a Role -> Node -> Role -> [Node]
-    specUsersUsf g n r = -- all Rels using Node n in Role r
+    specUsersUsf g n r = -- Rels using Node n in Role r
       [m | (m,r') <- lpre g n, r==r']
 
     specUsersUsfOld :: Mindmap -> Arity -> Node -> Role -> [Node]
-    specUsersUsfOld g k n r = -- all k-ary Rels using Node n in Role r
+    specUsersUsfOld g k n r = -- k-ary Rels using Node n in Role r
       [m | (m,r') <- lpre g n, r'==r, lab g m == (Just $ Rel k)]
 
     specUsersUsfOld' :: (MonadError String m) => 
-      Mindmap' -> Arity -> Node -> Role -> m [Node]
-    specUsersUsfOld' g k n r = do -- Rels (of any Arity) using Node n in Role r
+      Mindmap' -> Node -> Role -> m [Node]
+    specUsersUsfOld' g n r = do -- Rels (of any Arity) using Node n in Role r
       return [m | (m,r') <- lpre g n, r'==r, lab g m == (Just $ Rel')]
 
     specUsers :: (MonadError String m) =>
       Mindmap -> Arity -> Node -> Role -> m [Node]
-    specUsers g k n r = do -- all k-ary Rels using Node n in Role r
+    specUsers g k n r = do -- k-ary Rels using Node n in Role r
       gelemM g n
       return $ specUsersUsfOld g k n r
+
+    specUsers' :: (MonadError String m) =>
+      Mindmap' -> Node -> Role -> m [Node]
+    specUsers' g n r = do -- Rels (of any Arity) using Node n in Role r
+      gelemM g n
+      specUsersUsfOld' g n r
 
     redundancySubs :: [Maybe Node] -> Map.Map Node String
     redundancySubs mns = Map.fromList 
       $ map (\n -> (n,show n)) $ catMaybes mns
 
-    matchRel :: Mindmap -> RelSpec -> [Node]
+    matchRel :: Graph gr => gr a Role -> RelSpec -> [Node]
     matchRel g spec = listIntersect 
       $ map (\(r,NodeSpec n) -> specUsersUsf g n r)
       $ Map.toList
