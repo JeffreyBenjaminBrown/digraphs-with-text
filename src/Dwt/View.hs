@@ -73,6 +73,7 @@
 
     vm :: Mindmap -> RelSpec -> IO () -- view match
     vm g spec = viewS (redundancySubs spec) g $ fromRight $ matchRel g spec
+      -- TODO : remove fromRight
 
     va :: Mindmap -> Node -> IO () -- view all rels
     va g n = viewS (Map.fromList [(n,show n)]) g $ pre g n

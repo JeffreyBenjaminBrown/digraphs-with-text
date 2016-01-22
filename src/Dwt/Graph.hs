@@ -202,7 +202,7 @@
       ir <-isRel g rn
       if not ir
         then throwError $ "relTpltAt: LNode " ++ show rn ++ " not a Rel."
-        else return $ fromJust $ lab g 
+        else return $ fromJust $ lab g -- fromJust: safe, cuz found in next line
           $ head [n | (n,RelTplt) <- lsuc g rn] -- todo ? head unsafe
             -- but is only unsafe if graph takes an invalid state
             -- because each Rel should have exactly one Tplt
