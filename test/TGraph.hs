@@ -185,10 +185,8 @@
       assertBool "without Arity" $ specUsersUsf g1 0 (RelMbr 1) == [5,6,8]
 
     tMatchRel = TestCase $ do
-      assertBool "dog in first pos" $ matchRelUsf g1 relSpec == [5,6,8]
-      assertBool "dog in first pos" $ matchRelUsf g1 relSpec == [5,6,8]
-      assertBool "nothing should match" $ matchRelUsf g1 relSpecNonsense == []
-      assertBool "nothing should match" $ matchRelUsf g1 relSpecNonsense == []
+      assertBool "dog in first pos"     $ matchRel g1 relSpec == Right [5,6,8]
+      assertBool "nothing should match" $ matchRel g1 relSpecNonsense == Right []
 
   -- show
     tShowExpr = TestCase $ do

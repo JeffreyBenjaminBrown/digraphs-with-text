@@ -3,6 +3,8 @@
       ) where
 
     import Dwt.Graph
+    import Dwt.Util
+
     import Data.List (sortOn, intercalate)
     import qualified Data.Map as Map
 
@@ -70,7 +72,7 @@
     (n,j,ns) = (Nothing,Just,NodeSpec)
 
     vm :: Mindmap -> RelSpec -> IO () -- view match
-    vm g spec = viewS (redundancySubs spec) g (matchRelUsf g spec)
+    vm g spec = viewS (redundancySubs spec) g $ fromRight $ matchRel g spec
 
     va :: Mindmap -> Node -> IO () -- view all rels
     va g n = viewS (Map.fromList [(n,show n)]) g $ pre g n

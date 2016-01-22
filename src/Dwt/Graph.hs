@@ -33,7 +33,7 @@
     import Data.Either (partitionEithers)
     import Data.List (intersect)
     import qualified Data.Map as Map
-    import Data.Maybe (isJust, catMaybes, fromJust)
+    import Data.Maybe (catMaybes, fromJust)
     import Control.Monad (mapM_)
     import Control.Monad.Except (MonadError, throwError)
     import Data.Text (splitOn, pack, unpack)
@@ -236,11 +236,12 @@
     redundancySubs = Map.fromList 
       . map (\(NodeSpec n) -> (n,show n))
       . Map.elems
-      . Map.filter (\nspec -> case nspec of NodeSpec n -> True; _ -> False)
-
-    -- TODO: use specUsers (the safe version)
-    matchRelUsf :: Graph gr => gr a Role -> RelSpec -> [Node]
-    matchRelUsf g = listIntersect 
-      . map (\(r,NodeSpec n) -> specUsersUsf g n r)
-      . Map.toList
       . Map.filter (\ns -> case ns of NodeSpec n -> True; _ -> False) 
+
+    matchRel :: (MonadError String m) => Mindmap -> RelSpec -> m [Node]
+    matchRel g spec = do
+      let specList = Map.toList
+            $ Map.filter (\ns -> case ns of NodeSpec n -> True; _ -> False) 
+            $ spec :: [(Role,NodeSpec)]
+      nodeListList <- mapM (\(r,NodeSpec n) -> specUsers g n r) specList
+      return $ listIntersect nodeListList
