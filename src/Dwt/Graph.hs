@@ -1,32 +1,9 @@
--- usually folded
-  -- PROB: view should not be type .. ->  IO ()
-  -- WANT
-    -- parents, children: count per node
-  -- "todo": find an automatic way to check for unused functions
-    -- otherwise when pattern matching, if the function name handed one of the 
-    -- patterns is misspelled, I can get a "non-exhaustive patterns" exception
-
--- pragmas, export, import
     {-# LANGUAGE FlexibleContexts #-}
 
     module Dwt.Graph
       ( module Data.Graph.Inductive
       , module Dwt.Graph
-      )
---      , Arity, RelPos, Expr(..), Role(..), Mindmap
---      , MbrSpec(..), RelSpec
---      , splitStringForTplt, stringToTplt, subInTplt -- Tplt
---      , insStr, insTplt, insRel, insRelUsf, insColl -- build Mindmap
---      , chNonUserAt, chNonUserAtUsf, chRelMbr -- edit Mindmap
---      -- query Mindmap
---        -- minor
---          , gelemM, hasLEdgeM, isStr, isTplt, isRel, isColl, isLikeExpr
---          , tpltAt, relTpltAt, tpltArity, nodesMatchTplt
---        -- .. -> [Node]
---          , users, specUsers, specUsersUsf
---          , redundancySubs, matchRelUsf
---      ) 
-    where
+      ) where
 
     import Dwt.Util
     import Data.Graph.Inductive
@@ -43,7 +20,7 @@
     -- Each Arity-k Rel emits k+1 Edges toward the other Exprs:
       -- one connects it to its RelTplt (relationship template)
       -- k more connect it to each of its k RelMbrs (relationship members)
-    -- data/minmalGraph.hs demonstrates these types (over like 20 lines)
+    -- data/minmalGraph.hs demonstrates these types (in only like 20 lines)
 
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
@@ -53,16 +30,20 @@
               | Tplt [String]
               | Rel
               | Coll String
+              | RelSpec RelSpecMap
+                -- if well-formed, the map uses no MbrSpec constructors
+                -- because that kind of data is external, in the graph
       deriving (Show,Read,Eq,Ord)
     data Role = RelTplt | RelMbr RelPos | CollMbr
       deriving (Show,Read,Eq,Ord)
 
-    data MbrSpec = It | Any | MbrSpec Node deriving (Show,Eq)
-    type RelSpec = Map.Map Role MbrSpec 
+    data MbrSpec = It | Any | Ana | Kata -- Ana ~ Up, Kata ~ Down
+                 | MbrSpec Node deriving (Show,Read,Eq,Ord)
+    type RelSpecMap = Map.Map Role MbrSpec 
       -- if well-formed: 
         -- has a Tplt, and RelPoss from 1 to the Tplt's Arity
         -- has no ColMbr
-      -- todo ? any RelPos mapped to Any could be omitted
+      -- todo ? any (RelMbr _) mapped to Any could be omitted
 
 -- build
   -- Tplt <-> String
@@ -125,7 +106,7 @@
 
   -- edit
     chNonUserAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
-      -- Strs and Tplts are used but are not users. (Rels and Colls use them.)
+      -- Strs and Tplts are used, but are not users. (Rels and Colls use them.)
     chNonUserAt g n e' = do
       let me = lab g n
       let mismatch = throwError $ "chNonUserAt: constructor mismatch"
@@ -202,9 +183,9 @@
       ir <-isRel g rn
       if not ir
         then throwError $ "relTpltAt: LNode " ++ show rn ++ " not a Rel."
-        else return $ fromJust $ lab g -- fromJust: safe, cuz found in next line
-          $ head [n | (n,RelTplt) <- lsuc g rn] -- todo ? head unsafe
-            -- but is only unsafe if graph takes an invalid state
+        else return $ fromJust $ lab g -- fromJust: safe b/c found in next line
+          $ head [n | (n,RelTplt) <- lsuc g rn]
+            -- head is only unsafe if graph takes an invalid state
             -- because each Rel should have exactly one Tplt
 
     tpltArity :: Expr -> Arity
@@ -232,13 +213,13 @@
     specUsersUsf :: (Graph gr) => gr a Role -> Node -> Role -> [Node]
     specUsersUsf g n r = [m | (m,r') <- lpre g n, r==r']
 
-    redundancySubs :: RelSpec -> Map.Map Node String
+    redundancySubs :: RelSpecMap -> Map.Map Node String
     redundancySubs = Map.fromList 
       . map (\(MbrSpec n) -> (n,show n))
       . Map.elems
       . Map.filter (\ns -> case ns of MbrSpec n -> True; _ -> False) 
 
-    matchRel :: (MonadError String m) => Mindmap -> RelSpec -> m [Node]
+    matchRel :: (MonadError String m) => Mindmap -> RelSpecMap -> m [Node]
     matchRel g spec = do
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of MbrSpec n -> True; _ -> False) 
