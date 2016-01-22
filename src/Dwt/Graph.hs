@@ -14,7 +14,7 @@
       , module Dwt.Graph
       )
 --      , Arity, RelPos, Expr(..), Role(..), Mindmap
---      , NodeSpec(..), RelSpec
+--      , MbrSpec(..), RelSpec
 --      , splitStringForTplt, stringToTplt, subInTplt -- Tplt
 --      , insStr, insTplt, insRel, insRelUsf, insColl -- build Mindmap
 --      , chNonUserAt, chNonUserAtUsf, chRelMbr -- edit Mindmap
@@ -57,8 +57,8 @@
     data Role = RelTplt | RelMbr RelPos | CollMbr
       deriving (Show,Read,Eq,Ord)
 
-    data NodeSpec = It | Any | NodeSpec Node deriving (Show,Eq)
-    type RelSpec = Map.Map Role NodeSpec 
+    data MbrSpec = It | Any | MbrSpec Node deriving (Show,Eq)
+    type RelSpec = Map.Map Role MbrSpec 
       -- if well-formed: 
         -- has a Tplt, and RelPoss from 1 to the Tplt's Arity
         -- has no ColMbr
@@ -234,14 +234,14 @@
 
     redundancySubs :: RelSpec -> Map.Map Node String
     redundancySubs = Map.fromList 
-      . map (\(NodeSpec n) -> (n,show n))
+      . map (\(MbrSpec n) -> (n,show n))
       . Map.elems
-      . Map.filter (\ns -> case ns of NodeSpec n -> True; _ -> False) 
+      . Map.filter (\ns -> case ns of MbrSpec n -> True; _ -> False) 
 
     matchRel :: (MonadError String m) => Mindmap -> RelSpec -> m [Node]
     matchRel g spec = do
       let specList = Map.toList
-            $ Map.filter (\ns -> case ns of NodeSpec n -> True; _ -> False) 
-            $ spec :: [(Role,NodeSpec)]
-      nodeListList <- mapM (\(r,NodeSpec n) -> specUsers g n r) specList
+            $ Map.filter (\ns -> case ns of MbrSpec n -> True; _ -> False) 
+            $ spec :: [(Role,MbrSpec)]
+      nodeListList <- mapM (\(r,MbrSpec n) -> specUsers g n r) specList
       return $ listIntersect nodeListList

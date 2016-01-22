@@ -57,10 +57,10 @@
           $ insStr"dog"         $ empty :: Mindmap
 
     relSpec = Map.fromList [ (RelTplt, It)
-                           , (RelMbr 1, NodeSpec 0)
+                           , (RelMbr 1, MbrSpec 0)
                            , (RelMbr 2, Any)
                            ]
-    relSpecNonsense = Map.fromList [ (RelTplt, NodeSpec 0) -- "dog" Str, not Tplt
+    relSpecNonsense = Map.fromList [ (RelTplt, MbrSpec 0) -- "dog" Str, not Tplt
                                    , (RelMbr 1, It)
                                    , (RelMbr 2, Any)
                                    ]
