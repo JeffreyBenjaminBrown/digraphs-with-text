@@ -34,8 +34,8 @@
     data MbrSpec = VarSpec MbrVar | MbrSpec Node deriving (Show,Read,Eq,Ord)
 
     type RelVarSpec = Map.Map Role MbrVar -- subset of RelSpec info, but
-      -- a RelVarSpec in a Mindmap is transformable into a RelSpec, because
-      -- the rest of that info is carried external to the RelVarSpec, in the graph
+      -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
+      -- The rest of the info can be inferred from the edges connected to it.
     type RelSpec = Map.Map Role MbrSpec
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
       -- but|todo ? any (Mbr _) mapped to Any could be omitted
