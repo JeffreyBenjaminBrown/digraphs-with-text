@@ -1,6 +1,9 @@
     {-# LANGUAGE FlexibleContexts #-}
 
-    module Dwt.Graph_2 where
+    module Dwt.Graph_2
+      ( module Data.Graph.Inductive
+      , module Dwt.Graph_2
+      ) where
 
     import Dwt.Util
     import Data.Graph.Inductive

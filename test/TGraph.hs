@@ -12,7 +12,6 @@
     tGraph = TestList [ TestLabel "tBuildGraph" tBuildGraph
                       , TestLabel "tAskMinor"   tAskMinor
                       , TestLabel "tAskNodes"   tAskNodes
-                      , TestLabel "tShowExpr"   tShowExpr
                       ]
 
   -- buildGraph
