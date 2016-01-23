@@ -69,8 +69,8 @@
         isLeft $ chNonUserAt g1 4  $ stringToTplt "_ is _" -- LNode 4 is a Str
 
     tChMbr = TestCase $ do
-      let gDogDog = fromRight $ chRelMbr g1 5 0 (RelMbr 2)
-      let gImpossible         = chRelMbr g1 5 0 (RelMbr 99) -- 99 is too high
+      let gDogDog = fromRight $ chRelMbr g1 5 0 (Mbr 2)
+      let gImpossible         = chRelMbr g1 5 0 (Mbr 99) -- 99 is too high
       assertBool "1" $ showExpr Map.empty gDogDog 5 
                        == "5:1 \171\&0: dog\187 wants \171\&0: dog\187"
         -- (\& == empty string) is to distinguish from longer number
@@ -90,8 +90,8 @@
       assertBool "2" $ gelemM g1 100 == Left "gelemM: Node 100 absent."
 
     tHasLEdgeM = TestCase $ do
-      assertBool "has it" $ hasLEdgeM g1 (5,0,RelMbr 1) == Right ()
-      assertBool "lacks it" $ isLeft $ hasLEdgeM g1 (5,0,RelMbr 2)
+      assertBool "has it" $ hasLEdgeM g1 (5,0,RoleEdge $ Mbr 1) == Right ()
+      assertBool "lacks it" $ isLeft $ hasLEdgeM g1 (5,0,RoleEdge $ Mbr 2)
 
     tIsTplt = TestCase $ do
       assertBool "is template" $ isTplt g1 1 == Right True
@@ -129,8 +129,8 @@
       assertBool "2" $ isLeft $ (users g1 100 :: Either String [Dwt.Node])
 
     tSpecUsers = TestCase $ do
-      assertBool "with Arity"    $ specUsers g1 0 (RelMbr 1) == Right [5,6,8]
-      assertBool "without Arity" $ specUsersUsf g1 0 (RelMbr 1) == [5,6,8]
+      assertBool "with Arity" $ specUsers g1 0 (Mbr 1) == Right [5,6,8]
+      assertBool "without Arity" $ specUsersUsf g1 0 (Mbr 1) == [5,6,8]
 
     tMatchRel = TestCase $ do
       assertBool "dog in first pos"     $ matchRel g1 relSpec == Right [5,6,8]

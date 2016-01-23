@@ -27,7 +27,7 @@
                $ map show_in_brackets [m | (m,CollMbr) <- lsuc g n] )
           Just (Rel)     ->
             let elts = sortOn snd $ lsuc g n -- elts = Mbrs + Tplt
-                (tpltNode,RelTplt) = head elts
+                (tpltNode,RoleEdge RelTplt) = head elts
                   -- head because RelTplt goes before RelMbr in Ord Role
                 Just tpltLab = lab g tpltNode :: Maybe Expr
                 memberNodes = map fst $ tail elts :: [Node]

@@ -19,30 +19,29 @@
     -- Exprs (expressions) play Roles in Rels (relationships).
     -- Each Arity-k Rel emits k+1 Edges toward the other Exprs:
       -- one connects it to its RelTplt (relationship template)
-      -- k more connect it to each of its k RelMbrs (relationship members)
+      -- k more connect it to each of its k Mbrs (relationship members)
     -- data/minmalGraph.hs demonstrates these types (in only like 20 lines)
 
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
 
-    type Mindmap = Gr Expr Role
+    type Mindmap = Gr Expr DwtEdge
     data Expr = Str String | Tplt [String] | Rel | Coll String
-              | RelSpecExpr RelVarSpec
-      deriving (Show,Read,Eq,Ord)
-    data Role = RelTplt | RelMbr RelPos | CollMbr
-      deriving (Show,Read,Eq,Ord)
+              | RelSpecExpr RelVarSpec deriving (Show,Read,Eq,Ord)
 
-    data MbrSpec = It | Any | Ana | Kata -- Ana ~ Up, Kata ~ Down
-                 | MbrSpec Node deriving (Show,Read,Eq,Ord)
+    data DwtEdge = RoleEdge Role | CollMbr deriving (Show,Read,Eq,Ord)
+    data Role = RelTplt | Mbr RelPos deriving (Show,Read,Eq,Ord)
 
-    type RelVarSpec = Map.Map Role MbrSpec
-      -- specifies a subset of what a RelSpec does
-      -- the other information is carried external to it, in the graph
-    type RelSpec = Map.Map Role MbrSpec 
-      -- if well-formed: 
-        -- has a Tplt, and RelPoss from 1 to the Tplt's Arity
-        -- has no ColMbr
-      -- todo ? any (RelMbr _) mapped to Any could be omitted
+    data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
+      deriving (Show,Read,Eq,Ord)
+    data MbrSpec = VarSpec MbrVar | MbrSpec Node deriving (Show,Read,Eq,Ord)
+
+    type RelVarSpec = Map.Map Role MbrVar -- subset of RelSpec info, but
+      -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
+      -- The rest of the info can be inferred from the edges connected to it.
+    type RelSpec = Map.Map Role MbrSpec
+      -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
+      -- but|todo ? any (Mbr _) mapped to Any could be omitted
 
 -- build
   -- Tplt <-> String
@@ -77,8 +76,8 @@
          return $ f (zip ns [1..a]) g'
       where newNode = head $ newNodes 1 g
             f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
-            g' =                insEdge (newNode, tn, RelTplt)
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, RoleEdge $ Mbr $ snd p) g
+            g' =                insEdge (newNode, tn, RoleEdge RelTplt)
                               $ insNode (newNode, Rel) g
 
     insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap
@@ -92,8 +91,8 @@
             ta = tpltArity te
             newNode = head $ newNodes 1 g
             f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
-            g' =                insEdge (newNode, t, RelTplt)
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, RoleEdge $ Mbr $ snd p) g
+            g' =                insEdge (newNode, t, RoleEdge RelTplt)
                               $ insNode (newNode, Rel) g
 
     insColl :: (MonadError String m) => String -> [Node] -> Mindmap -> m Mindmap
@@ -125,13 +124,13 @@
     chRelMbr g user newMbr role = do
       isRel g user
       gelemM g newMbr
-      let candidates = [n | (n,lab) <- lsuc g user, lab == role]
+      let candidates = [n | (n,lab) <- lsuc g user, lab == RoleEdge role]
       if length candidates /= 1
         then throwError "chRelMbr: invalid graph state, or RelPos out of range"
         else return ()
       let oldMbr = head candidates
-      return $ delLEdge (user,oldMbr,role)
-             $ insEdge (user,newMbr,role) g
+      return $ delLEdge (user,oldMbr,RoleEdge role)
+             $ insEdge (user,newMbr,RoleEdge role) g
 
 -- query
   -- tests and lookups for smaller-than-graph types
@@ -183,7 +182,7 @@
       if not ir
         then throwError $ "relTpltAt: LNode " ++ show rn ++ " not a Rel."
         else return $ fromJust $ lab g -- fromJust: safe b/c found in next line
-          $ head [n | (n,RelTplt) <- lsuc g rn]
+          $ head [n | (n, RoleEdge RelTplt) <- lsuc g rn]
             -- head is only unsafe if graph takes an invalid state
             -- because each Rel should have exactly one Tplt
 
@@ -209,19 +208,19 @@
       gelemM g n
       return $ specUsersUsf g n r
 
-    specUsersUsf :: (Graph gr) => gr a Role -> Node -> Role -> [Node]
-    specUsersUsf g n r = [m | (m,r') <- lpre g n, r==r']
+    specUsersUsf :: (Graph gr) => gr a DwtEdge -> Node -> Role -> [Node]
+    specUsersUsf g n r = [m | (m,r') <- lpre g n, r'==RoleEdge r]
 
     redundancySubs :: RelSpec -> Map.Map Node String
     redundancySubs = Map.fromList 
       . map (\(MbrSpec n) -> (n,show n))
       . Map.elems
-      . Map.filter (\ns -> case ns of MbrSpec n -> True; _ -> False) 
+      . Map.filter (\ns -> case ns of MbrSpec _ -> True; _ -> False) 
 
     matchRel :: (MonadError String m) => Mindmap -> RelSpec -> m [Node]
     matchRel g spec = do
       let specList = Map.toList
-            $ Map.filter (\ns -> case ns of MbrSpec n -> True; _ -> False) 
+            $ Map.filter (\ns -> case ns of MbrSpec _ -> True; _ -> False) 
             $ spec :: [(Role,MbrSpec)]
       nodeListList <- mapM (\(r,MbrSpec n) -> specUsers g n r) specList
       return $ listIntersect nodeListList

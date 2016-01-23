@@ -1,12 +1,18 @@
-    module TData where
+    module TData (
+      g1, g1Alt
+      , relSpec, relSpecNonsense
+    ) where
 
     import Dwt.Graph
     import qualified Data.Map as Map
 
+-- exports
     g1,g1Alt :: Mindmap
 
-    g1 = mkGraph
-      [   (0, Str "dog"       )
+    g1 = let mbr = RoleEdge . Mbr
+             tplt = RoleEdge RelTplt
+      in mkGraph [
+          (0, Str "dog"       )
         , (1, stringToTplt "_ wants _" )
         , (2, stringToTplt "_ needs _" )
         , (3, Str "water"     )
@@ -18,11 +24,11 @@
         , (9, stringToTplt "statement _ is _")
         , (10, Str "dubious"  )
         , (11, Rel            )
-      ] [ (5,1, RelTplt), (5,0, RelMbr 1), (5,4,RelMbr 2) -- dog wants brandy
-        , (6,2, RelTplt), (6,0, RelMbr 1), (6,3,RelMbr 2) -- dog needs water
-        , (8,7, RelTplt), (8,0, RelMbr 1), (8,3,RelMbr 2), (8,4,RelMbr 3) 
+      ] [ (5,1, tplt), (5,0, mbr 1), (5,4,mbr 2) -- dog wants brandy
+        , (6,2, tplt), (6,0, mbr 1), (6,3,mbr 2) -- dog needs water
+        , (8,7, tplt), (8,0, mbr 1), (8,3,mbr 2), (8,4,mbr 3) 
           -- dog needs water for brandy
-        , (11,9,RelTplt), (11,5,RelMbr 1), (11,10,RelMbr 2) 
+        , (11,9,tplt), (11,5,mbr 1), (11,10,mbr 2) 
           -- [dog wants brandy] is dubious
       ]
 
@@ -34,11 +40,12 @@
           $ insTplt"_ needs _"  $ insTplt"_ wants _"
           $ insStr"dog"         $ empty :: Mindmap
 
-    relSpec = Map.fromList [ (RelTplt, It)
-                           , (RelMbr 1, MbrSpec 0)
-                           , (RelMbr 2, Any)
+    relSpec = Map.fromList [ (RelTplt, VarSpec It)
+                           , (Mbr 1, MbrSpec 0)
+                           , (Mbr 2, VarSpec Any)
                            ]
+
     relSpecNonsense = Map.fromList [ (RelTplt, MbrSpec 0) -- "dog" Str, not Tplt
-                                   , (RelMbr 1, It)
-                                   , (RelMbr 2, Any)
+                                   , (Mbr 1, VarSpec It)
+                                   , (Mbr 2, VarSpec Any)
                                    ]
