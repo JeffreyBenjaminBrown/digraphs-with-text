@@ -4,7 +4,6 @@
 
     data DwtEdge = RoleEdge Role | CollMbr
     data Role = RelTplt | Mbr RelPos
-      deriving (Show,Read,Eq,Ord)
 
     data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
     data MbrSpec = VarSpec MbrVar | MbrSpec Node
