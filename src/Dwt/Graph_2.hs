@@ -16,7 +16,7 @@
     -- Exprs (expressions) play Roles in Rels (relationships).
     -- Each Arity-k Rel emits k+1 Edges toward the other Exprs:
       -- one connects it to its RelTplt (relationship template)
-      -- k more connect it to each of its k RelMbrs (relationship members)
+      -- k more connect it to each of its k Mbrs (relationship members)
     -- data/minmalGraph.hs demonstrates these types (in only like 20 lines)
 
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
@@ -27,7 +27,7 @@
               | RelSpecExpr RelVarSpec
       deriving (Show,Read,Eq,Ord)
 
-    data Role = RelTplt | RelMbr RelPos | CollMbr
+    data Role = RelTplt | Mbr RelPos | CollMbr
       deriving (Show,Read,Eq,Ord)
 
     data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
@@ -42,7 +42,7 @@
       -- if well-formed: 
         -- has a Tplt, and RelPoss from 1 to the Tplt's Arity
         -- has no ColMbr
-      -- todo ? any (RelMbr _) mapped to Any could be omitted
+      -- todo ? any (Mbr _) mapped to Any could be omitted
 
 -- build
   -- Tplt <-> String
@@ -77,7 +77,7 @@
          return $ f (zip ns [1..a]) g'
       where newNode = head $ newNodes 1 g
             f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, Mbr $ snd p) g
             g' =                insEdge (newNode, tn, RelTplt)
                               $ insNode (newNode, Rel) g
 
@@ -92,7 +92,7 @@
             ta = tpltArity te
             newNode = head $ newNodes 1 g
             f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelMbr $ snd p) g
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, Mbr $ snd p) g
             g' =                insEdge (newNode, t, RelTplt)
                               $ insNode (newNode, Rel) g
 
