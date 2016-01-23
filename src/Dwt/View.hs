@@ -71,7 +71,7 @@
 -- convenient shorthand
     (n,j,ns) = (Nothing,Just,MbrSpec)
 
-    vm :: Mindmap -> RelSpecMap -> IO () -- view match
+    vm :: Mindmap -> RelSpec -> IO () -- view match
     vm g spec = viewS (redundancySubs spec) g $ fromRight $ matchRel g spec
       -- TODO : remove fromRight
 

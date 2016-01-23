@@ -30,7 +30,7 @@
               | Tplt [String]
               | Rel
               | Coll String
-              | RelSpec RelSpecMap
+              | RelSpecExpr RelVarSpec
                 -- if well-formed, the map uses no MbrSpec constructors
                 -- because that kind of data is external, in the graph
       deriving (Show,Read,Eq,Ord)
@@ -39,7 +39,11 @@
 
     data MbrSpec = It | Any | Ana | Kata -- Ana ~ Up, Kata ~ Down
                  | MbrSpec Node deriving (Show,Read,Eq,Ord)
-    type RelSpecMap = Map.Map Role MbrSpec 
+
+    type RelVarSpec = Map.Map Role MbrSpec
+      -- specifies a subset of what a RelSpec does
+      -- the other information is carried external to it, in the graph
+    type RelSpec = Map.Map Role MbrSpec 
       -- if well-formed: 
         -- has a Tplt, and RelPoss from 1 to the Tplt's Arity
         -- has no ColMbr
@@ -213,13 +217,13 @@
     specUsersUsf :: (Graph gr) => gr a Role -> Node -> Role -> [Node]
     specUsersUsf g n r = [m | (m,r') <- lpre g n, r==r']
 
-    redundancySubs :: RelSpecMap -> Map.Map Node String
+    redundancySubs :: RelSpec -> Map.Map Node String
     redundancySubs = Map.fromList 
       . map (\(MbrSpec n) -> (n,show n))
       . Map.elems
       . Map.filter (\ns -> case ns of MbrSpec n -> True; _ -> False) 
 
-    matchRel :: (MonadError String m) => Mindmap -> RelSpecMap -> m [Node]
+    matchRel :: (MonadError String m) => Mindmap -> RelSpec -> m [Node]
     matchRel g spec = do
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of MbrSpec n -> True; _ -> False) 

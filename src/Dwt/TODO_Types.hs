@@ -8,7 +8,8 @@
     data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
     data MbrSpec = VarSpec MbrVar | MbrSpec Node
 
-    type RelVarSpec = Map.Map RelRole MbrVar
+    type RelVarSpec = Map.Map RelRole MbrVar -- STILL TODO: RelRole, MbrVar
+                                                  -- using Role, MbrVar instead
       -- specifies a subset of what a RelSpec does
       -- the other information is carried external to it, in the graph
     type RelSpec = Map.Map RelRole MbrSpec
