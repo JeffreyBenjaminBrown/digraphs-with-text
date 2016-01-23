@@ -4,12 +4,17 @@
     import Test.HUnit
     import qualified Data.Map as Map
 
-    tParseMm = TestList [ TestLabel "tMmStr" tMmStr
-                        , TestLabel "tWord" tWord
-                        , TestLabel "tComment" tComment
-                        , TestLabel "tKeyValPair" tKeyValPair
-                        , TestLabel "tStrip" tStrip
-                        , TestLabel "tMlTag" tMlTag]
+    tMmParse = TestList [ TestLabel "tParseMmXml" tParseMmXml
+                        , TestLabel "tParseMmTags" tParseMmTags
+                        ]
+
+-- parse .mm(the xml format)
+    tParseMmXml = TestList [ TestLabel "tMmStr" tMmStr
+                           , TestLabel "tWord" tWord
+                           , TestLabel "tComment" tComment
+                           , TestLabel "tKeyValPair" tKeyValPair
+                           , TestLabel "tStrip" tStrip
+                           , TestLabel "tMlTag" tMlTag]
 
     tMmStr = TestCase $ do
       assertBool "mmStr" $ eParse2 mmStr "\"aygaw\"bbbb"
@@ -50,8 +55,8 @@
                  )
 
   -- manip mmTags
-    tMmTags = TestList [ TestLabel "tParseId" tParseId
-                       , TestLabel "tMmNLab" tMmNLab ]
+    tParseMmTags = TestList [ TestLabel "tParseId" tParseId
+                            , TestLabel "tMmNLab" tMmNLab ]
 
     tParseId = TestCase $ do
       assertBool "parse ID strings" $ parseId "ID_123" == Right 123

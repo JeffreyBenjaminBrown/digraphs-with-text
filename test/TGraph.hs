@@ -9,6 +9,12 @@
     import Data.Either
     import qualified Control.Lens.Lens as L -- not crit; for (&), only used once
 
+    tGraph = TestList [ TestLabel "tBuildGraph" tBuildGraph
+                      , TestLabel "tAskMinor"   tAskMinor
+                      , TestLabel "tAskNodes"   tAskNodes
+                      , TestLabel "tShowExpr"   tShowExpr
+                      ]
+
   -- buildGraph
     tBuildGraph = TestList [ TestLabel "tSubInTplt" tSubInTplt
                            , TestLabel "tInsert" tInsert
