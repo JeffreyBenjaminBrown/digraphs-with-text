@@ -33,9 +33,9 @@
       deriving (Show,Read,Eq,Ord)
     data MbrSpec = VarSpec MbrVar | MbrSpec Node deriving (Show,Read,Eq,Ord)
 
-    type RelVarSpec = Map.Map Role MbrSpec
-      -- specifies a subset of what a RelSpec does, because
-      -- the other information is carried external to it, in the graph
+    type RelVarSpec = Map.Map Role MbrVar -- subset of RelSpec info, but
+      -- a RelVarSpec in a Mindmap is transformable into a RelSpec, because
+      -- the rest of that info is carried external to the RelVarSpec, in the graph
     type RelSpec = Map.Map Role MbrSpec
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
       -- but|todo ? any (Mbr _) mapped to Any could be omitted
