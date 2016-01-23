@@ -1,9 +1,6 @@
     {-# LANGUAGE FlexibleContexts #-}
 
-    module Dwt.Graph
-      ( module Data.Graph.Inductive
-      , module Dwt.Graph
-      ) where
+    module Dwt.Graph_2 where
 
     import Dwt.Util
     import Data.Graph.Inductive
@@ -32,13 +29,15 @@
     data Role = RelTplt | RelMbr RelPos | CollMbr
       deriving (Show,Read,Eq,Ord)
 
-    data MbrSpec = It | Any | Ana | Kata -- Ana ~ Up, Kata ~ Down
-                 | MbrSpec Node deriving (Show,Read,Eq,Ord)
+    data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
+      deriving (Show,Read,Eq,Ord)
+    data MbrSpec = VarSpec MbrVar | MbrSpec Node
+      deriving (Show,Read,Eq,Ord)
 
     type RelVarSpec = Map.Map Role MbrSpec
       -- specifies a subset of what a RelSpec does
       -- the other information is carried external to it, in the graph
-    type RelSpec = Map.Map Role MbrSpec 
+    type RelSpec = Map.Map Role MbrSpec
       -- if well-formed: 
         -- has a Tplt, and RelPoss from 1 to the Tplt's Arity
         -- has no ColMbr
@@ -216,12 +215,12 @@
     redundancySubs = Map.fromList 
       . map (\(MbrSpec n) -> (n,show n))
       . Map.elems
-      . Map.filter (\ns -> case ns of MbrSpec n -> True; _ -> False) 
+      . Map.filter (\ns -> case ns of MbrSpec _ -> True; _ -> False) 
 
     matchRel :: (MonadError String m) => Mindmap -> RelSpec -> m [Node]
     matchRel g spec = do
       let specList = Map.toList
-            $ Map.filter (\ns -> case ns of MbrSpec n -> True; _ -> False) 
+            $ Map.filter (\ns -> case ns of MbrSpec _ -> True; _ -> False) 
             $ spec :: [(Role,MbrSpec)]
       nodeListList <- mapM (\(r,MbrSpec n) -> specUsers g n r) specList
       return $ listIntersect nodeListList
