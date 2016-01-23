@@ -1,8 +1,9 @@
     {-# LANGUAGE FlexibleContexts #-}
 
-    module Dwt.Graph_2 (
-      module Dwt.Graph_2
-    ) where
+    module Dwt.Graph
+      ( module Data.Graph.Inductive
+      , module Dwt.Graph
+      ) where
 
     import Dwt.Util
     import Data.Graph.Inductive
@@ -14,26 +15,34 @@
     import Control.Monad.Except (MonadError, throwError)
     import Data.Text (splitOn, pack, unpack)
 
+-- types
+    -- Exprs (expressions) play Roles in Rels (relationships).
+    -- Each Arity-k Rel emits k+1 Edges toward the other Exprs:
+      -- one connects it to its RelTplt (relationship template)
+      -- k more connect it to each of its k RelMbrs (relationship members)
+    -- data/minmalGraph.hs demonstrates these types (in only like 20 lines)
+
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
 
-    type Mindmap = Gr Expr DwtEdge
+    type Mindmap = Gr Expr Role
     data Expr = Str String | Tplt [String] | Rel | Coll String
               | RelSpecExpr RelVarSpec
-    data DwtEdge = RoleEdge Role | CollMbr
-    data Role = TpltRole | MbrRole RelPos
+      deriving (Show,Read,Eq,Ord)
+    data Role = RelTplt | RelMbr RelPos | CollMbr
       deriving (Show,Read,Eq,Ord)
 
-    data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
-    data MbrSpec = VarSpec MbrVar | MbrSpec Node
+    data MbrSpec = It | Any | Ana | Kata -- Ana ~ Up, Kata ~ Down
+                 | MbrSpec Node deriving (Show,Read,Eq,Ord)
 
-    type RelVarSpec = Map.Map Role MbrVar -- STILL TODO: RelRole
-                                                  -- using Role instead
+    type RelVarSpec = Map.Map Role MbrSpec
       -- specifies a subset of what a RelSpec does
       -- the other information is carried external to it, in the graph
-    type RelSpec = Map.Map Role MbrSpec
-      -- if well-formed, has a Tplt, and has RelPoss from 1 to the Tplt's Arity
-      -- (but anything mapping to Any can be dropped)
+    type RelSpec = Map.Map Role MbrSpec 
+      -- if well-formed: 
+        -- has a Tplt, and RelPoss from 1 to the Tplt's Arity
+        -- has no ColMbr
+      -- todo ? any (RelMbr _) mapped to Any could be omitted
 
 -- build
   -- Tplt <-> String
