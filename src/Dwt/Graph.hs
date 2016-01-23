@@ -26,13 +26,8 @@
     type Arity = Int
 
     type Mindmap = Gr Expr Role
-    data Expr = Str String
-              | Tplt [String]
-              | Rel
-              | Coll String
+    data Expr = Str String | Tplt [String] | Rel | Coll String
               | RelSpecExpr RelVarSpec
-                -- if well-formed, the map uses no MbrSpec constructors
-                -- because that kind of data is external, in the graph
       deriving (Show,Read,Eq,Ord)
     data Role = RelTplt | RelMbr RelPos | CollMbr
       deriving (Show,Read,Eq,Ord)
