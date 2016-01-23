@@ -26,6 +26,7 @@
     data Expr = Str String | Tplt [String] | Rel | Coll String
               | RelSpecExpr RelVarSpec
       deriving (Show,Read,Eq,Ord)
+
     data Role = RelTplt | RelMbr RelPos | CollMbr
       deriving (Show,Read,Eq,Ord)
 
