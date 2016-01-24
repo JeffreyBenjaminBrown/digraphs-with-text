@@ -2,25 +2,38 @@ I use the Functional Graph Library (FGL) to implement something resembling a hyp
 
 Here are the types:
 
-    -- Exprs (expressions) play Roles in Rels (relationships).
-      -- A k-ary (Arity k) Rel consists of a k-ary template and k members.
-    -- Each k-ary Rel emits k+1 Edges toward the other Exprs:
+    -- data/minmalGraph.hs demonstrates many of these types, in only like 20 lines
+    -- Exprs (expressions) play RelRoles in Rels (relationships).
+    -- Each Arity-k Rel emits k+1 Edges toward the other Exprs:
       -- one connects it to its RelTplt (relationship template)
-      -- k more connect it to each of its k RelMbrs (relationship members)
-    -- The two paragraphs after it will clear up any questions about the next.
+      -- k more connect it to each of its k Mbrs (relationship members)
+    -- Similarly, Colls use CollRoles.
+    -- RelSpecExprs use RelRoles.
+      -- but unlike Rels, they can be well-formed without emitting any.
 
-    type Mindmap = Gr Expr Role
-    data Role = RelTplt | RelMbr RelPos
-      deriving (Show,Read,Eq,Ord)
-    data Expr = Str String | Tplt Arity [String] | Rel Arity
-      -- TODO ? deduce the Arity of a Tplt from its [String]
-      -- TODO ? deduce from the graph the Arity of a Rel
-        -- rather than carrying it redundantly in the Rel constructor
-      deriving (Show,Read,Eq,Ord)
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
 
-The following is a Mindmap that represents the expression "dog needs water" using the subexpressions "dog" (a string), "water" (a string), and "_ wants _" (a relationship two things can have, that is a binary Rel):
+    type Mindmap = Gr Expr DwtEdge
+    data Expr = Str String | Tplt [String] | Rel | Coll String
+              | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
+
+    data DwtEdge = RoleEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
+    data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
+    data CollRole = CollMbr | CollTitle | CollSeparator deriving(Show,Read,Eq,Ord)
+
+    data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
+      deriving (Show,Read,Eq,Ord)
+    data MbrSpec = VarSpec MbrVar | MbrSpec Node deriving(Show,Read,Eq,Ord)
+
+    type RelVarSpec = Map.Map RelRole MbrVar -- subset of RelSpec info, but
+      -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
+      -- The rest of the info can be inferred from the edges connected to it.
+    type RelSpec = Map.Map RelRole MbrSpec
+      -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
+      -- but|todo ? any (Mbr _) mapped to Any could be omitted
+
+The following is an obsolete (uses an earlier version of Dwt) Mindmap that represents the expression "dog needs water" using the subexpressions "dog" (a string), "water" (a string), and "_ wants _" (a relationship two things can have, that is a binary Rel):
 
     -- mkGraph :: Graph gr => [LNode a] -> [LEdge b] -> gr a b
       -- that is, mkGraph takes a list of nodes followed by a list of edges

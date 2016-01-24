@@ -16,11 +16,14 @@
     import Data.Text (splitOn, pack, unpack)
 
 -- types
-    -- Exprs (expressions) play Roles in Rels (relationships).
+    -- data/minmalGraph.hs demonstrates many of these types, in only like 20 lines
+    -- Exprs (expressions) play RelRoles in Rels (relationships).
     -- Each Arity-k Rel emits k+1 Edges toward the other Exprs:
       -- one connects it to its RelTplt (relationship template)
       -- k more connect it to each of its k Mbrs (relationship members)
-    -- data/minmalGraph.hs demonstrates these types (in only like 20 lines)
+    -- Similarly, Colls use CollRoles.
+    -- RelSpecExprs use RelRoles.
+      -- but unlike Rels, they can be well-formed without emitting any.
 
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
