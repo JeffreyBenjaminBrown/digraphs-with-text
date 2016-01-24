@@ -108,7 +108,7 @@
             map (\n -> (newNode, n, CollEdge CollMbr)) ns
       return $ insEdges newEdges $ insNode (newNode,Coll) g
 
-    partitionRelSpec :: RelSpec -> (RelVarSpec,RelNodeSpec)
+    partitionRelSpec :: RelSpec -> (RelVarSpec, RelNodeSpec)
     partitionRelSpec rSpec =
       let (vs,ns) = Map.partition (\mSpec -> case mSpec of VarSpec _ -> True
                                                            NodeSpec _ -> False
@@ -118,10 +118,11 @@
 
     insRelSpec :: (MonadError String m) => RelSpec -> Mindmap -> m Mindmap
     insRelSpec rSpec g = do
-      let (vs,ms) = Map.partition (\mSpec -> case mSpec of VarSpec _ -> True
-                                                           NodeSpec _ -> False
-                                  ) rSpec
-      -- TODO: finish
+      let (vs,ns) = partitionRelSpec rSpec
+      -- TODO: add an LNode = (newNode, RelSpecExpr vs)
+            -- for each (r,n) in ms, 
+              -- check that n is in the graph
+              -- add edge (newNode, n, RelEdge r)
       return g
 
   -- edit
