@@ -27,14 +27,15 @@
 
     type Mindmap = Gr Expr DwtEdge
     data Expr = Str String | Tplt [String] | Rel | Coll String
-              | RelSpecExpr RelVarSpec deriving (Show,Read,Eq,Ord)
+              | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
 
-    data DwtEdge = RoleEdge RelRole | CollMbr deriving (Show,Read,Eq,Ord)
-    data RelRole = RelTplt | Mbr RelPos deriving (Show,Read,Eq,Ord) -- w/r/t a Rel
+    data DwtEdge = RoleEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
+    data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
+    data CollRole = CollMbr | CollTitle | CollSeparator deriving(Show,Read,Eq,Ord)
 
     data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
       deriving (Show,Read,Eq,Ord)
-    data MbrSpec = VarSpec MbrVar | MbrSpec Node deriving (Show,Read,Eq,Ord)
+    data MbrSpec = VarSpec MbrVar | MbrSpec Node deriving(Show,Read,Eq,Ord)
 
     type RelVarSpec = Map.Map RelRole MbrVar -- subset of RelSpec info, but
       -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
@@ -99,7 +100,7 @@
     insColl prefix ns g = do
       mapM_ (gelemM g) ns
       let newNode = head $ newNodes 1 g
-          newEdges = map (\n -> (newNode,n,CollMbr)) ns
+          newEdges = map (\n -> (newNode,n,CollEdge CollMbr)) ns
       return $ insEdges newEdges $ insNode (newNode,Coll prefix) g
 
   -- edit

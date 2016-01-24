@@ -46,10 +46,11 @@
 
     tInsColl = TestCase $ do
       let gg = fromRight $ insColl "things" [0,3,4] g1
+          collMbrEdge = CollEdge CollMbr
       assertBool "new 12th node" 
         $ (lab' $ fromJust $ fst $ match 12 gg) == Coll "things"
       assertBool "3 new edges" 
-        $ lsuc gg 12 == [(0,CollMbr),(3,CollMbr),(4,CollMbr)]
+        $ lsuc gg 12 == [(0,collMbrEdge),(3,collMbrEdge),(4,collMbrEdge)]
       assertBool "only 1 new node, only 3 new edges"
         $    (length $ nodes g1) + 1 == (length $ nodes gg)
           && (length $ edges g1) + 3 == (length $ edges gg)

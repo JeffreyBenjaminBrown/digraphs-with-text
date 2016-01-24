@@ -24,7 +24,7 @@
           Just (Tplt ts) -> tpltPfx n ++ intercalate "_" ts
           Just (Coll s)  -> collPfx n ++ s ++ ": "
             ++ ( intercalate ", " 
-               $ map show_in_brackets [m | (m,CollMbr) <- lsuc g n] )
+               $ map show_in_brackets [m | (m,CollEdge CollMbr) <- lsuc g n] )
           Just (Rel)     ->
             let elts = sortOn snd $ lsuc g n -- elts = Mbrs + Tplt
                 (tpltNode,RoleEdge RelTplt) = head elts
