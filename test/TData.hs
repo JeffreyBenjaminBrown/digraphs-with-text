@@ -34,7 +34,7 @@
           -- [dog wants brandy] is dubious
       ]
 
-    g1Alt = insFl 1.3           $ insFl 1
+    g1Alt = insFl 1.3           $ insLeaf (Fl 1)
           $ insRelUsf 9 [5,10] 
           $ insStr"dubious"     $ insTplt"statement _ is _"
           $ insRelUsf 7 [0,3,4] $ insTplt"_ needs _ for _"

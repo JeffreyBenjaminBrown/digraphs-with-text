@@ -71,18 +71,6 @@
         where [newNode] = newNodes 1 g
       False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
 
-    insStr :: String -> Mindmap -> Mindmap
-    insStr str g = insNode (newNode, Str str) g
-      where newNode = head $ newNodes 1 g
-
-    insTplt :: String -> Mindmap -> Mindmap
-    insTplt s g = insNode (newNode, stringToTplt s) g
-      where newNode = head $ newNodes 1 g
-
-    insFl :: Float -> Mindmap -> Mindmap
-    insFl f g = insNode (newNode, Fl f) g
-      where newNode = head $ newNodes 1 g
-
     insRel :: (MonadError String m) => Node -> [Node] -> Mindmap -> m Mindmap
     insRel tn ns g =
       do mapM_ (gelemM g) $ tn:ns
@@ -271,3 +259,16 @@
             $ spec :: [(RelRole,MbrSpec)]
       nodeListList <- mapM (\(r,NodeSpec n) -> specUsers g n r) specList
       return $ listIntersect nodeListList
+
+-- deprecated
+    insStr :: String -> Mindmap -> Mindmap -- generalized to insLeaf
+    insStr str g = insNode (newNode, Str str) g
+      where newNode = head $ newNodes 1 g
+
+    insTplt :: String -> Mindmap -> Mindmap -- generalized to insLeaf
+    insTplt s g = insNode (newNode, stringToTplt s) g
+      where newNode = head $ newNodes 1 g
+
+    insFl :: Float -> Mindmap -> Mindmap -- generalized to insLeaf
+    insFl f g = insNode (newNode, Fl f) g
+      where newNode = head $ newNodes 1 g
