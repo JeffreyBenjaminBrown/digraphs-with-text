@@ -45,16 +45,16 @@
             == Left "tpltAt: LNode 0 not a Tplt."
 
     tInsColl = TestCase $ do
-      let gg = fromRight $ insColl n n [0,3,4] g1
-          -- TODO: try CollName, CollSep
+      let gg = fromRight $ insColl (j 10) n [0,3,4] g1
           collMbrEdge = CollEdge CollMbr
       assertBool "new 12th node" 
         $ (lab' $ fromJust $ fst $ match 12 gg) == Coll
       assertBool "3 new edges" 
-        $ lsuc gg 12 == [(0,collMbrEdge),(3,collMbrEdge),(4,collMbrEdge)]
-      assertBool "only 1 new node, only 3 new edges"
+        $ lsuc gg 12 == [(0, collMbrEdge), (3, collMbrEdge), (4, collMbrEdge)
+                        ,(10, CollEdge CollName)]
+      assertBool "only 1 new node, only 4 new edges"
         $    (length $ nodes g1) + 1 == (length $ nodes gg)
-          && (length $ edges g1) + 3 == (length $ edges gg)
+          && (length $ edges g1) + 4 == (length $ edges gg)
 
     tChNonRelAt = TestCase $ do
       let gCat = fromRight $ chNonUserAt g1 0 $ Str "cat"

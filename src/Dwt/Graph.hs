@@ -35,7 +35,7 @@
     data DwtEdge = RoleEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
     data CollRole = CollMbr 
-      | CollName | CollSep -- optional, so far unused
+      | CollName | CollSep -- both optional. sep(arator) so far unused.
       deriving(Show,Read,Eq,Ord)
 
     data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
