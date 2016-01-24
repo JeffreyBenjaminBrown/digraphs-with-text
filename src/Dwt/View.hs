@@ -22,8 +22,8 @@
           Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
           Just (Str s)   -> strPfx n ++ s
           Just (Tplt ts) -> tpltPfx n ++ intercalate "_" ts
-          Just (Coll)  -> collPfx n ++ "TODO: Name goes here" ++ ": "
-            ++ ( intercalate ", " 
+          Just (Coll)  -> collPfx n ++ "TODO: use name" ++ ": "
+            ++ ( intercalate ", "
                $ map show_in_brackets [m | (m,CollEdge CollMbr) <- lsuc g n] )
           Just (Rel)     ->
             let elts = sortOn snd $ lsuc g n -- elts = Mbrs + Tplt

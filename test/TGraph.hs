@@ -5,6 +5,7 @@
     import Test.HUnit
 
     import qualified Data.Map as Map
+    import qualified Data.Set as Set
     import Data.Maybe (fromJust)
     import Data.Either
     import qualified Control.Lens.Lens as L -- not crit; for (&), only used once
@@ -19,6 +20,7 @@
                            , TestLabel "tInsert" tInsert
                            , TestLabel "tInsRelM" tInsRelM
                            , TestLabel "tInsColl" tInsColl
+                           , TestLabel "tPartitionRelSpec" tPartitionRelSpec
                            , TestLabel "tChNonRelAt" tChNonRelAt
                            , TestLabel "tChMbr" tChMbr]
 
@@ -55,6 +57,14 @@
       assertBool "only 1 new node, only 4 new edges"
         $    (length $ nodes g1) + 1 == (length $ nodes gg)
           && (length $ edges g1) + 4 == (length $ edges gg)
+
+    tPartitionRelSpec = TestCase $ do
+      let (vs,ns) = partitionRelSpec relSpec
+      assertBool "1" $ Set.fromList (Map.toList vs)
+        == Set.fromList [ (RelTplt, It)
+                        , (Mbr 2,   Any) ]
+      assertBool "1" $ Set.fromList (Map.toList ns)
+        == Set.fromList [ (Mbr 1, 0) ]
 
     tChNonRelAt = TestCase $ do
       let gCat = fromRight $ chNonUserAt g1 0 $ Str "cat"

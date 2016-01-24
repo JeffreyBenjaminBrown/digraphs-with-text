@@ -108,10 +108,13 @@
             map (\n -> (newNode, n, CollEdge CollMbr)) ns
       return $ insEdges newEdges $ insNode (newNode,Coll) g
 
---    partitionRelSpec :: RelSpec -> (RelVarSpec,RelSpec)
---      let (vs,ms) = Map.partition (\mSpec -> case mSpec of VarSpec _ -> True
---                                                           NodeSpec _ -> False
---                                  ) rSpec
+    partitionRelSpec :: RelSpec -> (RelVarSpec,RelNodeSpec)
+    partitionRelSpec rSpec =
+      let (vs,ns) = Map.partition (\mSpec -> case mSpec of VarSpec _ -> True
+                                                           NodeSpec _ -> False
+                                  ) rSpec
+      in ( Map.map  (\(VarSpec  v) -> v)  vs
+         , Map.map  (\(NodeSpec n) -> n)  ns )
 
     insRelSpec :: (MonadError String m) => RelSpec -> Mindmap -> m Mindmap
     insRelSpec rSpec g = do
