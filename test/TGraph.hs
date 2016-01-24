@@ -45,10 +45,11 @@
             == Left "tpltAt: LNode 0 not a Tplt."
 
     tInsColl = TestCase $ do
-      let gg = fromRight $ insColl "things" [0,3,4] g1
+      let gg = fromRight $ insColl n n [0,3,4] g1
+          -- TODO: try CollName, CollSep
           collMbrEdge = CollEdge CollMbr
       assertBool "new 12th node" 
-        $ (lab' $ fromJust $ fst $ match 12 gg) == Coll "things"
+        $ (lab' $ fromJust $ fst $ match 12 gg) == Coll
       assertBool "3 new edges" 
         $ lsuc gg 12 == [(0,collMbrEdge),(3,collMbrEdge),(4,collMbrEdge)]
       assertBool "only 1 new node, only 3 new edges"
@@ -65,7 +66,7 @@
       assertBool "not in graph" $
         isLeft $ chNonUserAt g1 15  $ stringToTplt "_ uses _"
       assertBool "change Rel" $
-        isLeft $ chNonUserAt g1 11  $ Coll "moshke"
+        isLeft $ chNonUserAt g1 11  $ Coll
       assertBool "constructor mismatch" $
         isLeft $ chNonUserAt g1 4  $ stringToTplt "_ is _" -- LNode 4 is a Str
 

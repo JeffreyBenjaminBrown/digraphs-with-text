@@ -29,13 +29,13 @@
     type Arity = Int
 
     type Mindmap = Gr Expr DwtEdge
-    data Expr = Str String | Tplt [String] | Rel | Coll String
+    data Expr = Str String | Tplt [String] | Rel | Coll
               | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
 
     data DwtEdge = RoleEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
     data CollRole = CollMbr 
-      | CollTitle | CollSeparator -- optional, so far unused
+      | CollName | CollSep -- optional, so far unused
       deriving(Show,Read,Eq,Ord)
 
     data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
@@ -102,12 +102,20 @@
             g' =                insEdge (newNode, t, RoleEdge RelTplt)
                               $ insNode (newNode, Rel) g
 
-    insColl :: (MonadError String m) => String -> [Node] -> Mindmap -> m Mindmap
-    insColl prefix ns g = do
+    insColl :: (MonadError String m) => 
+      (Maybe Node) -> -- title
+      (Maybe Node) -> -- separator
+      [Node] -> Mindmap -> m Mindmap
+    insColl mt ms ns g = do
       mapM_ (gelemM g) ns
       let newNode = head $ newNodes 1 g
-          newEdges = map (\n -> (newNode,n,CollEdge CollMbr)) ns
-      return $ insEdges newEdges $ insNode (newNode,Coll prefix) g
+          nameEdges = case mt of Nothing -> []
+                                 Just tn -> [(newNode, tn, CollEdge CollName)]
+          sepEdges = case ms of Nothing -> []
+                                Just sn -> [(newNode, sn, CollEdge CollSep)]
+          newEdges = nameEdges ++ sepEdges ++
+            map (\n -> (newNode, n, CollEdge CollMbr)) ns
+      return $ insEdges newEdges $ insNode (newNode,Coll) g
 
 --    partitionRelSpec :: RelSpec -> (RelVarSpec,RelSpec)
 --      let (vs,ms) = Map.partition (\mSpec -> case mSpec of VarSpec _ -> True
@@ -181,14 +189,14 @@
     isRel = _isExprConstructor (\x -> case x of Rel -> True; _ -> False)
 
     isColl :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isColl = _isExprConstructor (\x -> case x of Coll _ -> True; _ -> False)
+    isColl = _isExprConstructor (\x -> case x of Coll -> True; _ -> False)
 
     isLikeExpr :: Expr -> Expr -> Bool
     isLikeExpr e f = case e of
-      Str _  ->  case f of Str _  -> True;  _ -> False
+      Str _  ->  case f of Str  _ -> True;  _ -> False
       Tplt _ ->  case f of Tplt _ -> True;  _ -> False
       Rel    ->  case f of Rel    -> True;  _ -> False
-      Coll _ ->  case f of Coll _ -> True;  _ -> False
+      Coll   ->  case f of Coll   -> True;  _ -> False
 
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
     tpltAt g tn = case lab g tn of

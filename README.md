@@ -16,6 +16,7 @@ In a a k-ary Rel, there are k AsPos Roles for k member Exprs,
 plus one more AsTplt Role for the Tplt (which must be k-ary).
 *  pos = position
 *  rel = relationship
+*  sep = separator, for instance ","
 *  sub = substitute
 *  tplt = (relationship) template
 *  usf = unsafe

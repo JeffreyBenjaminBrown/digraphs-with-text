@@ -22,7 +22,7 @@
           Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
           Just (Str s)   -> strPfx n ++ s
           Just (Tplt ts) -> tpltPfx n ++ intercalate "_" ts
-          Just (Coll s)  -> collPfx n ++ s ++ ": "
+          Just (Coll)  -> collPfx n ++ "TODO: Name goes here" ++ ": "
             ++ ( intercalate ", " 
                $ map show_in_brackets [m | (m,CollEdge CollMbr) <- lsuc g n] )
           Just (Rel)     ->
