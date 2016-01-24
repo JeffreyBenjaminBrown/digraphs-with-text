@@ -50,11 +50,12 @@
     tInsColl = TestCase $ do
       let gg = fromRight $ insColl (j 10) [0,3,4] g1
           collMbrEdge = CollEdge CollMbr
+          nextNode = head $ newNodes 1 g1
       assertBool "new 12th node" 
-        $ (lab' $ fromJust $ fst $ match 12 gg) == Coll
-      assertBool "3 new edges" 
-        $ lsuc gg 12 == [(0, collMbrEdge), (3, collMbrEdge), (4, collMbrEdge)
-                        ,(10, CollEdge CollPrinciple)]
+        $ (lab' $ fromJust $ fst $ match nextNode gg) == Coll
+      assertBool "3 new edges" $ lsuc gg nextNode 
+        == [ (0, collMbrEdge), (3, collMbrEdge), (4, collMbrEdge)
+           , (10, CollEdge CollPrinciple)]
       assertBool "only 1 new node, only 4 new edges"
         $    (length $ nodes g1) + 1 == (length $ nodes gg)
           && (length $ edges g1) + 4 == (length $ edges gg)
@@ -70,10 +71,11 @@
     tInsRelSpec = TestCase $ do
       let (vs,ns) = partitionRelSpec relSpec
           Right g2 = insRelSpec relSpec g1
-      assertBool "node" $ (fromJust $ lab g2 12) == RelSpecExpr vs
+          [newNode] = newNodes 1 g1
+      assertBool "node" $ (fromJust $ lab g2 newNode) == RelSpecExpr vs
       assertBool "only 1 more edge" $ 
         (length $ edges g1) + 1 == (length $ edges g2)
-      assertBool "the edge" $ hasLEdge g2 (12, 0, RelEdge $ Mbr 1)
+      assertBool "the edge" $ hasLEdge g2 (newNode, 0, RelEdge $ Mbr 1)
 
     tChNonRelAt = TestCase $ do
       let gCat = fromRight $ chNonUserAt g1 0 $ Str "cat"

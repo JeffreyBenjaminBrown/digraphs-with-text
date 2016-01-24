@@ -20,14 +20,16 @@
     type Arity = Int
 
     type Mindmap = Gr Expr DwtEdge
-    data Expr = Str String | Tplt [String] | Rel | Coll
+    data Expr = Str String | Fl Float -- Str, Fl, Tplt: leaves(graph, not tree)
+              | Tplt [String] | Rel | Coll
               | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
 
     data DwtEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord)
     data CollRole = CollMbr | CollPrinciple deriving(Show,Read,Eq,Ord)
 
-    data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
+  -- for (partially) specifying Rels
+    data MbrVar = It | Any | Ana | Kata -- TODO? use omission instead of Any
       deriving (Show,Read,Eq,Ord)
     data MbrSpec = VarSpec MbrVar | NodeSpec Node deriving(Show,Read,Eq,Ord)
 
@@ -55,12 +57,30 @@
     subInTplt _ _ = error "subInTplt: not a Tplt"
 
   -- insert
+    -- todo ? use a single ins function for Str, Tplt, Fl
+      -- I think yes: will otherwise need similar duplicates: delete, replace ...
+    isLeaf :: Expr -> Bool
+    isLeaf (Str _) = True
+    isLeaf (Fl _) = True
+    isLeaf (Tplt _) = True
+    isLeaf _ = False
+
+    insLeaf :: Expr -> Mindmap -> Mindmap
+    insLeaf e g = case isLeaf e of
+      True -> insNode (newNode, e) g
+        where [newNode] = newNodes 1 g
+      False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
+
     insStr :: String -> Mindmap -> Mindmap
-    insStr str g = insNode (int, Str str) g
-      where int = head $ newNodes 1 g
+    insStr str g = insNode (newNode, Str str) g
+      where newNode = head $ newNodes 1 g
 
     insTplt :: String -> Mindmap -> Mindmap
     insTplt s g = insNode (newNode, stringToTplt s) g
+      where newNode = head $ newNodes 1 g
+
+    insFl :: Float -> Mindmap -> Mindmap
+    insFl f g = insNode (newNode, Fl f) g
       where newNode = head $ newNodes 1 g
 
     insRel :: (MonadError String m) => Node -> [Node] -> Mindmap -> m Mindmap

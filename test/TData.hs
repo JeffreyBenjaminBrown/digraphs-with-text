@@ -24,6 +24,8 @@
         , (9, stringToTplt "statement _ is _")
         , (10, Str "dubious"  )
         , (11, Rel            )
+        , (12, Fl 1)
+        , (13, Fl 1.3)
       ] [ (5,1, tplt), (5,0, mbr 1), (5,4,mbr 2) -- dog wants brandy
         , (6,2, tplt), (6,0, mbr 1), (6,3,mbr 2) -- dog needs water
         , (8,7, tplt), (8,0, mbr 1), (8,3,mbr 2), (8,4,mbr 3) 
@@ -32,15 +34,14 @@
           -- [dog wants brandy] is dubious
       ]
 
-    g1Alt =   insRelUsf 9 [5,10] 
+    g1Alt = insFl 1.3           $ insFl 1
+          $ insRelUsf 9 [5,10] 
           $ insStr"dubious"     $ insTplt"statement _ is _"
           $ insRelUsf 7 [0,3,4] $ insTplt"_ needs _ for _"
           $ insRelUsf 2 [0,3]   $ insRelUsf 1 [0,4]
           $ insStr"brandy"      $ insStr"water"
           $ insTplt"_ needs _"  $ insTplt"_ wants _"
           $ insStr"dog"         $ empty :: Mindmap
-
-    -- todo: define 12 = nextNode, so it's not a magic number in the tests
 
     relSpec = Map.fromList [ (RelTplt, VarSpec It)
                            , (Mbr 1,   NodeSpec 0)
