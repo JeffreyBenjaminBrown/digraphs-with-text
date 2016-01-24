@@ -40,6 +40,8 @@
           $ insTplt"_ needs _"  $ insTplt"_ wants _"
           $ insStr"dog"         $ empty :: Mindmap
 
+    -- todo: define 12 = nextNode, so it's not a magic number in the tests
+
     relSpec = Map.fromList [ (RelTplt, VarSpec It)
                            , (Mbr 1,   NodeSpec 0)
                            , (Mbr 2,   VarSpec Any)

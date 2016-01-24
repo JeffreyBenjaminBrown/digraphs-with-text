@@ -21,6 +21,7 @@
                            , TestLabel "tInsRelM" tInsRelM
                            , TestLabel "tInsColl" tInsColl
                            , TestLabel "tPartitionRelSpec" tPartitionRelSpec
+                           , TestLabel "tInsRelSpec" tInsRelSpec
                            , TestLabel "tChNonRelAt" tChNonRelAt
                            , TestLabel "tChMbr" tChMbr]
 
@@ -63,8 +64,16 @@
       assertBool "1" $ Set.fromList (Map.toList vs)
         == Set.fromList [ (RelTplt, It)
                         , (Mbr 2,   Any) ]
-      assertBool "1" $ Set.fromList (Map.toList ns)
+      assertBool "2" $ Set.fromList (Map.toList ns)
         == Set.fromList [ (Mbr 1, 0) ]
+
+    tInsRelSpec = TestCase $ do
+      let (vs,ns) = partitionRelSpec relSpec
+          Right g2 = insRelSpec relSpec g1
+      assertBool "node" $ (fromJust $ lab g2 12) == RelSpecExpr vs
+      assertBool "only 1 more edge" $ 
+        (length $ edges g1) + 1 == (length $ edges g2)
+      assertBool "the edge" $ hasLEdge g2 (12, 0, RelEdge $ Mbr 1)
 
     tChNonRelAt = TestCase $ do
       let gCat = fromRight $ chNonUserAt g1 0 $ Str "cat"
