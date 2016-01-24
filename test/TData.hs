@@ -9,8 +9,8 @@
 -- exports
     g1,g1Alt :: Mindmap
 
-    g1 = let mbr = RoleEdge . Mbr
-             tplt = RoleEdge RelTplt
+    g1 = let mbr = RelEdge . Mbr
+             tplt = RelEdge RelTplt
       in mkGraph [
           (0, Str "dog"       )
         , (1, stringToTplt "_ wants _" )

@@ -16,15 +16,6 @@
     import Data.Text (splitOn, pack, unpack)
 
 -- types
-    -- data/minmalGraph.hs demonstrates many of these types, in only like 20 lines
-    -- Exprs (expressions) play RelRoles in Rels (relationships).
-    -- Each Arity-k Rel emits k+1 Edges toward the other Exprs:
-      -- one connects it to its RelTplt (relationship template)
-      -- k more connect it to each of its k Mbrs (relationship members)
-    -- Similarly, Colls use CollRoles.
-    -- RelSpecExprs use RelRoles.
-      -- but unlike Rels, they can be well-formed without emitting any.
-
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
 
@@ -32,7 +23,7 @@
     data Expr = Str String | Tplt [String] | Rel | Coll
               | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
 
-    data DwtEdge = RoleEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
+    data DwtEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
     data CollRole = CollMbr 
       | CollName | CollSep -- both optional. sep(arator) so far unused.
@@ -83,8 +74,8 @@
          return $ f (zip ns [1..a]) g'
       where newNode = head $ newNodes 1 g
             f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, RoleEdge $ Mbr $ snd p) g
-            g' =                insEdge (newNode, tn, RoleEdge RelTplt)
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelEdge $ Mbr $ snd p) g
+            g' =                insEdge (newNode, tn, RelEdge RelTplt)
                               $ insNode (newNode, Rel) g
 
     insRelUsf :: Node -> [Node] -> Mindmap -> Mindmap
@@ -98,8 +89,8 @@
             ta = tpltArity te
             newNode = head $ newNodes 1 g
             f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, RoleEdge $ Mbr $ snd p) g
-            g' =                insEdge (newNode, t, RoleEdge RelTplt)
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelEdge $ Mbr $ snd p) g
+            g' =                insEdge (newNode, t, RelEdge RelTplt)
                               $ insNode (newNode, Rel) g
 
     insColl :: (MonadError String m) => 
@@ -152,13 +143,13 @@
     chRelMbr g user newMbr role = do
       isRel g user
       gelemM g newMbr
-      let candidates = [n | (n,lab) <- lsuc g user, lab == RoleEdge role]
+      let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
       if length candidates /= 1
         then throwError "chRelMbr: invalid graph state, or RelPos out of range"
         else return ()
       let oldMbr = head candidates
-      return $ delLEdge (user,oldMbr,RoleEdge role)
-             $ insEdge (user,newMbr,RoleEdge role) g
+      return $ delLEdge (user,oldMbr,RelEdge role)
+             $ insEdge (user,newMbr,RelEdge role) g
 
 -- query
   -- tests and lookups for smaller-than-graph types
@@ -204,15 +195,22 @@
       Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
       _       -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
 
-    relTpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
-    relTpltAt g rn = do
-      ir <-isRel g rn
+    relTplt :: (MonadError String m) => Mindmap -> Node -> m Expr
+    relTplt g relNode = do
+      ir <-isRel g relNode
       if not ir
-        then throwError $ "relTpltAt: LNode " ++ show rn ++ " not a Rel."
+        then throwError $ "relTplt: LNode " ++ show relNode ++ " not a Rel."
         else return $ fromJust $ lab g -- fromJust: safe b/c found in next line
-          $ head [n | (n, RoleEdge RelTplt) <- lsuc g rn]
-            -- head is only unsafe if graph takes an invalid state
-            -- because each Rel should have exactly one Tplt
+          $ head [n | (n, RelEdge RelTplt) <- lsuc g relNode]
+      -- head kind of safe, because each Rel should have exactly one Tplt
+
+    collName :: (MonadError String m) => Mindmap -> Node -> m Expr
+    collName g collNode = do
+      ic <- isColl g collNode
+      if not ic then throwError $ "collName: LNode "++show collNode++" not a Coll"
+                else return $ fromJust $ lab g $ head
+                       [n | (n, CollEdge CollName) <- lsuc g collNode]
+      -- head kind of safe, because each Rel should have exactly one Tplt
 
     tpltArity :: Expr -> Arity
     tpltArity e = case e of Tplt ss -> length ss - 1
@@ -237,7 +235,7 @@
       return $ specUsersUsf g n r
 
     specUsersUsf :: (Graph gr) => gr a DwtEdge -> Node -> RelRole -> [Node]
-    specUsersUsf g n r = [m | (m,r') <- lpre g n, r'==RoleEdge r]
+    specUsersUsf g n r = [m | (m,r') <- lpre g n, r'==RelEdge r]
 
     redundancySubs :: RelSpec -> Map.Map Node String
     redundancySubs = Map.fromList 

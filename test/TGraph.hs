@@ -92,8 +92,8 @@
       assertBool "2" $ gelemM g1 100 == Left "gelemM: Node 100 absent."
 
     tHasLEdgeM = TestCase $ do
-      assertBool "has it" $ hasLEdgeM g1 (5,0,RoleEdge $ Mbr 1) == Right ()
-      assertBool "lacks it" $ isLeft $ hasLEdgeM g1 (5,0,RoleEdge $ Mbr 2)
+      assertBool "has it" $ hasLEdgeM g1 (5,0,RelEdge $ Mbr 1) == Right ()
+      assertBool "lacks it" $ isLeft $ hasLEdgeM g1 (5,0,RelEdge $ Mbr 2)
 
     tIsTplt = TestCase $ do
       assertBool "is template" $ isTplt g1 1 == Right True
@@ -106,10 +106,10 @@
       assertBool "absent" $ isLeft $ tpltAt g1 (-1)
 
     tTpltForRelAt = TestCase $ do
-      assertBool "normal" $ relTpltAt g1 5 ==
+      assertBool "normal" $ relTplt g1 5 ==
         ( Right $ Tplt [""," wants ",""] )
-      assertBool "not a Rel" $ isLeft $ relTpltAt g1 1
-      assertBool "absent" $ isLeft $ relTpltAt g1 (-1)
+      assertBool "not a Rel" $ isLeft $ relTplt g1 1
+      assertBool "absent" $ isLeft $ relTplt g1 (-1)
 
     tTpltArity = TestCase $ do
       assertBool "arity 0" $
