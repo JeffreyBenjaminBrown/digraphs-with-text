@@ -34,16 +34,19 @@
 
     data DwtEdge = RoleEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
-    data CollRole = CollMbr | CollTitle | CollSeparator deriving(Show,Read,Eq,Ord)
+    data CollRole = CollMbr 
+      | CollTitle | CollSeparator -- optional, so far unused
+      deriving(Show,Read,Eq,Ord)
 
     data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
       deriving (Show,Read,Eq,Ord)
-    data MbrSpec = VarSpec MbrVar | MbrSpec Node deriving(Show,Read,Eq,Ord)
+    data MbrSpec = VarSpec MbrVar | NodeSpec Node deriving(Show,Read,Eq,Ord)
 
     type RelVarSpec = Map.Map RelRole MbrVar -- subset of RelSpec info, but
       -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
       -- The rest of the info can be inferred from the edges connected to it.
-    type RelSpec = Map.Map RelRole MbrSpec
+    type RelNodeSpec = Map.Map RelRole Node
+    type RelSpec =    Map.Map RelRole MbrSpec
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
       -- but|todo ? any (Mbr _) mapped to Any could be omitted
 
@@ -105,6 +108,19 @@
       let newNode = head $ newNodes 1 g
           newEdges = map (\n -> (newNode,n,CollEdge CollMbr)) ns
       return $ insEdges newEdges $ insNode (newNode,Coll prefix) g
+
+--    partitionRelSpec :: RelSpec -> (RelVarSpec,RelSpec)
+--      let (vs,ms) = Map.partition (\mSpec -> case mSpec of VarSpec _ -> True
+--                                                           NodeSpec _ -> False
+--                                  ) rSpec
+
+    insRelSpec :: (MonadError String m) => RelSpec -> Mindmap -> m Mindmap
+    insRelSpec rSpec g = do
+      let (vs,ms) = Map.partition (\mSpec -> case mSpec of VarSpec _ -> True
+                                                           NodeSpec _ -> False
+                                  ) rSpec
+      -- TODO: finish
+      return g
 
   -- edit
     chNonUserAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
@@ -217,14 +233,14 @@
 
     redundancySubs :: RelSpec -> Map.Map Node String
     redundancySubs = Map.fromList 
-      . map (\(MbrSpec n) -> (n,show n))
+      . map (\(NodeSpec n) -> (n,show n))
       . Map.elems
-      . Map.filter (\ns -> case ns of MbrSpec _ -> True; _ -> False) 
+      . Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
 
     matchRel :: (MonadError String m) => Mindmap -> RelSpec -> m [Node]
     matchRel g spec = do
       let specList = Map.toList
-            $ Map.filter (\ns -> case ns of MbrSpec _ -> True; _ -> False) 
+            $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
             $ spec :: [(RelRole,MbrSpec)]
-      nodeListList <- mapM (\(r,MbrSpec n) -> specUsers g n r) specList
+      nodeListList <- mapM (\(r,NodeSpec n) -> specUsers g n r) specList
       return $ listIntersect nodeListList
