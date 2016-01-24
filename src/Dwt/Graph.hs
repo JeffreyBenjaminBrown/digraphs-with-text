@@ -29,17 +29,17 @@
     data Expr = Str String | Tplt [String] | Rel | Coll String
               | RelSpecExpr RelVarSpec deriving (Show,Read,Eq,Ord)
 
-    data DwtEdge = RoleEdge Role | CollMbr deriving (Show,Read,Eq,Ord)
-    data Role = RelTplt | Mbr RelPos deriving (Show,Read,Eq,Ord)
+    data DwtEdge = RoleEdge RelRole | CollMbr deriving (Show,Read,Eq,Ord)
+    data RelRole = RelTplt | Mbr RelPos deriving (Show,Read,Eq,Ord) -- w/r/t a Rel
 
     data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
       deriving (Show,Read,Eq,Ord)
     data MbrSpec = VarSpec MbrVar | MbrSpec Node deriving (Show,Read,Eq,Ord)
 
-    type RelVarSpec = Map.Map Role MbrVar -- subset of RelSpec info, but
+    type RelVarSpec = Map.Map RelRole MbrVar -- subset of RelSpec info, but
       -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
       -- The rest of the info can be inferred from the edges connected to it.
-    type RelSpec = Map.Map Role MbrSpec
+    type RelSpec = Map.Map RelRole MbrSpec
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
       -- but|todo ? any (Mbr _) mapped to Any could be omitted
 
@@ -120,7 +120,7 @@
       in (a,b,e,d) & g'
 
     chRelMbr :: (MonadError String m) => 
-      Mindmap -> Node -> Node -> Role -> m Mindmap
+      Mindmap -> Node -> Node -> RelRole -> m Mindmap
     chRelMbr g user newMbr role = do
       isRel g user
       gelemM g newMbr
@@ -202,13 +202,13 @@
     users g n = do gelemM g n
                    return [m | (m,label) <- lpre g n]
 
-    -- Rels using Node n in Role r
-    specUsers :: (MonadError String m) => Mindmap -> Node -> Role -> m [Node]
+    -- Rels using Node n in RelRole r
+    specUsers :: (MonadError String m) => Mindmap -> Node -> RelRole -> m [Node]
     specUsers g n r = do
       gelemM g n
       return $ specUsersUsf g n r
 
-    specUsersUsf :: (Graph gr) => gr a DwtEdge -> Node -> Role -> [Node]
+    specUsersUsf :: (Graph gr) => gr a DwtEdge -> Node -> RelRole -> [Node]
     specUsersUsf g n r = [m | (m,r') <- lpre g n, r'==RoleEdge r]
 
     redundancySubs :: RelSpec -> Map.Map Node String
@@ -221,6 +221,6 @@
     matchRel g spec = do
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of MbrSpec _ -> True; _ -> False) 
-            $ spec :: [(Role,MbrSpec)]
+            $ spec :: [(RelRole,MbrSpec)]
       nodeListList <- mapM (\(r,MbrSpec n) -> specUsers g n r) specList
       return $ listIntersect nodeListList
