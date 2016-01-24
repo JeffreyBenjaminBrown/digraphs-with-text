@@ -24,10 +24,8 @@
               | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
 
     data DwtEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
-    data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
-    data CollRole = CollMbr 
-      | CollName | CollSep -- both optional. sep(arator) so far unused.
-      deriving(Show,Read,Eq,Ord)
+    data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord)
+    data CollRole = CollMbr | CollPrinciple deriving(Show,Read,Eq,Ord)
 
     data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
       deriving (Show,Read,Eq,Ord)
@@ -95,16 +93,13 @@
 
     insColl :: (MonadError String m) => 
       (Maybe Node) -> -- title
-      (Maybe Node) -> -- separator
       [Node] -> Mindmap -> m Mindmap
-    insColl mt ms ns g = do
+    insColl mt ns g = do
       mapM_ (gelemM g) ns
       let newNode = head $ newNodes 1 g
           nameEdges = case mt of Nothing -> []
-                                 Just tn -> [(newNode, tn, CollEdge CollName)]
-          sepEdges = case ms of Nothing -> []
-                                Just sn -> [(newNode, sn, CollEdge CollSep)]
-          newEdges = nameEdges ++ sepEdges ++
+                                 Just tn -> [(newNode, tn,CollEdge CollPrinciple)]
+          newEdges = nameEdges ++
             map (\n -> (newNode, n, CollEdge CollMbr)) ns
       return $ insEdges newEdges $ insNode (newNode,Coll) g
 
@@ -210,12 +205,12 @@
           $ head [n | (n, RelEdge RelTplt) <- lsuc g relNode]
       -- head kind of safe, because each Rel should have exactly one Tplt
 
-    collName :: (MonadError String m) => Mindmap -> Node -> m Expr
-    collName g collNode = do
+    collPrinciple :: (MonadError String m) => Mindmap -> Node -> m Expr
+    collPrinciple g collNode = do
       ic <- isColl g collNode
       if not ic then throwError $ "collName: LNode "++show collNode++" not a Coll"
                 else return $ fromJust $ lab g $ head
-                       [n | (n, CollEdge CollName) <- lsuc g collNode]
+                       [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
       -- head kind of safe, because each Rel should have exactly one Tplt
 
     tpltArity :: Expr -> Arity
