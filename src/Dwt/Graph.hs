@@ -59,12 +59,6 @@
   -- insert
     -- todo ? use a single ins function for Str, Tplt, Fl
       -- I think yes: will otherwise need similar duplicates: delete, replace ...
-    isLeaf :: Expr -> Bool
-    isLeaf (Str _) = True
-    isLeaf (Fl _) = True
-    isLeaf (Tplt _) = True
-    isLeaf _ = False
-
     insLeaf :: Expr -> Mindmap -> Mindmap
     insLeaf e g = case isLeaf e of
       True -> insNode (newNode, e) g
@@ -185,11 +179,20 @@
     isTplt :: (MonadError String m) => Mindmap -> Node -> m Bool
     isTplt = _isExprConstructor (\x -> case x of Tplt _ -> True; _ -> False)
 
+    isFl :: (MonadError String m) => Mindmap -> Node -> m Bool
+    isFl = _isExprConstructor (\x -> case x of Fl _ -> True; _ -> False)
+
     isRel :: (MonadError String m) => Mindmap -> Node -> m Bool
     isRel = _isExprConstructor (\x -> case x of Rel -> True; _ -> False)
 
     isColl :: (MonadError String m) => Mindmap -> Node -> m Bool
     isColl = _isExprConstructor (\x -> case x of Coll -> True; _ -> False)
+
+    isLeaf :: Expr -> Bool
+    isLeaf (Str _) = True
+    isLeaf (Fl _) = True
+    isLeaf (Tplt _) = True
+    isLeaf _ = False
 
     isLikeExpr :: Expr -> Expr -> Bool
     isLikeExpr e f = case e of
