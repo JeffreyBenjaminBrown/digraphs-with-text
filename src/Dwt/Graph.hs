@@ -118,12 +118,14 @@
 
     insRelSpec :: (MonadError String m) => RelSpec -> Mindmap -> m Mindmap
     insRelSpec rSpec g = do
-      let (vs,ns) = partitionRelSpec rSpec
-      -- TODO: add an LNode = (newNode, RelSpecExpr vs)
-            -- for each (r,n) in ms, 
-              -- check that n is in the graph
-              -- add edge (newNode, n, RelEdge r)
-      return g
+      let (varMap, nodeMap) = partitionRelSpec rSpec
+          newNode = head $ newNodes 1 g
+          newLNode = (newNode, RelSpecExpr varMap)
+      mapM_ (gelemM g) $ Map.elems nodeMap
+      let newLEdges = map (\(r,n) -> (newNode, n, RelEdge r))
+                    $ Map.toList nodeMap
+      return $ insEdges newLEdges
+             $ insNode newLNode g
 
   -- edit
     chNonUserAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
