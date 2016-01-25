@@ -39,7 +39,6 @@
     type RelNodeSpec = Map.Map RelRole Node
     type RelSpec =    Map.Map RelRole MbrSpec
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
-      -- but|todo ? any (Mbr _) mapped to Any could be omitted
 
 -- build
   -- Tplt <-> String
@@ -188,7 +187,7 @@
     isColl :: (MonadError String m) => Mindmap -> Node -> m Bool
     isColl = _isExprConstructor (\x -> case x of Coll -> True; _ -> False)
 
-    isLeaf :: Expr -> Bool
+    isLeaf :: Expr -> Bool -- TODO ? make Leaf an Expr constructor
     isLeaf (Str _) = True
     isLeaf (Fl _) = True
     isLeaf (Tplt _) = True

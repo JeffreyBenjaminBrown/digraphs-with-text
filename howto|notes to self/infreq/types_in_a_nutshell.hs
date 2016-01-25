@@ -22,7 +22,7 @@ Here are the types:
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
     data CollRole = CollMbr | CollTitle | CollSeparator deriving(Show,Read,Eq,Ord)
 
-    data MbrVar = It | Any | Ana | Kata -- TODO: can oft (always?) omit the Any
+    data MbrVar = It | Any | Ana | Kata
       deriving (Show,Read,Eq,Ord)
     data MbrSpec = VarSpec MbrVar | MbrSpec Node deriving(Show,Read,Eq,Ord)
 
@@ -31,7 +31,6 @@ Here are the types:
       -- The rest of the info can be inferred from the edges connected to it.
     type RelSpec = Map.Map RelRole MbrSpec
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
-      -- but|todo ? any (Mbr _) mapped to Any could be omitted
 
 The following is an obsolete (uses an earlier version of Dwt) Mindmap that represents the expression "dog needs water" using the subexpressions "dog" (a string), "water" (a string), and "_ wants _" (a relationship two things can have, that is a binary Rel):
 

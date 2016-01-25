@@ -32,6 +32,10 @@ test-suite new-template-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Main.hs
+  other-modules:       TData
+                       , TGraph
+                       , TView
+                       , TMmParse
   build-depends:       Dwt
                        , HUnit
                        , base
