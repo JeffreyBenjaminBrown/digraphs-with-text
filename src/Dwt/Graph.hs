@@ -29,7 +29,7 @@
     data CollRole = CollMbr | CollPrinciple deriving(Show,Read,Eq,Ord)
 
   -- for (partially) specifying Rels
-    data MbrVar = It | Any | Ana | Kata -- TODO? use omission instead of Any
+    data MbrVar = It | Any | Ana | Kata -- todo ? use omission instead of Any
       deriving (Show,Read,Eq,Ord)
     data MbrSpec = VarSpec MbrVar | NodeSpec Node deriving(Show,Read,Eq,Ord)
 
@@ -237,7 +237,7 @@
   -- .. -> [Node]
     users :: (MonadError String m, Graph gr) => gr a b -> Node -> m [Node]
     users g n = do gelemM g n
-                   return [m | (m,label) <- lpre g n]
+                   return [m | (m,label@_) <- lpre g n]
 
     -- Rels using Node n in RelRole r
     specUsers :: (MonadError String m) => Mindmap -> Node -> RelRole -> m [Node]
