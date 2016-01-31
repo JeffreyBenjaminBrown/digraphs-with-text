@@ -162,8 +162,15 @@
 
   -- chase and helpers
     tChase = TestList [ TestLabel "tHas1Ana" tHas1Ana
+                      , TestLabel "tValidRole"tValidRole
                       ]
 
     tHas1Ana = TestCase $ do
       assertBool "has 1 ana" $ has1Ana relSpecNonsense
       assertBool "has no ana" $ not $ has1Ana relSpec
+
+    tValidRole = TestCase $ do
+      assertBool "valid role" $ isRight $ validRole g1 5 RelTplt
+      assertBool "valid role" $ isLeft $  validRole g1 5 (Mbr 0)
+      assertBool "valid role" $ isRight $ validRole g1 5 (Mbr 1)
+      assertBool "valid role" $ isLeft $  validRole g1 5 (Mbr 3)

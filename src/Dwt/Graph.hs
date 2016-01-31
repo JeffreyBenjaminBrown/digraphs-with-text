@@ -172,6 +172,7 @@
         Just expr ->  return $ pred expr
       where mExpr = lab g n
 
+    -- TODO: These should return m (), so I can avoid all those case statements
     isStr :: (MonadError String m) => Mindmap -> Node -> m Bool
     isStr = _isExprConstructor (\x -> case x of Str _ -> True; _ -> False)
 
@@ -268,8 +269,41 @@
                $ Map.filter (\x -> case x of VarSpec Ana -> True; _ -> False) 
                rc
 
---    fork1Ana :: Mindmap -> Node -> RelSpec -> [Node]
---    fork1Ana g n r = -- one generation, many Katas but one Ana
+    fork1Ana :: (MonadError String m) => Mindmap -> Node -> RelSpec -> m [Node]
+    fork1Ana g n r = -- one generation, maybe many Katas, but only one Ana
+      matchRel g r'
+      -- TODO: Use katas to filter result
+      where r' = Map.map (\x -> case x of VarSpec Ana -> NodeSpec n;
+                                          _ -> x) r
+            katas = Map.keys $ Map.filter (\x -> case x of VarSpec Kata -> True;
+                                                           _ -> False) r
+
+    validRole :: (MonadError String m) => Mindmap -> Node -> RelRole -> m ()
+    validRole g relNode role = do
+      ir <- isRel g relNode
+      case ir of 
+        False -> throwError $ "validRole: Node " ++ show relNode ++ "not a Rel."
+        True -> case role of
+          RelTplt -> return ()
+          Mbr p -> do
+            if p < 1 then throwError $ "validRole: RelPos < 1" else return ()
+            t <- relTplt g relNode
+            let a = tpltArity t
+            if p <= a then return ()
+              else throwError $ "validRole: Arity " ++ show a ++ 
+                " < RelPos " ++ show p
+
+--    -- todo ? This generalizes relTplt; could rewrite relTplt to use it
+--    relElts :: (MonadError String m) => Mindmap -> Node -> [RelRole] -> m [Node]
+--    relElts g relNode roles = do
+--      ir <- isRel g relNode
+--      if not ir
+--        then throwError $ "relTplt: LNode " ++ show relNode ++ " not a Rel."
+--        else do
+--          let a = tpltArity $ lab g relNode
+--        --else return $ fromJust $ lab g -- fromJust: safe b/c found in next line
+--          -- $ head [n | (n, RelEdge RelTplt) <- lsuc g relNode]
+--      -- head kind of safe, because each Rel should have exactly one Tplt
 
 --    fork :: Mindmap -> Node -> RelSpec -> [Node]
 --    fork g n rc =
