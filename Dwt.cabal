@@ -12,11 +12,15 @@ category:            Graph
 build-type:          Simple
 -- extra-source-files:  
 cabal-version:       >=1.10
-
+   
 library
   hs-source-dirs:      src
   exposed-modules:     Dwt
                        , Dwt.Graph
+                       , Dwt.Util
+                       , Dwt.View
+                       , Dwt.FileIO
+                       , Dwt.Parse
                        , Dwt.ParseMm
   build-depends:       base
                        , fgl

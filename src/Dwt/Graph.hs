@@ -226,11 +226,8 @@
 
     relTplt :: (MonadError String m) => Mindmap -> Node -> m Expr
     relTplt g relNode = do
-      isRelM g relNode `catchError` (\_ -> throwError 
-        $ "relTplt: LNode " ++ show relNode ++ " not a Rel.")
-      return $ fromJust $ lab g -- fromJust: safe, because found in next line
-          $ head [n | (n, RelEdge RelTplt) <- lsuc g relNode]
-      -- head: safe, because each Rel should have exactly one Tplt
+      [n] <- relElts g relNode [RelTplt]
+      return $ fromJust $ lab g n
 
     collPrinciple :: (MonadError String m) => Mindmap -> Node -> m Expr
     collPrinciple g collNode = do
