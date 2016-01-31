@@ -186,17 +186,23 @@
     isStr :: (MonadError String m) => Mindmap -> Node -> m Bool
     isStr = _isExprConstructor (\x -> case x of Str _ -> True; _ -> False)
 
-    isTplt :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isTplt = _isExprConstructor (\x -> case x of Tplt _ -> True; _ -> False)
+    isTplt :: Expr -> Bool
+    isTplt x = case x of Tplt _ -> True; _ -> False
 
     isTpltM :: (MonadError String m) => Mindmap -> Node -> m ()
-    isTpltM = _isExprConstructorM (\x -> case x of Tplt _ -> True; _ -> False)
+    isTpltM = _isExprConstructorM isTplt
 
-    isFl :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isFl = _isExprConstructor (\x -> case x of Fl _ -> True; _ -> False)
+    isFl :: Expr -> Bool
+    isFl x = case x of Fl _ -> True; _ -> False
+
+    isFlM :: (MonadError String m) => Mindmap -> Node -> m Bool
+    isFlM = _isExprConstructor isFl
 
     isRel :: (MonadError String m) => Mindmap -> Node -> m Bool
     isRel = _isExprConstructor (\x -> case x of Rel -> True; _ -> False)
+
+    isRelM :: (MonadError String m) => Mindmap -> Node -> m ()
+    isRelM = _isExprConstructorM (\x -> case x of Rel -> True; _ -> False)
 
     isColl :: (MonadError String m) => Mindmap -> Node -> m Bool
     isColl = _isExprConstructor (\x -> case x of Coll -> True; _ -> False)
