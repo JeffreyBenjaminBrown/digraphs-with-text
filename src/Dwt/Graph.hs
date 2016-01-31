@@ -241,7 +241,7 @@
 
     -- Rels using Node n in RelRole r
     specUsers :: (MonadError String m) => Mindmap -> Node -> RelRole -> m [Node]
-    specUsers g n r = do
+    specUsers g n r = do -- TODO ! bad name, spec(ific) conflicts with (Rel)spec
       gelemM g n
       return $ specUsersUsf g n r
 
@@ -261,6 +261,18 @@
             $ spec :: [(RelRole,MbrSpec)]
       nodeListList <- mapM (\(r,NodeSpec n) -> specUsers g n r) specList
       return $ listIntersect nodeListList
+
+--    fork :: Mindmap -> Node -> RelSpec -> [Node]
+--    fork g n rc =
+--      For each Ana in rc, make an rc where instead of that Ana there is n.
+--        (We will treat the other Anas the same as Any.)
+--      Use matchRel on each of those rcs.
+--      Take their union.
+
+--    chase :: (MonadError String m) => Mindmap -> Node -> RelSpec -> m [Node]
+--    chase g n dir = do
+--      gelemM g n
+--      ... more ...
 
 -- deprecated
     insStr :: String -> Mindmap -> Mindmap -- generalized to insLeaf
