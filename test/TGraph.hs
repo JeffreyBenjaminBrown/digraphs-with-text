@@ -13,7 +13,7 @@
     tGraph = TestList [ TestLabel "tBuildGraph" tBuildGraph
                       , TestLabel "tAskMinor"   tAskMinor
                       , TestLabel "tAskNodes"   tAskNodes
-                      , TestLabel "tChase"      tChase
+                      , TestLabel "tChase"      tChase 
                       ]
 
   -- buildGraph
