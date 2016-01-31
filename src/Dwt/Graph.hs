@@ -56,8 +56,8 @@
     subInTplt _ _ = error "subInTplt: not a Tplt"
 
   -- insert
-    -- todo ? use a single ins function for Str, Tplt, Fl
-      -- I think yes: will otherwise need similar duplicates: delete, replace ...
+    -- TODO ! use a single ins function for Str, Tplt, Fl
+      -- Will otherwise need similar duplicates to delete, replace ...
     insLeaf :: Expr -> Mindmap -> Mindmap
     insLeaf e g = case isLeaf e of
       True -> insNode (newNode, e) g
@@ -144,7 +144,7 @@
       Mindmap -> Node -> Node -> RelRole -> m Mindmap
     chRelMbr g user newMbr role = do
       isRelM g user `catchError` (\_ -> throwError $ 
-        "chRelMbr: Node " ++ show user ++ " not a Rel.")
+        "chRelMbr: Node " ++ show user ++ " absent or not a Rel.")
       gelemM g newMbr
       let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
       if length candidates /= 1
@@ -166,13 +166,12 @@
       else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
 
     _isExprMConstructor :: (MonadError String m, Graph gr) => (a -> Bool) ->
-      gr a b -> Node -> m ()
+      gr a b -> Node -> m () -- TODO: catch these erors
+      -- otherwise the distinction bewteen absence and inequality is lost
     _isExprMConstructor pred g n = case mExpr of 
         Nothing -> throwError $ "Node " ++ show n ++ " absent."
-          -- todo ? report the using function (isStr, isTplt, isRel) in the error
         Just expr ->  case pred expr of True -> return ()
-                                        False -> throwError $ "nope"
-                                          -- TODO: catch, give more useful message
+                                        False -> throwError $ "is not"
       where mExpr = lab g n
 
     isStr :: Expr -> Bool
@@ -232,7 +231,7 @@
     collPrinciple :: (MonadError String m) => Mindmap -> Node -> m Expr
     collPrinciple g collNode = do
       isCollM g collNode `catchError` (\_ -> throwError $ 
-        "collPrinciple: Node " ++ show collNode ++ " not a Coll.")
+        "collPrinciple: Node " ++ show collNode ++ " absent or not a Coll.")
       return $ fromJust $ lab g $ head
         [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
 
@@ -284,7 +283,7 @@
     fork1Ana :: (MonadError String m) => Mindmap -> Node -> RelSpec -> m [Node]
     fork1Ana g n r = -- one generation, maybe many Katas, but only one Ana
       matchRel g r'
-      -- TODO: Use katas to filter result
+      -- TODO ! INCOMPLETE ! Use katas to filter result
       where r' = Map.map (\x -> case x of VarSpec Ana -> NodeSpec n;
                                           _ -> x) r
             katas = Map.keys $ Map.filter (\x -> case x of VarSpec Kata -> True;
@@ -293,7 +292,7 @@
     validRole :: (MonadError String m) => Mindmap -> Node -> RelRole -> m ()
     validRole g relNode role = do
       isRelM g relNode `catchError` (\_ -> throwError 
-        $ "validRole: Node " ++ show relNode ++ "not a Rel.")
+        $ "validRole: Node " ++ show relNode ++ " absent or not a Rel.")
       case role of
         RelTplt -> return ()
         Mbr p -> do
@@ -304,11 +303,10 @@
             else throwError $ "validRole: Arity " ++ show a ++ 
               " < RelPos " ++ show p
 
-    -- todo ? This generalizes relTplt; could rewrite relTplt to use it
-    relElts :: (MonadError String m) => Mindmap -> Node -> [RelRole] -> m [Node]
+   relElts :: (MonadError String m) => Mindmap -> Node -> [RelRole] -> m [Node]
     relElts g relNode roles = do
       isRelM g relNode `catchError` (\_ -> throwError $
-        "relElts: Node " ++ show relNode ++ " not a Rel.")
+        "relElts: Node " ++ show relNode ++ " absent or not a Rel.")
       mapM_  (validRole g relNode) roles `catchError` (\_ -> throwError $
         "relElts: member out of bounds")
       return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
