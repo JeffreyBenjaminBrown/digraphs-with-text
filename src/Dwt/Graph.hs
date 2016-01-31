@@ -143,8 +143,8 @@
     chRelMbr :: (MonadError String m) => 
       Mindmap -> Node -> Node -> RelRole -> m Mindmap
     chRelMbr g user newMbr role = do
-      isRelM g user `catchError` (\_ -> throwError "chRelMbr: Node " ++ show user
-        ++ " not a Rel.")
+      isRelM g user `catchError` (\_ -> throwError $ 
+        "chRelMbr: Node " ++ show user ++ " not a Rel.")
       gelemM g newMbr
       let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
       if length candidates /= 1
@@ -205,8 +205,11 @@
     isRelM :: (MonadError String m) => Mindmap -> Node -> m ()
     isRelM = _isExprConstructorM isRel
 
-    isColl :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isColl = _isExprConstructor (\x -> case x of Coll -> True; _ -> False)
+    isColl :: Expr -> Bool
+    isColl x = case x of Coll -> True; _ -> False
+
+    isCollM :: (MonadError String m) => Mindmap -> Node -> m ()
+    isCollM = _isExprConstructorM (\x -> case x of Coll -> True; _ -> False)
 
     isLeaf :: Expr -> Bool -- TODO ? make Leaf an Expr constructor
     isLeaf (Str _) = True
@@ -237,11 +240,10 @@
 
     collPrinciple :: (MonadError String m) => Mindmap -> Node -> m Expr
     collPrinciple g collNode = do
-      ic <- isColl g collNode
-      if not ic then throwError $ "collName: LNode "++show collNode++" not a Coll"
-                else return $ fromJust $ lab g $ head
-                       [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
-      -- head kind of safe, because each Rel should have exactly one Tplt
+      isCollM g collNode `catchError` (\_ -> throwError $ 
+        "collPrinciple: Node " ++ show collNode ++ " not a Coll.")
+      return $ fromJust $ lab g $ head
+        [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
 
     tpltArity :: Expr -> Arity
     tpltArity e = case e of Tplt ss -> length ss - 1
