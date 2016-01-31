@@ -165,17 +165,9 @@
     hasLEdgeM g le = if hasLEdge g le then return ()
       else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
 
-    _isExprConstructor :: (MonadError String m, Graph gr) => (a -> Bool) ->
-      gr a b -> Node -> m Bool
-    _isExprConstructor pred g n = case mExpr of 
-        Nothing -> throwError $ "Node " ++ show n ++ " absent."
-          -- todo ? report the using function (isStr, isTplt, isRel) in the error
-        Just expr ->  return $ pred expr
-      where mExpr = lab g n
-
-    _isExprConstructorM :: (MonadError String m, Graph gr) => (a -> Bool) ->
+    _isExprMConstructor :: (MonadError String m, Graph gr) => (a -> Bool) ->
       gr a b -> Node -> m ()
-    _isExprConstructorM pred g n = case mExpr of 
+    _isExprMConstructor pred g n = case mExpr of 
         Nothing -> throwError $ "Node " ++ show n ++ " absent."
           -- todo ? report the using function (isStr, isTplt, isRel) in the error
         Just expr ->  case pred expr of True -> return ()
@@ -183,33 +175,35 @@
                                           -- TODO: catch, give more useful message
       where mExpr = lab g n
 
-    -- TODO: These should return m (), so I can avoid all those case statements
-    isStr :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isStr = _isExprConstructor (\x -> case x of Str _ -> True; _ -> False)
+    isStr :: Expr -> Bool
+    isStr x = case x of Str _ -> True; _ -> False
+
+    isStrM :: (MonadError String m) => Mindmap -> Node -> m ()
+    isStrM = _isExprMConstructor isStr
 
     isTplt :: Expr -> Bool
     isTplt x = case x of Tplt _ -> True; _ -> False
 
     isTpltM :: (MonadError String m) => Mindmap -> Node -> m ()
-    isTpltM = _isExprConstructorM isTplt
+    isTpltM = _isExprMConstructor isTplt
 
     isFl :: Expr -> Bool
     isFl x = case x of Fl _ -> True; _ -> False
 
-    isFlM :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isFlM = _isExprConstructor isFl
+    isFlM :: (MonadError String m) => Mindmap -> Node -> m ()
+    isFlM = _isExprMConstructor isFl
 
     isRel :: Expr -> Bool
     isRel x = case x of Rel -> True; _ -> False
 
     isRelM :: (MonadError String m) => Mindmap -> Node -> m ()
-    isRelM = _isExprConstructorM isRel
+    isRelM = _isExprMConstructor isRel
 
     isColl :: Expr -> Bool
     isColl x = case x of Coll -> True; _ -> False
 
     isCollM :: (MonadError String m) => Mindmap -> Node -> m ()
-    isCollM = _isExprConstructorM (\x -> case x of Coll -> True; _ -> False)
+    isCollM = _isExprMConstructor (\x -> case x of Coll -> True; _ -> False)
 
     isLeaf :: Expr -> Bool -- TODO ? make Leaf an Expr constructor
     isLeaf (Str _) = True
