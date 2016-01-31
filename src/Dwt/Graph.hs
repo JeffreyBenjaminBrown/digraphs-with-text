@@ -307,17 +307,14 @@
             else throwError $ "validRole: Arity " ++ show a ++ 
               " < RelPos " ++ show p
 
---    -- todo ? This generalizes relTplt; could rewrite relTplt to use it
---    relElts :: (MonadError String m) => Mindmap -> Node -> [RelRole] -> m [Node]
---    relElts g relNode roles = do
---      ir <- isRel g relNode
---      if not ir
---        then throwError $ "relTplt: LNode " ++ show relNode ++ " not a Rel."
---        else do
---          let a = tpltArity $ lab g relNode
---        --else return $ fromJust $ lab g -- fromJust: safe b/c found in next line
---          -- $ head [n | (n, RelEdge RelTplt) <- lsuc g relNode]
---      -- head kind of safe, because each Rel should have exactly one Tplt
+    -- todo ? This generalizes relTplt; could rewrite relTplt to use it
+    relElts :: (MonadError String m) => Mindmap -> Node -> [RelRole] -> m [Node]
+    relElts g relNode roles = do
+      isRelM g relNode `catchError` (\_ -> throwError $
+        "relElts: Node " ++ show relNode ++ " not a Rel.")
+      mapM_  (validRole g relNode) roles `catchError` (\_ -> throwError $
+        "relElts: member out of bounds")
+      return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
 --    fork :: Mindmap -> Node -> RelSpec -> [Node]
 --    fork g n rc =

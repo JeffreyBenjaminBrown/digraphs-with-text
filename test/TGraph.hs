@@ -163,6 +163,7 @@
   -- chase and helpers
     tChase = TestList [ TestLabel "tHas1Ana" tHas1Ana
                       , TestLabel "tValidRole"tValidRole
+                      , TestLabel "tRelElts" tRelElts
                       ]
 
     tHas1Ana = TestCase $ do
@@ -170,7 +171,12 @@
       assertBool "has no ana" $ not $ has1Ana relSpec
 
     tValidRole = TestCase $ do
-      assertBool "valid role" $ isRight $ validRole g1 5 RelTplt
-      assertBool "valid role" $ isLeft $  validRole g1 5 (Mbr 0)
-      assertBool "valid role" $ isRight $ validRole g1 5 (Mbr 1)
-      assertBool "valid role" $ isLeft $  validRole g1 5 (Mbr 3)
+      assertBool "Tplt: valid role" $ isRight $ validRole g1 5 RelTplt
+      assertBool "Mbr 0: not valid role" $ isLeft $  validRole g1 5 (Mbr 0)
+      assertBool "Mbr 1: valid role" $ isRight $ validRole g1 5 (Mbr 1)
+      assertBool "Mbr 3: too big, invalid role" $ isLeft $  validRole g1 5 (Mbr 3)
+
+    tRelElts = TestCase $ do
+      assertBool "dog wants water -> dog" $ relElts g1 5 [Mbr 1] == Right [0]
+      assertBool "dog wants water -> dog" $ relElts g1 5 [RelTplt] == Right [1]
+      assertBool "dog wants water -> dog" $ isLeft $ relElts g1 5 [Mbr 3]
