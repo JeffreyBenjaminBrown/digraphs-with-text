@@ -12,7 +12,7 @@
     import qualified Data.Map as Map
     import Data.Maybe (catMaybes, fromJust)
     import Control.Monad (mapM_)
-    import Control.Monad.Except (MonadError, throwError)
+    import Control.Monad.Except (MonadError, throwError, catchError)
     import Data.Text (splitOn, pack, unpack)
 
 -- types
@@ -143,7 +143,8 @@
     chRelMbr :: (MonadError String m) => 
       Mindmap -> Node -> Node -> RelRole -> m Mindmap
     chRelMbr g user newMbr role = do
-      isRel g user
+      isRelM g user `catchError` (\_ -> throwError "chRelMbr: Node " ++ show user
+        ++ " not a Rel.")
       gelemM g newMbr
       let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
       if length candidates /= 1
@@ -198,11 +199,11 @@
     isFlM :: (MonadError String m) => Mindmap -> Node -> m Bool
     isFlM = _isExprConstructor isFl
 
-    isRel :: (MonadError String m) => Mindmap -> Node -> m Bool
-    isRel = _isExprConstructor (\x -> case x of Rel -> True; _ -> False)
+    isRel :: Expr -> Bool
+    isRel x = case x of Rel -> True; _ -> False
 
     isRelM :: (MonadError String m) => Mindmap -> Node -> m ()
-    isRelM = _isExprConstructorM (\x -> case x of Rel -> True; _ -> False)
+    isRelM = _isExprConstructorM isRel
 
     isColl :: (MonadError String m) => Mindmap -> Node -> m Bool
     isColl = _isExprConstructor (\x -> case x of Coll -> True; _ -> False)
@@ -228,12 +229,11 @@
 
     relTplt :: (MonadError String m) => Mindmap -> Node -> m Expr
     relTplt g relNode = do
-      ir <-isRel g relNode
-      if not ir
-        then throwError $ "relTplt: LNode " ++ show relNode ++ " not a Rel."
-        else return $ fromJust $ lab g -- fromJust: safe b/c found in next line
+      isRelM g relNode `catchError` (\_ -> throwError 
+        $ "relTplt: LNode " ++ show relNode ++ " not a Rel.")
+      return $ fromJust $ lab g -- fromJust: safe, because found in next line
           $ head [n | (n, RelEdge RelTplt) <- lsuc g relNode]
-      -- head kind of safe, because each Rel should have exactly one Tplt
+      -- head: safe, because each Rel should have exactly one Tplt
 
     collPrinciple :: (MonadError String m) => Mindmap -> Node -> m Expr
     collPrinciple g collNode = do
@@ -299,18 +299,17 @@
 
     validRole :: (MonadError String m) => Mindmap -> Node -> RelRole -> m ()
     validRole g relNode role = do
-      ir <- isRel g relNode
-      case ir of 
-        False -> throwError $ "validRole: Node " ++ show relNode ++ "not a Rel."
-        True -> case role of
-          RelTplt -> return ()
-          Mbr p -> do
-            if p < 1 then throwError $ "validRole: RelPos < 1" else return ()
-            t <- relTplt g relNode
-            let a = tpltArity t
-            if p <= a then return ()
-              else throwError $ "validRole: Arity " ++ show a ++ 
-                " < RelPos " ++ show p
+      isRelM g relNode `catchError` (\_ -> throwError 
+        $ "validRole: Node " ++ show relNode ++ "not a Rel.")
+      case role of
+        RelTplt -> return ()
+        Mbr p -> do
+          if p < 1 then throwError $ "validRole: RelPos < 1" else return ()
+          t <- relTplt g relNode
+          let a = tpltArity t
+          if p <= a then return ()
+            else throwError $ "validRole: Arity " ++ show a ++ 
+              " < RelPos " ++ show p
 
 --    -- todo ? This generalizes relTplt; could rewrite relTplt to use it
 --    relElts :: (MonadError String m) => Mindmap -> Node -> [RelRole] -> m [Node]
