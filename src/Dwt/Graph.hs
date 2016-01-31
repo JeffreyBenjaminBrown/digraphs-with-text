@@ -172,12 +172,25 @@
         Just expr ->  return $ pred expr
       where mExpr = lab g n
 
+    _isExprConstructorM :: (MonadError String m, Graph gr) => (a -> Bool) ->
+      gr a b -> Node -> m ()
+    _isExprConstructorM pred g n = case mExpr of 
+        Nothing -> throwError $ "Node " ++ show n ++ " absent."
+          -- todo ? report the using function (isStr, isTplt, isRel) in the error
+        Just expr ->  case pred expr of True -> return ()
+                                        False -> throwError $ "nope"
+                                          -- TODO: catch, give more useful message
+      where mExpr = lab g n
+
     -- TODO: These should return m (), so I can avoid all those case statements
     isStr :: (MonadError String m) => Mindmap -> Node -> m Bool
     isStr = _isExprConstructor (\x -> case x of Str _ -> True; _ -> False)
 
     isTplt :: (MonadError String m) => Mindmap -> Node -> m Bool
     isTplt = _isExprConstructor (\x -> case x of Tplt _ -> True; _ -> False)
+
+    isTpltM :: (MonadError String m) => Mindmap -> Node -> m ()
+    isTpltM = _isExprConstructorM (\x -> case x of Tplt _ -> True; _ -> False)
 
     isFl :: (MonadError String m) => Mindmap -> Node -> m Bool
     isFl = _isExprConstructor (\x -> case x of Fl _ -> True; _ -> False)

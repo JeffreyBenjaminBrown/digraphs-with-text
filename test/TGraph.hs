@@ -118,9 +118,9 @@
       assertBool "lacks it" $ isLeft $ hasLEdgeM g1 (5,0,RelEdge $ Mbr 2)
 
     tIsTplt = TestCase $ do
-      assertBool "is template" $ isTplt g1 1 == Right True
-      assertBool "is not template" $ isTplt g1 0 == Right False
-      assertBool "missing" $ isLeft $ isTplt g1 (-1)
+      assertBool "is template" $ isRight $ isTpltM g1 1
+      assertBool "is not template" $ isLeft $ isTpltM g1 0
+      assertBool "missing" $ isLeft $ isTpltM g1 (-1)
 
     tTpltAt = TestCase $ do
       assertBool "normal" $ tpltAt g1 1 == ( Right $ Tplt [""," wants ",""] )
