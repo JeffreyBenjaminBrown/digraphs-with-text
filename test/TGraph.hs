@@ -13,6 +13,7 @@
     tGraph = TestList [ TestLabel "tBuildGraph" tBuildGraph
                       , TestLabel "tAskMinor"   tAskMinor
                       , TestLabel "tAskNodes"   tAskNodes
+                      , TestLabel "tChase"      tChase
                       ]
 
   -- buildGraph
@@ -158,3 +159,11 @@
     tMatchRel = TestCase $ do
       assertBool "dog in first pos"     $ matchRel g1 relSpec == Right [5,6,8]
       assertBool "nothing should match" $ matchRel g1 relSpecNonsense == Right []
+
+  -- chase and helpers
+    tChase = TestList [ TestLabel "tHas1Ana" tHas1Ana
+                      ]
+
+    tHas1Ana = TestCase $ do
+      assertBool "has 1 ana" $ has1Ana relSpecNonsense
+      assertBool "has no ana" $ not $ has1Ana relSpec

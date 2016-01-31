@@ -50,5 +50,5 @@
 
     relSpecNonsense = Map.fromList [ (RelTplt, NodeSpec 0) -- "dog" Str, not Tplt
                                    , (Mbr 1,   VarSpec It)
-                                   , (Mbr 2,   VarSpec Any)
+                                   , (Mbr 2,   VarSpec Ana)
                                    ]

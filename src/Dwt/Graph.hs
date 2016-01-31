@@ -262,12 +262,20 @@
       nodeListList <- mapM (\(r,NodeSpec n) -> specUsers g n r) specList
       return $ listIntersect nodeListList
 
+    has1Ana :: RelSpec -> Bool
+    has1Ana rc = length as == 1
+      where as = Map.toList 
+               $ Map.filter (\x -> case x of VarSpec Ana -> True; _ -> False) 
+               rc
+
+--    fork1Ana :: Mindmap -> Node -> RelSpec -> [Node]
+--    fork1Ana g n r = -- one generation, many Katas but one Ana
+
 --    fork :: Mindmap -> Node -> RelSpec -> [Node]
 --    fork g n rc =
---      For each Ana in rc, make an rc where instead of that Ana there is n.
---        (We will treat the other Anas the same as Any.)
---      Use matchRel on each of those rcs.
---      Take their union.
+--      Use only RelSpecs in which there is exactly 1 Ana and 1 Kata.
+--        Othewrise would have to make a sep RelSpec for each Ana (hard, no?),
+--        use matchRel for each, and take their union.
 
 --    chase :: (MonadError String m) => Mindmap -> Node -> RelSpec -> m [Node]
 --    chase g n dir = do
