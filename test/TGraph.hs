@@ -79,18 +79,18 @@
       assertBool "the edge" $ hasLEdge g2 (newNode, 0, RelEdge $ Mbr 1)
 
     tChNonRelAt = TestCase $ do
-      let gCat = fromRight $ chNonUserAt g1 0 $ Str "cat"
-      let gUses = fromRight $ chNonUserAt g1 1 $ stringToTplt "_ uses _"
+      let gCat = fromRight $ chNonUser g1 0 $ Str "cat"
+      let gUses = fromRight $ chNonUser g1 1 $ stringToTplt "_ uses _"
       assertBool "change Str" $ 
         Str "cat" == (lab' $ fromJust $ fst $ match 0 $ gCat)
       assertBool "change Tplt" $ 
         stringToTplt "_ uses _" == (lab' $ fromJust $ fst $ match 1 $ gUses)
       assertBool "not in graph" $
-        isLeft $ chNonUserAt g1 15  $ stringToTplt "_ uses _"
+        isLeft $ chNonUser g1 15  $ stringToTplt "_ uses _"
       assertBool "change Rel" $
-        isLeft $ chNonUserAt g1 11  $ Coll
+        isLeft $ chNonUser g1 11  $ Coll
       assertBool "constructor mismatch" $
-        isLeft $ chNonUserAt g1 4  $ stringToTplt "_ is _" -- LNode 4 is a Str
+        isLeft $ chNonUser g1 4  $ stringToTplt "_ is _" -- LNode 4 is a Str
 
     tChMbr = TestCase $ do
       let gDogDog = fromRight $ chRelMbr g1 5 0 (Mbr 2)

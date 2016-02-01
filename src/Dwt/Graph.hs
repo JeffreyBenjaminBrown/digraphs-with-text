@@ -1,15 +1,13 @@
     {-# LANGUAGE FlexibleContexts #-}
 
     module Dwt.Graph
-      ( -- module  Dwt.Graph
-        RelPos, Arity, Arity
+      (
+        RelPos, Arity
       , Mindmap, Expr(..), DwtEdge(..), RelRole(..), CollRole(..)
       , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
       , splitStringForTplt, stringToTplt, subInTplt
-      , insLeaf, insRel, insRelUsf, insColl
-      , partitionRelSpec, insRelSpec -- partition: could move
-      , chNonUserAt, chNonUserAtUsf, chRelMbr
-        -- change name: chNonUser
+      , insLeaf, insRel, insRelUsf, insColl, partitionRelSpec, insRelSpec
+      , chNonUser, chNonUserUsf, chRelMbr
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, isLikeExpr
       , tpltAt, relTplt, collPrinciple, tpltArity
@@ -137,20 +135,20 @@
              $ insNode newLNode g
 
   -- edit
-    chNonUserAt :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
+    chNonUser :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
       -- Strs and Tplts are used, but are not users. (Rels and Colls use them.)
-    chNonUserAt g n e' = do
+    chNonUser g n e' = do
       let me = lab g n
-      let mismatch = throwError $ "chNonUserAt: constructor mismatch"
+      let mismatch = throwError $ "chNonUser: constructor mismatch"
       case me of
         Just e@(Str _)  -> if isLikeExpr e e' then return () else mismatch
         Just e@(Tplt _) -> if isLikeExpr e e' then return () else mismatch
-        Nothing -> throwError $ "chNonUserAt: Node " ++ show n ++ " absent."
-        _       -> throwError $ "chNonUserAt: Node " ++ show n ++ " is a user."
-      return $ chNonUserAtUsf g n e'
+        Nothing -> throwError $ "chNonUser: Node " ++ show n ++ " absent."
+        _       -> throwError $ "chNonUser: Node " ++ show n ++ " is a user."
+      return $ chNonUserUsf g n e'
 
-    chNonUserAtUsf :: Mindmap -> Node -> Expr -> Mindmap
-    chNonUserAtUsf g n e = let (Just (a,b,c,d),g') = match n g
+    chNonUserUsf :: Mindmap -> Node -> Expr -> Mindmap
+    chNonUserUsf g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'
 
     chRelMbr :: (MonadError String m) => 
