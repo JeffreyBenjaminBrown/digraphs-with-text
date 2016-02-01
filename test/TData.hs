@@ -4,6 +4,7 @@
     ) where
 
     import Dwt.Graph
+    import Data.Graph.Inductive
     import qualified Data.Map as Map
 
 -- exports

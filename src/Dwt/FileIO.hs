@@ -2,6 +2,7 @@
       ( graphToText
       ) where
 
+    import Data.Graph.Inductive
     import Dwt.Graph
     import Dwt.Parse
     import Data.List (intersperse, sortOn)

@@ -43,6 +43,7 @@
     import Dwt.Util
     import Dwt.Parse
 
+    import Data.Graph.Inductive
     import Data.Text (stripEnd,pack,unpack)
     import Control.Monad (foldM)
     import Control.Monad.Except (MonadError)

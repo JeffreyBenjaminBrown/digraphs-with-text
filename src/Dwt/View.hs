@@ -5,6 +5,7 @@
     import Dwt.Graph
     import Dwt.Util
 
+    import Data.Graph.Inductive
     import Data.List (sortOn, intercalate)
     import qualified Data.Map as Map
 

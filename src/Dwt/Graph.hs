@@ -1,8 +1,21 @@
     {-# LANGUAGE FlexibleContexts #-}
 
     module Dwt.Graph
-      ( module Data.Graph.Inductive
-      , module Dwt.Graph
+      ( -- module  Dwt.Graph
+        RelPos, Arity, Arity
+      , Mindmap, Expr(..), DwtEdge(..), RelRole(..), CollRole(..)
+      , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
+      , splitStringForTplt, stringToTplt, subInTplt
+      , insLeaf, insRel, insRelUsf, insColl
+      , partitionRelSpec, insRelSpec -- partition: could move
+      , chNonUserAt, chNonUserAtUsf, chRelMbr
+        -- change name: chNonUser
+      , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
+      , isRel, isRelM, isColl, isCollM, isLeaf, isLikeExpr
+      , tpltAt, relTplt, collPrinciple, tpltArity
+      , nodesMatchTplt, users, specUsers, specUsersUsf, redundancySubs
+      , matchRel, has1Ana, fork1Ana, validRole, relElts
+      , insStr, insTplt, insFl
       ) where
 
     import Dwt.Util
@@ -276,7 +289,7 @@
 
     has1Ana :: RelSpec -> Bool
     has1Ana rc = length as == 1
-      where as = Map.toList 
+      where as = Map.toList
                $ Map.filter (\x -> case x of VarSpec Ana -> True; _ -> False) 
                rc
 
@@ -303,12 +316,12 @@
             else throwError $ "validRole: Arity " ++ show a ++ 
               " < RelPos " ++ show p
 
-   relElts :: (MonadError String m) => Mindmap -> Node -> [RelRole] -> m [Node]
+    relElts :: (MonadError String m) => Mindmap -> Node -> [RelRole] -> m [Node]
     relElts g relNode roles = do
       isRelM g relNode `catchError` (\_ -> throwError $
         "relElts: Node " ++ show relNode ++ " absent or not a Rel.")
       mapM_  (validRole g relNode) roles `catchError` (\_ -> throwError $
-        "relElts: member out of bounds")
+        "relElts: at least one member out of bounds")
       return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
 --    fork :: Mindmap -> Node -> RelSpec -> [Node]
@@ -323,14 +336,15 @@
 --      ... more ...
 
 -- deprecated
-    insStr :: String -> Mindmap -> Mindmap -- generalized to insLeaf
+  -- generalized to insLeaf
+    insStr :: String -> Mindmap -> Mindmap
     insStr str g = insNode (newNode, Str str) g
       where newNode = head $ newNodes 1 g
 
-    insTplt :: String -> Mindmap -> Mindmap -- generalized to insLeaf
+    insTplt :: String -> Mindmap -> Mindmap
     insTplt s g = insNode (newNode, stringToTplt s) g
       where newNode = head $ newNodes 1 g
 
-    insFl :: Float -> Mindmap -> Mindmap -- generalized to insLeaf
+    insFl :: Float -> Mindmap -> Mindmap
     insFl f g = insNode (newNode, Fl f) g
       where newNode = head $ newNodes 1 g
