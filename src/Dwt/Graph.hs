@@ -5,14 +5,14 @@
         RelPos, Arity
       , Mindmap, Expr(..), DwtEdge(..), RelRole(..), CollRole(..)
       , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
-      , splitStringForTplt, stringToTplt, subInTplt
+      , splitStringForTplt, stringToTplt, subInTplt, tpltArity, nodesMatchTplt
       , insLeaf, insRel, insRelUsf, insColl, partitionRelSpec, insRelSpec
         , insStr, insTplt, insFl -- deprecated, at end of file
       , chNonUser, chNonUserUsf, chRelMbr
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, isLikeExpr
-      , tpltAt, relElts, relTplt, collPrinciple, tpltArity
-      , nodesMatchTplt, users, usersInRole, usersInRoleUsf, redundancySubs
+      , tpltAt, relElts, relTplt, collPrinciple
+      , users, usersInRole, usersInRoleUsf, redundancySubs
       , matchRel, has1Ana, fork1Ana, validRole
       ) where
 
@@ -51,8 +51,7 @@
     type RelSpec =    Map.Map RelRole MbrSpec
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
 
--- build
-  -- Tplt <-> String
+-- Tplts
     splitStringForTplt :: String -> [String]
     splitStringForTplt t = map unpack $ splitOn (pack "_") (pack t)
 
@@ -66,6 +65,18 @@
       in foldl (\s (a,b) -> s++a++b) "" pairList
     subInTplt _ _ = error "subInTplt: not a Tplt"
 
+    tpltArity :: Expr -> Arity
+    tpltArity e = case e of Tplt ss -> length ss - 1
+                            _       -> error "tpltArity: Expr not a Tplt."
+
+    nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m ()
+    nodesMatchTplt ns e = case e of
+      Tplt _ -> if (tpltArity e) == length ns
+        then return ()
+        else throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes." 
+      _ -> throwError "nodesMatchTplt: Expr not a Tplt."
+
+-- build
   -- insert
     -- TODO ! use a single ins function for Str, Tplt, Fl
       -- Will otherwise need similar duplicates to delete, replace ...
@@ -254,17 +265,6 @@
       return $ fromJust $ lab g $ head
         [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
 
-    tpltArity :: Expr -> Arity
-    tpltArity e = case e of Tplt ss -> length ss - 1
-                            _       -> error "tpltArity: Expr not a Tplt."
-
-    nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m ()
-    nodesMatchTplt ns e = case e of
-      Tplt _ -> if (tpltArity e) == length ns
-        then return ()
-        else throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes." 
-      _ -> throwError "nodesMatchTplt: Expr not a Tplt."
-
   -- .. -> [Node]
     users :: (MonadError String m, Graph gr) => gr a b -> Node -> m [Node]
     users g n = do gelemM g n
@@ -308,7 +308,7 @@
           kataRoles = Map.keys $ Map.filter (\x -> case x of VarSpec Kata -> True;
                                                              _ -> False) r
       rels <- matchRel g r'
-      concat <$> mapM (\rel -> relElts g rel kataRoles) rels -- UNTESTED, TODO
+      concat <$> mapM (\rel -> relElts g rel kataRoles) rels
 
     validRole :: (MonadError String m) => Mindmap -> Node -> RelRole -> m ()
     validRole g relNode role = do
