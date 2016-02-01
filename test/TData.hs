@@ -1,6 +1,6 @@
     module TData (
       g1, g1Alt
-      , relSpec, relSpecNonsense
+      , relSpec, relSpec2, relSpecNonsense
     ) where
 
     import Dwt.Graph
@@ -47,6 +47,11 @@
     relSpec = Map.fromList [ (RelTplt, VarSpec It)
                            , (Mbr 1,   NodeSpec 0)
                            , (Mbr 2,   VarSpec Any)
+                           ]
+
+    relSpec2 = Map.fromList [ (RelTplt, NodeSpec 1)
+                           , (Mbr 1,   VarSpec Ana)
+                           , (Mbr 2,   VarSpec Kata)
                            ]
 
     relSpecNonsense = Map.fromList [ (RelTplt, NodeSpec 0) -- "dog" Str, not Tplt

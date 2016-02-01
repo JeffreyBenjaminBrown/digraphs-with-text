@@ -162,6 +162,7 @@
 
   -- chase and helpers
     tChase = TestList [ TestLabel "tHas1Ana" tHas1Ana
+                      , TestLabel "tFork1Ana" tFork1Ana
                       , TestLabel "tValidRole"tValidRole
                       , TestLabel "tRelElts" tRelElts
                       ]
@@ -169,6 +170,12 @@
     tHas1Ana = TestCase $ do
       assertBool "has 1 ana" $ has1Ana relSpecNonsense
       assertBool "has no ana" $ not $ has1Ana relSpec
+
+    tFork1Ana = TestCase $ do -- todo, incomplete
+      assertBool "no Ana vars, should fail"
+        $ isLeft $ fork1Ana g1 0 relSpec
+      assertBool "dog(ana) wants brandy(kata)" 
+        $ fork1Ana g1 0 relSpec2 == Right [4]
 
     tValidRole = TestCase $ do
       assertBool "Tplt: valid role" $ isRight $ validRole g1 5 RelTplt

@@ -7,13 +7,13 @@
       , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
       , splitStringForTplt, stringToTplt, subInTplt
       , insLeaf, insRel, insRelUsf, insColl, partitionRelSpec, insRelSpec
+        , insStr, insTplt, insFl -- deprecated, at end of file
       , chNonUser, chNonUserUsf, chRelMbr
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, isLikeExpr
-      , tpltAt, relTplt, collPrinciple, tpltArity
+      , tpltAt, relElts, relTplt, collPrinciple, tpltArity
       , nodesMatchTplt, users, usersInRole, usersInRoleUsf, redundancySubs
-      , matchRel, has1Ana, fork1Ana, validRole, relElts
-      , insStr, insTplt, insFl
+      , matchRel, has1Ana, fork1Ana, validRole
       ) where
 
     import Dwt.Util
@@ -234,6 +234,14 @@
       Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
       _       -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
 
+    relElts :: (MonadError String m) => Mindmap -> Node -> [RelRole] -> m [Node]
+    relElts g relNode roles = do
+      isRelM g relNode `catchError` (\_ -> throwError $
+        "relElts: Node " ++ show relNode ++ " absent or not a Rel.")
+      mapM_  (validRole g relNode) roles `catchError` (\_ -> throwError $
+        "relElts: at least one member out of bounds")
+      return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
+
     relTplt :: (MonadError String m) => Mindmap -> Node -> m Expr
     relTplt g relNode = do
       [n] <- relElts g relNode [RelTplt]
@@ -262,9 +270,8 @@
     users g n = do gelemM g n
                    return [m | (m,label@_) <- lpre g n]
 
-    -- Rels using Node n in RelRole r
     usersInRole :: (MonadError String m) => Mindmap -> Node -> RelRole -> m [Node]
-    usersInRole g n r = do
+    usersInRole g n r = do -- Rels using Node n in RelRole r
       gelemM g n
       return $ usersInRoleUsf g n r
 
@@ -291,14 +298,17 @@
                $ Map.filter (\x -> case x of VarSpec Ana -> True; _ -> False) 
                rc
 
+    -- one generation, maybe many Katas, but only one Ana
     fork1Ana :: (MonadError String m) => Mindmap -> Node -> RelSpec -> m [Node]
-    fork1Ana g n r = -- one generation, maybe many Katas, but only one Ana
-      matchRel g r'
-      -- TODO ! INCOMPLETE ! Use katas to filter result
-      where r' = Map.map (\x -> case x of VarSpec Ana -> NodeSpec n;
-                                          _ -> x) r
-            katas = Map.keys $ Map.filter (\x -> case x of VarSpec Kata -> True;
-                                                           _ -> False) r
+    fork1Ana g n r = do 
+      if has1Ana r then return [] else throwError $ "fork1Ana: RelSpec " ++ show r
+        ++ " has a number of Ana variables other than 1."
+      let r' = Map.map (\x -> case x of VarSpec Ana -> NodeSpec n;
+                                        _ -> x) r
+          kataRoles = Map.keys $ Map.filter (\x -> case x of VarSpec Kata -> True;
+                                                             _ -> False) r
+      rels <- matchRel g r'
+      concat <$> mapM (\rel -> relElts g rel kataRoles) rels -- UNTESTED, TODO
 
     validRole :: (MonadError String m) => Mindmap -> Node -> RelRole -> m ()
     validRole g relNode role = do
@@ -313,14 +323,6 @@
           if p <= a then return ()
             else throwError $ "validRole: Arity " ++ show a ++ 
               " < RelPos " ++ show p
-
-    relElts :: (MonadError String m) => Mindmap -> Node -> [RelRole] -> m [Node]
-    relElts g relNode roles = do
-      isRelM g relNode `catchError` (\_ -> throwError $
-        "relElts: Node " ++ show relNode ++ " absent or not a Rel.")
-      mapM_  (validRole g relNode) roles `catchError` (\_ -> throwError $
-        "relElts: at least one member out of bounds")
-      return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
 --    fork :: Mindmap -> Node -> RelSpec -> [Node]
 --    fork g n rc =
