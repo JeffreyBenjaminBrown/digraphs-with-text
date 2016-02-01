@@ -1,4 +1,5 @@
     {-# LANGUAGE FlexibleContexts #-}
+    {-# LANGUAGE ViewPatterns #-}
 
     module Dwt.Graph
       (
@@ -7,13 +8,13 @@
       , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
       , splitStringForTplt, stringToTplt, subInTplt, tpltArity, nodesMatchTplt
       , insLeaf, insRel, insRelUsf, insColl, partitionRelSpec, insRelSpec
-        , insStr, insTplt, insFl -- deprecated, at end of file
+        , insStr, insTplt, insFl -- deprecated, at end of file; use insLeaf
       , chNonUser, chNonUserUsf, chRelMbr
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, isLikeExpr
       , tpltAt, relElts, relTplt, collPrinciple
       , users, usersInRole, usersInRoleUsf, redundancySubs
-      , matchRel, has1Ana, fork1Ana, validRole
+      , matchRel, has1Ana, fork1Ana, subNodeForVars, validRole
       ) where
 
     import Dwt.Util
@@ -177,7 +178,7 @@
              $ insEdge (user,newMbr,RelEdge role) g
 
 -- query
-  -- tests and lookups for smaller-than-graph types
+  -- the simplest
     gelemM :: (MonadError String m, Graph gr) => gr a b -> Node -> m ()
     gelemM g n = if gelem n g then return () 
       else throwError $ "gelemM: Node " ++ show n ++ " absent."
@@ -188,7 +189,7 @@
       else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
 
     _isExprMConstructor :: (MonadError String m, Graph gr) => (a -> Bool) ->
-      gr a b -> Node -> m () -- TODO: catch these erors
+      gr a b -> Node -> m () -- TODO: catch these erors, append strings
       -- otherwise the distinction bewteen absence and inequality is lost
     _isExprMConstructor pred g n = case mExpr of 
         Nothing -> throwError $ "Node " ++ show n ++ " absent."
@@ -224,7 +225,7 @@
     isColl x = case x of Coll -> True; _ -> False
 
     isCollM :: (MonadError String m) => Mindmap -> Node -> m ()
-    isCollM = _isExprMConstructor (\x -> case x of Coll -> True; _ -> False)
+    isCollM = _isExprMConstructor isColl
 
     isLeaf :: Expr -> Bool -- TODO ? make Leaf an Expr constructor
     isLeaf (Str _) = True
@@ -239,6 +240,7 @@
       Rel    ->  case f of Rel    -> True;  _ -> False
       Coll   ->  case f of Coll   -> True;  _ -> False
 
+  -- more
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
     tpltAt g tn = case lab g tn of
       Just t@(Tplt _) -> return t
@@ -303,12 +305,27 @@
     fork1Ana g n r = do 
       if has1Ana r then return [] else throwError $ "fork1Ana: RelSpec " ++ show r
         ++ " has a number of Ana variables other than 1."
-      let r' = Map.map (\x -> case x of VarSpec Ana -> NodeSpec n;
-                                        _ -> x) r
+      let r' = subNodeForVars n Ana r
           kataRoles = Map.keys $ Map.filter (\x -> case x of VarSpec Kata -> True;
                                                              _ -> False) r
       rels <- matchRel g r'
       concat <$> mapM (\rel -> relElts g rel kataRoles) rels
+
+    subNodeForVars :: Node -> MbrVar -> RelSpec  -> RelSpec
+    subNodeForVars n v r = Map.map
+      (\x -> case x of VarSpec v' -> if v==v' then NodeSpec n else VarSpec v'
+                       _          -> x   -- yes, the v,v' distinction is needed
+      ) r
+
+--    f r (n:ns) (match n -> (Just ctx, g') = 
+--      let g = ctx & g'
+--      in n : f r (fromRight $ matchRel g r)
+
+--    -- todo ? use Tikhon Jelvis's graph-recursion idiom (google TJ & dfs)
+--    _dfs1Ana :: Mindmap -> RelSpec -> [Node] -> [Node] -> Either String [Node]
+--    _dfs1Ana g r done (n:ns) = if elem n done
+--      then _dfs1Ana g r done ns
+--      else _dfs1Ana g r (done ++ fork1Ana g n r) ns
 
     validRole :: (MonadError String m) => Mindmap -> Node -> RelRole -> m ()
     validRole g relNode role = do
