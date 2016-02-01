@@ -11,7 +11,7 @@
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, isLikeExpr
       , tpltAt, relTplt, collPrinciple, tpltArity
-      , nodesMatchTplt, users, specUsers, specUsersUsf, redundancySubs
+      , nodesMatchTplt, users, usersInRole, usersInRoleUsf, redundancySubs
       , matchRel, has1Ana, fork1Ana, validRole, relElts
       , insStr, insTplt, insFl
       ) where
@@ -263,13 +263,13 @@
                    return [m | (m,label@_) <- lpre g n]
 
     -- Rels using Node n in RelRole r
-    specUsers :: (MonadError String m) => Mindmap -> Node -> RelRole -> m [Node]
-    specUsers g n r = do -- TODO ! bad name, spec(ific) conflicts with (Rel)spec
+    usersInRole :: (MonadError String m) => Mindmap -> Node -> RelRole -> m [Node]
+    usersInRole g n r = do
       gelemM g n
-      return $ specUsersUsf g n r
+      return $ usersInRoleUsf g n r
 
-    specUsersUsf :: (Graph gr) => gr a DwtEdge -> Node -> RelRole -> [Node]
-    specUsersUsf g n r = [m | (m,r') <- lpre g n, r'==RelEdge r]
+    usersInRoleUsf :: (Graph gr) => gr a DwtEdge -> Node -> RelRole -> [Node]
+    usersInRoleUsf g n r = [m | (m,r') <- lpre g n, r'==RelEdge r]
 
     redundancySubs :: RelSpec -> Map.Map Node String
     redundancySubs = Map.fromList 
@@ -282,7 +282,7 @@
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
             $ spec :: [(RelRole,MbrSpec)]
-      nodeListList <- mapM (\(r,NodeSpec n) -> specUsers g n r) specList
+      nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
       return $ listIntersect nodeListList
 
     has1Ana :: RelSpec -> Bool
