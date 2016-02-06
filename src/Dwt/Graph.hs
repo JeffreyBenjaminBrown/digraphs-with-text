@@ -8,7 +8,7 @@
       , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
       , splitStringForTplt, stringToTplt, subInTplt, tpltArity, nodesMatchTplt
       , insLeaf, insRel, insRelUsf, insColl, partitionRelSpec, insRelSpec
-        , insStr, insTplt, insFl -- deprecated, at end of file; use insLeaf
+        , insStr, insTplt, insFl -- deprecated; prefer insLeaf
       , chNonUser, chNonUserUsf, chRelMbr
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, isLikeExpr
@@ -317,11 +317,12 @@
                        _          -> x   -- yes, the v,v' distinction is needed
       ) r
 
---    f r (n:ns) (match n -> (Just ctx, g') = 
+--    _dfs1Ana r (n:ns) (match n -> (Just ctx, g') = 
 --      let g = ctx & g'
---      in n : f r (fromRight $ matchRel g r)
+--      in n : _dfs1Ana r (fromRight $ matchRel g r)
 
---    -- todo ? use Tikhon Jelvis's graph-recursion idiom (google TJ & dfs)
+-- todo ? above uses Tikhon Jelvis's graph-recursion idiom (google TJ & dfs)
+
 --    _dfs1Ana :: Mindmap -> RelSpec -> [Node] -> [Node] -> Either String [Node]
 --    _dfs1Ana g r done (n:ns) = if elem n done
 --      then _dfs1Ana g r done ns
