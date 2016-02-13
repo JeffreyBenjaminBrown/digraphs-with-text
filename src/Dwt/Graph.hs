@@ -88,8 +88,8 @@
         where [newNode] = newNodes 1 g
       False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
 
-    insRel :: (MonadError String m) => Node -> -- the template node
-                                       [Node] -> Mindmap -> m Mindmap
+    insRel :: Node -> -- the template node
+              [Node] -> Mindmap -> Either String Mindmap
     insRel tn ns g =
       do mapM_ (gelemM g) $ tn:ns
          t <- tpltAt g tn

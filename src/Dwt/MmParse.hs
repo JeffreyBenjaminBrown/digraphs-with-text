@@ -308,14 +308,14 @@
                               [firstStyleNode, firstStyleNode-1 ..]
          )
 
-    frame :: (MonadError String me) => DwtFrame -> me DwtFrame
+    frame :: DwtFrame -> Either String DwtFrame
     frame (mm, mp) = do mm' <- foldM (\mm n -> insRel (instanceNode) 
                                                       [stylesNode, n] mm)
                                        -- n is already negative
                                      mm (Map.elems mp)
                         return (mm',mp)
 
-    loadNodes :: (MonadError String me) => (DwtSpec, DwtFrame) -> me Mindmap
+    loadNodes :: (DwtSpec, DwtFrame) -> Either String Mindmap
     loadNodes ( (ns,_), (mm, mp) ) =
       let noded = foldl (\mm n -> insNode (mmId n, Str $ text n) mm) mm ns
       in foldM (\mm n -> insRel (usesFontNode) 
@@ -325,7 +325,7 @@
                noded $ filter (Mb.isJust . style) ns
 
     -- todo: connect imported graph's root to frames root
-    loadEdges :: (MonadError String me) => DwtSpec -> Mindmap -> me Mindmap
+    loadEdges :: DwtSpec -> Mindmap -> Either String Mindmap
     loadEdges (_,es) mm = foldM (\mm (from,to,kind)
                                    -> insRel (edgeNode kind) [from,to] mm
                                  ) mm es
