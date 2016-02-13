@@ -15,7 +15,7 @@
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , tpltAt, relElts, validRole, relTplt, collPrinciple
       , rels, users, usersInRole, usersInRoleUsf, redundancySubs
-      , matchRel, has1Up, fork1Up, subNodeForVars
+      , matchRel, has1Up, fork1Up, subNodeForVars, dwtDfs
       ) where
 
     import Dwt.Util
@@ -156,7 +156,7 @@
           $ map (\(node,RelEdge r)->(r,node)) $ lsuc g n
         _ -> throwError $ "Node " ++ show n ++ " not a RelSpecExpr."
 
-    relSpec :: (MonadError String m) => Mindmap -> Node -> m RelSpec
+    relSpec :: Mindmap -> Node -> Either String RelSpec
     relSpec g n = do -- nearly inverse to partitionRelSpec
       gelemM g n
       case (fromJust $ lab g n) of
@@ -370,13 +370,13 @@
     _dwtDfs :: Mindmap -> RelSpec -> [Node] -> [Node] -> Either String [Node]
     _dwtDfs _ _   []             acc = return acc
     _dwtDfs g dir pending@(n:ns) acc = do
-      newNodes <- fork1Up g n dir
+      newNodes <- fork1Up g n dir -- redundant; calls has1Up a lot
       _dwtDfs g dir (nub $ newNodes++ns) (n:acc)
 
---    dwtDfs :: Mindmap -> RelSpec -> [Node] -> Either String [Node]
---    dwtDfs g dir starts = do
---      mapM_ (gelemM g) $ starts
---      reverse and then nub the result of _dwtDfs
+    dwtDfs :: Mindmap -> RelSpec -> [Node] -> Either String [Node]
+    dwtDfs g dir starts = do
+      mapM_ (gelemM g) $ starts
+      (nub . reverse) <$> _dwtDfs g dir starts []
 
 --    _dfs1Up r (n:ns) (match n -> (Just ctx, g')) =
 --      let g = ctx & g'
