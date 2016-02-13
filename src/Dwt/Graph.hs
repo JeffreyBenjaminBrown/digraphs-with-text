@@ -344,8 +344,8 @@
       nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
       return $ listIntersect nodeListList
 
--- direction
-    has1Up :: RelSpec -> Bool -- Up should be only one direction
+-- using directions (RelSpecs)
+    has1Up :: RelSpec -> Bool -- Up should be only one direction. I forget why.
     has1Up rc = length as == 1
       where as = Map.toList
                $ Map.filter (\x -> case x of VarSpec Up -> True; _ -> False) 
@@ -377,25 +377,3 @@
     dwtDfs g dir starts = do
       mapM_ (gelemM g) $ starts
       (nub . reverse) <$> _dwtDfs g dir starts []
-
---    _dfs1Up r (n:ns) (match n -> (Just ctx, g')) =
---      let g = ctx & g'
---      in n : _dfs1Up r (fromRight $ matchRel g r)
-
--- todo ? above uses Tikhon Jelvis's graph-recursion idiom (google TJ & dfs)
-
---    _dfs1Up :: Mindmap -> RelSpec -> [Node] -> [Node] -> Either String [Node]
---    _dfs1Up g r done (n:ns) = if elem n done
---      then _dfs1Up g r done ns
---      else _dfs1Up g r (done ++ fork1Up g n r) ns
-
---    fork :: Mindmap -> Node -> RelSpec -> [Node]
---    fork g n rc =
---      Use only RelSpecs in which there is exactly 1 Up and 1 Down.
---        Othewrise would have to make a sep RelSpec for each Up (hard, no?),
---        use matchRel for each, and take their union.
-
---    chase :: (MonadError String m) => Mindmap -> Node -> RelSpec -> m [Node]
---    chase g n dir = do
---      gelemM g n
---      ... more ...
