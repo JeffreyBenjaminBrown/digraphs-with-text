@@ -11,7 +11,7 @@
         , insStr, insTplt, insFl -- insLeaf generalizes these
       , chNonUser, chNonUserUsf, chRelMbr
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
-      , isRel, isRelM, isColl, isCollM, isLeaf, isLikeExpr
+      , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , tpltAt, relElts, relTplt, collPrinciple
       , rels, users, usersInRole, usersInRoleUsf, redundancySubs
       , matchRel, has1Ana, fork1Ana, subNodeForVars, validRole
@@ -166,8 +166,8 @@
       let me = lab g n
       let mismatch = throwError $ "chNonUser: constructor mismatch"
       case me of
-        Just e@(Str _)  -> if isLikeExpr e e' then return () else mismatch
-        Just e@(Tplt _) -> if isLikeExpr e e' then return () else mismatch
+        Just e@(Str _)  -> if areLikeExprs e e' then return () else mismatch
+        Just e@(Tplt _) -> if areLikeExprs e e' then return () else mismatch
         Nothing -> throwError $ "chNonUser: Node " ++ show n ++ " absent."
         _       -> throwError $ "chNonUser: Node " ++ show n ++ " is a user."
       return $ chNonUserUsf g n e'
@@ -246,8 +246,8 @@
     isLeaf (Tplt _) = True
     isLeaf _ = False
 
-    isLikeExpr :: Expr -> Expr -> Bool
-    isLikeExpr e f = case e of
+    areLikeExprs :: Expr -> Expr -> Bool
+    areLikeExprs e f = case e of
       Str _  ->  case f of Str  _ -> True;  _ -> False
       Tplt _ ->  case f of Tplt _ -> True;  _ -> False
       Rel    ->  case f of Rel    -> True;  _ -> False
