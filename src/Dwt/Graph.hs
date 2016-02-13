@@ -15,7 +15,7 @@
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , tpltAt, relElts, validRole, relTplt, collPrinciple
       , rels, users, usersInRole, usersInRoleUsf, redundancySubs
-      , matchRel, has1Ana, fork1Ana, subNodeForVars
+      , matchRel, has1Up, fork1Up, subNodeForVars
       ) where
 
     import Dwt.Util
@@ -42,7 +42,7 @@
     data CollRole = CollMbr | CollPrinciple deriving(Show,Read,Eq,Ord)
 
   -- for (partially) specifying Rels
-    data MbrVar = It | Any | Ana | Kata -- todo ? use omission instead of Any
+    data MbrVar = It | Any | Up | Down -- todo ? use omission instead of Any
       deriving (Show,Read,Eq,Ord)
     data MbrSpec = VarSpec MbrVar | NodeSpec Node deriving(Show,Read,Eq,Ord)
 
@@ -336,7 +336,7 @@
       . Map.elems
       . Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
 
-    matchRel :: (MonadError String m) => Mindmap -> RelSpec -> m [Node]
+    matchRel :: Mindmap -> RelSpec -> Either String [Node]
     matchRel g spec = do
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
@@ -345,18 +345,18 @@
       return $ listIntersect nodeListList
 
 -- direction
-    has1Ana :: RelSpec -> Bool -- Ana (up) should be only one direction
-    has1Ana rc = length as == 1
+    has1Up :: RelSpec -> Bool -- Up should be only one direction
+    has1Up rc = length as == 1
       where as = Map.toList
-               $ Map.filter (\x -> case x of VarSpec Ana -> True; _ -> False) 
+               $ Map.filter (\x -> case x of VarSpec Up -> True; _ -> False) 
                rc
 
-    fork1Ana :: Mindmap -> Node -> RelSpec -> Either String [Node]
-    fork1Ana g n r = do -- one generation of successors in the Kata direction
-      if has1Ana r then return [] else throwError $ "fork1Ana: RelSpec " ++ show r
-        ++ " has a number of Ana variables other than 1."
-      let r' = subNodeForVars n Ana r
-          kataRoles = Map.keys $ Map.filter (\x -> case x of VarSpec Kata -> True;
+    fork1Up :: Mindmap -> Node -> RelSpec -> Either String [Node]
+    fork1Up g n r = do -- one generation of successors in the Down direction
+      if has1Up r then return [] else throwError $ "fork1Up: RelSpec " ++ show r
+        ++ " has a number of Up variables other than 1."
+      let r' = subNodeForVars n Up r
+          kataRoles = Map.keys $ Map.filter (\x -> case x of VarSpec Down -> True;
                                                              _ -> False) r
       rels <- matchRel g r'
       concat <$> mapM (\rel -> relElts g rel kataRoles) rels
@@ -367,21 +367,24 @@
                        _          -> x   -- yes, the v,v' distinction is needed
       ) r
 
---    _dfs1Ana r (n:ns) (match n -> (Just ctx, g') = 
+--    dwtDfs :: Graph -> RelSpec -> [Node] -> [Node]
+
+
+--    _dfs1Up r (n:ns) (match n -> (Just ctx, g')) =
 --      let g = ctx & g'
---      in n : _dfs1Ana r (fromRight $ matchRel g r)
+--      in n : _dfs1Up r (fromRight $ matchRel g r)
 
 -- todo ? above uses Tikhon Jelvis's graph-recursion idiom (google TJ & dfs)
 
---    _dfs1Ana :: Mindmap -> RelSpec -> [Node] -> [Node] -> Either String [Node]
---    _dfs1Ana g r done (n:ns) = if elem n done
---      then _dfs1Ana g r done ns
---      else _dfs1Ana g r (done ++ fork1Ana g n r) ns
+--    _dfs1Up :: Mindmap -> RelSpec -> [Node] -> [Node] -> Either String [Node]
+--    _dfs1Up g r done (n:ns) = if elem n done
+--      then _dfs1Up g r done ns
+--      else _dfs1Up g r (done ++ fork1Up g n r) ns
 
 --    fork :: Mindmap -> Node -> RelSpec -> [Node]
 --    fork g n rc =
---      Use only RelSpecs in which there is exactly 1 Ana and 1 Kata.
---        Othewrise would have to make a sep RelSpec for each Ana (hard, no?),
+--      Use only RelSpecs in which there is exactly 1 Up and 1 Down.
+--        Othewrise would have to make a sep RelSpec for each Up (hard, no?),
 --        use matchRel for each, and take their union.
 
 --    chase :: (MonadError String m) => Mindmap -> Node -> RelSpec -> m [Node]

@@ -31,7 +31,7 @@
           Just (RelSpecExpr rvs) ->
             let rs = fromRight $ relSpec g n
                 rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
-                  -- e.g. rsl = [(Mbr 1,VarSpec Kata),(Mbr 2,NodeSpec 3)]
+                  -- e.g. rsl = [(Mbr 1,VarSpec Down),(Mbr 2,NodeSpec 3)]
                 tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup RelTplt rs
                 Just tpltLab = lab g tpltNode :: Maybe Expr
                 showMbrSpec ms = case ms of

@@ -50,11 +50,11 @@
                            ]
 
     tRelSpec2 = Map.fromList [ (RelTplt, NodeSpec 1)
-                           , (Mbr 1,   VarSpec Ana)
-                           , (Mbr 2,   VarSpec Kata)
+                           , (Mbr 1,   VarSpec Up)
+                           , (Mbr 2,   VarSpec Down)
                            ]
 
     tRelSpecNonsense = Map.fromList [ (RelTplt, NodeSpec 0) -- "dog" Str, not Tplt
                                    , (Mbr 1,   VarSpec It)
-                                   , (Mbr 2,   VarSpec Ana)
+                                   , (Mbr 2,   VarSpec Up)
                                    ]

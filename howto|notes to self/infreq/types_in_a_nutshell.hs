@@ -22,7 +22,7 @@ Here are the types:
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
     data CollRole = CollMbr | CollTitle | CollSeparator deriving(Show,Read,Eq,Ord)
 
-    data MbrVar = It | Any | Ana | Kata
+    data MbrVar = It | Any | Up | Down
       deriving (Show,Read,Eq,Ord)
     data MbrSpec = VarSpec MbrVar | MbrSpec Node deriving(Show,Read,Eq,Ord)
 

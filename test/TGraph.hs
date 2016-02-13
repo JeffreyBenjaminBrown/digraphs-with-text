@@ -161,21 +161,21 @@
       assertBool "nothing should match" $ matchRel g1 tRelSpecNonsense == Right []
 
   -- chase and helpers
-    tChase = TestList [ TestLabel "tHas1Ana" tHas1Ana
-                      , TestLabel "tFork1Ana" tFork1Ana
+    tChase = TestList [ TestLabel "tHas1Up" tHas1Up
+                      , TestLabel "tFork1Up" tFork1Up
                       , TestLabel "tValidRole"tValidRole
                       , TestLabel "tRelElts" tRelElts
                       ]
 
-    tHas1Ana = TestCase $ do
-      assertBool "has 1 ana" $ has1Ana tRelSpecNonsense
-      assertBool "has no ana" $ not $ has1Ana tRelSpec
+    tHas1Up = TestCase $ do
+      assertBool "has 1 Up" $ has1Up tRelSpecNonsense
+      assertBool "has no Up" $ not $ has1Up tRelSpec
 
-    tFork1Ana = TestCase $ do -- todo, incomplete
-      assertBool "no Ana vars, should fail"
-        $ isLeft $ fork1Ana g1 0 tRelSpec
+    tFork1Up = TestCase $ do -- todo, incomplete
+      assertBool "no Up vars, should fail"
+        $ isLeft $ fork1Up g1 0 tRelSpec
       assertBool "dog(ana) wants brandy(kata)" 
-        $ fork1Ana g1 0 tRelSpec2 == Right [4]
+        $ fork1Up g1 0 tRelSpec2 == Right [4]
 
     tValidRole = TestCase $ do
       assertBool "Tplt: valid role" $ isRight $ validRole g1 5 RelTplt
