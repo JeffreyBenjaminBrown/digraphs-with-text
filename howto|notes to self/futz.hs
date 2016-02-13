@@ -1,3 +1,6 @@
+-- 2016 02 12
+  view g $ concatMap (pre g) (rels g) -- every use of every rel
+
 -- 2016 01 16
   Find all nodes using a Tplt
     > labfilter (== stringToTplt "_ uses font-> _") g
