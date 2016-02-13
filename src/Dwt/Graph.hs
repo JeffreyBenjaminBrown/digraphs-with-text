@@ -8,6 +8,7 @@
       , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
       , splitStringForTplt, stringToTplt, subInTplt, tpltArity, nodesMatchTplt
       , insLeaf, insRel, insRelUsf, insColl, partitionRelSpec, insRelSpec
+        , relNodeSpec, relSpec
         , insStr, insTplt, insFl -- insLeaf generalizes these
       , chNonUser, chNonUserUsf, chRelMbr
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
@@ -48,8 +49,8 @@
     type RelVarSpec = Map.Map RelRole MbrVar -- subset of RelSpec info, but
       -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
       -- The rest of the info can be inferred from the edges connected to it.
-    type RelNodeSpec = Map.Map RelRole Node -- the rest of a RelSpec
-    type RelSpec =    Map.Map RelRole MbrSpec
+    type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
+    type RelSpec =     Map.Map RelRole MbrSpec
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
 
 -- Tplts
@@ -105,7 +106,7 @@
     insRelUsf t ns g = if ta /= length ns -- t is tplt, otherwise like ns
         then error "insRelUsf: Tplt Arity /= number of members Nodes."
         else if any (==False) $ map (flip gelem g) $ (t:ns)
-          then error "insRelUsf: One of those Nodes is not in the Mindmap." 
+          then error "insRelUsf: One of those Nodes is not in the Mindmap."
         else f (zip ns [1..ta]) g'
       where te@(Tplt ts) = fromJust $ lab g t -- can also error:
               -- by finding Str or Rel where expected Tplt
@@ -146,6 +147,25 @@
                     $ Map.toList nodeMap
       return $ insEdges newLEdges
              $ insNode newLNode g
+
+    relNodeSpec :: (MonadError String m) => Mindmap -> Node -> m RelNodeSpec
+    relNodeSpec g n = do
+      gelemM g n
+      case (fromJust $ lab g n) of
+        RelSpecExpr _ -> return $ Map.fromList 
+          $ map (\(node,RelEdge r)->(r,node)) $ lsuc g n
+        _ -> throwError $ "Node " ++ show n ++ " not a RelSpecExpr."
+
+    relSpec :: (MonadError String m) => Mindmap -> Node -> m RelSpec
+    relSpec g n = do
+      gelemM g n
+      case (fromJust $ lab g n) of
+        RelSpecExpr rvs -> do
+          let rnsl = Map.toList $ fromRight $ relNodeSpec g n -- RelNodeSpec list
+              rvsl = Map.toList rvs -- RelVarSpec list
+              rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
+              rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
+          return $ Map.fromList $ rvsl' ++ rnsl'
 
     insStr :: String -> Mindmap -> Mindmap
     insStr str g = insNode (newNode, Str str) g
@@ -310,7 +330,7 @@
       nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
       return $ listIntersect nodeListList
 
-    has1Ana :: RelSpec -> Bool
+    has1Ana :: RelSpec -> Bool -- Ana (up) should be only one direction
     has1Ana rc = length as == 1
       where as = Map.toList
                $ Map.filter (\x -> case x of VarSpec Ana -> True; _ -> False) 
