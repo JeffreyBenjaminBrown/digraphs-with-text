@@ -1,6 +1,7 @@
 -- 2016 02 12
   view g $ concatMap (pre g) (rels g) -- every use of every rel
-  let s = M.fromList [(RelTplt,NodeSpec 8), (Mbr 1,VarSpec Kata), (Mbr 2,VarSpec Ana)] :: RelSpec
+  let rs = M.fromList [(RelTplt,NodeSpec 8), (Mbr 1,VarSpec Kata), (Mbr 2,VarSpec Ana)] :: RelSpec
+  let rvs = M.fromList [(Mbr 1, Kata), (Mbr 2, Ana)] :: RelVarSpec
 
 -- 2016 01 16
   Find all nodes using a Tplt
