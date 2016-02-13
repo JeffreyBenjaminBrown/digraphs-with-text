@@ -5,7 +5,7 @@
 
 -- 2016 01 16
   Find all nodes using a Tplt
-    > labfilter (== stringToTplt "_ uses font-> _") g
+    > labfilter (== mkTplt "_ uses font-> _") g
       mkGraph [(24,Tplt 2 [""," uses font-> ",""])] []
     > view g $ pre g 24
       [The links here to Default Style could be deleted.]
@@ -25,8 +25,8 @@
 -- earlier
   -- some important nodes
     view g $ pre g 771 -- lets see every Rel involving the root
-    view g $ nodes $ labfilter (== stringToTplt "_ .mm/ _") g -- Node 32
-    view g $ nodes $ labfilter (== stringToTplt "_ then read-> _") g -- Node 23
+    view g $ nodes $ labfilter (== mkTplt "_ .mm/ _") g -- Node 32
+    view g $ nodes $ labfilter (== mkTplt "_ then read-> _") g -- Node 23
 
   -- how I found that (Nodes obsolete, method still valid)
     length $ nodes g

@@ -6,14 +6,14 @@
         RelPos, Arity
       , Mindmap, Expr(..), DwtEdge(..), RelRole(..), CollRole(..)
       , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
-      , splitStringForTplt, stringToTplt, subInTplt, tpltArity, nodesMatchTplt
+      , _splitStringForTplt, mkTplt, subInTplt, tpltArity, nodesMatchTplt
       , insLeaf, insRel, insRelUsf, insColl, partitionRelSpec, insRelSpec
         , relNodeSpec, relSpec
         , insStr, insTplt, insFl -- insLeaf generalizes these
       , chNonUser, chNonUserUsf, chRelMbr
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
-      , tpltAt, relElts, validRole, relTplt, collPrinciple
+      , node, tpltAt, relElts, validRole, relTplt, collPrinciple
       , rels, users, usersInRole, usersInRoleUsf, redundancySubs
       , matchRel, has1Up, fork1Up, subNodeForVars, dwtDfs
       ) where
@@ -54,11 +54,11 @@
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
 
 -- Tplts
-    splitStringForTplt :: String -> [String]
-    splitStringForTplt t = map unpack $ splitOn (pack "_") (pack t)
+    _splitStringForTplt :: String -> [String]
+    _splitStringForTplt t = map unpack $ splitOn (pack "_") (pack t)
 
-    stringToTplt :: String -> Expr
-    stringToTplt = Tplt . splitStringForTplt -- even length=0 works
+    mkTplt :: String -> Expr
+    mkTplt = Tplt . splitStringForTplt -- even length=0 works
 
     subInTplt :: Expr -> [String] -> String -- todo ? test length, use Either
     subInTplt (Tplt ts) ss = let pairList = zip ts $ ss ++ [""] 
@@ -172,7 +172,7 @@
       where newNode = head $ newNodes 1 g
 
     insTplt :: String -> Mindmap -> Mindmap
-    insTplt s g = insNode (newNode, stringToTplt s) g
+    insTplt s g = insNode (newNode, mkTplt s) g
       where newNode = head $ newNodes 1 g
 
     insFl :: Float -> Mindmap -> Mindmap
@@ -273,7 +273,10 @@
       Rel    ->  case f of Rel    -> True;  _ -> False
       Coll   ->  case f of Coll   -> True;  _ -> False
 
-  -- more
+  -- more ("locate"?)
+    node :: Mindmap -> Expr -> [Node] -- hopefully length = 1
+    node g x = nodes $ labfilter (== x) g
+
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
     tpltAt g tn = case lab g tn of
       Just t@(Tplt _) -> return t
@@ -377,3 +380,5 @@
     dwtDfs g dir starts = do
       mapM_ (gelemM g) $ starts
       (nub . reverse) <$> _dwtDfs g dir starts []
+
+    -- chase :: Var -> Mindmap -> [RelSpec] -> [Node] -> Either String [Node]

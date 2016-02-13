@@ -265,16 +265,16 @@
     frameNodes = mkGraph [ (0, Str "root|this graph")
                            , (1, Str ".system")
                              , (2, Str ".mm rels")
-                               , (3, stringToTplt "_ .mm/ _")
-                               , (4, stringToTplt "_ .mm~ _")
+                               , (3, mkTplt "_ .mm/ _")
+                               , (4, mkTplt "_ .mm~ _")
                              , (5, Str "times")
-                               , (6, stringToTplt "_ was created on _")
-                               , (7, stringToTplt "_ was last modified on _")
+                               , (6, mkTplt "_ was created on _")
+                               , (7, mkTplt "_ was last modified on _")
                              , (8, Str "styles") 
                            , (9, Str "rels")
-                             , (10, stringToTplt "_ instance/ _")
-                             , (11, stringToTplt "_ uses font-> _")
-                             , (12, stringToTplt "_ then read-> _")
+                             , (10, mkTplt "_ instance/ _")
+                             , (11, mkTplt "_ uses font-> _")
+                             , (12, mkTplt "_ then read-> _")
                          ] []
 
     -- the frame is later negated, so here I negate all Nodes referring to it
