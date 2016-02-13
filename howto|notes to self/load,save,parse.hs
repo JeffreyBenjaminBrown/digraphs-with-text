@@ -1,7 +1,24 @@
+-- cycling
+  let filename =  "/home/jeff/work/mm/2016 02 10.dwt"
+  let p = pure
+  let fr = fromRight
+  type EM = Either String Mindmap
+  let show' g = putStrLn $ graphToText g
+
+  gf <- readFile filename
+  let g = read gf :: Mindmap
+
+  g <- p $ insStr _ g
+  g <- p $ fr $ (insRel 2 [4,3] g :: EM)
+  putStrLn $ graphToText g
+
+  writeFile filename $ graphToText g
+
+-- the above is just what I currently need from the below
+
 -- load
   gf <- readFile "data/agent.dwt"
   let g = read gf :: Mindmap
-  let g' = read gf :: Mindmap'
 
 -- save
   writeFile "data/agent.dwt" $ graphToText g
@@ -16,8 +33,3 @@
     let fr = frame $ frameOrphanStyles spec :: Either String DwtFrame
     let fWithNodes = fromRight $ loadNodes (spec, fromRight fr)
     let g = compressGraph $ fromRight $ loadEdges spec fWithNodes :: Mindmap
-
-  -- with redundant Arities
-    let fr' = frame' $ frameOrphanStyles' spec :: Either String DwtFrame'
-    let fWithNodes' = fromRight $ loadNodes' (spec, fromRight fr')
-    let g' = compressGraph $ fromRight $ loadEdges' spec fWithNodes' :: Mindmap'
