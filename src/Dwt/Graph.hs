@@ -157,7 +157,7 @@
         _ -> throwError $ "Node " ++ show n ++ " not a RelSpecExpr."
 
     relSpec :: (MonadError String m) => Mindmap -> Node -> m RelSpec
-    relSpec g n = do
+    relSpec g n = do -- nearly inverse to partitionRelSpec
       gelemM g n
       case (fromJust $ lab g n) of
         RelSpecExpr rvs -> do

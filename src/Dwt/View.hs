@@ -7,6 +7,7 @@
 
     import Data.Graph.Inductive
     import Data.List (sortOn, intercalate)
+    import Data.Maybe (fromJust)
     import qualified Data.Map as Map
 
 -- showExpr
@@ -22,18 +23,22 @@
         Nothing -> case lab g n of
           Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
           Just (Str s)   -> strPfx n ++ s
+          Just (Fl f)   -> strPfx n ++ show f
           Just (Tplt ts) -> tpltPfx n ++ intercalate "_" ts
           Just (Coll)    -> collPfx n ++ "TODO: use name" ++ ": "
             ++ ( intercalate ", "
                $ map show_in_brackets [m | (m,CollEdge CollMbr) <- lsuc g n] )
           Just (RelSpecExpr rvs) ->
-            let ns = sortOn snd $ lpre g n
-            in "TODO!"
-            -- find the template (from graph). prefix with it.
-            -- find all nodespecs (from graph), with their mbr values
-            -- find all varspecs (from rvs), with their mbr values
-            -- sort those (mbr,val) pairs
-            -- sub into the tplt.
+            let rs = fromRight $ relSpec g n
+                rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
+                  -- e.g. rsl = [(Mbr 1,VarSpec Kata),(Mbr 2,NodeSpec 3)]
+                tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup RelTplt rs
+                Just tpltLab = lab g tpltNode :: Maybe Expr
+                showMbrSpec ms = case ms of
+                  VarSpec var -> bracket $ show var
+                  NodeSpec node -> show_in_brackets node
+            in (relPfx n tpltNode ++) $ subInTplt tpltLab 
+                 $ map showMbrSpec $ map snd rsl
           Just (Rel)     ->
             let elts = sortOn snd $ lsuc g n -- elts = Mbrs + Tplt
                 (tpltNode, RelEdge RelTplt) = head elts
