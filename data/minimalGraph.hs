@@ -5,7 +5,7 @@
     g1, g2 :: Mindmap
     g1 = mkGraph
       [   (0, Str "dog"       )
-        , (1, stringToTplt "_ wants _" ) -- produces a Tplt with Arity 2
+        , (1, mkTplt "_ wants _" ) -- produces a Tplt with Arity 2
         , (3, Str "water"     )
         , (4, Rel 2           )
       ] [ -- "dog wants water"
@@ -16,10 +16,10 @@
 
     g2 = mkGraph
       [   (0, Str "dog"       )
-        , (1, stringToTplt "_ wants _" )
+        , (1, mkTplt "_ wants _" )
         , (3, Str "water"     )
         , (4, Rel 2           )
-        , (5, stringToTplt "_ is _")
+        , (5, mkTplt "_ is _")
         , (6, Str "dubious"   )
         , (7, Rel 2           )
       ] 

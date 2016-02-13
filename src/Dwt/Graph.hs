@@ -58,7 +58,7 @@
     _splitStringForTplt t = map unpack $ splitOn (pack "_") (pack t)
 
     mkTplt :: String -> Expr
-    mkTplt = Tplt . splitStringForTplt -- even length=0 works
+    mkTplt = Tplt . _splitStringForTplt -- even length=0 works
 
     subInTplt :: Expr -> [String] -> String -- todo ? test length, use Either
     subInTplt (Tplt ts) ss = let pairList = zip ts $ ss ++ [""] 
@@ -370,15 +370,30 @@
                        _          -> x   -- yes, the v,v' distinction is needed
       ) r
 
+  -- dfs and bfs
+    -- algorithmically, the difference is only newNodes++ns v. ns++newNodes
+
     _dwtDfs :: Mindmap -> RelSpec -> [Node] -> [Node] -> Either String [Node]
     _dwtDfs _ _   []             acc = return acc
     _dwtDfs g dir pending@(n:ns) acc = do
-      newNodes <- fork1Up g n dir -- redundant; calls has1Up a lot
+      newNodes <- fork1Up g n dir -- ifdo speed: redundant, calls has1Up a lot
       _dwtDfs g dir (nub $ newNodes++ns) (n:acc)
 
     dwtDfs :: Mindmap -> RelSpec -> [Node] -> Either String [Node]
     dwtDfs g dir starts = do
       mapM_ (gelemM g) $ starts
       (nub . reverse) <$> _dwtDfs g dir starts []
+
+
+    _dwtBfs :: Mindmap -> RelSpec -> [Node] -> [Node] -> Either String [Node]
+    _dwtBfs _ _   []             acc = return acc
+    _dwtBfs g dir pending@(n:ns) acc = do
+      newNodes <- fork1Up g n dir -- ifdo speed: redundant, calls has1Up a lot
+      _dwtBfs g dir (nub $ ns++newNodes) (n:acc)
+
+    dwtBfs :: Mindmap -> RelSpec -> [Node] -> Either String [Node]
+    dwtBfs g dir starts = do
+      mapM_ (gelemM g) $ starts
+      (nub . reverse) <$> _dwtBfs g dir starts []
 
     -- chase :: Var -> Mindmap -> [RelSpec] -> [Node] -> Either String [Node]
