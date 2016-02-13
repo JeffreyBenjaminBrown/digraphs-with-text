@@ -280,7 +280,7 @@
       Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
       _       -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
 
-    relElts :: (MonadError String m) => Mindmap -> Node -> [RelRole] -> m [Node]
+    relElts :: Mindmap -> Node -> [RelRole] -> Either String [Node]
     relElts g relNode roles = do
       isRelM g relNode `catchError` (\_ -> throwError $
         "relElts: Node " ++ show relNode ++ " absent or not a Rel.")
@@ -288,7 +288,7 @@
         "relElts: at least one member out of bounds")
       return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
-    relTplt :: (MonadError String m) => Mindmap -> Node -> m Expr
+    relTplt :: Mindmap -> Node -> Either String Expr
     relTplt g relNode = do
       [n] <- relElts g relNode [RelTplt]
       return $ fromJust $ lab g n
@@ -337,7 +337,7 @@
                rc
 
     -- one generation, maybe many Katas, but only one Ana
-    fork1Ana :: (MonadError String m) => Mindmap -> Node -> RelSpec -> m [Node]
+    fork1Ana :: Mindmap -> Node -> RelSpec -> Either String [Node]
     fork1Ana g n r = do 
       if has1Ana r then return [] else throwError $ "fork1Ana: RelSpec " ++ show r
         ++ " has a number of Ana variables other than 1."
@@ -364,7 +364,7 @@
 --      then _dfs1Ana g r done ns
 --      else _dfs1Ana g r (done ++ fork1Ana g n r) ns
 
-    validRole :: (MonadError String m) => Mindmap -> Node -> RelRole -> m ()
+    validRole :: Mindmap -> Node -> RelRole -> Either String ()
     validRole g relNode role = do
       isRelM g relNode `catchError` (\_ -> throwError 
         $ "validRole: Node " ++ show relNode ++ " absent or not a Rel.")
