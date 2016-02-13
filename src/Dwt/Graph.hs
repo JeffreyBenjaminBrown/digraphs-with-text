@@ -13,7 +13,7 @@
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, isLikeExpr
       , tpltAt, relElts, relTplt, collPrinciple
-      , users, usersInRole, usersInRoleUsf, redundancySubs
+      , rels, users, usersInRole, usersInRoleUsf, redundancySubs
       , matchRel, has1Ana, fork1Ana, subNodeForVars, validRole
       ) where
 
@@ -48,7 +48,7 @@
     type RelVarSpec = Map.Map RelRole MbrVar -- subset of RelSpec info, but
       -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
       -- The rest of the info can be inferred from the edges connected to it.
-    type RelNodeSpec = Map.Map RelRole Node
+    type RelNodeSpec = Map.Map RelRole Node -- the rest of a RelSpec
     type RelSpec =    Map.Map RelRole MbrSpec
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
 
@@ -87,7 +87,8 @@
         where [newNode] = newNodes 1 g
       False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
 
-    insRel :: (MonadError String m) => Node -> [Node] -> Mindmap -> m Mindmap
+    insRel :: (MonadError String m) => Node -> -- the template node
+                                       [Node] -> Mindmap -> m Mindmap
     insRel tn ns g =
       do mapM_ (gelemM g) $ tn:ns
          t <- tpltAt g tn
@@ -268,6 +269,9 @@
         [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
 
   -- .. -> [Node]
+    rels :: Gr Expr b -> [Node]
+    rels = nodes . labfilter (\n -> case n of Tplt _ -> True; _ -> False) 
+
     users :: (MonadError String m, Graph gr) => gr a b -> Node -> m [Node]
     users g n = do gelemM g n
                    return [m | (m,label@_) <- lpre g n]
