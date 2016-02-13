@@ -8,7 +8,7 @@
       , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
       , splitStringForTplt, stringToTplt, subInTplt, tpltArity, nodesMatchTplt
       , insLeaf, insRel, insRelUsf, insColl, partitionRelSpec, insRelSpec
-        , insStr, insTplt, insFl -- deprecated; prefer insLeaf
+        , insStr, insTplt, insFl -- insLeaf generalizes these
       , chNonUser, chNonUserUsf, chRelMbr
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, isLikeExpr
@@ -146,6 +146,18 @@
                     $ Map.toList nodeMap
       return $ insEdges newLEdges
              $ insNode newLNode g
+
+    insStr :: String -> Mindmap -> Mindmap
+    insStr str g = insNode (newNode, Str str) g
+      where newNode = head $ newNodes 1 g
+
+    insTplt :: String -> Mindmap -> Mindmap
+    insTplt s g = insNode (newNode, stringToTplt s) g
+      where newNode = head $ newNodes 1 g
+
+    insFl :: Float -> Mindmap -> Mindmap
+    insFl f g = insNode (newNode, Fl f) g
+      where newNode = head $ newNodes 1 g
 
   -- edit
     chNonUser :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
@@ -356,17 +368,3 @@
 --    chase g n dir = do
 --      gelemM g n
 --      ... more ...
-
--- deprecated
-  -- generalized to insLeaf
-    insStr :: String -> Mindmap -> Mindmap
-    insStr str g = insNode (newNode, Str str) g
-      where newNode = head $ newNodes 1 g
-
-    insTplt :: String -> Mindmap -> Mindmap
-    insTplt s g = insNode (newNode, stringToTplt s) g
-      where newNode = head $ newNodes 1 g
-
-    insFl :: Float -> Mindmap -> Mindmap
-    insFl f g = insNode (newNode, Fl f) g
-      where newNode = head $ newNodes 1 g
