@@ -23,9 +23,17 @@
           Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
           Just (Str s)   -> strPfx n ++ s
           Just (Tplt ts) -> tpltPfx n ++ intercalate "_" ts
-          Just (Coll)  -> collPfx n ++ "TODO: use name" ++ ": "
+          Just (Coll)    -> collPfx n ++ "TODO: use name" ++ ": "
             ++ ( intercalate ", "
                $ map show_in_brackets [m | (m,CollEdge CollMbr) <- lsuc g n] )
+          Just (RelSpecExpr rvs) ->
+            let ns = sortOn snd $ lpre g n
+            in "TODO!"
+            -- find the template (from graph). prefix with it.
+            -- find all nodespecs (from graph), with their mbr values
+            -- find all varspecs (from rvs), with their mbr values
+            -- sort those (mbr,val) pairs
+            -- sub into the tplt.
           Just (Rel)     ->
             let elts = sortOn snd $ lsuc g n -- elts = Mbrs + Tplt
                 (tpltNode, RelEdge RelTplt) = head elts
