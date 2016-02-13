@@ -21,7 +21,7 @@
     import Dwt.Util
     import Data.Graph.Inductive
     import Data.Either (partitionEithers)
-    import Data.List (intersect)
+    import Data.List (intersect, nub)
     import qualified Data.Map as Map
     import Data.Maybe (catMaybes, fromJust)
     import Control.Monad (mapM_)
@@ -367,8 +367,16 @@
                        _          -> x   -- yes, the v,v' distinction is needed
       ) r
 
---    dwtDfs :: Graph -> RelSpec -> [Node] -> [Node]
+    _dwtDfs :: Mindmap -> RelSpec -> [Node] -> [Node] -> Either String [Node]
+    _dwtDfs _ _   []             acc = return acc
+    _dwtDfs g dir pending@(n:ns) acc = do
+      newNodes <- fork1Up g n dir
+      _dwtDfs g dir (nub $ newNodes++ns) (n:acc)
 
+--    dwtDfs :: Mindmap -> RelSpec -> [Node] -> Either String [Node]
+--    dwtDfs g dir starts = do
+--      mapM_ (gelemM g) $ starts
+--      reverse and then nub the result of _dwtDfs
 
 --    _dfs1Up r (n:ns) (match n -> (Just ctx, g')) =
 --      let g = ctx & g'
