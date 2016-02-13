@@ -62,7 +62,7 @@
           && (length $ edges g1) + 4 == (length $ edges gg)
 
     tPartitionRelSpec = TestCase $ do
-      let (vs,ns) = partitionRelSpec relSpec
+      let (vs,ns) = partitionRelSpec tRelSpec
       assertBool "1" $ Set.fromList (Map.toList vs)
         == Set.fromList [ (RelTplt, It)
                         , (Mbr 2,   Any) ]
@@ -70,8 +70,8 @@
         == Set.fromList [ (Mbr 1, 0) ]
 
     tInsRelSpec = TestCase $ do
-      let (vs,ns) = partitionRelSpec relSpec
-          Right g2 = insRelSpec relSpec g1
+      let (vs,ns) = partitionRelSpec tRelSpec
+          Right g2 = insRelSpec tRelSpec g1
           [newNode] = newNodes 1 g1
       assertBool "node" $ (fromJust $ lab g2 newNode) == RelSpecExpr vs
       assertBool "only 1 more edge" $ 
@@ -157,8 +157,8 @@
       assertBool "without Arity" $ usersInRoleUsf g1 0 (Mbr 1) == [5,6,8]
 
     tMatchRel = TestCase $ do
-      assertBool "dog in first pos"     $ matchRel g1 relSpec == Right [5,6,8]
-      assertBool "nothing should match" $ matchRel g1 relSpecNonsense == Right []
+      assertBool "dog in first pos"     $ matchRel g1 tRelSpec == Right [5,6,8]
+      assertBool "nothing should match" $ matchRel g1 tRelSpecNonsense == Right []
 
   -- chase and helpers
     tChase = TestList [ TestLabel "tHas1Ana" tHas1Ana
@@ -168,14 +168,14 @@
                       ]
 
     tHas1Ana = TestCase $ do
-      assertBool "has 1 ana" $ has1Ana relSpecNonsense
-      assertBool "has no ana" $ not $ has1Ana relSpec
+      assertBool "has 1 ana" $ has1Ana tRelSpecNonsense
+      assertBool "has no ana" $ not $ has1Ana tRelSpec
 
     tFork1Ana = TestCase $ do -- todo, incomplete
       assertBool "no Ana vars, should fail"
-        $ isLeft $ fork1Ana g1 0 relSpec
+        $ isLeft $ fork1Ana g1 0 tRelSpec
       assertBool "dog(ana) wants brandy(kata)" 
-        $ fork1Ana g1 0 relSpec2 == Right [4]
+        $ fork1Ana g1 0 tRelSpec2 == Right [4]
 
     tValidRole = TestCase $ do
       assertBool "Tplt: valid role" $ isRight $ validRole g1 5 RelTplt
