@@ -13,9 +13,9 @@
       , chNonUser, chNonUserUsf, chRelMbr
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
-      , tpltAt, relElts, relTplt, collPrinciple
+      , tpltAt, relElts, validRole, relTplt, collPrinciple
       , rels, users, usersInRole, usersInRoleUsf, redundancySubs
-      , matchRel, has1Ana, fork1Ana, subNodeForVars, validRole
+      , matchRel, has1Ana, fork1Ana, subNodeForVars
       ) where
 
     import Dwt.Util
@@ -288,6 +288,20 @@
         "relElts: at least one member out of bounds")
       return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
+    validRole :: Mindmap -> Node -> RelRole -> Either String ()
+    validRole g relNode role = do
+      isRelM g relNode `catchError` (\_ -> throwError 
+        $ "validRole: Node " ++ show relNode ++ " absent or not a Rel.")
+      case role of
+        RelTplt -> return ()
+        Mbr p -> do
+          if p < 1 then throwError $ "validRole: RelPos < 1" else return ()
+          t <- relTplt g relNode
+          let a = tpltArity t
+          if p <= a then return ()
+            else throwError $ "validRole: Arity " ++ show a ++ 
+              " < RelPos " ++ show p
+
     relTplt :: Mindmap -> Node -> Either String Expr
     relTplt g relNode = do
       [n] <- relElts g relNode [RelTplt]
@@ -330,15 +344,15 @@
       nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
       return $ listIntersect nodeListList
 
+-- direction
     has1Ana :: RelSpec -> Bool -- Ana (up) should be only one direction
     has1Ana rc = length as == 1
       where as = Map.toList
                $ Map.filter (\x -> case x of VarSpec Ana -> True; _ -> False) 
                rc
 
-    -- one generation, maybe many Katas, but only one Ana
     fork1Ana :: Mindmap -> Node -> RelSpec -> Either String [Node]
-    fork1Ana g n r = do 
+    fork1Ana g n r = do -- one generation of successors in the Kata direction
       if has1Ana r then return [] else throwError $ "fork1Ana: RelSpec " ++ show r
         ++ " has a number of Ana variables other than 1."
       let r' = subNodeForVars n Ana r
@@ -348,7 +362,7 @@
       concat <$> mapM (\rel -> relElts g rel kataRoles) rels
 
     subNodeForVars :: Node -> MbrVar -> RelSpec  -> RelSpec
-    subNodeForVars n v r = Map.map
+    subNodeForVars n v r = Map.map -- change each VarSpec v to NodeSpec n
       (\x -> case x of VarSpec v' -> if v==v' then NodeSpec n else VarSpec v'
                        _          -> x   -- yes, the v,v' distinction is needed
       ) r
@@ -363,20 +377,6 @@
 --    _dfs1Ana g r done (n:ns) = if elem n done
 --      then _dfs1Ana g r done ns
 --      else _dfs1Ana g r (done ++ fork1Ana g n r) ns
-
-    validRole :: Mindmap -> Node -> RelRole -> Either String ()
-    validRole g relNode role = do
-      isRelM g relNode `catchError` (\_ -> throwError 
-        $ "validRole: Node " ++ show relNode ++ " absent or not a Rel.")
-      case role of
-        RelTplt -> return ()
-        Mbr p -> do
-          if p < 1 then throwError $ "validRole: RelPos < 1" else return ()
-          t <- relTplt g relNode
-          let a = tpltArity t
-          if p <= a then return ()
-            else throwError $ "validRole: Arity " ++ show a ++ 
-              " < RelPos " ++ show p
 
 --    fork :: Mindmap -> Node -> RelSpec -> [Node]
 --    fork g n rc =
