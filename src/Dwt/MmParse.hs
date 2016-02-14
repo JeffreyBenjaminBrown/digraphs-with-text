@@ -286,8 +286,8 @@
     instanceNode = - (head $ node frameNodes $ mkTplt "_ instance/ _")
     usesFontNode = - (head $ node frameNodes $ mkTplt "_ uses font-> _")
 
-    frameSansStyles :: Mindmap
-    frameSansStyles = f (Str "root") (Str ".system") 
+    frameSansStylesOrDirections :: Mindmap
+    frameSansStylesOrDirections = f (Str "root") (Str ".system") 
       $ f (Str "root") (Str "rels")
       $ f (Str ".system") (Str "times")
       $ f (Str ".system") (Str "styles")
@@ -303,8 +303,17 @@
       where conn = insRelUsf (-instanceNode)
             f a b = conn [head $ node frameNodes a, head $ node frameNodes b]
 
+    frameSansStyles :: Mindmap -- put a direction on the .mm/ relation
+    frameSansStyles = fromRight $ insRelSpec r frameSansStylesOrDirections
+      where r = Map.fromList 
+                 [(RelTplt, NodeSpec $ head $ node frameNodes $ mkTplt "_ .mm/ _")
+                 ,(Mbr 1, VarSpec Up)
+                 ,(Mbr 2, VarSpec Down)]
+
     firstStyleNode = -(length $ nodes frameSansStyles) :: Node 
-      -- if this is -25, the second style node will be at -26, etc.
+      -- If this is -25, the second style node will be at -26, etc.
+      -- The nodes from the imported graph start at 1 and then rise.
+      -- But later they all are made positive.
 
     styles :: DwtSpec -> [String]
     styles = L.nub . Mb.mapMaybe style . fst

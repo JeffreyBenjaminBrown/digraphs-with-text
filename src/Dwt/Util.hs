@@ -18,6 +18,7 @@
     negateGraph m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
       where negAdj = map (\(label,n) -> (label,-n))
 
+    -- make the nodes the least positive integers possible
     compressGraph :: DynGraph gr => gr a b -> gr a b
     compressGraph g = let ns = nodes g
                           ns' = [1 .. length ns]

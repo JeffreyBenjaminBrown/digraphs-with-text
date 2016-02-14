@@ -1,5 +1,6 @@
 -- cycling
   let filename =  "/home/jeff/dwt_git_hask/data/agent.dwt"
+  let filename =  "/home/jeff/work/mm/2016 02 10.dwt"
   let p = pure
   let fr = fromRight
   type EM = Either String Mindmap
