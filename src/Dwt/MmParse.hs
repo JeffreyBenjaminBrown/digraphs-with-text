@@ -311,9 +311,9 @@
                  ,(Mbr 2, VarSpec Down)]
 
     firstStyleNode = -(length $ nodes frameSansStyles) :: Node 
-      -- If this is -25, the second style node will be at -26, etc.
+      -- TRICKY: If this is -25, the second style node will be at -26, etc.
       -- The nodes from the imported graph start at 1 and then rise.
-      -- But later they all are made positive.
+      -- Later they all are made positive (by compressGraph).
 
     styles :: DwtSpec -> [String]
     styles = L.nub . Mb.mapMaybe style . fst

@@ -378,6 +378,7 @@
     _dwtDfs g dir pending@(n:ns) acc = do
       newNodes <- fork1Up g n dir -- ifdo speed: redundant, calls has1Up a lot
       _dwtDfs g dir (nub $ newNodes++ns) (n:acc)
+        -- ifdo speed: discard visited nodes from graph (bfs too)
 
     dwtDfs :: Mindmap -> RelSpec -> [Node] -> Either String [Node]
     dwtDfs g dir starts = do
