@@ -260,9 +260,8 @@
       where parent = head as
 
 -- DwtSpec -> _
-  -- WARNING: The Nodes of these functions are interdependent.
     frameNodes :: Mindmap -- no styles and no edges in this one
-    frameNodes = mkGraph [ (0, Str "root|this graph")
+    frameNodes = mkGraph [ (0, Str "root")
                            , (1, Str ".system")
                              , (2, Str ".mm rels")
                                , (3, mkTplt "_ .mm/ _")
@@ -279,24 +278,33 @@
 
     -- the frame is later negated, so here I negate all Nodes referring to it
     edgeNode :: MmELab -> Node
-    edgeNode TreeEdge = -3
-    edgeNode ArrowEdge = -4
-    edgeNode ThenReadEdge = -12 -- yes, it belongs under "rels", not ".mm rels"
+    edgeNode TreeEdge = - (head $ node frameNodes $ mkTplt "_ .mm/ _")
+    edgeNode ArrowEdge = - (head $ node frameNodes $ mkTplt "_ .mm~ _")
+    edgeNode ThenReadEdge = - (head $ node frameNodes $ mkTplt "_ then read-> _")
 
-    stylesNode = -8 :: Node
-    instanceNode = -10 :: Node
-    usesFontNode = -11 :: Node
+    stylesNode = - (head $ node frameNodes $ Str "styles")
+    instanceNode = - (head $ node frameNodes $ mkTplt "_ instance/ _")
+    usesFontNode = - (head $ node frameNodes $ mkTplt "_ uses font-> _")
 
     frameSansStyles :: Mindmap
-    frameSansStyles = conn [0,1] $ conn [0,9]
-      $ conn [1,2] $ conn [1,5] $ conn [1,8]
-      $ conn [2,3] $ conn [2,4]
-      $ conn [5,6] $ conn [5,7]
-      $ conn [9,10] $ conn [9,11] $ conn [9,12]
-      $ frameNodes where conn = insRelUsf (-instanceNode)
+    frameSansStyles = f (Str "root") (Str ".system") 
+      $ f (Str "root") (Str "rels")
+      $ f (Str ".system") (Str "times")
+      $ f (Str ".system") (Str "styles")
+      $ f (Str ".mm rels") (mkTplt "_ .mm/ _")
+      $ f (Str ".mm rels") (mkTplt "_ .mm~ _")
+      $ f (Str "times") (mkTplt "_ was created on _")
+      $ f (Str "times") (mkTplt "_ was last modified on _")
+      $ f (Str "rels") (mkTplt "_ instance/ _")
+      $ f (Str ".system") (Str ".mm rels")
+      $ f (Str "rels") (mkTplt "_ uses font-> _")
+      $ f (Str "rels") (mkTplt "_ then read-> _")
+      $ frameNodes
+      where conn = insRelUsf (-instanceNode)
+            f a b = conn [head $ node frameNodes a, head $ node frameNodes b]
 
-    firstStyleNode = -25 :: Node -- because frameSansStyles has 24 Nodes
-  -- </WARNING>
+    firstStyleNode = -(length $ nodes frameSansStyles) :: Node 
+      -- if this is -25, the second style node will be at -26, etc.
 
     styles :: DwtSpec -> [String]
     styles = L.nub . Mb.mapMaybe style . fst
