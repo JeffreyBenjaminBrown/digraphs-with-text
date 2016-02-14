@@ -15,7 +15,7 @@
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , node, tpltAt, relElts, validRole, relTplt, collPrinciple
       , rels, users, usersInRole, usersInRoleUsf, redundancySubs
-      , matchRel, has1Up, fork1Up, subNodeForVars, dwtDfs
+      , matchRel, has1Up, fork1Up, subNodeForVars, dwtDfs, dwtBfs
       ) where
 
     import Dwt.Util
@@ -383,7 +383,6 @@
     dwtDfs g dir starts = do
       mapM_ (gelemM g) $ starts
       (nub . reverse) <$> _dwtDfs g dir starts []
-
 
     _dwtBfs :: Mindmap -> RelSpec -> [Node] -> [Node] -> Either String [Node]
     _dwtBfs _ _   []             acc = return acc

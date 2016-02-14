@@ -1,3 +1,27 @@
+-- 2016 02 13: bfs, dfs
+    *Main> view g $ 8:[45..(length $ nodes g)-1] -- show relevant portion of graph
+    :8 _ isa\ _ -- node 8 is the template for "x isa\ y" relationships
+      -- you can tell it's a template and not a string 
+      -- because a string would start "8:" instead of ":8"
+    45:8 «Down» isa\ «Up» -- node 45 describes node 8
+      -- it says that if [x isa\ y], one can usefully think of
+      -- x as lying in the Down direction, and y as Up
+    46: animal -- just a string
+    47: mammal
+    48: fish
+    49:8 «47: mammal» isa\ «46: animal» -- a relationship
+    50:8 «48: fish» isa\ «46: animal»
+    51: dolphin
+    52:8 «51: dolphin» isa\ «47: mammal»
+    53:8 «51: dolphin» isa\ «46: animal»
+    :54 _ implies/ _ -- the template for the (top) relationship at node 55
+    55:54 «52:8 «51: dolphin» isa\ «47: mammal»» implies/ «53:8 «51: dolphin» isa\ «46: animal»» -- a meta-statement
+    *Main> dwtDfs g (fr $ relSpec g 45) [46]
+    Right [46,47,51,48]
+    *Main> dwtBfs g (fr $ relSpec g 45) [46]
+    Right [46,47,48,51]
+    *Main> 
+
 -- 2016 02 12
   view g $ concatMap (pre g) (rels g) -- every use of every rel
   let rs = M.fromList [(RelTplt,NodeSpec 8), (Mbr 1,VarSpec Down), (Mbr 2,VarSpec Up)] :: RelSpec
