@@ -47,7 +47,7 @@
                 memberNodes = map fst $ tail elts :: [Node]
             in (relPfx n tpltNode ++) $ subInTplt tpltLab 
                  $ map show_in_brackets memberNodes
-          where bracket s = "\171" ++ s ++ "\187"
+          where bracket s = "\171" ++ s ++ "\187" -- = «s»
                 show_in_brackets = bracket
                   . _showExpr subs strPfx tpltPfx relPfx collPfx g
 

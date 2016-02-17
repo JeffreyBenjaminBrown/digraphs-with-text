@@ -36,6 +36,9 @@
     data Expr = Str String | Fl Float -- Str, Fl, Tplt: leaves(graph, not tree)
               | Tplt [String] | Rel | Coll
               | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
+    -- better?: data Expr = Whole Expr |.. where the 2nd Expr cannot be a Whole
+      -- could then limit views to Whole Exprs
+      -- would have to rewrite a lot of functions
 
     data DwtEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord)
