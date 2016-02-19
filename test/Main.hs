@@ -5,6 +5,7 @@
     import Dwt
     import TData
     import TGraph
+    import TSearch
     import TView
     import TMmParse
 
@@ -15,4 +16,5 @@
       [   TestLabel "tGraph"   tGraph
         , TestLabel "tView"    tView
         , TestLabel "tMmParse" tMmParse
+        , TestLabel "tSearch" tSearch
       ]
