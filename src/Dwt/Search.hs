@@ -10,29 +10,40 @@
 
     import Data.Map as Map
 
-    data QNode = QNode Node | QStr String | QTplt [String] | QRel QNode [QNode]
+    -- queries
+    data QNode = QNode Node -- when you already know the Node
+      | QStr String | QTplt [String] -- when you don't but you know its contents
+      | QRel QNode [QNode] -- todo ? use
+      deriving (Show, Eq)
 
     lengthOne :: [a] -> Either String ()
     lengthOne ns = do
       if length ns == 0 then Left "absent" else return ()
       if length ns > 1 then Left "multiple" else return ()
 
-    edgeless :: Mindmap -> Mindmap
+    edgeless :: Gr a b -> Gr a b
     edgeless = gmap (\(_,b,c,_) -> ([], b, c, []))
 
-    qGet :: QNode -> Mindmap -> Either String Node
-    qGet (QNode n) g = gelemM g n >> Right n
-    qGet (QStr s) g = do
+    qGet :: Mindmap -> QNode -> Either String Node
+    qGet g (QNode n) = gelemM g n >> Right n
+    qGet g (QStr s) = do
       let ns = nodes $ labfilter (\n -> case n of Str t -> s==t; _ -> False)
                $ edgeless g
       lengthOne ns
       Right $ head ns
-    qGet (QTplt s) g = do
+    qGet g (QTplt s) = do
       let ns = nodes $ labfilter (\n -> case n of Tplt t -> s==t; _ -> False)
                $ edgeless g
       lengthOne ns
       Right $ head ns
---    qGet (QRel qt qes) g = do
+
+    qInsRel :: QNode -> [QNode] -> Mindmap -> Either String Mindmap
+    qInsRel qtn qns g = do
+      tn <- qGet g qtn 
+      ns <- mapM (qGet g) qns
+      insRel tn ns g
+
+--    qGet g (QRel qt qes) = do
 --      let tn = qGet qt g
 --          es = mapM (flip qGet g) es
 --          rs = Map.fromList $ tn : es :: RelSpec

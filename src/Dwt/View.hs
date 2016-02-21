@@ -83,8 +83,6 @@
     viewST subs g ns = mapM_ putStrLn $ map (showExprT subs g) ns
 
 -- convenient shorthand
-    (n,j,ns) = (Nothing,Just,NodeSpec)
-
     vm :: Mindmap -> RelSpec -> IO () -- view match
     vm g spec = viewS (redundancySubs spec) g $ fromRight $ matchRel g spec
       -- TODO : remove fromRight
