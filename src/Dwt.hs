@@ -3,6 +3,8 @@
     module Dwt
       ( module Data.Graph.Inductive
 
+      , module Dwt
+
       , module Dwt.Util
       , module Dwt.Graph
       , module Dwt.Search
@@ -24,5 +26,11 @@
     import Dwt.Parse
     import Dwt.MmParse
 
-    import qualified Data.Map as M
     import qualified Data.List as L
+    import qualified Data.Map as M
+    import qualified Data.Maybe as Mb
+
+-- shorthand
+    (n, j) = (Mb.Nothing, Mb.Just)
+    ns = NodeSpec
+    (qn, qs, qt) = (QNode, QStr, QTplt . _splitStringForTplt)
