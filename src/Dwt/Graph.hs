@@ -14,7 +14,7 @@
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , node, tpltAt, relElts, validRole, relTplt, collPrinciple
-      , rels, users, usersInRole, usersInRoleUsf, redundancySubs
+      , rels, users, usersInRole, usersInRoleUsf
       , matchRel, has1Up, fork1Up, subNodeForVars, dwtDfs, dwtBfs
       ) where
 
@@ -335,12 +335,6 @@
 
     usersInRoleUsf :: (Graph gr) => gr a DwtEdge -> Node -> RelRole -> [Node]
     usersInRoleUsf g n r = [m | (m,r') <- lpre g n, r'==RelEdge r]
-
-    redundancySubs :: RelSpec -> Map.Map Node String
-    redundancySubs = Map.fromList 
-      . map (\(NodeSpec n) -> (n,show n))
-      . Map.elems
-      . Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
 
     matchRel :: Mindmap -> RelSpec -> Either String [Node]
     matchRel g spec = do

@@ -20,7 +20,7 @@
     bracket :: String -> String
     bracket s = "\171" ++ s ++ "\187" -- = «s»
 
-    _showExpr :: Map.Map Node String ->      -- TODO ! use : substitutions
+    _showExpr :: Map.Map Node String ->      -- TODO ! use for shorthand like It
                  PrefixStrategy -> 
                  Mindmap -> Maybe Node -> String
     _showExpr subs ps g Nothing = "#absent#node#" -- TODO ! use
@@ -80,5 +80,3 @@
 
     vt :: Mindmap -> [Node] -> IO ()
     vt g ns = mapM_ putStrLn $ map (showExprT g) ns
-
--- TODO ! use redundancySubs :: RelSpec -> M.Map Node String
