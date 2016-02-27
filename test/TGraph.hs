@@ -95,7 +95,7 @@
     tChMbr = TestCase $ do
       let gDogDog = fromRight $ chRelMbr g1 5 0 (Mbr 2)
       let gImpossible         = chRelMbr g1 5 0 (Mbr 99) -- 99 is too high
-      assertBool "1" $ showExpr Map.empty gDogDog 5 
+      assertBool "1" $ showExpr gDogDog 5 
                        == "5:1 \171\&0: dog\187 wants \171\&0: dog\187"
         -- (\& == empty string) is to distinguish from longer number
         -- if special char followed by a non-digit, no \& necessary

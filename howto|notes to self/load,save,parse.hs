@@ -9,6 +9,7 @@
   gf <- readFile filename
   let g = read gf :: Mindmap
 
+--
   g <- p $ insStr _ g
   g <- p $ fr $ (insRel 2 [4,3] g :: EM)
   putStrLn $ graphToText g

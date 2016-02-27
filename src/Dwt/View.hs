@@ -17,10 +17,14 @@
       , _coll :: (Node -> String)
       }
 
-    _showExpr :: Map.Map Node String ->      -- substitutions
-                  PrefixStrategy -> 
-                  Mindmap -> Node -> String
-    _showExpr subs ps g n =
+    bracket :: String -> String
+    bracket s = "\171" ++ s ++ "\187" -- = «s»
+
+    _showExpr :: Map.Map Node String ->      -- TODO ! use : substitutions
+                 PrefixStrategy -> 
+                 Mindmap -> Maybe Node -> String
+    _showExpr subs ps g Nothing = "#absent#node#" -- TODO ! use
+    _showExpr subs ps g (Just n) =
       case Map.lookup n subs of
         Just s -> s
         Nothing -> case lab g n of
@@ -30,7 +34,8 @@
           Just (Tplt ts) -> (_tplt ps) n ++ intercalate "_" ts
           Just (Coll)    -> (_coll ps) n ++ "TODO: use name" ++ ": "
             ++ ( intercalate ", "
-               $ map show_node_bracketed [m | (m,CollEdge CollMbr) <- lsuc g n] )
+               $ map (show_node_bracketed . Just) 
+                     [m | (m,CollEdge CollMbr) <- lsuc g n] )
           Just (RelSpecExpr rvs) ->
             let rs = fromRight $ relSpec g n
                 rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
@@ -39,55 +44,41 @@
                 Just tpltLab = lab g tpltNode :: Maybe Expr
                 showMbrSpec ms = case ms of
                   VarSpec var -> bracket $ show var
-                  NodeSpec node -> show_node_bracketed node
+                  NodeSpec node -> show_node_bracketed $ Just node
             in ((_rel ps) n tpltNode ++) $ subInTplt tpltLab 
                  $ map showMbrSpec $ map snd rsl
           Just (Rel)     ->
-            let elts = sortOn snd $ lsuc g n -- elts = Mbrs + Tplt
+            let elts = sortOn snd $ lsuc g n -- elts = Mbrs + Tplt; sort on elabel
                 (tpltNode, RelEdge RelTplt) = head elts
                   -- head because RelTplt goes before RelMbr in Ord Role
-                Just tpltLab = lab g tpltNode :: Maybe Expr
-                memberNodes = map fst $ tail elts :: [Node]
+                Just tpltLab = lab g tpltNode :: Maybe Expr -- TODO
+                memberNodes = map fst $ tail elts :: [Node] -- INSERT AT DOLLAR
+                   -- wrap those nodes in Just, 
+                   -- let them overwrite a map from each role to Nothing
             in ((_rel ps) n tpltNode ++) $ subInTplt tpltLab 
-                 $ map show_node_bracketed memberNodes
-          where bracket s = "\171" ++ s ++ "\187" -- = «s»
-                show_node_bracketed n = bracket $
-                  _showExpr subs ps g n
+                 $ map (show_node_bracketed . Just) memberNodes
+          where show_node_bracketed mn = bracket $
+                  _showExpr subs ps g mn
 
-    showExpr :: Map.Map Node String -> Mindmap -> Node -> String
-    showExpr subs g n = _showExpr subs ps g n where
+    ps = PrefixStrategy { _str = colStrFunc
+                        , _tplt = \n -> ":" ++ show n ++ " "
+                        , _rel = \n tn -> show n ++ ":" ++ show tn ++ " "
+                        , _coll = colStrFunc } where
       colStrFunc = \n -> show n ++ ": "
-      ps = PrefixStrategy { _str = colStrFunc
-                          , _tplt = \n -> ":" ++ show n ++ " "
-                          , _rel = \n tn -> show n ++ ":" ++ show tn ++ " "
-                          , _coll = colStrFunc }
 
-    -- show tersely, without addresses
-    showExprT :: Map.Map Node String -> Mindmap -> Node -> String
-    showExprT subs g n = _showExpr subs ps g n where
-      f = const ""
-      ps = PrefixStrategy {_str=f, _tplt=f, _rel = \a b ->"", _coll=f}
+    pst = PrefixStrategy {_str=f, _tplt=f, _coll=f, _rel = \a b ->""}
+      where f = const ""
 
--- view
-    view :: Mindmap -> [Node] -> IO ()
-    view g ns = mapM_ putStrLn $ map (showExpr Map.empty g) ns
+    showExpr :: Mindmap -> Node -> String
+    showExpr g n = _showExpr Map.empty ps g (Just n)
 
-    -- view tersely, without Nodes
-    viewT :: Mindmap -> [Node] -> IO ()
-    viewT g ns = mapM_ putStrLn $ map (showExprT Map.empty g) ns
+    showExprT :: Mindmap -> Node -> String -- terse, no addresses
+    showExprT g n = _showExpr Map.empty ps g (Just n)
 
-    -- view with substitutions
-    viewS :: Map.Map Node String -> Mindmap -> [Node] -> IO ()
-    viewS subs g ns = mapM_ putStrLn $ map (showExpr subs g) ns
+    v :: Mindmap -> [Node] -> IO ()
+    v g ns = mapM_ putStrLn $ map (showExpr g) ns
 
-    -- view with substitutions, tersely 
-    viewST :: Map.Map Node String -> Mindmap -> [Node] -> IO ()
-    viewST subs g ns = mapM_ putStrLn $ map (showExprT subs g) ns
+    vt :: Mindmap -> [Node] -> IO ()
+    vt g ns = mapM_ putStrLn $ map (showExprT g) ns
 
--- convenient shorthand
-    vm :: Mindmap -> RelSpec -> IO () -- view match
-    vm g spec = viewS (redundancySubs spec) g $ fromRight $ matchRel g spec
-      -- TODO : remove fromRight
-
-    va :: Mindmap -> Node -> IO () -- view all rels
-    va g n = viewS (Map.fromList [(n,show n)]) g $ pre g n
+-- TODO ! use redundancySubs :: RelSpec -> M.Map Node String
