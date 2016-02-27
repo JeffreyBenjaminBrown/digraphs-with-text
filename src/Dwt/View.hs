@@ -48,16 +48,15 @@
             in ((_rel ps) n tpltNode ++) $ subInTplt tpltLab 
                  $ map showMbrSpec $ map snd rsl
           Just (Rel)     ->
-            let elts = sortOn snd $ lsuc g n -- elts = Mbrs + Tplt; sort on elabel
-                (tpltNode, RelEdge RelTplt) = head elts
-                  -- head because RelTplt goes before RelMbr in Ord Role
-                Just tpltLab = lab g tpltNode :: Maybe Expr -- TODO: if Nothing?
-                memberNodes = map fst $ tail elts :: [Node]
-                   -- TODO ! that tail: reverse it, turn it into a map
-                   -- take the union of that map and nullMembers
-                   -- after filtering from nullMembers the duplicates
-            in ((_rel ps) n tpltNode ++) $ subInTplt tpltLab 
-                 $ map (show_node_bracketed . Just) memberNodes
+            let elts = Map.fromList $ map (\(a,b)->(b,Just a)) $ lsuc g n
+                Just (Just tpltNode) = 
+                  Map.lookup (RelEdge RelTplt) elts -- TODO: if Nothing?
+                Just tpltExpr = lab g tpltNode
+                memberNodes = map snd $ sortOn fst $ Map.toList $ overwriteMap
+                  (Map.delete  (RelEdge RelTplt)  elts)
+                  (nullMembers tpltExpr)
+            in ((_rel ps) n tpltNode ++) $ subInTplt tpltExpr
+                 $ map show_node_bracketed memberNodes
           where show_node_bracketed mn = bracket $
                   _showExpr subs ps g mn
 
