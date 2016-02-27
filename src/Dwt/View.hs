@@ -10,24 +10,27 @@
     import Data.Maybe (fromJust)
     import qualified Data.Map as Map
 
--- showExpr
+    data PrefixStrategy = PrefixStrategy {
+        _str :: (Node -> String) -- Str|Fl -> String
+      , _tplt :: (Node -> String)
+      , _rel :: (Node -> Node -> String) -- Rel -> Tplt -> String
+      , _coll :: (Node -> String)
+      }
+
     _showExpr :: Map.Map Node String ->      -- substitutions
-                  (Node -> String) ->         -- how to prefix Strs
-                  (Node -> String) ->         -- how to prefix Tplts
-                  (Node -> Node -> String) -> -- how to prefix Rels
-                  (Node -> String) ->         -- how to prefix Colls
+                  PrefixStrategy -> 
                   Mindmap -> Node -> String
-    _showExpr subs strPfx tpltPfx relPfx collPfx g n =
+    _showExpr subs ps g n =
       case Map.lookup n subs of
         Just s -> s
         Nothing -> case lab g n of
           Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
-          Just (Str s)   -> strPfx n ++ s
-          Just (Fl f)   -> strPfx n ++ show f
-          Just (Tplt ts) -> tpltPfx n ++ intercalate "_" ts
-          Just (Coll)    -> collPfx n ++ "TODO: use name" ++ ": "
+          Just (Str s)   -> (_str ps) n ++ s
+          Just (Fl f)   -> (_str ps) n ++ show f
+          Just (Tplt ts) -> (_tplt ps) n ++ intercalate "_" ts
+          Just (Coll)    -> (_coll ps) n ++ "TODO: use name" ++ ": "
             ++ ( intercalate ", "
-               $ map show_in_brackets [m | (m,CollEdge CollMbr) <- lsuc g n] )
+               $ map show_node_bracketed [m | (m,CollEdge CollMbr) <- lsuc g n] )
           Just (RelSpecExpr rvs) ->
             let rs = fromRight $ relSpec g n
                 rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
@@ -36,8 +39,8 @@
                 Just tpltLab = lab g tpltNode :: Maybe Expr
                 showMbrSpec ms = case ms of
                   VarSpec var -> bracket $ show var
-                  NodeSpec node -> show_in_brackets node
-            in (relPfx n tpltNode ++) $ subInTplt tpltLab 
+                  NodeSpec node -> show_node_bracketed node
+            in ((_rel ps) n tpltNode ++) $ subInTplt tpltLab 
                  $ map showMbrSpec $ map snd rsl
           Just (Rel)     ->
             let elts = sortOn snd $ lsuc g n -- elts = Mbrs + Tplt
@@ -45,26 +48,25 @@
                   -- head because RelTplt goes before RelMbr in Ord Role
                 Just tpltLab = lab g tpltNode :: Maybe Expr
                 memberNodes = map fst $ tail elts :: [Node]
-            in (relPfx n tpltNode ++) $ subInTplt tpltLab 
-                 $ map show_in_brackets memberNodes
+            in ((_rel ps) n tpltNode ++) $ subInTplt tpltLab 
+                 $ map show_node_bracketed memberNodes
           where bracket s = "\171" ++ s ++ "\187" -- = «s»
-                show_in_brackets = bracket
-                  . _showExpr subs strPfx tpltPfx relPfx collPfx g
+                show_node_bracketed n = bracket $
+                  _showExpr subs ps g n
 
     showExpr :: Map.Map Node String -> Mindmap -> Node -> String
-    showExpr subs g n = _showExpr subs strPfx tpltPfx relPfx collPfx g n where
-      strPfx n = show n ++ ": "
-      tpltPfx n = ":" ++ show n ++ " "
-      relPfx n tn = show n ++ ":" ++ show tn ++ " "
-      collPfx = strPfx
+    showExpr subs g n = _showExpr subs ps g n where
+      colStrFunc = \n -> show n ++ ": "
+      ps = PrefixStrategy { _str = colStrFunc
+                          , _tplt = \n -> ":" ++ show n ++ " "
+                          , _rel = \n tn -> show n ++ ":" ++ show tn ++ " "
+                          , _coll = colStrFunc }
 
-    -- show tersely, without Nodes
+    -- show tersely, without addresses
     showExprT :: Map.Map Node String -> Mindmap -> Node -> String
-    showExprT subs g n = _showExpr subs strPfx tpltPfx relPfx collPfx g n where
-      strPfx n = ""
-      tpltPfx n = ""
-      relPfx n tn = ""
-      collPfx = strPfx
+    showExprT subs g n = _showExpr subs ps g n where
+      f = const ""
+      ps = PrefixStrategy {_str=f, _tplt=f, _rel = \a b ->"", _coll=f}
 
 -- view
     view :: Mindmap -> [Node] -> IO ()
