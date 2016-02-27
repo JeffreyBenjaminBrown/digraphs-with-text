@@ -51,14 +51,26 @@
             let elts = sortOn snd $ lsuc g n -- elts = Mbrs + Tplt; sort on elabel
                 (tpltNode, RelEdge RelTplt) = head elts
                   -- head because RelTplt goes before RelMbr in Ord Role
-                Just tpltLab = lab g tpltNode :: Maybe Expr -- TODO
-                memberNodes = map fst $ tail elts :: [Node] -- INSERT AT DOLLAR
-                   -- wrap those nodes in Just, 
-                   -- let them overwrite a map from each role to Nothing
+                Just tpltLab = lab g tpltNode :: Maybe Expr -- TODO: if Nothing?
+                memberNodes = map fst $ tail elts :: [Node]
+                   -- TODO ! that tail: reverse it, turn it into a map
+                   -- take the union of that map and nullMembers
+                   -- after filtering from nullMembers the duplicates
             in ((_rel ps) n tpltNode ++) $ subInTplt tpltLab 
                  $ map (show_node_bracketed . Just) memberNodes
           where show_node_bracketed mn = bracket $
                   _showExpr subs ps g mn
+
+    overwriteMap :: Ord k => Map.Map k a -> Map.Map k a -> Map.Map k a
+    overwriteMap after before = Map.union after
+      $ Map.filterWithKey (\k _ -> not $ Map.member k after) before
+
+    nullMembers :: Expr -> Map.Map DwtEdge (Maybe Node)
+    nullMembers t@(Tplt _) =
+      let arity = tpltArity t
+          mns = replicate arity Nothing :: [Maybe Node]
+          es = map (RelEdge . Mbr) [1..arity] -- RelEdge $ Mbr 1 :: DwtEDge
+      in Map.fromList $ zip es mns
 
     ps = PrefixStrategy { _str = colStrFunc
                         , _tplt = \n -> ":" ++ show n ++ " "

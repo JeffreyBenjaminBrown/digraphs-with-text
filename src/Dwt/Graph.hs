@@ -1,6 +1,10 @@
     {-# LANGUAGE FlexibleContexts #-}
     {-# LANGUAGE ViewPatterns #-}
 
+    -- trying (in Vew.hs): order 
+      -- not by comprehension (? impossible since traversed nonlinear)
+      -- rather by priority, the user before what it uses
+
     module Dwt.Graph
       (
         RelPos, Arity
