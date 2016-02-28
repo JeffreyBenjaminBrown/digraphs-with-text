@@ -82,14 +82,14 @@
                 PrefixStrategy -> 
                 Mindmap -> Node -> String
     _showRel Rel d subs ps g n =
-      let elts= Map.fromList $ map (\(adr,elab)->(elab,Just adr)) $ lsuc g n
-          Just tpltNode = -- todo ? case of missing Tplt
+      let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr)) $ lsuc g n
+          Just tpltAddr = -- todo ? case of missing Tplt
             elts Map.! (RelEdge RelTplt)
-          Just tpltExpr = lab g tpltNode
+          Just tpltExpr = lab g tpltAddr
           memberNodes = map snd $ sortOn fst $ Map.toList $ Map.union
             (Map.delete  (RelEdge RelTplt)  elts)
-            (nullMembers tpltExpr)
-      in ((_rel ps) n tpltNode ++) 
+            (nullMembers tpltExpr) -- todo ? ordered list bad; just pass map
+      in ((_rel ps) n tpltAddr ++) 
          $ subInTpltWithDollars tpltExpr
            (map (_showExpr (d-1) subs ps g) memberNodes)
            d

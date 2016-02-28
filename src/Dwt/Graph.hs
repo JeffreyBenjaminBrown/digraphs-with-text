@@ -32,7 +32,7 @@
     import Data.Maybe (catMaybes, fromJust)
     import Control.Monad (mapM_)
     import Control.Monad.Except (MonadError, throwError, catchError)
-    import Data.Text (splitOn, pack, unpack)
+    import Data.Text (splitOn, pack, unpack, strip)
 
 -- types
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
@@ -68,7 +68,9 @@
 
     -- was : mkTplt = Tplt . _splitStringForTplt -- even length=0 works
     mkTplt :: String -> Expr
-    mkTplt = Tplt . concatMap (\x -> case x of "" -> [""]; _ -> words x) . _splitStringForTplt
+    mkTplt = Tplt
+      . map (unpack . strip . pack)
+      . _splitStringForTplt
 
     subInTpltWithDollars :: Expr -> [String] -> Int -> String
       -- todo ? test length (should match arity), use Either
