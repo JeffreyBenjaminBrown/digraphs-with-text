@@ -123,13 +123,13 @@
       assertBool "missing" $ isLeft $ isTpltM g1 (-1)
 
     tTpltAt = TestCase $ do
-      assertBool "normal" $ tpltAt g1 1 == ( Right $ Tplt [""," wants ",""] )
+      assertBool "normal" $ tpltAt g1 1 == ( Right $ Tplt ["","wants",""] )
       assertBool "notATplt" $ isLeft $ tpltAt g1 0
       assertBool "absent" $ isLeft $ tpltAt g1 (-1)
 
     tTpltForRelAt = TestCase $ do
       assertBool "normal" $ relTplt g1 5 ==
-        ( Right $ Tplt [""," wants ",""] )
+        ( Right $ Tplt ["","wants",""] )
       assertBool "not a Rel" $ isLeft $ relTplt g1 1
       assertBool "absent" $ isLeft $ relTplt g1 (-1)
 

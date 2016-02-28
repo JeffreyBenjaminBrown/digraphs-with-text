@@ -11,7 +11,7 @@
       , Mindmap, Expr(..), DwtEdge(..), RelRole(..), CollRole(..)
       , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
       , _splitStringForTplt, mkTplt
-      , subInTplt, prefixTpltStrings, subInTpltWithDollars
+      , subInTplt, padTpltStrings, subInTpltWithDollars
       , tpltArity, nodesMatchTplt
       , insLeaf, insRel, insRelUsf, insColl, partitionRelSpec, insRelSpec
         , relNodeSpec, relSpec
@@ -70,29 +70,26 @@
     mkTplt :: String -> Expr
     mkTplt = Tplt . concatMap (\x -> case x of "" -> [""]; _ -> words x) . _splitStringForTplt
 
-    subInTplt :: Expr -> [String] -> String 
-      -- todo ? test length (should match arity), use Either
-    subInTplt (Tplt ts) ss = let pairList = zip ts $ ss ++ [""] 
-      -- append "" because there are n+1 segments in an n-ary Tplt; 
-        -- zipper ends early otherwise
-      in foldl (\s (a,b) -> s++[' ']++a++[' ']++b) "" pairList
-    subInTplt _ _ = error "subInTplt: not a Tplt"
-
     subInTpltWithDollars :: Expr -> [String] -> Int -> String
       -- todo ? test length (should match arity), use Either
       -- todo ? test each tplt-string; if has space, wrap in parens
     subInTpltWithDollars (Tplt ts) ss prefixCount =
-      let ts' = prefixTpltStrings (Tplt ts) $ replicate prefixCount '$'
+      let ts' = padTpltStrings (Tplt ts) $ replicate prefixCount '$'
           pairList = zip ts' $ ss ++ [""]
-      in foldl (\s (a,b) -> s++[' ']++a++[' ']++b) "" pairList
+           -- append "" because there are n+1 segments in an n-ary Tplt; 
+             -- zipper ends early otherwise
+      in foldl (\s (a,b) -> s++a++b) "" pairList
     subInTpltWithDollars _ _ _ = error "subInTplt: not a Tplt" -- todo ? omit
 
-    prefixTpltStrings :: Expr -> String -> [String]
-    prefixTpltStrings (Tplt ss) prefix =
+    subInTplt :: Expr -> [String] -> String 
+    subInTplt (Tplt ts) ss = subInTpltWithDollars (Tplt ts) ss 0
+
+    padTpltStrings :: Expr -> String -> [String]
+    padTpltStrings (Tplt ss) prefix =
       let a = head ss
           z = last ss
           middle = reverse $ tail $ reverse $ tail ss
-          doToMiddle s = prefix ++ s
+          doToMiddle s = " " ++ prefix ++ s ++ " "
           doToEnds s = case s of "" -> ""; _ -> doToMiddle s
       in [doToEnds a] ++ map doToMiddle middle ++ [doToEnds z]
 
