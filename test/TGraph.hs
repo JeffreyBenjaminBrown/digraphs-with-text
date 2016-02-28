@@ -95,10 +95,8 @@
     tChMbr = TestCase $ do
       let gDogDog = fromRight $ chRelMbr g1 5 0 (Mbr 2)
       let gImpossible         = chRelMbr g1 5 0 (Mbr 99) -- 99 is too high
-      assertBool "1" $ showExpr gDogDog 5 
-                       == "5:1 \171\&0: dog\187 wants \171\&0: dog\187"
-        -- (\& == empty string) is to distinguish from longer number
-        -- if special char followed by a non-digit, no \& necessary
+      assertBool "1" $ showExpr gDogDog 5
+                       == "5:1 0: dog #wants 0: dog"
       assertBool "RelPos out of range" $ isLeft gImpossible
 
   -- ask, minor

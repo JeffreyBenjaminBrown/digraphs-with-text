@@ -22,7 +22,7 @@
         , (6, Rel             )
         , (7, mkTplt "_ needs _ for _")
         , (8, Rel             ) 
-        , (9, mkTplt "statement _ is _")
+        , (9, mkTplt "_ is _")
         , (10, Str "dubious"  )
         , (11, Rel            )
         , (12, Fl 1)
@@ -37,7 +37,7 @@
 
     g1Alt = insFl 1.3           $ insLeaf (Fl 1)
           $ insRelUsf 9 [5,10] 
-          $ insStr"dubious"     $ insTplt"statement _ is _"
+          $ insStr"dubious"     $ insTplt"_ is _"
           $ insRelUsf 7 [0,3,4] $ insTplt"_ needs _ for _"
           $ insRelUsf 2 [0,3]   $ insRelUsf 1 [0,4]
           $ insStr"brandy"      $ insStr"water"

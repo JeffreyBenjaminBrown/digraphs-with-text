@@ -77,14 +77,14 @@
       -- todo ? test each tplt-string; if has space, wrap in parens
     subInTpltWithDollars (Tplt ts) ss prefixCount =
       let ts' = padTpltStrings (Tplt ts)
-              $ replicate prefixCount '$' ++ "_"
+              $ replicate prefixCount '#'
           pairList = zip ts' $ ss ++ [""]
            -- append "" because there are n+1 segments in an n-ary Tplt; 
              -- zipper ends early otherwise
       in foldl (\s (a,b) -> s++a++b) "" pairList
     subInTpltWithDollars _ _ _ = error "subInTplt: not a Tplt" -- todo ? omit
 
-    subInTplt :: Expr -> [String] -> String 
+    subInTplt :: Expr -> [String] -> String
     subInTplt (Tplt ts) ss = subInTpltWithDollars (Tplt ts) ss 0
 
     padTpltStrings :: Expr -> String -> [String]
