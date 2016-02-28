@@ -20,20 +20,23 @@
       , _coll :: (Node -> String)
       }
 
+--
     bracket :: String -> String
     bracket s = "\171" ++ s ++ "\187" -- = «s»
 
----- exprDepth
---    exprDepth :: Mindmap -> Gen -> Gen -> Depth
---      -- first gen is this gen, second is next gen
---      -- when a node's scrs are evaluated, it is removed from the graph
---      -- so only the shortest path to it is evaluated
---    exprDepth g (d,[]) (_,[]) = d
---    exprDepth g (_,[]) ng@(d,n:ns) = -- this gen empty, so next replaces it
---      exprDepth g ng (d+1,[])
---    exprDepth g (d,n:ns) (d+1,ns') =
---      let mbrs = 
---      exprDepth (delNode n g) (d,ns) (d+1, lsuc
+-- exprDepth
+    _exprDepth :: Mindmap -> Gen -> Gen -> Depth
+      -- first gen is this gen, second is next gen
+      -- when a node's scrs are evaluated, it is removed from the graph
+      -- so only the shortest path to it is evaluated
+    _exprDepth g (d,[]) (_,[]) = d
+    _exprDepth g (_,[]) ng@(d,n:ns) = -- this gen empty, so next replaces it
+      _exprDepth g ng (d+1,[])
+    _exprDepth g (d,n:ns) (d',ns') =
+      _exprDepth (delNode n g) (d,ns) (d', mbrs g n ++ ns')
+
+    exprDepth :: Mindmap -> Node -> Depth
+    exprDepth g n = _exprDepth g (0,[n]) (1,[])
 
     -- overkill
     pop :: Ord k => Map.Map k [a] -> (a, Map.Map k [a])
