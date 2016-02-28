@@ -24,6 +24,9 @@
     bracket s = "\171" ++ s ++ "\187" -- = «s»
 
 -- exprDepth
+    exprDepth :: Mindmap -> Node -> (Depth,[Node])
+    exprDepth g n = _exprDepth g (0,[n]) (1,[]) []
+
     _exprDepth :: Mindmap -> Gen -- this gen
                           -> Gen -- next gen
                           -> [Node] -- accumulates every node visited
@@ -37,10 +40,7 @@
     _exprDepth g (d,n:ns) (d',ns')  acc = let newNodes = mbrs g n in
       _exprDepth (delNode n g) (d,ns) (d', newNodes ++ ns') (n:acc)
 
-    exprDepth :: Mindmap -> Node -> (Depth,[Node])
-    exprDepth g n = _exprDepth g (0,[n]) (1,[]) []
-
---
+-- _showExpr
     _showExpr :: Depth -> -- TODO: count $s, show nested Rels (predec'r has more)
                  Map.Map Node String ->      -- TODO ! use for shorthand like It
                  PrefixStrategy -> 
