@@ -47,6 +47,7 @@
                  Mindmap -> Maybe Node -> String
     _showExpr d subs ps g Nothing = "#absent node#"
     _showExpr d subs ps g (Just n) =
+
       case Map.lookup n subs of
         Just s -> s
         Nothing -> case lab g n of
@@ -58,6 +59,7 @@
             ++ ( intercalate ", "
                $ map (show_node_bracketed . Just) 
                      [m | (m,CollEdge CollMbr) <- lsuc g n] )
+
           Just (RelSpecExpr rvs) ->
             let rs = fromRight $ relSpec g n
                 rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
@@ -69,16 +71,18 @@
                   NodeSpec node -> show_node_bracketed $ Just node
             in ((_rel ps) n tpltNode ++) $ subInTplt tpltLab 
                  $ map showMbrSpec $ map snd rsl
-          Just (Rel)     ->
+
+          Just (Rel)     -> -- local : d subs ps g n
             let elts= Map.fromList $ map (\(adr,elab)->(elab,Just adr)) $ lsuc g n
-                Just (Just tpltNode) = -- todo ? case of missing Tplt
-                  Map.lookup (RelEdge RelTplt) elts
+                Just tpltNode = -- todo ? case of missing Tplt
+                  elts Map.! (RelEdge RelTplt)
                 Just tpltExpr = lab g tpltNode
                 memberNodes = map snd $ sortOn fst $ Map.toList $ Map.union
                   (Map.delete  (RelEdge RelTplt)  elts)
                   (nullMembers tpltExpr)
             in ((_rel ps) n tpltNode ++) $ subInTplt tpltExpr
                  $ map show_node_bracketed memberNodes
+
           where show_node_bracketed mn = bracket $
                   _showExpr (d+1) subs ps g mn
 

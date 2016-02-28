@@ -67,12 +67,28 @@
     mkTplt :: String -> Expr
     mkTplt = Tplt . _splitStringForTplt -- even length=0 works
 
-    subInTplt :: Expr -> [String] -> String -- todo ? test length, use Either
+    subInTplt :: Expr -> [String] -> String 
+      -- todo ? test length (should match arity), use Either
     subInTplt (Tplt ts) ss = let pairList = zip ts $ ss ++ [""] 
       -- append "" because there are n+1 segments in an n-ary Tplt; 
         -- zipper ends early otherwise
       in foldl (\s (a,b) -> s++a++b) "" pairList
     subInTplt _ _ = error "subInTplt: not a Tplt"
+
+--    subInTpltWithDollars :: Expr -> [String] -> Int -> String
+--      -- todo ? test length (should match arity), use Either
+--      -- todo
+--        -- test each tplt-string; if has space, wrap in parens
+--        -- prefix height(opposite of depth in tree)-many $s
+--    subInTpltWithDollars (Tplt ts) ss prefix =
+--      let ts' =
+--          pairList = zip ts $ ss ++ [""] 
+--      in foldl (\s (a,b) -> s++a++b) "" pairList
+--    subInTpltWithDollars _ _ = error "subInTplt: not a Tplt"
+
+--    prefixTpltStrings :: Expr -> String -> [String]
+--    prefixTpltStrings (Tplt ts) prefix =
+--      let 
 
     tpltArity :: Expr -> Arity
     tpltArity e = case e of Tplt ss -> length ss - 1
