@@ -54,7 +54,7 @@
           Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
           Just (Str s)   -> (_str ps) n ++ s
           Just (Fl f)   -> (_str ps) n ++ show f
-          Just (Tplt ts) -> (_tplt ps) n ++ intercalate "_" ts
+          Just (Tplt ts) -> (_tplt ps) n ++ intercalate " _ " ts
           Just (Coll)    -> (_coll ps) n ++ "TODO: use name" ++ ": "
             ++ ( intercalate ", "
                $ map (show_node_bracketed . Just) 

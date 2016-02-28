@@ -10,7 +10,8 @@
         RelPos, Arity
       , Mindmap, Expr(..), DwtEdge(..), RelRole(..), CollRole(..)
       , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
-      , _splitStringForTplt, mkTplt, subInTplt, prefixTpltStrings
+      , _splitStringForTplt, mkTplt
+      , subInTplt, prefixTpltStrings, subInTpltWithDollars
       , tpltArity, nodesMatchTplt
       , insLeaf, insRel, insRelUsf, insColl, partitionRelSpec, insRelSpec
         , relNodeSpec, relSpec
@@ -65,27 +66,26 @@
     _splitStringForTplt :: String -> [String]
     _splitStringForTplt t = map unpack $ splitOn (pack "_") (pack t)
 
+    -- was : mkTplt = Tplt . _splitStringForTplt -- even length=0 works
     mkTplt :: String -> Expr
-    mkTplt = Tplt . _splitStringForTplt -- even length=0 works
+    mkTplt = Tplt . concatMap (\x -> case x of "" -> [""]; _ -> words x) . _splitStringForTplt
 
     subInTplt :: Expr -> [String] -> String 
       -- todo ? test length (should match arity), use Either
     subInTplt (Tplt ts) ss = let pairList = zip ts $ ss ++ [""] 
       -- append "" because there are n+1 segments in an n-ary Tplt; 
         -- zipper ends early otherwise
-      in foldl (\s (a,b) -> s++a++b) "" pairList
+      in foldl (\s (a,b) -> s++[' ']++a++[' ']++b) "" pairList
     subInTplt _ _ = error "subInTplt: not a Tplt"
 
---    subInTpltWithDollars :: Expr -> [String] -> Int -> String
---      -- todo ? test length (should match arity), use Either
---      -- todo
---        -- test each tplt-string; if has space, wrap in parens
---        -- prefix height(opposite of depth in tree)-many $s
---    subInTpltWithDollars (Tplt ts) ss prefix =
---      let ts' =
---          pairList = zip ts $ ss ++ [""] 
---      in foldl (\s (a,b) -> s++a++b) "" pairList
---    subInTpltWithDollars _ _ = error "subInTplt: not a Tplt"
+    subInTpltWithDollars :: Expr -> [String] -> Int -> String
+      -- todo ? test length (should match arity), use Either
+      -- todo ? test each tplt-string; if has space, wrap in parens
+    subInTpltWithDollars (Tplt ts) ss prefixCount =
+      let ts' = prefixTpltStrings (Tplt ts) $ replicate prefixCount '$'
+          pairList = zip ts' $ ss ++ [""]
+      in foldl (\s (a,b) -> s++[' ']++a++[' ']++b) "" pairList
+    subInTpltWithDollars _ _ _ = error "subInTplt: not a Tplt" -- todo ? omit
 
     prefixTpltStrings :: Expr -> String -> [String]
     prefixTpltStrings (Tplt ss) prefix =
