@@ -20,30 +20,25 @@
       , _coll :: (Node -> String)
       }
 
---
     bracket :: String -> String
     bracket s = "\171" ++ s ++ "\187" -- = «s»
 
 -- exprDepth
-    _exprDepth :: Mindmap -> Gen -> Gen -> Depth
-      -- first gen is this gen, second is next gen
+    _exprDepth :: Mindmap -> Gen -- this gen
+                          -> Gen -- next gen
+                          -> [Node] -- accumulates every node visited
+                          -> (Depth,[Node]) -- depth + the accumulator
       -- when a node's scrs are evaluated, it is removed from the graph
-      -- so only the shortest path to it is evaluated
-    _exprDepth g (d,[]) (_,[]) = d
-    _exprDepth g (_,[]) ng@(d,n:ns) = -- this gen empty, so next replaces it
-      _exprDepth g ng (d+1,[])
-    _exprDepth g (d,n:ns) (d',ns') =
-      _exprDepth (delNode n g) (d,ns) (d', mbrs g n ++ ns')
+        -- so only the shortest path to it is evaluated
+      -- WARNING: does not return a Gen -- those Nodes might be at any depth
+    _exprDepth g (d,[]) (_,[])      acc = (d,acc)
+    _exprDepth g (_,[]) ng@(d,n:ns) acc = -- this gen empty, so next replaces it
+      _exprDepth g ng (d+1,[]) acc
+    _exprDepth g (d,n:ns) (d',ns')  acc = let newNodes = mbrs g n in
+      _exprDepth (delNode n g) (d,ns) (d', newNodes ++ ns') (n:acc)
 
-    exprDepth :: Mindmap -> Node -> Depth
-    exprDepth g n = _exprDepth g (0,[n]) (1,[])
-
-    -- overkill
-    pop :: Ord k => Map.Map k [a] -> (a, Map.Map k [a])
-    pop m = let k = head $ Map.keys m -- keys are returned in ascending order
-                as = m Map.! k
-      in case as of [] -> pop $ Map.delete k m -- ifdo speed: one at a time = slow
-                    a:t -> (a, Map.insert k t m)
+    exprDepth :: Mindmap -> Node -> (Depth,[Node])
+    exprDepth g n = _exprDepth g (0,[n]) (1,[]) []
 
 --
     _showExpr :: Depth -> -- TODO: count $s, show nested Rels (predec'r has more)
@@ -96,6 +91,7 @@
           es = map (RelEdge . Mbr) [1..arity] -- RelEdge $ Mbr 1 :: DwtEDge
       in Map.fromList $ zip es mns
 
+-- using _showExpr
     ps = PrefixStrategy { _str = colStrFunc
                         , _tplt = \n -> ":" ++ show n ++ " "
                         , _rel = \n tn -> show n ++ ":" ++ show tn ++ " "
