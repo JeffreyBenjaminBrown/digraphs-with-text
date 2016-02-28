@@ -93,8 +93,11 @@
           z = last ss
           middle = reverse $ tail $ reverse $ tail ss
           doToMiddle s = " " ++ prefix ++ s ++ " "
-          doToEnds s = case s of "" -> ""; _ -> doToMiddle s
-      in [doToEnds a] ++ map doToMiddle middle ++ [doToEnds z]
+          doToFirst s = case s of "" -> ""
+                                  _ -> prefix ++ s ++ " "
+          doToLast  s = case s of "" -> ""
+                                  _ -> " " ++ prefix ++ s
+      in [doToFirst a] ++ map doToMiddle middle ++ [doToLast z]
 
     tpltArity :: Expr -> Arity
     tpltArity e = case e of Tplt ss -> length ss - 1
