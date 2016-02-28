@@ -74,7 +74,8 @@
       -- todo ? test length (should match arity), use Either
       -- todo ? test each tplt-string; if has space, wrap in parens
     subInTpltWithDollars (Tplt ts) ss prefixCount =
-      let ts' = padTpltStrings (Tplt ts) $ replicate prefixCount '$'
+      let ts' = padTpltStrings (Tplt ts)
+              $ replicate prefixCount '$' ++ "_"
           pairList = zip ts' $ ss ++ [""]
            -- append "" because there are n+1 segments in an n-ary Tplt; 
              -- zipper ends early otherwise

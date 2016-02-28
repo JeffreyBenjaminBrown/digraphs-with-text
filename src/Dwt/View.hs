@@ -46,9 +46,11 @@
                  PrefixStrategy -> 
                  Mindmap -> Maybe Node -> String
     _showExpr d subs ps g Nothing = "#absent node#"
-    _showExpr d subs ps g (Just n) =
+    _showExpr d subs ps g (Just n) = 
+      let show_maybe_node mn = _showExpr (d+1) subs ps g mn
+          expr = Map.lookup n subs 
+      in case expr of
 
-      case Map.lookup n subs of
         Just s -> s
         Nothing -> case lab g n of
           Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
@@ -57,7 +59,7 @@
           Just (Tplt ts) -> (_tplt ps) n ++ intercalate " _ " ts
           Just (Coll)    -> (_coll ps) n ++ "TODO: use name" ++ ": "
             ++ ( intercalate ", "
-               $ map (show_node_bracketed . Just) 
+               $ map (show_maybe_node . Just) 
                      [m | (m,CollEdge CollMbr) <- lsuc g n] )
 
           Just (RelSpecExpr rvs) ->
@@ -68,23 +70,29 @@
                 Just tpltLab = lab g tpltNode :: Maybe Expr
                 showMbrSpec ms = case ms of
                   VarSpec var -> bracket $ show var
-                  NodeSpec node -> show_node_bracketed $ Just node
+                  NodeSpec node -> show_maybe_node $ Just node
             in ((_rel ps) n tpltNode ++) $ subInTplt tpltLab 
                  $ map showMbrSpec $ map snd rsl
 
-          Just (Rel)     -> -- local : d subs ps g n
-            let elts= Map.fromList $ map (\(adr,elab)->(elab,Just adr)) $ lsuc g n
-                Just tpltNode = -- todo ? case of missing Tplt
-                  elts Map.! (RelEdge RelTplt)
-                Just tpltExpr = lab g tpltNode
-                memberNodes = map snd $ sortOn fst $ Map.toList $ Map.union
-                  (Map.delete  (RelEdge RelTplt)  elts)
-                  (nullMembers tpltExpr)
-            in ((_rel ps) n tpltNode ++) $ subInTplt tpltExpr
-                 $ map show_node_bracketed memberNodes
+          Just (Rel) -> _showRel Rel d subs ps g n
 
-          where show_node_bracketed mn = bracket $
-                  _showExpr (d+1) subs ps g mn
+    _showRel :: Expr ->
+                Depth ->
+                Map.Map Node String ->
+                PrefixStrategy -> 
+                Mindmap -> Node -> String
+    _showRel Rel d subs ps g n =
+      let elts= Map.fromList $ map (\(adr,elab)->(elab,Just adr)) $ lsuc g n
+          Just tpltNode = -- todo ? case of missing Tplt
+            elts Map.! (RelEdge RelTplt)
+          Just tpltExpr = lab g tpltNode
+          memberNodes = map snd $ sortOn fst $ Map.toList $ Map.union
+            (Map.delete  (RelEdge RelTplt)  elts)
+            (nullMembers tpltExpr)
+      in ((_rel ps) n tpltNode ++) 
+         $ subInTpltWithDollars tpltExpr
+           (map (_showExpr (d-1) subs ps g) memberNodes)
+           d
 
     nullMembers :: Expr -> Map.Map DwtEdge (Maybe Node) 
       -- each Maybe is Nothing
@@ -106,10 +114,12 @@
       where f = const ""
 
     showExpr :: Mindmap -> Node -> String
-    showExpr g n = _showExpr 0 Map.empty ps g (Just n)
+    showExpr g n = _showExpr d Map.empty ps g (Just n)
+      where d = fst $ exprDepth g n
 
     showExprT :: Mindmap -> Node -> String -- terse, no addresses
-    showExprT g n = _showExpr 0 Map.empty ps g (Just n)
+    showExprT g n = _showExpr d Map.empty pst g (Just n)
+      where d = fst $ exprDepth g n
 
     v :: Mindmap -> [Node] -> IO ()
     v g ns = mapM_ putStrLn $ map (showExpr g) ns
