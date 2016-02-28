@@ -23,7 +23,7 @@
     _showExpr :: Map.Map Node String ->      -- TODO ! use for shorthand like It
                  PrefixStrategy -> 
                  Mindmap -> Maybe Node -> String
-    _showExpr subs ps g Nothing = "#absent#node#" -- TODO ! use
+    _showExpr subs ps g Nothing = "#absent node#"
     _showExpr subs ps g (Just n) =
       case Map.lookup n subs of
         Just s -> s
@@ -48,21 +48,17 @@
             in ((_rel ps) n tpltNode ++) $ subInTplt tpltLab 
                  $ map showMbrSpec $ map snd rsl
           Just (Rel)     ->
-            let elts = Map.fromList $ map (\(a,b)->(b,Just a)) $ lsuc g n
-                Just (Just tpltNode) = 
-                  Map.lookup (RelEdge RelTplt) elts -- TODO: if Nothing?
+            let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr)) $lsuc g n
+                Just (Just tpltNode) = -- todo ? case of missing Tplt
+                  Map.lookup (RelEdge RelTplt) elts
                 Just tpltExpr = lab g tpltNode
-                memberNodes = map snd $ sortOn fst $ Map.toList $ overwriteMap
+                memberNodes = map snd $ sortOn fst $ Map.toList $ Map.union
                   (Map.delete  (RelEdge RelTplt)  elts)
                   (nullMembers tpltExpr)
             in ((_rel ps) n tpltNode ++) $ subInTplt tpltExpr
                  $ map show_node_bracketed memberNodes
           where show_node_bracketed mn = bracket $
                   _showExpr subs ps g mn
-
-    overwriteMap :: Ord k => Map.Map k a -> Map.Map k a -> Map.Map k a
-    overwriteMap after before = Map.union after
-      $ Map.filterWithKey (\k _ -> not $ Map.member k after) before
 
     nullMembers :: Expr -> Map.Map DwtEdge (Maybe Node)
     nullMembers t@(Tplt _) =
