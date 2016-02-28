@@ -10,7 +10,8 @@
         RelPos, Arity
       , Mindmap, Expr(..), DwtEdge(..), RelRole(..), CollRole(..)
       , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
-      , _splitStringForTplt, mkTplt, subInTplt, tpltArity, nodesMatchTplt
+      , _splitStringForTplt, mkTplt, subInTplt, prefixTpltStrings
+      , tpltArity, nodesMatchTplt
       , insLeaf, insRel, insRelUsf, insColl, partitionRelSpec, insRelSpec
         , relNodeSpec, relSpec
         , insStr, insTplt, insFl -- insLeaf generalizes these
@@ -86,9 +87,14 @@
 --      in foldl (\s (a,b) -> s++a++b) "" pairList
 --    subInTpltWithDollars _ _ = error "subInTplt: not a Tplt"
 
---    prefixTpltStrings :: Expr -> String -> [String]
---    prefixTpltStrings (Tplt ts) prefix =
---      let 
+    prefixTpltStrings :: Expr -> String -> [String]
+    prefixTpltStrings (Tplt ss) prefix =
+      let a = head ss
+          z = last ss
+          middle = reverse $ tail $ reverse $ tail ss
+          doToMiddle s = prefix ++ s
+          doToEnds s = case s of "" -> ""; _ -> doToMiddle s
+      in [doToEnds a] ++ map doToMiddle middle ++ [doToEnds z]
 
     tpltArity :: Expr -> Arity
     tpltArity e = case e of Tplt ss -> length ss - 1
