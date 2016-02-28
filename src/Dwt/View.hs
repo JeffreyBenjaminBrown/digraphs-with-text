@@ -6,9 +6,12 @@
     import Dwt.Util
 
     import Data.Graph.Inductive
-    import Data.List (sortOn, intercalate)
+    import Data.List (sortOn, intercalate, nub)
     import Data.Maybe (fromJust)
     import qualified Data.Map as Map
+
+    type Depth = Int
+    type Gen = (Depth,[Node])
 
     data PrefixStrategy = PrefixStrategy {
         _str :: (Node -> String) -- Str|Fl -> String
@@ -20,11 +23,32 @@
     bracket :: String -> String
     bracket s = "\171" ++ s ++ "\187" -- = «s»
 
-    _showExpr :: Map.Map Node String ->      -- TODO ! use for shorthand like It
+---- exprDepth
+--    exprDepth :: Mindmap -> Gen -> Gen -> Depth
+--      -- first gen is this gen, second is next gen
+--      -- when a node's scrs are evaluated, it is removed from the graph
+--      -- so only the shortest path to it is evaluated
+--    exprDepth g (d,[]) (_,[]) = d
+--    exprDepth g (_,[]) ng@(d,n:ns) = -- this gen empty, so next replaces it
+--      exprDepth g ng (d+1,[])
+--    exprDepth g (d,n:ns) (d+1,ns') =
+--      let mbrs = 
+--      exprDepth (delNode n g) (d,ns) (d+1, lsuc
+
+    -- overkill
+    pop :: Ord k => Map.Map k [a] -> (a, Map.Map k [a])
+    pop m = let k = head $ Map.keys m -- keys are returned in ascending order
+                as = m Map.! k
+      in case as of [] -> pop $ Map.delete k m -- ifdo speed: one at a time = slow
+                    a:t -> (a, Map.insert k t m)
+
+--
+    _showExpr :: Depth -> -- TODO: count $s, show nested Rels (predec'r has more)
+                 Map.Map Node String ->      -- TODO ! use for shorthand like It
                  PrefixStrategy -> 
                  Mindmap -> Maybe Node -> String
-    _showExpr subs ps g Nothing = "#absent node#"
-    _showExpr subs ps g (Just n) =
+    _showExpr d subs ps g Nothing = "#absent node#"
+    _showExpr d subs ps g (Just n) =
       case Map.lookup n subs of
         Just s -> s
         Nothing -> case lab g n of
@@ -48,7 +72,7 @@
             in ((_rel ps) n tpltNode ++) $ subInTplt tpltLab 
                  $ map showMbrSpec $ map snd rsl
           Just (Rel)     ->
-            let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr)) $lsuc g n
+            let elts= Map.fromList $ map (\(adr,elab)->(elab,Just adr)) $ lsuc g n
                 Just (Just tpltNode) = -- todo ? case of missing Tplt
                   Map.lookup (RelEdge RelTplt) elts
                 Just tpltExpr = lab g tpltNode
@@ -58,9 +82,11 @@
             in ((_rel ps) n tpltNode ++) $ subInTplt tpltExpr
                  $ map show_node_bracketed memberNodes
           where show_node_bracketed mn = bracket $
-                  _showExpr subs ps g mn
+                  _showExpr (d+1) subs ps g mn
 
-    nullMembers :: Expr -> Map.Map DwtEdge (Maybe Node)
+    nullMembers :: Expr -> Map.Map DwtEdge (Maybe Node) 
+      -- each Maybe is Nothing
+      -- the DwtEdges run from (Mbr 1) to (Mbr arity)
     nullMembers t@(Tplt _) =
       let arity = tpltArity t
           mns = replicate arity Nothing :: [Maybe Node]
@@ -77,10 +103,10 @@
       where f = const ""
 
     showExpr :: Mindmap -> Node -> String
-    showExpr g n = _showExpr Map.empty ps g (Just n)
+    showExpr g n = _showExpr 0 Map.empty ps g (Just n)
 
     showExprT :: Mindmap -> Node -> String -- terse, no addresses
-    showExprT g n = _showExpr Map.empty ps g (Just n)
+    showExprT g n = _showExpr 0 Map.empty ps g (Just n)
 
     v :: Mindmap -> [Node] -> IO ()
     v g ns = mapM_ putStrLn $ map (showExpr g) ns
