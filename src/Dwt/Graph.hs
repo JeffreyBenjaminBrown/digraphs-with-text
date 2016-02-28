@@ -18,7 +18,7 @@
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , node, tpltAt, relElts, validRole, relTplt, collPrinciple
-      , rels, users, usersInRole, usersInRoleUsf
+      , rels, mbrs, users, usersInRole, usersInRoleUsf
       , matchRel, has1Up, fork1Up, subNodeForVars, dwtDfs, dwtBfs
       ) where
 
@@ -327,6 +327,10 @@
   -- .. -> [Node]
     rels :: Gr Expr b -> [Node]
     rels = nodes . labfilter (\n -> case n of Tplt _ -> True; _ -> False) 
+
+    mbrs :: Mindmap -> Node -> [Node]
+    mbrs g n = [addr | (addr,elab) <- lsuc g n, isMbrEdge elab]
+      where isMbrEdge e = case e of (RelEdge (Mbr _)) -> True; _ -> False
 
     users :: (MonadError String m, Graph gr) => gr a b -> Node -> m [Node]
     users g n = do gelemM g n
