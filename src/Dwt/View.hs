@@ -25,8 +25,8 @@
     bracket :: String -> String
     bracket s = "\171" ++ s ++ "\187" -- = «s»
 
--- things _showExpr uses, amybe useful elsewhere
-    exprDepth :: Mindmap -> Node -> (Depth,[Node])
+-- things _showExpr uses, amybe useful elsewhere -- TODO ? export|promote x-file
+    exprDepth :: Mindmap -> Node -> (Depth,[Node]) -- TODO ? Use the [Node]
     exprDepth g n = _exprDepth g (0,[n]) (1,[]) []
 
     _exprDepth :: Mindmap -> Gen -- this gen

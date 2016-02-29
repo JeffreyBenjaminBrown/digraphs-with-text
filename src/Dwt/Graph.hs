@@ -112,14 +112,24 @@
 
 -- build
   -- insert
-    -- TODO ! use a single ins function for Str, Tplt, Fl
-      -- Will otherwise need similar duplicates to delete, replace ...
-    insLeaf :: Expr -> Mindmap -> Mindmap
+   -- insert leaf
+    insLeaf :: Expr -> Mindmap -> Mindmap -- TODO ! use, to avoid duplicates 
+      -- duplicate ways to delete, replace, ...
     insLeaf e g = case isLeaf e of
       True -> insNode (newNode, e) g
         where [newNode] = newNodes 1 g
       False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
 
+    insStr :: String -> Mindmap -> Mindmap
+    insStr str g = insLeaf (Str str) g
+
+    insTplt :: String -> Mindmap -> Mindmap
+    insTplt s g = insLeaf (mkTplt s) g
+
+    insFl :: Float -> Mindmap -> Mindmap
+    insFl f g = insLeaf (Fl f) g
+
+   -- insert something more complex than leaf
     insRel :: Node -> -- the template node
               [Node] -> Mindmap -> Either String Mindmap
     insRel tn ns g =
@@ -198,18 +208,6 @@
               rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
               rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
           return $ Map.fromList $ rvsl' ++ rnsl'
-
-    insStr :: String -> Mindmap -> Mindmap
-    insStr str g = insNode (newNode, Str str) g
-      where newNode = head $ newNodes 1 g
-
-    insTplt :: String -> Mindmap -> Mindmap
-    insTplt s g = insNode (newNode, mkTplt s) g
-      where newNode = head $ newNodes 1 g
-
-    insFl :: Float -> Mindmap -> Mindmap
-    insFl f g = insNode (newNode, Fl f) g
-      where newNode = head $ newNodes 1 g
 
   -- edit
     chNonUser :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
