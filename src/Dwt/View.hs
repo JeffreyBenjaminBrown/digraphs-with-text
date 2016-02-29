@@ -130,5 +130,9 @@
     v :: Mindmap -> [Node] -> IO ()
     v g ns = mapM_ putStrLn $ map (showExpr g) ns
 
+    vc :: Mindmap -> [Node] -> IO () -- counts users too
+    vc g ns = mapM_ putStrLn $ map f ns
+      where f n = show $ (fromRight $ countUsers g n, showExpr g n)
+
     vt :: Mindmap -> [Node] -> IO ()
     vt g ns = mapM_ putStrLn $ map (showExprT g) ns
