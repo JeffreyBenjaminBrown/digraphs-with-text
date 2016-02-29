@@ -6,6 +6,8 @@
     import Dwt.Util
 
     import Data.Graph.Inductive
+
+    import Control.Monad.Except (MonadError, throwError, catchError)
     import Data.List (sortOn, intercalate, nub)
     import Data.Maybe (fromJust)
     import qualified Data.Map as Map
@@ -23,7 +25,7 @@
     bracket :: String -> String
     bracket s = "\171" ++ s ++ "\187" -- = «s»
 
--- exprDepth
+-- things _showExpr uses, amybe useful elsewhere
     exprDepth :: Mindmap -> Node -> (Depth,[Node])
     exprDepth g n = _exprDepth g (0,[n]) (1,[]) []
 
@@ -40,7 +42,10 @@
     _exprDepth g (d,n:ns) (d',ns')  acc = let newNodes = mbrs g n in
       _exprDepth (delNode n g) (d,ns) (d', newNodes ++ ns') (n:acc)
 
--- _showExpr
+    countUsers :: (MonadError String m, Graph gr) => gr a b -> Node -> m Int
+    countUsers g n = length <$> users g n
+
+-- _showExpr and things only it uses
     _showExpr :: Depth -> -- TODO: count $s, show nested Rels (predec'r has more)
                  Map.Map Node String ->      -- TODO ! use for shorthand like It
                  PrefixStrategy -> 
@@ -104,7 +109,7 @@
           es = map (RelEdge . Mbr) [1..arity] -- RelEdge $ Mbr 1 :: DwtEDge
       in Map.fromList $ zip es mns
 
--- using _showExpr
+-- things using _showExpr
     ps = PrefixStrategy { _str = colStrFunc
                         , _tplt = \n -> ":" ++ show n ++ " "
                         , _rel = \n tn -> show n ++ ":" ++ show tn ++ " "
