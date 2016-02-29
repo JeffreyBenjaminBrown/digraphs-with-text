@@ -26,6 +26,7 @@
     import Dwt.Parse
     import Dwt.MmParse
 
+    import qualified Data.Text as T
     import qualified Data.List as L
     import qualified Data.Map as M
     import qualified Data.Maybe as Mb
@@ -33,4 +34,6 @@
 -- shorthand
     (n, j) = (Mb.Nothing, Mb.Just)
     ns = NodeSpec
-    (qn, qs, qt) = (QNode, QStr, QTplt . _splitStringForTplt)
+    (qn, qs) = (QNode, QStr)
+    qt = QTplt . map (T.unpack . T.strip . T.pack) . _splitStringForTplt
+      -- is nearly mkTplt, but swaps QTplt for Tplt
