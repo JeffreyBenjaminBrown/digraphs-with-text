@@ -252,7 +252,7 @@
       else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
 
     _isExprMConstructor :: (MonadError String m, Graph gr) => (a -> Bool) ->
-      gr a b -> Node -> m () -- TODO: catch these erors, append strings
+      gr a b -> Node -> m () -- todo ? catch these erorrs, append strings
       -- otherwise the distinction bewteen absence and inequality is lost
     _isExprMConstructor pred g n = case mExpr of 
         Nothing -> throwError $ "Node " ++ show n ++ " absent."
@@ -290,7 +290,7 @@
     isCollM :: (MonadError String m) => Mindmap -> Node -> m ()
     isCollM = _isExprMConstructor isColl
 
-    isLeaf :: Expr -> Bool -- TODO ? make Leaf an Expr constructor
+    isLeaf :: Expr -> Bool -- todo ? make Leaf an Expr constructor
     isLeaf (Str _) = True
     isLeaf (Fl _) = True
     isLeaf (Tplt _) = True

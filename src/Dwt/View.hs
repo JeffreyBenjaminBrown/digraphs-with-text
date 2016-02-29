@@ -25,7 +25,7 @@
     bracket :: String -> String
     bracket s = "\171" ++ s ++ "\187" -- = «s»
 
--- things _showExpr uses, amybe useful elsewhere -- TODO ? export|promote x-file
+-- things _showExpr uses, maybe useful elsewhere -- TODO ? export|promote x-file
     exprDepth :: Mindmap -> Node -> (Depth,[Node]) -- TODO ? Use the [Node]
     exprDepth g n = _exprDepth g (0,[n]) (1,[]) []
 
@@ -46,8 +46,8 @@
     countUsers g n = length <$> users g n
 
 -- _showExpr and things only it uses
-    _showExpr :: Depth -> -- TODO: count $s, show nested Rels (predec'r has more)
-                 Map.Map Node String ->      -- TODO ! use for shorthand like It
+    _showExpr :: Depth ->
+                 Map.Map Node String -> -- todo ! use for shorthand like It
                  PrefixStrategy -> 
                  Mindmap -> Maybe Node -> String
     _showExpr d subs ps g Nothing = "#absent node#"
