@@ -1,3 +1,5 @@
+    {-# LANGUAGE FlexibleContexts #-}
+
     module Dwt.View
       ( module Dwt.View
       ) where
