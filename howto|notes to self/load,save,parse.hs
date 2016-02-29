@@ -1,10 +1,8 @@
 -- cycling
-  let filename =  "/home/jeff/dwt_git_hask/data/agent.dwt"
+  let p = pure -- todo ? does not compile
+
   let filename =  "/home/jeff/work/mm/git/share.dwt"
-  let p = pure
-  let fr = fromRight
-  type EM = Either String Mindmap
-  let show' g = putStrLn $ graphToText g
+  let filename =  "/home/jeff/dwt_git_hask/data/codg_dwt.dwt"
 
   gf <- readFile filename
   let g = read gf :: Mindmap

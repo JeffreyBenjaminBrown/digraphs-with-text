@@ -32,8 +32,14 @@
     import qualified Data.Maybe as Mb
 
 -- shorthand
-    (n, j) = (Mb.Nothing, Mb.Just)
+  -- mindmap things
     ns = NodeSpec
     (qn, qs) = (QNode, QStr)
     qt = QTplt . map (T.unpack . T.strip . T.pack) . _splitStringForTplt
       -- is nearly mkTplt, but swaps QTplt for Tplt
+
+  -- monad things
+    (n, j) = (Mb.Nothing, Mb.Just)
+    -- p = pure -- todo ? GHC will not compile, but GHCI accepts
+    fr = fromRight
+    type EM = Either String
