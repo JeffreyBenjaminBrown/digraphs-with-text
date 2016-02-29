@@ -6,6 +6,7 @@
 
     import Dwt.Graph
     import Dwt.Util
+    import Dwt.FileIO (graphToText)
 
     import Data.Graph.Inductive
 
@@ -23,9 +24,6 @@
       , _rel :: (Node -> Node -> String) -- Rel -> Tplt -> String
       , _coll :: (Node -> String)
       }
-
-    bracket :: String -> String
-    bracket s = "\171" ++ s ++ "\187" -- = «s»
 
 -- things _showExpr uses, maybe useful elsewhere -- TODO ? export|promote x-file
     exprDepth :: Mindmap -> Node -> (Depth,[Node]) -- TODO ? Use the [Node]
@@ -138,3 +136,10 @@
 
     vt :: Mindmap -> [Node] -> IO ()
     vt g ns = mapM_ putStrLn $ map (showExprT g) ns
+
+-- mostly unused
+    bracket :: String -> String -- now entirely unused
+    bracket s = "\171" ++ s ++ "\187" -- = «s»
+
+    showRaw :: Mindmap -> IO ()
+    showRaw g = putStr $ graphToText g
