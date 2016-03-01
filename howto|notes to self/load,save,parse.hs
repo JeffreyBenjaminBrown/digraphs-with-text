@@ -1,5 +1,5 @@
 -- cycling
-  let p = pure -- todo ? does not compile
+  let p = pure -- todo ? does not compile, but ghci accepts
 
 -- would like these to be commented out automatically when close this file
   -- let filename =  "/home/jeff/work/mm/git/share.dwt"

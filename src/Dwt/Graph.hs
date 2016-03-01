@@ -382,7 +382,9 @@
       return $ listIntersect nodeListList
 
 -- using directions (RelSpecs)
-    has1Up :: RelSpec -> Bool -- Up should be only one direction. I forget why.
+    -- todo ? 1Up because Up should be only one direction. I forget why.
+
+    has1Up :: RelSpec -> Bool
     has1Up rc = length as == 1
       where as = Map.toList
                $ Map.filter (\x -> case x of VarSpec Up -> True; _ -> False) 
@@ -397,6 +399,9 @@
                                                              _ -> False) r
       rels <- matchRel g r'
       concat <$> mapM (\rel -> relElts g rel kataRoles) rels
+
+    fork1Ups :: Mindmap -> Node -> [RelSpec] -> Either String [Node]
+    fork1Ups g n rs = concat <$> mapM (fork1Up g n) rs
 
     subNodeForVars :: Node -> MbrVar -> RelSpec  -> RelSpec
     subNodeForVars n v r = Map.map -- change each VarSpec v to NodeSpec n
