@@ -72,9 +72,9 @@
                 tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup RelTplt rs
                 Just tpltLab = lab g tpltNode :: Maybe Expr
                 showMbrSpec ms = case ms of
-                  VarSpec var -> bracket $ show var
+                  VarSpec var -> show var
                   NodeSpec node -> show_maybe_node $ Just node
-            in ((_rel ps) n tpltNode ++) $ subInTplt tpltLab 
+            in ((_rel ps) n tpltNode ++) $ ("#RelSpec#: " ++) $ subInTplt tpltLab 
                  $ map showMbrSpec $ map snd rsl
 
           Just (Rel) -> _showRel Rel d subs ps g n
