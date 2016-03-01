@@ -28,10 +28,10 @@
 
     tSubInTplt = TestCase $ do
       assertBool "1" $ subInTplt (fromJust $ lab g1 1) ["man","peace"]
-        == "man wants peace"
+        == "man #wants peace"
       assertBool "2"
         $ (lab g1 1 L.& fromJust L.& subInTplt $ ["man","peace"])
-        == "man wants peace"
+        == "man #wants peace"
 
     tInsert = TestCase $ do
       assertBool "mkTplt (and thereby splitStringForTplt), insRelUsf, insStr, insTplt" $ g1 == g1Alt
@@ -96,7 +96,7 @@
       let gDogDog = fromRight $ chRelMbr g1 5 0 (Mbr 2)
       let gImpossible         = chRelMbr g1 5 0 (Mbr 99) -- 99 is too high
       assertBool "1" $ showExpr gDogDog 5
-                       == "5:1 0: dog #wants 0: dog"
+                       == "5:1 0: dog ##wants 0: dog"
       assertBool "RelPos out of range" $ isLeft gImpossible
 
   -- ask, minor
@@ -159,21 +159,21 @@
       assertBool "nothing should match" $ matchRel g1 tRelSpecNonsense == Right []
 
   -- chase and helpers
-    tChase = TestList [ TestLabel "tHas1Up" tHas1Up
-                      , TestLabel "tFork1Up" tFork1Up
+    tChase = TestList [ TestLabel "tHas1Up" tHas1Dir
+                      , TestLabel "tFork1Dir" tFork1Dir
                       , TestLabel "tValidRole"tValidRole
                       , TestLabel "tRelElts" tRelElts
                       ]
 
-    tHas1Up = TestCase $ do
-      assertBool "has 1 Up" $ has1Up tRelSpecNonsense
-      assertBool "has no Up" $ not $ has1Up tRelSpec
+    tHas1Dir = TestCase $ do
+      assertBool "has 1 Up" $ has1Dir Up tRelSpecNonsense
+      assertBool "has no Up" $ not $ has1Dir Up tRelSpec
 
-    tFork1Up = TestCase $ do -- todo, incomplete
-      assertBool "no Up vars, should fail"
-        $ isLeft $ fork1Up g1 0 tRelSpec
+    tFork1Dir = TestCase $ do -- todo, incomplete
+      assertBool "searching Down, and no Up vars; should fail"
+        $ isLeft $ fork1Dir g1 0 (Down, tRelSpec)
       assertBool "dog(ana) wants brandy(kata)" 
-        $ fork1Up g1 0 tRelSpec2 == Right [4]
+        $ fork1Dir g1 0 (Down, tRelSpec2) == Right [4]
 
     tValidRole = TestCase $ do
       assertBool "Tplt: valid role" $ isRight $ validRole g1 5 RelTplt

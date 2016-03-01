@@ -21,7 +21,7 @@
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , node, tpltAt, relElts, validRole, relTplt, collPrinciple
       , rels, mbrs, users, usersInRole, usersInRoleUsf
-      , matchRel, has1Up, fork1Up, subNodeForVars, dwtDfs, dwtBfs
+      , matchRel, has1Dir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
       ) where
 
     import Dwt.Util
@@ -382,26 +382,43 @@
       return $ listIntersect nodeListList
 
 -- using directions (RelSpecs)
-    -- todo ? 1Up because Up should be only one direction. I forget why.
+    -- todo ? 1Dir because it should have one such direction. I forget why.
+      -- clarif: if I want a generation in the Down direction of the rel "has/",
+      -- the RelSpec has to have only one Up variable.
+    -- TODO ? check: Up|Down good, Any|It bad
+      -- fork1Up uses otherDir, so it will catch those errors, but obscurely
 
-    has1Up :: RelSpec -> Bool
-    has1Up rc = length as == 1
+--    has1Up :: RelSpec -> Bool
+--    has1Up rc = length as == 1
+--      where as = Map.toList
+--               $ Map.filter (\x -> case x of VarSpec Up -> True; _ -> False) 
+--               rc
+
+    has1Dir :: MbrVar -> RelSpec -> Bool
+    has1Dir mv rc = length as == 1
       where as = Map.toList
-               $ Map.filter (\x -> case x of VarSpec Up -> True; _ -> False) 
+               $ Map.filter (\x -> case x of VarSpec y -> y==mv; _ -> False) 
                rc
 
-    fork1Up :: Mindmap -> Node -> RelSpec -> Either String [Node]
-    fork1Up g n r = do -- one generation of successors in the Down direction
-      if has1Up r then return [] else throwError $ "fork1Up: RelSpec " ++ show r
-        ++ " has a number of Up variables other than 1."
-      let r' = subNodeForVars n Up r
-          kataRoles = Map.keys $ Map.filter (\x -> case x of VarSpec Down -> True;
-                                                             _ -> False) r
+    otherDir :: MbrVar -> MbrVar -- incomplete; non-invertible cases will err
+    otherDir Up = Down
+    otherDir Down = Up
+
+    fork1Dir :: Mindmap -> Node -> (MbrVar,RelSpec) -> Either String [Node]
+    fork1Dir g n (dir,r) = do -- returns one generation, neighbors
+      if has1Dir (otherDir dir) r
+         then return [] 
+         else throwError $ "fork1Dir: RelSpec " ++ show r
+                         ++ " has a number of Up variables other than 1."
+      let r' = subNodeForVars n (otherDir dir) r
+          kataRoles = Map.keys $ Map.filter (\x -> case x of VarSpec dir -> True;
+                                                             _ -> False) 
+                                            r
       rels <- matchRel g r'
       concat <$> mapM (\rel -> relElts g rel kataRoles) rels
 
-    fork1Ups :: Mindmap -> Node -> [RelSpec] -> Either String [Node]
-    fork1Ups g n rs = concat <$> mapM (fork1Up g n) rs
+    fork1Dirs :: Mindmap -> Node -> [(MbrVar,RelSpec)] -> Either String [Node]
+    fork1Dirs g n rs = concat <$> mapM (fork1Dir g n) rs
 
     subNodeForVars :: Node -> MbrVar -> RelSpec  -> RelSpec
     subNodeForVars n v r = Map.map -- change each VarSpec v to NodeSpec n
@@ -412,25 +429,28 @@
   -- dfs and bfs
     -- algorithmically, the difference is only newNodes++ns v. ns++newNodes
 
-    _dwtDfs :: Mindmap -> RelSpec -> [Node] -> [Node] -> Either String [Node]
+    _dwtDfs :: Mindmap -> (MbrVar, RelSpec) -> [Node] -> [Node] ->
+               Either String [Node]
     _dwtDfs _ _   []             acc = return acc
     _dwtDfs g dir pending@(n:ns) acc = do
-      newNodes <- fork1Up g n dir -- ifdo speed: redundant, calls has1Up a lot
+      newNodes <- fork1Dir g n dir
+        -- ifdo speed: redundant, calls has1Dir a lot
       _dwtDfs g dir (nub $ newNodes++ns) (n:acc)
         -- ifdo speed: discard visited nodes from graph (bfs too)
 
-    dwtDfs :: Mindmap -> RelSpec -> [Node] -> Either String [Node]
+    dwtDfs :: Mindmap -> (MbrVar,RelSpec) -> [Node] -> Either String [Node]
     dwtDfs g dir starts = do
       mapM_ (gelemM g) $ starts
       (nub . reverse) <$> _dwtDfs g dir starts []
 
-    _dwtBfs :: Mindmap -> RelSpec -> [Node] -> [Node] -> Either String [Node]
+    _dwtBfs :: Mindmap -> (MbrVar, RelSpec) -> [Node] -> [Node] -> 
+               Either String [Node]
     _dwtBfs _ _   []             acc = return acc
     _dwtBfs g dir pending@(n:ns) acc = do
-      newNodes <- fork1Up g n dir -- ifdo speed: redundant, calls has1Up a lot
+      newNodes <- fork1Dir g n dir
       _dwtBfs g dir (nub $ ns++newNodes) (n:acc)
 
-    dwtBfs :: Mindmap -> RelSpec -> [Node] -> Either String [Node]
+    dwtBfs :: Mindmap -> (MbrVar, RelSpec) -> [Node] -> Either String [Node]
     dwtBfs g dir starts = do
       mapM_ (gelemM g) $ starts
       (nub . reverse) <$> _dwtBfs g dir starts []

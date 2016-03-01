@@ -49,7 +49,7 @@
                            , (Mbr 2,   VarSpec Any)
                            ]
 
-    tRelSpec2 = Map.fromList [ (RelTplt, NodeSpec 1)
+    tRelSpec2 = Map.fromList [ (RelTplt, NodeSpec 2)
                            , (Mbr 1,   VarSpec Up)
                            , (Mbr 2,   VarSpec Down)
                            ]
