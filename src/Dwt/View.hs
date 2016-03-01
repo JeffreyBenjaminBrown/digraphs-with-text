@@ -42,9 +42,6 @@
     _exprDepth g (d,n:ns) (d',ns')  acc = let newNodes = mbrs g n in
       _exprDepth (delNode n g) (d,ns) (d', newNodes ++ ns') (n:acc)
 
-    countUsers :: (MonadError String m, Graph gr) => gr a b -> Node -> m Int
-    countUsers g n = length <$> users g n
-
 -- _showExpr and things only it uses
     _showExpr :: Depth ->
                  Map.Map Node String -> -- todo ! use for shorthand like It
@@ -127,14 +124,14 @@
     showExprT g n = _showExpr d Map.empty pst g (Just n)
       where d = fst $ exprDepth g n
 
+    -- NEXT: count clarifications
+
     v :: Mindmap -> [Node] -> IO ()
-    v g ns = mapM_ putStrLn $ map (showExpr g) ns
+    v g ns = mapM_ putStrLn $ map f ns
+      where f n = show $ (fromRight $ length <$> users g n -- emul: counts users
+                         , showExpr g n)
 
-    vc :: Mindmap -> [Node] -> IO () -- counts users too
-    vc g ns = mapM_ putStrLn $ map f ns
-      where f n = show $ (fromRight $ countUsers g n, showExpr g n)
-
-    vt :: Mindmap -> [Node] -> IO ()
+    vt :: Mindmap -> [Node] -> IO () -- terse; no countUsers, no addresses
     vt g ns = mapM_ putStrLn $ map (showExprT g) ns
 
 -- mostly unused

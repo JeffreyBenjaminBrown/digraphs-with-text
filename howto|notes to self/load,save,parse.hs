@@ -1,9 +1,11 @@
 -- cycling
   let p = pure -- todo ? does not compile
 
-  let filename =  "/home/jeff/work/mm/git/share.dwt"
+-- would like these to be commented out automatically when close this file
+  -- let filename =  "/home/jeff/work/mm/git/share.dwt"
   let filename =  "/home/jeff/dwt_git_hask/data/codg_dwt.dwt"
 
+--
   gf <- readFile filename
   let g = read gf :: Mindmap
 

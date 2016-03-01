@@ -13,9 +13,9 @@
       , _splitStringForTplt, mkTplt
       , subInTplt, padTpltStrings, subInTpltWithDollars
       , tpltArity, nodesMatchTplt
-      , insLeaf, insRel, insRelUsf, insColl, partitionRelSpec, insRelSpec
-        , relNodeSpec, relSpec
+      , replaceUsf, insLeaf, insRel, insRelUsf, insColl
         , insStr, insTplt, insFl -- insLeaf generalizes these
+        , partitionRelSpec, insRelSpec, relNodeSpec, relSpec
       , chNonUser, chNonUserUsf, chRelMbr
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
@@ -77,7 +77,7 @@
       -- todo ? test each tplt-string; if has space, wrap in parens
     subInTpltWithDollars (Tplt ts) ss prefixCount =
       let ts' = padTpltStrings (Tplt ts)
-              $ replicate prefixCount '#'
+              $ replicate (2^prefixCount) '#'
           pairList = zip ts' $ ss ++ [""]
            -- append "" because there are n+1 segments in an n-ary Tplt; 
              -- zipper ends early otherwise
@@ -111,6 +111,12 @@
       _ -> throwError "nodesMatchTplt: Expr not a Tplt."
 
 -- build
+    replaceUsf :: Node -> Expr -> Mindmap -> Mindmap
+    replaceUsf n expr g =
+      let (Just (a,b,expr',d), g') = match n g
+      in if areLikeExprs expr expr' then (a,b,expr,d) & g' 
+                                    else error "unlike Exprs"
+
   -- insert
    -- insert leaf
     insLeaf :: Expr -> Mindmap -> Mindmap -- TODO ! use, to avoid duplicates 
