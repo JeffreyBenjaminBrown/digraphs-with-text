@@ -21,7 +21,7 @@
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , node, tpltAt, relElts, validRole, relTplt, collPrinciple
       , rels, mbrs, users, usersInRole, usersInRoleUsf
-      , matchRel, has1Dir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
+      , matchRel, has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
       ) where
 
     import Dwt.Util
@@ -404,18 +404,19 @@
     otherDir Up = Down
     otherDir Down = Up
 
-    fork1Dir :: Mindmap -> Node -> (MbrVar,RelSpec) -> Either String [Node]
+    fork1Dir:: Mindmap -> Node -> (MbrVar,RelSpec) -> Either String [Node]
     fork1Dir g n (dir,r) = do -- returns one generation, neighbors
       if has1Dir (otherDir dir) r
          then return [] 
          else throwError $ "fork1Dir: RelSpec " ++ show r
-                         ++ " has a number of Up variables other than 1."
+                         ++ " has a number of " ++ show (otherDir dir)
+                         ++ " variables other than 1."
       let r' = subNodeForVars n (otherDir dir) r
-          kataRoles = Map.keys $ Map.filter (\x -> case x of VarSpec dir -> True;
-                                                             _ -> False) 
-                                            r
+          dirRoles = Map.keys $ Map.filter (== VarSpec dir) r
       rels <- matchRel g r'
-      concat <$> mapM (\rel -> relElts g rel kataRoles) rels
+      concat <$> mapM (\rel -> relElts g rel dirRoles) rels
+        -- TODO: this line is unnecessary. just return the rels, not their elts.
+        -- EXCEPT: that might hurt the dfs, bfs functions below
 
     fork1Dirs :: Mindmap -> Node -> [(MbrVar,RelSpec)] -> Either String [Node]
     fork1Dirs g n rs = concat <$> mapM (fork1Dir g n) rs

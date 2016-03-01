@@ -47,14 +47,14 @@
     tRelSpec = Map.fromList [ (RelTplt, VarSpec It)
                            , (Mbr 1,   NodeSpec 0)
                            , (Mbr 2,   VarSpec Any)
-                           ]
+                           ] :: RelSpec
 
     tRelSpec2 = Map.fromList [ (RelTplt, NodeSpec 2)
                            , (Mbr 1,   VarSpec Up)
                            , (Mbr 2,   VarSpec Down)
-                           ]
+                           ] :: RelSpec
 
     tRelSpecNonsense = Map.fromList [ (RelTplt, NodeSpec 0) -- "dog" Str, not Tplt
                                    , (Mbr 1,   VarSpec It)
                                    , (Mbr 2,   VarSpec Up)
-                                   ]
+                                   ] :: RelSpec
