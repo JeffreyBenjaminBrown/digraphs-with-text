@@ -1,4 +1,6 @@
     {-# LANGUAGE FlexibleContexts #-}
+    {-# LANGUAGE ViewPatterns #-}
+
     module Dwt.Util
       ( listIntersect
       , negateGraph, compressGraph -- for graphs
@@ -18,13 +20,12 @@
     negateGraph m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
       where negAdj = map (\(label,n) -> (label,-n))
 
--- for graphs
---    replaceNode :: Graph Gr => LNode -> Gr a b -> Gr a b
---    replaceNode (adr,dat) g = 
---      let ( , -- TODO ! how is typing this so hard?
---          g') = match adr g
---      in 
---emulating : gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
+--  for graphs
+    -- in progress
+    -- TODO ! fails silently. use Either.
+    replaceNode :: Graph Gr => LNode a -> Gr a b -> Gr a b
+    replaceNode (adr,_) (match adr -> (Nothing, g)) = g
+    replaceNode (adr,dat) (match adr -> (Just (a,b,c,d), g)) = (a,b,dat,d) & g
 
     -- make the nodes the least positive integers possible
     compressGraph :: DynGraph gr => gr a b -> gr a b

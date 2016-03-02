@@ -3,16 +3,17 @@
 
 -- would like these to be commented out automatically when close this file
   -- let filename =  "/home/jeff/work/mm/git/share.dwt"
-  let filename =  "/home/jeff/dwt_git_hask/data/codg_dwt.dwt"
+  -- let filename =  "/home/jeff/dwt_git_hask/data/codg_dwt.dwt"
+  let filename =  "/home/jeff/dwt_git_hask/data/or.dwt"
+
+-- !changes g
+  g <- p $ insStr _ g
+  g <- p $ fr $ (insRel 2 [4,3] g :: EM)
+  putStrLn $ graphToText g
 
 --
   gf <- readFile filename
   let g = read gf :: Mindmap
-
---
-  g <- p $ insStr _ g
-  g <- p $ fr $ (insRel 2 [4,3] g :: EM)
-  putStrLn $ graphToText g
 
   writeFile filename $ graphToText g
 
