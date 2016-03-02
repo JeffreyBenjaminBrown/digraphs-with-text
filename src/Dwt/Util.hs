@@ -18,6 +18,14 @@
     negateGraph m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
       where negAdj = map (\(label,n) -> (label,-n))
 
+-- for graphs
+--    replaceNode :: Graph Gr => LNode -> Gr a b -> Gr a b
+--    replaceNode (adr,dat) g = 
+--      let ( , -- TODO ! how is typing this so hard?
+--          g') = match adr g
+--      in 
+--emulating : gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
+
     -- make the nodes the least positive integers possible
     compressGraph :: DynGraph gr => gr a b -> gr a b
     compressGraph g = let ns = nodes g
