@@ -21,7 +21,7 @@ library
                        , Dwt.View
                        , Dwt.FileIO
                        , Dwt.Parse
-                       , Dwt.ParseMm
+                       , Dwt.MmParse
   build-depends:       base
                        , fgl
                        , text
@@ -40,6 +40,7 @@ test-suite new-template-test
                        , TGraph
                        , TView
                        , TMmParse
+                       , TSearch
   build-depends:       Dwt
                        , HUnit
                        , base
