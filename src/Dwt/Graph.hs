@@ -92,11 +92,13 @@
       let a = head ss
           z = last ss
           middle = reverse $ tail $ reverse $ tail ss
-          doToMiddle s = " " ++ prefix ++ s ++ " "
+          f s = if elem ' ' s then '(' : (s ++ ")") else s
+          doToMiddle s = " " ++ prefix ++ f s ++ " "
           doToFirst s = case s of "" -> ""
-                                  _ -> prefix ++ s ++ " "
+                                  _ -> prefix ++ f s ++ " "
           doToLast  s = case s of "" -> ""
-                                  _ -> " " ++ prefix ++ s
+                                  _ -> " " ++ prefix ++ f s
+          
       in [doToFirst a] ++ map doToMiddle middle ++ [doToLast z]
 
     tpltArity :: Expr -> Arity
