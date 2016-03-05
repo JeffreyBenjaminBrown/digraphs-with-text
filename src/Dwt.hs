@@ -38,6 +38,9 @@
     qt = QTplt . map (T.unpack . T.strip . T.pack) . _splitStringForTplt
       -- is nearly mkTplt, but swaps QTplt for Tplt
 
+    p :: (Applicative f) => a -> f a
+    p = pure
+
   -- monad things
     (n, j) = (Mb.Nothing, Mb.Just)
     -- p = pure -- todo ? GHC will not compile, but GHCI accepts
