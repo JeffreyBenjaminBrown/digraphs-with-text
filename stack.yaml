@@ -2,5 +2,5 @@ flags: {}
 packages:
 - '.'
 extra-deps: []
-resolver: nightly-2015-08-03
-
+resolver: lts-5.5
+system-ghc: false
