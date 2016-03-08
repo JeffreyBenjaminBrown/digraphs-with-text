@@ -124,7 +124,7 @@
     showExprT g n = _showExpr d Map.empty pst g (Just n)
       where d = fst $ exprDepth g n
 
-    -- NEXT: count clarifications
+    -- TODO NEXT: count clarifications
 
     v :: Mindmap -> [Node] -> IO ()
     v g ns = mapM_ putStrLn $ map f ns
