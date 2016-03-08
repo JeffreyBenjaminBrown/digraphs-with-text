@@ -2,14 +2,14 @@
     {-# LANGUAGE FlexibleContexts #-}
     module Main where
 
+    import Test.HUnit
+
     import Dwt
     import TData
     import TGraph
     import TSearch
     import TView
     import TMmParse
-
-    import Test.HUnit
 
 -- main
     main = runTestTT $ TestList
