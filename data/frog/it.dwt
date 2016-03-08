@@ -1,0 +1,6 @@
+mkGraph [
+(0,Str "frog"),
+(1,Tplt ["","qual/",""])
+][
+
+]
