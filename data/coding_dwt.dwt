@@ -11,7 +11,7 @@ mkGraph [
 (10,Str "if maybe cars and bunnies, show that, rather than cars and bunnies"),
 (11,Str "in x way/ y, x is a verb and y modifies x"),
 (12,Rel),
-(13,Tplt ["","isa(reversed)/",""]),
+(13,Tplt ["","isa/",""]),
 (14,Tplt ["","subtype/",""]),
 (15,Tplt ["","kind/",""]),
 (16,Str "in x isa/ y, x is a category y belongs to; it means y is an x. (I want to lead with the more important reason for the statement's existence.)"),
