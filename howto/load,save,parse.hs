@@ -1,10 +1,7 @@
 -- cycling
  -- would like these to be commented out automatically when close this file
-  -- let filename =  "/home/jeff/work/mm/git/share.dwt"
   -- let filename =  "/home/jeff/dwt/data/codg_dwt.dwt"
-  let filename =  "/home/jeff/dwt/data/frog.dwt"
-  -- let filename =  "/home/jeff/dwt/data/or.dwt"
-
+  let filename =  "coding_dwt.dwt"
 
 -- !changes g
   g <- p $ insStr _ g
