@@ -21,7 +21,8 @@ mkGraph [
 (20,RelSpecExpr (fromList [(Mbr 1,Up),(Mbr 2,Down)])),
 (21,RelSpecExpr (fromList [(Mbr 1,Up),(Mbr 2,Down)])),
 (22,RelSpecExpr (fromList [(Mbr 1,Up),(Mbr 2,Down)])),
-(23,RelSpecExpr (fromList [(Mbr 1,Up),(Mbr 2,Down)]))
+(23,RelSpecExpr (fromList [(Mbr 1,Up),(Mbr 2,Down)])),
+(24,Str "dwt")
 ][
 (23,5,RelEdge RelTplt),
 (22,9,RelEdge RelTplt),

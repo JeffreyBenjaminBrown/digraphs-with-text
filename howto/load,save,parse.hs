@@ -1,7 +1,6 @@
 -- cycling
- -- would like these to be commented out automatically when close this file
-  -- let filename =  "/home/jeff/dwt/data/codg_dwt.dwt"
-  let filename =  "coding_dwt.dwt"
+ -- WARNING: comment out the dangerous lines when not needed
+  -- let filename =  "coding_dwt.dwt"
 
 -- !changes g
   g <- p $ insStr _ g
@@ -12,7 +11,7 @@
   gf <- readFile filename
   let g = read gf :: Mindmap
 
-  writeFile filename $ graphToText g
+  -- writeFile filename $ graphToText g
 
 -- the above is just what I currently need from the below
 
