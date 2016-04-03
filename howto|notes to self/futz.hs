@@ -1,3 +1,11 @@
+Table of Contents (eventually this format is Haskell)
+    view
+    dfs
+    relVarSpec
+    Find all nodes using a Tplt
+    Find all gold nodes:
+    matchRelUsf
+
 -- 2016 02 13: bfs, dfs
     *Main> view g $ 8:[45..(length $ nodes g)-1] -- show relevant portion of graph
     :8 _ isa\ _ -- node 8 is the template for "x isa\ y" relationships
