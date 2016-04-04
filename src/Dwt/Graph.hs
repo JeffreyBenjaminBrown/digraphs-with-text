@@ -22,6 +22,7 @@
       , node, tpltAt, relElts, validRole, relTplt, collPrinciple
       , rels, mbrs, users, usersInRole, usersInRoleUsf
       , matchRel, has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
+      , join
       ) where
 
     import Dwt.Util
@@ -459,3 +460,14 @@
       (nub . reverse) <$> _dwtBfs g dir starts []
 
     -- chase :: Var -> Mindmap -> [RelSpec] -> [Node] -> Either String [Node]
+
+-- multi-graph
+    join :: DynGraph gr => gr a b -> gr a b -> gr a b
+    join g h =
+      let gMax = snd $ nodeRange g
+          hMin = fst $ nodeRange h
+          shift = 1 + gMax - hMin
+          shiftAdj = map (\(elab,n) -> (elab,n+shift)) :: Adj b -> Adj b
+          h' = gmap (\(ins,n,nlab,outs) ->
+                (shiftAdj ins, n+shift, nlab, shiftAdj outs)) h
+      in mkGraph (labNodes g ++ labNodes h') (labEdges g ++ labEdges h')
