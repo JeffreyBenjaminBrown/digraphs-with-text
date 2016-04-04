@@ -22,8 +22,10 @@ mkGraph [
 (21,RelSpecExpr (fromList [(Mbr 1,Up),(Mbr 2,Down)])),
 (22,RelSpecExpr (fromList [(Mbr 1,Up),(Mbr 2,Down)])),
 (23,RelSpecExpr (fromList [(Mbr 1,Up),(Mbr 2,Down)])),
-(24,Str "dwt")
+(24,Str "dwt"),
+(25,Rel)
 ][
+(25,15,RelEdge RelTplt),(25,3,RelEdge (Mbr 1)),(25,24,RelEdge (Mbr 2)),
 (23,5,RelEdge RelTplt),
 (22,9,RelEdge RelTplt),
 (21,13,RelEdge RelTplt),
@@ -33,5 +35,5 @@ mkGraph [
 (17,9,RelEdge RelTplt),(17,13,RelEdge (Mbr 1)),(17,16,RelEdge (Mbr 2)),
 (12,9,RelEdge RelTplt),(12,5,RelEdge (Mbr 1)),(12,11,RelEdge (Mbr 2)),
 (8,7,RelEdge RelTplt),(8,1,RelEdge (Mbr 1)),(8,6,RelEdge (Mbr 2)),(8,2,RelEdge (Mbr 3)),
-(6,5,RelEdge RelTplt),(6,4,RelEdge (Mbr 1)),(6,3,RelEdge (Mbr 2))
+(6,5,RelEdge RelTplt),(6,4,RelEdge (Mbr 1)),(6,25,RelEdge (Mbr 2))
 ]
