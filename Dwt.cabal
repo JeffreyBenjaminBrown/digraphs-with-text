@@ -28,6 +28,7 @@ library
                        , HUnit
                        , fgl
                        , text
+                       , regex-compat
                        , lens
                        , containers 
                        , mtl
@@ -59,4 +60,3 @@ test-suite new-template-test
 source-repository head
   type:     git
   location: https://github.com/JeffreyBenjaminBrown/digraphs-with-text
-
