@@ -16,7 +16,7 @@
       , replaceUsf, insLeaf, insRel, insRelUsf, insColl
         , insStr, insTplt, insFl -- insLeaf generalizes these
         , partitionRelSpec, insRelSpec, relNodeSpec, relSpec
-      , chNonUser, chNonUserUsf, chRelMbr
+      , chNonUser, chNonUserUsf, chRelRole
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , node, tpltAt, relElts, validRole, relTplt, collPrinciple
@@ -235,15 +235,15 @@
     chNonUserUsf g n e = let (Just (a,b,c,d),g') = match n g
       in (a,b,e,d) & g'
 
-    chRelMbr :: (MonadError String m) => 
+    chRelRole :: (MonadError String m) => 
       Mindmap -> Node -> Node -> RelRole -> m Mindmap
-    chRelMbr g user newMbr role = do
+    chRelRole g user newMbr role = do
       isRelM g user `catchError` (\_ -> throwError $ 
-        "chRelMbr: Node " ++ show user ++ " absent or not a Rel.")
+        "chRelRole: Node " ++ show user ++ " absent or not a Rel.")
       gelemM g newMbr
       let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
       if length candidates /= 1
-        then throwError "chRelMbr: invalid graph state, or RelPos out of range"
+        then throwError "chRelRole: invalid graph state, or RelPos out of range"
         else return ()
       let oldMbr = head candidates
       return $ delLEdge (user,oldMbr,RelEdge role)

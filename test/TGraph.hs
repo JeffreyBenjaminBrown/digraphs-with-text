@@ -93,8 +93,8 @@
         isLeft $ chNonUser g1 4  $ mkTplt "_ is _" -- LNode 4 is a Str
 
     tChMbr = TestCase $ do
-      let gDogDog = fromRight $ chRelMbr g1 5 0 (Mbr 2)
-      let gImpossible         = chRelMbr g1 5 0 (Mbr 99) -- 99 is too high
+      let gDogDog = fromRight $ chRelRole g1 5 0 (Mbr 2)
+      let gImpossible         = chRelRole g1 5 0 (Mbr 99) -- 99 is too high
       assertBool "1" $ showExpr gDogDog 5
                        == "5:1 0: dog ##wants 0: dog"
       assertBool "RelPos out of range" $ isLeft gImpossible
