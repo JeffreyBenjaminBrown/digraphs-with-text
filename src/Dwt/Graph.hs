@@ -196,7 +196,8 @@
           newAddr = head $ newNodes 1 g
           newLNode = (newAddr, RelSpecExpr varMap)
       mapM_ (gelemM g) $ Map.elems nodeMap
-      let newLEdges = map (\(r,n) -> (newAddr, n, RelEdge r))
+      -- add an edge for each concrete node specified
+      let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
                     $ Map.toList nodeMap
       return $ insEdges newLEdges
              $ insNode newLNode g
