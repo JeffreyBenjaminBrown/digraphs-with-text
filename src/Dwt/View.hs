@@ -57,7 +57,7 @@
           Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
           Just (Str s)   -> (_str ps) n ++ s
           Just (Fl f)   -> (_str ps) n ++ show f
-          Just t@(Tplt ts) -> (_tplt ps) n ++ 
+          Just t@(Tplt ts) -> (_tplt ps) n ++
             (subInTplt t $ replicate (tpltArity t) "_")
           Just (Coll)    -> (_coll ps) n ++ "TODO: use name" ++ ": "
             ++ ( intercalate ", "
@@ -84,22 +84,22 @@
                 PrefixStrategy -> 
                 Mindmap -> Node -> String
     _showRel Rel d subs ps g n =
-      let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr)) $ lsuc g n
+      let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr)) $ lsuc g n -- in a well-formed graph, any edge label emits from a given node at most once
           Just tpltAddr = -- todo ? case of missing Tplt
             elts Map.! (RelEdge RelTplt)
           Just tpltExpr = lab g tpltAddr
           memberNodes = map snd $ sortOn fst $ Map.toList $ Map.union
             (Map.delete  (RelEdge RelTplt)  elts)
-            (nullMembers tpltExpr) -- todo ? ordered list bad; just pass map
+            (nullMbrMap tpltExpr) -- todo ? ordered list bad; just pass map
       in ((_rel ps) n tpltAddr ++) 
          $ subInTpltWithDollars tpltExpr
            (map (_showExpr (d-1) subs ps g) memberNodes)
            d
 
-    nullMembers :: Expr -> Map.Map DwtEdge (Maybe Node) 
+    nullMbrMap :: Expr -> Map.Map DwtEdge (Maybe Node) 
       -- each Maybe is Nothing
       -- the DwtEdges run from (Mbr 1) to (Mbr arity)
-    nullMembers t@(Tplt _) =
+    nullMbrMap t@(Tplt _) =
       let arity = tpltArity t
           mns = replicate arity Nothing :: [Maybe Node]
           es = map (RelEdge . Mbr) [1..arity] -- RelEdge $ Mbr 1 :: DwtEDge
