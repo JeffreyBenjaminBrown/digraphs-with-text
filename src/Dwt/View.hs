@@ -26,13 +26,13 @@
       }
 
 -- things _showExpr uses, maybe useful elsewhere -- TODO ? export|promote x-file
-    exprDepth :: Mindmap -> Node -> (Depth,[Node]) -- TODO ? Use the [Node]
-    exprDepth g n = _exprDepth g (0,[n]) (1,[]) []
+    exprDepth :: Mindmap -> Node -> Depth -- TODO ? Use the [Node]
+    exprDepth g n = fst $ _exprDepth g (0,[n]) (1,[]) []
 
     _exprDepth :: Mindmap -> Gen -- this gen
                           -> Gen -- next gen
-                          -> [Node] -- accumulates every node visited
-                          -> (Depth,[Node]) -- depth + the accumulator
+                          -> [Node] -- accum every node visited
+                          -> (Depth,[Node]) -- depth + the accum
       -- when a node's scrs are evaluated, it is removed from the graph
         -- so only the shortest path to it is evaluated
       -- WARNING: does not return a Gen -- those Nodes might be at any depth
@@ -118,11 +118,11 @@
 
     showExpr :: Mindmap -> Node -> String
     showExpr g n = _showExpr d Map.empty ps g (Just n)
-      where d = fst $ exprDepth g n
+      where d = exprDepth g n
 
     showExprT :: Mindmap -> Node -> String -- terse, no addresses
     showExprT g n = _showExpr d Map.empty pst g (Just n)
-      where d = fst $ exprDepth g n
+      where d = exprDepth g n
 
     -- TODO NEXT: count clarifications
 
