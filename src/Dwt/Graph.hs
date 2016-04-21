@@ -9,7 +9,7 @@
       (
         RelPos, Arity
       , Mindmap, Expr(..), DwtEdge(..), RelRole(..), CollRole(..)
-      , MbrVar(..), MbrSpec(..), RelVarSpec, RelNodeSpec, RelSpec
+      , MbrVar(..), MbConcreteMbr(..), RelVarSpec, RelNodeSpec, RelSpec
       , _splitStringForTplt, mkTplt
       , subInTplt, padTpltStrings, subInTpltWithDollars
       , tpltArity, nodesMatchTplt
@@ -55,14 +55,14 @@
     data MbrVar = It | Any | Up | Down -- todo ? use omission instead of Any
       -- name ? MbrShip
       deriving (Show,Read,Eq,Ord)
-    data MbrSpec = VarSpec MbrVar | NodeSpec Node deriving(Show,Read,Eq,Ord)
+    data MbConcreteMbr = VarSpec MbrVar | NodeSpec Node deriving(Show,Read,Eq,Ord)
       -- name ? MbConcreteMbr
 
     type RelVarSpec = Map.Map RelRole MbrVar -- subset of RelSpec info, but
       -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
       -- The rest of the info can be inferred from the edges connected to it.
     type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
-    type RelSpec =     Map.Map RelRole MbrSpec
+    type RelSpec =     Map.Map RelRole MbConcreteMbr
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
 
 -- Tplts
@@ -382,7 +382,7 @@
     matchRel g spec = do
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
-            $ spec :: [(RelRole,MbrSpec)]
+            $ spec :: [(RelRole,MbConcreteMbr)]
       nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
       return $ listIntersect nodeListList
 

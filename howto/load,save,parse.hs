@@ -1,6 +1,6 @@
 -- cycling
  -- WARNING: comment out the dangerous lines when not needed
-  -- let filename =  "coding_dwt.dwt"
+ let filename =  "coding_dwt.dwt"
 
 -- !changes g
   g <- p $ insStr _ g

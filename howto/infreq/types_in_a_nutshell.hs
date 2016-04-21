@@ -24,12 +24,12 @@ Here are the types:
 
     data MbrVar = It | Any | Up | Down
       deriving (Show,Read,Eq,Ord)
-    data MbrSpec = VarSpec MbrVar | MbrSpec Node deriving(Show,Read,Eq,Ord)
+    data MbConcreteMbr = VarSpec MbrVar | MbConcreteMbr Node deriving(Show,Read,Eq,Ord)
 
     type RelVarSpec = Map.Map RelRole MbrVar -- subset of RelSpec info, but
       -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
       -- The rest of the info can be inferred from the edges connected to it.
-    type RelSpec = Map.Map RelRole MbrSpec
+    type RelSpec = Map.Map RelRole MbConcreteMbr
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
 
 The following is an obsolete (uses an earlier version of Dwt) Mindmap that represents the expression "dog needs water" using the subexpressions "dog" (a string), "water" (a string), and "_ wants _" (a relationship two things can have, that is a binary Rel):
