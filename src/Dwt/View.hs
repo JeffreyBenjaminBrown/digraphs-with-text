@@ -94,8 +94,9 @@
           memberNodes = map snd $ sortOn fst $ Map.toList $ Map.union
             (Map.delete  (RelEdge RelTplt)  elts)
             (nullMbrMap tpltExpr) :: [Maybe Node]
+            -- handles missing nodes
             -- todo ? ordered list bad; just pass map
-      in ((_rel ps) n tpltAddr ++) 
+      in ((_rel ps) n tpltAddr ++)
          $ subInTpltWithDollars tpltExpr
            (map (_showExpr (d-1) subs ps g) memberNodes)
            d
