@@ -203,6 +203,7 @@
              $ insNode newLNode g
 
     relNodeSpec :: (MonadError String m) => Mindmap -> Node -> m RelNodeSpec
+      -- name ? getRelNodeSpec
     relNodeSpec g n = do
       gelemM g n
       case (fromJust $ lab g n) of
@@ -211,6 +212,7 @@
         _ -> throwError $ "Node " ++ show n ++ " not a RelSpecExpr."
 
     relSpec :: Mindmap -> Node -> Either String RelSpec
+      -- name ? getRelSpec
     relSpec g n = do -- nearly inverse to partitionRelSpec
       gelemM g n
       case (fromJust $ lab g n) of
