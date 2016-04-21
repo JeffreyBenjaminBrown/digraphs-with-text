@@ -127,8 +127,8 @@
     insLeaf :: Expr -> Mindmap -> Mindmap -- TODO ! use, to avoid duplicates 
       -- duplicate ways to delete, replace, ...
     insLeaf e g = case isLeaf e of
-      True -> insNode (newNode, e) g
-        where [newNode] = newNodes 1 g
+      True -> insNode (newAddr, e) g
+        where [newAddr] = newNodes 1 g
       False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
 
     insStr :: String -> Mindmap -> Mindmap
@@ -315,7 +315,6 @@
       Rel    ->  case f of Rel    -> True;  _ -> False
       Coll   ->  case f of Coll   -> True;  _ -> False
       RelSpecExpr _ ->  case f of RelSpecExpr _ -> True;  _ -> False
-
 
   -- more ("locate"?)
     node :: Mindmap -> Expr -> [Node] -- hopefully length = 1
