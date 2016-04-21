@@ -18,7 +18,7 @@
     type Depth = Int
     type Gen = (Depth,[Node])
 
-    data PrefixStrategy = PrefixStrategy {
+    data Prefixer = Prefixer {
         _str :: (Node -> String) -- Str|Fl -> String
       , _tplt :: (Node -> String)
       , _rel :: (Node -> Node -> String) -- Rel -> Tplt -> String
@@ -45,21 +45,21 @@
 -- _showExpr and things only it uses
     _showExpr :: Depth ->
                  Map.Map Node String -> -- todo ! use for shorthand like It
-                 PrefixStrategy -> 
+                 Prefixer -> 
                  Mindmap -> Maybe Node -> String
-    _showExpr d subs ps g Nothing = "#absent_node#"
-    _showExpr d subs ps g (Just n) = 
-      let show_maybe_node mn = _showExpr (d+1) subs ps g mn
+    _showExpr d subs pfxr g Nothing = "#absent_node#"
+    _showExpr d subs pfxr g (Just n) = 
+      let show_maybe_node mn = _showExpr (d+1) subs pfxr g mn
       in case Map.lookup n subs of
 
         Just s -> s
         Nothing -> case lab g n of
           Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
-          Just (Str s)   -> (_str ps) n ++ s
-          Just (Fl f)   -> (_str ps) n ++ show f
-          Just t@(Tplt ts) -> (_tplt ps) n ++
+          Just (Str s)   -> (_str pfxr) n ++ s
+          Just (Fl f)   -> (_str pfxr) n ++ show f
+          Just t@(Tplt ts) -> (_tplt pfxr) n ++
             (subInTplt t $ replicate (tpltArity t) "_")
-          Just (Coll)    -> (_coll ps) n ++ "TODO: use name" ++ ": "
+          Just (Coll)    -> (_coll pfxr) n ++ "TODO: use name" ++ ": "
             ++ ( intercalate ", "
                $ map (show_maybe_node . Just) 
                      [m | (m,CollEdge CollMbr) <- lsuc g n] )
@@ -73,17 +73,17 @@
                 showMbrSpec ms = case ms of
                   VarSpec var -> show var
                   NodeSpec node -> show_maybe_node $ Just node
-            in ((_rel ps) n tpltNode ++) $ ("#RelSpec#: " ++) $ subInTplt tpltLab 
+            in ((_rel pfxr) n tpltNode ++) $ ("#RelSpec#: " ++) $ subInTplt tpltLab 
                  $ map showMbrSpec $ map snd rsl
 
-          Just (Rel) -> _showRel Rel d subs ps g n
+          Just (Rel) -> _showRel Rel d subs pfxr g n
 
     _showRel :: Expr ->
                 Depth ->
                 Map.Map Node String ->
-                PrefixStrategy -> 
+                Prefixer -> 
                 Mindmap -> Node -> String
-    _showRel Rel d subs ps g n =
+    _showRel Rel d subs pfxr g n =
       let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr))
                               $ lsuc g n :: Map.Map DwtEdge (Maybe Node)
             -- in a well-formed graph, any edge label emits
@@ -96,9 +96,9 @@
             (nullMbrMap tpltExpr) :: [Maybe Node]
             -- handles missing nodes
             -- todo ? ordered list bad; just pass map
-      in ((_rel ps) n tpltAddr ++)
+      in ((_rel pfxr) n tpltAddr ++)
          $ subInTpltWithDollars tpltExpr
-           (map (_showExpr (d-1) subs ps g) memberNodes)
+           (map (_showExpr (d-1) subs pfxr g) memberNodes)
            d
 
     nullMbrMap :: Expr -> Map.Map DwtEdge (Maybe Node) 
@@ -111,21 +111,21 @@
       in Map.fromList $ zip es mns
 
 -- things using _showExpr
-    ps = PrefixStrategy { _str = colStrFunc
+    prefixerDefault = Prefixer { _str = colStrFunc
                         , _tplt = \n -> ":" ++ show n ++ " "
                         , _rel = \n tn -> show n ++ ":" ++ show tn ++ " "
                         , _coll = colStrFunc } where
       colStrFunc = \n -> show n ++ ": "
 
-    pst = PrefixStrategy {_str=f, _tplt=f, _coll=f, _rel = \a b ->""}
+    prefixerTerse = Prefixer {_str=f, _tplt=f, _coll=f, _rel = \a b ->""}
       where f = const ""
 
     showExpr :: Mindmap -> Node -> String
-    showExpr g n = _showExpr d Map.empty ps g (Just n)
+    showExpr g n = _showExpr d Map.empty prefixerDefault g (Just n)
       where d = exprDepth g n
 
     showExprT :: Mindmap -> Node -> String -- terse, no addresses
-    showExprT g n = _showExpr d Map.empty pst g (Just n)
+    showExprT g n = _showExpr d Map.empty prefixerTerse g (Just n)
       where d = exprDepth g n
 
     -- TODO NEXT: count clarifications
