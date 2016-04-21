@@ -237,8 +237,8 @@
       return $ chNonUserUsf g n e'
 
     chNonUserUsf :: Mindmap -> Node -> Expr -> Mindmap
-    chNonUserUsf g n e = let (Just (a,b,c,d),g') = match n g
-      in (a,b,e,d) & g'
+    chNonUserUsf g n newExpr = let (Just (a,b,c,d),g') = match n g
+      in (a,b,newExpr,d) & g'
 
     chRelRole :: (MonadError String m) => 
       Mindmap -> Node -> Node -> RelRole -> m Mindmap
