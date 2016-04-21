@@ -47,11 +47,10 @@
                  Map.Map Node String -> -- todo ! use for shorthand like It
                  PrefixStrategy -> 
                  Mindmap -> Maybe Node -> String
-    _showExpr d subs ps g Nothing = "#absent node#"
+    _showExpr d subs ps g Nothing = "#absent_node#"
     _showExpr d subs ps g (Just n) = 
       let show_maybe_node mn = _showExpr (d+1) subs ps g mn
-          expr = Map.lookup n subs 
-      in case expr of
+      in case Map.lookup n subs of
 
         Just s -> s
         Nothing -> case lab g n of
