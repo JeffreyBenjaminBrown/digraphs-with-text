@@ -84,21 +84,25 @@
                 PrefixStrategy -> 
                 Mindmap -> Node -> String
     _showRel Rel d subs ps g n =
-      let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr)) $ lsuc g n -- in a well-formed graph, any edge label emits from a given node at most once
+      let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr))
+                              $ lsuc g n :: Map.Map DwtEdge (Maybe Node)
+            -- in a well-formed graph, any edge label emits
+            -- from a given node at most once
           Just tpltAddr = -- todo ? case of missing Tplt
             elts Map.! (RelEdge RelTplt)
           Just tpltExpr = lab g tpltAddr
           memberNodes = map snd $ sortOn fst $ Map.toList $ Map.union
             (Map.delete  (RelEdge RelTplt)  elts)
-            (nullMbrMap tpltExpr) -- todo ? ordered list bad; just pass map
+            (nullMbrMap tpltExpr) :: [Maybe Node]
+            -- todo ? ordered list bad; just pass map
       in ((_rel ps) n tpltAddr ++) 
          $ subInTpltWithDollars tpltExpr
            (map (_showExpr (d-1) subs ps g) memberNodes)
            d
 
     nullMbrMap :: Expr -> Map.Map DwtEdge (Maybe Node) 
-      -- each Maybe is Nothing
-      -- the DwtEdges run from (Mbr 1) to (Mbr arity)
+      -- in the result, each Maybe is Nothing, and
+        -- the DwtEdges run from (Mbr 1) to (Mbr arity)
     nullMbrMap t@(Tplt _) =
       let arity = tpltArity t
           mns = replicate arity Nothing :: [Maybe Node]
