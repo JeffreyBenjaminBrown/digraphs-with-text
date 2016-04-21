@@ -14,7 +14,7 @@
       , subInTplt, padTpltStrings, subInTpltWithDollars
       , tpltArity, nodesMatchTplt
       , replaceUsf, insLeaf, insRel, insRelUsf, insColl
-        , insStr, insTplt, insFl -- insLeaf generalizes these
+        , insStr, insTplt, insFl -- deprec ? insLeaf generalizes these
         , partitionRelSpec, insRelSpec, relNodeSpec, relSpec
       , chNonUser, chNonUserUsf, chRelRole
       , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
@@ -223,7 +223,7 @@
               rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
           return $ Map.fromList $ rvsl' ++ rnsl'
 
-  -- edit
+  -- edit (but not insert)
     chNonUser :: (MonadError String m) => Mindmap -> Node -> Expr -> m Mindmap
       -- Strs and Tplts are used, but are not users. (Rels and Colls use them.)
     chNonUser g n e' = do
@@ -266,8 +266,9 @@
       else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
 
     _isExprMConstructor :: (MonadError String m, Graph gr) => (a -> Bool) ->
-      gr a b -> Node -> m () -- todo ? catch these erorrs, append strings
-      -- otherwise the distinction bewteen absence and inequality is lost
+      gr a b -> Node -> m () -- constructs an isExprM function (Expr a variable)
+      -- todo ? catch these erorrs, append strings
+        -- otherwise the distinction bewteen absence and inequality is lost
     _isExprMConstructor pred g n = case mExpr of 
         Nothing -> throwError $ "Node " ++ show n ++ " absent."
         Just expr ->  case pred expr of True -> return ()
@@ -318,8 +319,9 @@
       Coll   ->  case f of Coll   -> True;  _ -> False
       RelSpecExpr _ ->  case f of RelSpecExpr _ -> True;  _ -> False
 
-  -- more ("locate"?)
+  -- more complex ("locate"?) queries
     node :: Mindmap -> Expr -> [Node] -- hopefully length = 1
+      -- name ? exprOf
     node g x = nodes $ labfilter (== x) g
 
     tpltAt :: (MonadError String m) => Mindmap -> Node -> m Expr
@@ -350,12 +352,14 @@
             else throwError $ "validRole: Arity " ++ show a ++ 
               " < RelPos " ++ show p
 
-    relTplt :: Mindmap -> Node -> Either String Expr
+    relTplt :: Mindmap -> Node -> Either String Expr -- unsafe
+      -- might not be called on a template
     relTplt g relNode = do
       [n] <- relElts g relNode [RelTplt]
       return $ fromJust $ lab g n
 
     collPrinciple :: (MonadError String m) => Mindmap -> Node -> m Expr
+      -- analogous to relTplt
     collPrinciple g collNode = do
       isCollM g collNode `catchError` (\_ -> throwError $ 
         "collPrinciple: Node " ++ show collNode ++ " absent or not a Coll.")
