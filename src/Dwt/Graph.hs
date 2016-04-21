@@ -314,6 +314,8 @@
       Tplt _ ->  case f of Tplt _ -> True;  _ -> False
       Rel    ->  case f of Rel    -> True;  _ -> False
       Coll   ->  case f of Coll   -> True;  _ -> False
+      RelSpecExpr _ ->  case f of RelSpecExpr _ -> True;  _ -> False
+
 
   -- more ("locate"?)
     node :: Mindmap -> Expr -> [Node] -- hopefully length = 1
