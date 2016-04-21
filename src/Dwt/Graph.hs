@@ -56,8 +56,8 @@
       -- name ? MbrShip
       deriving (Show,Read,Eq,Ord)
     data MbConcreteMbr = VarSpec MbrVar | NodeSpec Node deriving(Show,Read,Eq,Ord)
-      -- name ? MbConcreteMbr
 
+    -- at the RelTplt key is always a concrete NodeSpec
     type RelVarSpec = Map.Map RelRole MbrVar -- subset of RelSpec info, but
       -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
       -- The rest of the info can be inferred from the edges connected to it.
@@ -193,10 +193,10 @@
     insRelSpec :: (MonadError String m) => RelSpec -> Mindmap -> m Mindmap
     insRelSpec rSpec g = do
       let (varMap, nodeMap) = partitionRelSpec rSpec
-          newNode = head $ newNodes 1 g
-          newLNode = (newNode, RelSpecExpr varMap)
+          newAddr = head $ newNodes 1 g
+          newLNode = (newAddr, RelSpecExpr varMap)
       mapM_ (gelemM g) $ Map.elems nodeMap
-      let newLEdges = map (\(r,n) -> (newNode, n, RelEdge r))
+      let newLEdges = map (\(r,n) -> (newAddr, n, RelEdge r))
                     $ Map.toList nodeMap
       return $ insEdges newLEdges
              $ insNode newLNode g
