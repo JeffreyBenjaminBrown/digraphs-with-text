@@ -58,9 +58,9 @@
     data MbConcreteMbr = VarSpec MbrVar | NodeSpec Node deriving(Show,Read,Eq,Ord)
 
     -- at the RelTplt key is always a concrete NodeSpec
-    type RelVarSpec = Map.Map RelRole MbrVar -- subset of RelSpec info, but
-      -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
-      -- The rest of the info can be inferred from the edges connected to it.
+    type RelVarSpec = Map.Map RelRole MbrVar -- Is a subset of RelSpec info, but
+      -- in a graph implies a complete RelSpec, because
+      -- a RelSpecExpr points to its concrete members.
     type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
     type RelSpec =     Map.Map RelRole MbConcreteMbr
       -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
