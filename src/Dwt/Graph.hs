@@ -45,7 +45,7 @@
               | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
     -- better?: data Expr = Whole Expr |.. where the 2nd Expr cannot be a Whole
       -- could then limit views to Whole Exprs
-      -- would have to rewrite a lot of functions
+      -- but would have to rewrite a lot of functions
 
     data DwtEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord)
@@ -53,8 +53,10 @@
 
   -- for (partially) specifying Rels
     data MbrVar = It | Any | Up | Down -- todo ? use omission instead of Any
+      -- name ? MbrShip
       deriving (Show,Read,Eq,Ord)
     data MbrSpec = VarSpec MbrVar | NodeSpec Node deriving(Show,Read,Eq,Ord)
+      -- name ? MbConcreteMbr
 
     type RelVarSpec = Map.Map RelRole MbrVar -- subset of RelSpec info, but
       -- a RelVarSpec in a Mindmap is transformable into a RelSpec.
