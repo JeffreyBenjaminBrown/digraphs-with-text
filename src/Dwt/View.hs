@@ -73,8 +73,9 @@
                 showMbrSpec ms = case ms of
                   VarSpec var -> show var
                   NodeSpec node -> show_maybe_node $ Just node
-            in ((_rel pfxr) n tpltNode ++) $ ("#RelSpec#: " ++) $ subInTplt tpltLab 
-                 $ map showMbrSpec $ map snd rsl
+            in ((_rel pfxr) n tpltNode ++)  $  ("#RelSpec#: " ++)
+              $ subInTplt tpltLab 
+              $ map showMbrSpec $ map snd rsl
 
           Just (Rel) -> _showRel Rel d subs pfxr g n
 
