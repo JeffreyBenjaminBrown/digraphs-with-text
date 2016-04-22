@@ -4,6 +4,7 @@
 
     import Data.Graph.Inductive
     import Dwt.Graph
+    import Dwt.Show
 
     import System.IO ( BufferMode(NoBuffering)
                      , hSetBuffering, hSetEcho
@@ -42,13 +43,14 @@
       putStrLn "type an integer"
       line <- getLine
       let num = read line :: Node
-      case num of 0 -> putStrLn "Zero!"
-                  _ -> return ()
-      return num
+      putStr "-- it --"
+      v g [num]
+      putStrLn "-- its users (predecessors) --"
+      v g $ pre g num
+      loop g
 
     -- seemed handy, but maybe not
     --    import Dwt.Util (fromRight)
     --    import Dwt.Parse (eParse)
     --    import Text.Parsec
     --    import Text.Parsec.Char (digit)
-
