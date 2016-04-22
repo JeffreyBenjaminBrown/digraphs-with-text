@@ -9,6 +9,7 @@
       , module Dwt.Graph
       , module Dwt.Search
       , module Dwt.Show
+      , module Dwt.Explore
       , module Dwt.FileIO
       , module Dwt.Parse
       , module Dwt.MmParse
@@ -22,6 +23,7 @@
     import Dwt.Graph
     import Dwt.Search
     import Dwt.Show
+    import Dwt.Explore
     import Dwt.FileIO
     import Dwt.Parse
     import Dwt.MmParse
