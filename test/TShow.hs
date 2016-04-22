@@ -1,7 +1,7 @@
-    module TView where
+    module TShow where
 
     import Dwt.Graph
-    import Dwt.View
+    import Dwt.Show
     import TData
 
     import Test.HUnit

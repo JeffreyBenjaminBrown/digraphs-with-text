@@ -1,7 +1,7 @@
     {-# LANGUAGE FlexibleContexts #-}
 
-    module Dwt.View
-      ( module Dwt.View
+    module Dwt.Show
+      ( module Dwt.Show
       ) where
 
     import Dwt.Graph
@@ -144,7 +144,7 @@
     vt g ns = mapM_ putStrLn $ map (showExprT g) ns
 
 -- mostly unused
-    bracket :: String -> String -- now entirely unused
+    bracket :: String -> String -- unused, but a useful pair of characters
     bracket s = "\171" ++ s ++ "\187" -- = «s»
 
     showRaw :: Mindmap -> IO ()

@@ -17,7 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Dwt
                        , Dwt.Graph
-                       , Dwt.View
+                       , Dwt.Show
                        , Dwt.Search
                        , Dwt.FileIO
                        , Dwt.Parse
@@ -42,7 +42,7 @@ test-suite new-template-test
   main-is:             Main.hs
   other-modules:       TData
                        , TGraph
-                       , TView
+                       , TShow
                        , TMmParse
                        , TSearch
 
