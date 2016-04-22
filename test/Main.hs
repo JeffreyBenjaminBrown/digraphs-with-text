@@ -8,7 +8,7 @@
     import TData
     import TGraph
     import TSearch
-    import TView
+    import TShow
     import TMmParse
 
 -- main
