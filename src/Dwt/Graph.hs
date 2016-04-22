@@ -370,6 +370,8 @@
     rels :: Gr Expr b -> [Node]
     rels = nodes . labfilter (\n -> case n of Tplt _ -> True; _ -> False) 
 
+    -- opposites: mbrs, users
+      -- though they would not be if Tplts pointed to|had members of their own
     mbrs :: Mindmap -> Node -> [Node]
     mbrs g n = [addr | (addr,elab) <- lsuc g n, isMbrEdge elab]
       where isMbrEdge e = case e of (RelEdge (Mbr _)) -> True; _ -> False
