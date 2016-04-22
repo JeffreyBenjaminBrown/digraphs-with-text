@@ -2,6 +2,7 @@
       module Dwt.Explore
     ) where
 
+    import Data.Graph.Inductive
     import Dwt.Graph
 
     import System.IO ( BufferMode(NoBuffering)
@@ -28,15 +29,26 @@
         hSetEcho stdout outE
         return r
 
---    loop :: Mindmap -> IO ()
---    loop g = do
---      putStrLn "type a number"
---      line <- getLine
---      let coord = maybeRead line
-
     -- CREDIT to Gary Fixler: http://github.com/gfixler/continou
     -- silently $ trap (== 'q') "Press q to exit this trap."
     trap :: (Char -> Bool) -> String -> IO Char
     trap p s = putStrLn s >> f
         where f = do c' <- getChar
                      if p c' then return c' else f
+
+-- loop
+    loop :: Mindmap -> IO Int
+    loop g = do
+      putStrLn "type an integer"
+      line <- getLine
+      let num = read line :: Node
+      case num of 0 -> putStrLn "Zero!"
+                  _ -> return ()
+      return num
+
+    -- seemed handy, but maybe not
+    --    import Dwt.Util (fromRight)
+    --    import Dwt.Parse (eParse)
+    --    import Text.Parsec
+    --    import Text.Parsec.Char (digit)
+
