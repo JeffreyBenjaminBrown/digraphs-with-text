@@ -2,14 +2,14 @@
  -- WARNING: comment out the dangerous lines when not needed
  let filename =  "coding_dwt.dwt"
 
--- !changes g
-  g <- p $ insStr _ g
-  g <- p $ fr $ (insRel 2 [4,3] g :: EM)
-  putStrLn $ graphToText g
-
 --
   gf <- readFile filename
   let g = read gf :: Mindmap
+
+-- ! DESTRUCTIVE !
+  g <- p $ insStr _ g
+  g <- p $ fr $ (insRel 2 [4,3] g :: EM)
+  putStrLn $ graphToText g
 
   -- writeFile filename $ graphToText g
 
