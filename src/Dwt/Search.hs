@@ -13,6 +13,9 @@
     import Data.Map as Map
     import Data.Maybe as Mb
 
+    -- see also
+    -- Graph.node :: Mindmap -> Expr -> [Node] -- hopefully length = 1
+
     -- queries
     data QNode = QNode Node -- when you already know the Node
       | QStr String | QTplt [String] -- when you don't but you know its contents

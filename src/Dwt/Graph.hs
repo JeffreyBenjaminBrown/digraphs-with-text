@@ -321,6 +321,7 @@
 
   -- more complex ("locate"?) queries
     node :: Mindmap -> Expr -> [Node] -- hopefully length = 1
+      -- move ? Search.hs
       -- name ? exprOf
     node g x = nodes $ labfilter (== x) g
 
