@@ -50,12 +50,10 @@
       _exprDepth (delNode n g) (d,ns) (d', newNodes ++ ns') (n:acc)
 
 -- _showExpr and things only it uses
-    _showExpr :: Depth ->
-                 ViewProg ->
-                 Mindmap -> Maybe Node -> String
-    _showExpr d vp g Nothing = "#absent_node#"
-    _showExpr d vp g (Just n) = 
-      let show_maybe_node mn = _showExpr (d+1) vp g mn
+    _showExpr :: ViewProg -> Mindmap -> Depth -> Maybe Node -> String
+    _showExpr vp g d Nothing = "#absent_node#"
+    _showExpr vp g d (Just n) = 
+      let show_maybe_node mn = _showExpr vp g (d+1) mn
       in case Map.lookup n (vpShowFiats vp) of
 
         Just s -> s
@@ -83,12 +81,10 @@
               $ subInTplt tpltLab 
               $ map showMbConcreteMbr $ map snd rsl
 
-          Just (Rel) -> _showRel d vp g n
+          Just (Rel) -> _showRel vp g d n
 
-    _showRel :: Depth ->
-                ViewProg ->
-                Mindmap -> Node -> String
-    _showRel d vp g n =
+    _showRel :: ViewProg -> Mindmap -> Depth -> Node -> String
+    _showRel vp g d n =
       let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr))
                               $ lsuc g n :: Map.Map DwtEdge (Maybe Node)
             -- in a well-formed graph, any edge label emits
@@ -103,7 +99,7 @@
             -- todo ? ordered list bad; just pass map
       in ((_rel $ vpPrefixer vp) n tpltAddr ++)
          $ subInTpltWithDollars tpltExpr
-           (map (_showExpr (d-1) vp g) memberNodes)
+           (map (_showExpr vp g $ d-1) memberNodes)
            d
 
     nullMbrMap :: Expr -> Map.Map DwtEdge (Maybe Node) 
@@ -126,13 +122,13 @@
       where f = const ""
 
     showExpr :: Mindmap -> Node -> String
-    showExpr g n = _showExpr d vp g (Just n)
+    showExpr g n = _showExpr vp g d (Just n)
       where d = exprDepth g n
             vp = ViewProg { vpPrefixer = prefixerDefault
                           , vpShowFiats = Map.empty }
 
     showExprT :: Mindmap -> Node -> String -- terse, no addresses
-    showExprT g n = _showExpr d vp g (Just n)
+    showExprT g n = _showExpr vp g d (Just n)
       where d = exprDepth g n
             vp = ViewProg { vpPrefixer = prefixerDefault
                           , vpShowFiats = Map.empty }
