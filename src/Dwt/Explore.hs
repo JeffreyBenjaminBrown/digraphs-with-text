@@ -11,7 +11,22 @@
                      , hGetBuffering, hGetEcho
                      , stdin, stdout, getChar
                      )
-    
+
+-- io loop
+    loop :: Mindmap -> IO Int
+    loop g = do
+        putStrLn "type an integer\n"
+        line <- getLine
+        let num = read line :: Node
+        showAround num
+        loop g
+      where showAround num = do
+              putStr "-- it --"
+              v g [num]
+              putStrLn "-- its users (predecessors) --"
+              v g $ pre g num
+
+-- a silent getChar (unused)
     silently :: IO a -> IO a -- act on but don't echo to screen user input
     silently f = do -- CREDIT to Gary Fixler: http://github.com/gfixler/continou
         inB <- hGetBuffering stdin
@@ -36,21 +51,3 @@
     trap p s = putStrLn s >> f
         where f = do c' <- getChar
                      if p c' then return c' else f
-
--- loop
-    loop :: Mindmap -> IO Int
-    loop g = do
-      putStrLn "type an integer"
-      line <- getLine
-      let num = read line :: Node
-      putStr "-- it --"
-      v g [num]
-      putStrLn "-- its users (predecessors) --"
-      v g $ pre g num
-      loop g
-
-    -- seemed handy, but maybe not
-    --    import Dwt.Util (fromRight)
-    --    import Dwt.Parse (eParse)
-    --    import Text.Parsec
-    --    import Text.Parsec.Char (digit)
