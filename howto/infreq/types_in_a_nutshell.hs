@@ -14,11 +14,11 @@ Here are the types:
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
 
-    type SOLRT = Gr Expr DwtEdge
+    type SOLRT = Gr Expr SOLRTEdge
     data Expr = Str String | Tplt [String] | Rel | Coll String
               | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
 
-    data DwtEdge = RoleEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
+    data SOLRTEdge = RoleEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
     data CollRole = CollMbr | CollTitle | CollSeparator deriving(Show,Read,Eq,Ord)
 

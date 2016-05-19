@@ -86,7 +86,7 @@
     _showRel :: ViewProg -> SOLRT -> Depth -> Node -> String
     _showRel vp g d n =
       let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr))
-                              $ lsuc g n :: Map.Map DwtEdge (Maybe Node)
+                              $ lsuc g n :: Map.Map SOLRTEdge (Maybe Node)
             -- in a well-formed graph, any edge label emits
             -- from a given node at most once
           Just tpltAddr = -- todo ? case of missing Tplt
@@ -102,9 +102,9 @@
            (map (_showExpr vp g $ d-1) memberNodes)
            d
 
-    nullMbrMap :: Expr -> Map.Map DwtEdge (Maybe Node) 
+    nullMbrMap :: Expr -> Map.Map SOLRTEdge (Maybe Node) 
       -- in the result, each Maybe is Nothing, and
-        -- the DwtEdges run from (Mbr 1) to (Mbr arity)
+        -- the SOLRTEdges run from (Mbr 1) to (Mbr arity)
     nullMbrMap t@(Tplt _) =
       let arity = tpltArity t
           mns = replicate arity Nothing :: [Maybe Node]

@@ -8,7 +8,7 @@
     module Dwt.Graph
       (
         RelPos, Arity
-      , SOLRT, Expr(..), DwtEdge(..), RelRole(..), CollRole(..)
+      , SOLRT, Expr(..), SOLRTEdge(..), RelRole(..), CollRole(..)
       , MbrVar(..), MbConcreteMbr(..), RelVarSpec, RelNodeSpec, RelSpec
       , _splitStringForTplt, mkTplt
       , subInTplt, padTpltStrings, subInTpltWithDollars
@@ -39,17 +39,13 @@
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
 
-    type SOLRT = Gr Expr DwtEdge
-    data Expr = Str String | Fl Float -- Str, Fl, Tplt: leaves(graph, not tree)
+    type SOLRT = Gr Expr SOLRTEdge
+    data Expr = Str String | Fl Float -- Str, Fl, Tplt are leaves of the graph
               | Tplt [String] | Rel
               | Coll -- makes sets, lists simpler; not fully implemented
               | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
-    -- better?: data Expr = Whole Expr |.. where the 2nd Expr cannot be a Whole
-      -- could then limit views to Whole Exprs, thus avoiding the
-        -- after-the-$ false statement in "maybe $ no mouse is bald"
-      -- noobdy would encode "no mouse is bald" except on the way to some superexpression; it seems good then to indicate in the subexpression's type(constructor) that it is only implicit to a superexpression
 
-    data DwtEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
+    data SOLRTEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord)
     data CollRole = CollMbr | CollPrinciple deriving(Show,Read,Eq,Ord)
 
@@ -388,7 +384,7 @@
       gelemM g n
       return $ usersInRoleUsf g n r
 
-    usersInRoleUsf :: (Graph gr) => gr a DwtEdge -> Node -> RelRole -> [Node]
+    usersInRoleUsf :: (Graph gr) => gr a SOLRTEdge -> Node -> RelRole -> [Node]
     usersInRoleUsf g n r = [m | (m,r') <- lpre g n, r'==RelEdge r]
 
     matchRel :: SOLRT -> RelSpec -> Either String [Node]
