@@ -42,12 +42,14 @@
     type SOLRT = Gr Expr SOLRTEdge
     data Expr = Str String | Fl Float -- Str, Fl, Tplt are leaves of the graph
               | Tplt [String] | Rel
-              | Coll -- makes sets, lists simpler; not fully implemented
+              | Coll -- "Collection". Intended to make sets, lists simpler.
+                     -- Ignorable. Not fully implemented, and possibly unjustified.
               | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
 
     data SOLRTEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord)
     data CollRole = CollMbr | CollPrinciple deriving(Show,Read,Eq,Ord)
+      -- examples of CollPrinciples include "and" and "or"
 
   -- for (partially) specifying Rels
     data MbrVar = It | Any | Up | Down -- todo ? use omission instead of Any
