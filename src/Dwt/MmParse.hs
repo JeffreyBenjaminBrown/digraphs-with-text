@@ -76,7 +76,7 @@
 
     type DwtSpec = ( [MmNLab], [(Node,Node,MmELab)] ) -- (nodes,edges)
 
-    type DwtFrame = (Mindmap, Map.Map String Int)
+    type DwtFrame = (SOLRT, Map.Map String Int)
       -- TRICKY : the map is, I *believe*, from style strings to style nodes
         -- style strings being, e.g., "default" or "AutomaticLayout.level.root"
         -- and the mapped-to node being the one that represents that style
@@ -260,7 +260,7 @@
       where parent = head as
 
 -- DwtSpec -> _
-    frameNodes :: Mindmap -- no styles and no edges in this one
+    frameNodes :: SOLRT -- no styles and no edges in this one
     frameNodes = mkGraph [ (0, Str "root")
                            , (1, Str ".system")
                              , (2, Str ".mm rels")
@@ -286,7 +286,7 @@
     instanceNode = - (head $ node frameNodes $ mkTplt "_ instance/ _")
     usesFontNode = - (head $ node frameNodes $ mkTplt "_ uses font-> _")
 
-    frameSansStylesOrDirections :: Mindmap
+    frameSansStylesOrDirections :: SOLRT
     frameSansStylesOrDirections = f (Str "root") (Str ".system") 
       $ f (Str "root") (Str "rels")
       $ f (Str ".system") (Str "times")
@@ -303,7 +303,7 @@
       where conn = insRelUsf (-instanceNode)
             f a b = conn [head $ node frameNodes a, head $ node frameNodes b]
 
-    frameSansStyles :: Mindmap -- put a direction on the .mm/ relation
+    frameSansStyles :: SOLRT -- put a direction on the .mm/ relation
     frameSansStyles = fromRight $ insRelSpec r frameSansStylesOrDirections
       where r = Map.fromList 
                  [(RelTplt, NodeSpec $ head $ node frameNodes $ mkTplt "_ .mm/ _")
@@ -332,7 +332,7 @@
                                      mm (Map.elems mp)
                         return (mm',mp)
 
-    loadNodes :: (DwtSpec, DwtFrame) -> Either String Mindmap
+    loadNodes :: (DwtSpec, DwtFrame) -> Either String SOLRT
     loadNodes ( (ns,_), (mm, mp) ) =
       let noded = foldl (\mm n -> insNode (mmId n, Str $ text n) mm) mm ns
       in foldM (\mm n -> insRel (usesFontNode) 
@@ -342,14 +342,14 @@
                noded $ filter (Mb.isJust . style) ns
 
     -- todo: connect imported graph's root to frames root
-    loadEdges :: DwtSpec -> Mindmap -> Either String Mindmap
+    loadEdges :: DwtSpec -> SOLRT -> Either String SOLRT
     loadEdges (_,es) mm = foldM (\mm (from,to,kind)
                                    -> insRel (edgeNode kind) [from,to] mm
                                  ) mm es
 
 -- the final product
     -- WARNING: the file must have no hypertext tags
-    readMmFile :: String -> IO Mindmap
+    readMmFile :: String -> IO SOLRT
     readMmFile s = do -- todo: work with the Either, do not fight it
       mls <- mmToMlTags "untracked/data/agent.mm"
       let mls2 = collapseRich $ stripRichTags $ fromRight mls

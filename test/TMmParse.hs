@@ -86,4 +86,4 @@
       mls <- mmToMlTags "data/root+22ish.mm" -- again, needs styles
       let spec = fromRight $ dwtSpec $ fromRight mls
           fr = frame $ frameOrphanStyles spec :: Either String DwtFrame
-        in return $ (loadNodes (spec, fromRight fr) :: Either String Mindmap)
+        in return $ (loadNodes (spec, fromRight fr) :: Either String SOLRT)

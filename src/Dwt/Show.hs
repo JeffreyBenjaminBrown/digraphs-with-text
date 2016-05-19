@@ -33,10 +33,10 @@
                              }
 
 -- things _showExpr uses, maybe useful elsewhere -- TODO ? export|promote x-file
-    exprDepth :: Mindmap -> Node -> Depth -- TODO ? Use the [Node]
+    exprDepth :: SOLRT -> Node -> Depth -- TODO ? Use the [Node]
     exprDepth g n = fst $ _exprDepth g (0,[n]) (1,[]) []
 
-    _exprDepth :: Mindmap -> Gen -- this gen
+    _exprDepth :: SOLRT -> Gen -- this gen
                           -> Gen -- next gen
                           -> [Node] -- accum every node visited
                           -> (Depth,[Node]) -- depth + the accum
@@ -50,7 +50,7 @@
       _exprDepth (delNode n g) (d,ns) (d', newNodes ++ ns') (n:acc)
 
 -- _showExpr and things only it uses
-    _showExpr :: ViewProg -> Mindmap -> Depth -> Maybe Node -> String
+    _showExpr :: ViewProg -> SOLRT -> Depth -> Maybe Node -> String
     _showExpr vp g d Nothing = "#absent_node#"
     _showExpr vp g d (Just n) = 
       let show_maybe_node mn = _showExpr vp g (d+1) mn
@@ -83,7 +83,7 @@
 
           Just (Rel) -> _showRel vp g d n
 
-    _showRel :: ViewProg -> Mindmap -> Depth -> Node -> String
+    _showRel :: ViewProg -> SOLRT -> Depth -> Node -> String
     _showRel vp g d n =
       let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr))
                               $ lsuc g n :: Map.Map DwtEdge (Maybe Node)
@@ -121,13 +121,13 @@
     prefixerTerse = Prefixer {_str=f, _tplt=f, _coll=f, _rel = \a b ->""}
       where f = const ""
 
-    showExpr :: Mindmap -> Node -> String
+    showExpr :: SOLRT -> Node -> String
     showExpr g n = _showExpr vp g d (Just n)
       where d = exprDepth g n
             vp = ViewProg { vpPrefixer = prefixerDefault
                           , vpShowFiats = Map.empty }
 
-    showExprT :: Mindmap -> Node -> String -- terse, no addresses
+    showExprT :: SOLRT -> Node -> String -- terse, no addresses
     showExprT g n = _showExpr vp g d (Just n)
       where d = exprDepth g n
             vp = ViewProg { vpPrefixer = prefixerDefault
@@ -135,17 +135,17 @@
 
     -- TODO NEXT: count clarifications
 
-    v :: Mindmap -> [Node] -> IO ()
+    v :: SOLRT -> [Node] -> IO ()
     v g ns = mapM_ putStrLn $ map f ns
       where f n = show $ (fromRight $ length <$> users g n -- emul: counts users
                          , showExpr g n)
 
-    vt :: Mindmap -> [Node] -> IO () -- terse; no countUsers, no addresses
+    vt :: SOLRT -> [Node] -> IO () -- terse; no countUsers, no addresses
     vt g ns = mapM_ putStrLn $ map (showExprT g) ns
 
 -- mostly unused
     bracket :: String -> String -- unused, but a useful pair of characters
     bracket s = "\171" ++ s ++ "\187" -- = «s»
 
-    showRaw :: Mindmap -> IO ()
+    showRaw :: SOLRT -> IO ()
     showRaw g = putStr $ graphToText g

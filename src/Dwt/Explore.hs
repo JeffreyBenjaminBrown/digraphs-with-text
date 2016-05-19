@@ -13,7 +13,7 @@
                      )
 
 -- io loop
-    loop :: Mindmap -> IO Int
+    loop :: SOLRT -> IO Int
     loop g = do
         putStrLn "type an integer\n"
         line <- getLine

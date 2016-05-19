@@ -4,7 +4,7 @@
 
 --
   gf <- readFile filename
-  let g = read gf :: Mindmap
+  let g = read gf :: SOLRT
 
 -- ! DESTRUCTIVE !
   g <- p $ insStr _ g
@@ -17,7 +17,7 @@
 
 -- load
   gf <- readFile "data/agent.dwt"
-  let g = read gf :: Mindmap
+  let g = read gf :: SOLRT
 
 -- save
   writeFile filename $ graphToText g
@@ -31,4 +31,4 @@
   -- with redundant Arities
     let fr = frame $ frameOrphanStyles spec :: Either String DwtFrame
     let fWithNodes = fromRight $ loadNodes (spec, fromRight fr)
-    let g = compressGraph $ fromRight $ loadEdges spec fWithNodes :: Mindmap
+    let g = compressGraph $ fromRight $ loadEdges spec fWithNodes :: SOLRT
