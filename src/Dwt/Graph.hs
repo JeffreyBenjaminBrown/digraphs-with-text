@@ -40,10 +40,10 @@
     type Arity = Int
 
     type RSLT = Gr Expr RSLTEdge
-    data Expr = Str String | Fl Float -- Str, Fl, Tplt are leaves of the graph
-              | Tplt [String] | Rel
+    data Expr = Str String | Fl Float | Tplt [String] -- leaves of the graph
+              | Rel  -- the LTs (labeled tuples) in an RSLT
               | Coll -- "Collection". Intended to make sets, lists simpler.
-                     -- Ignorable. Not fully implemented, and possibly unjustified.
+                     -- Ignorable, incomplete, possibly unjustified.
               | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
 
     data RSLTEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
