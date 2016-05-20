@@ -14,7 +14,7 @@
     import Data.Maybe as Mb
 
     -- see also
-    -- Graph.node :: SOLRT -> Expr -> [Node] -- hopefully length = 1
+    -- Graph.node :: RSLT -> Expr -> [Node] -- hopefully length = 1
 
     -- queries
     data QNode = QNode Node -- when you already know the Node
@@ -30,7 +30,7 @@
     edgeless :: Gr a b -> Gr a b -- ? faster or slower
     edgeless = gmap (\(_,b,c,_) -> ([], b, c, []))
 
-    qGet :: SOLRT -> QNode -> Either String Node
+    qGet :: RSLT -> QNode -> Either String Node
     qGet g (QNode n) = gelemM g n >> Right n
     qGet g (QStr s) = do
       let ns = nodes $ labfilter (\n -> case n of Str t -> s==t; _ -> False)
@@ -43,7 +43,7 @@
       lengthOne ns
       Right $ head ns
 
-    qRegexStr :: SOLRT -> String -> Either String [Node]
+    qRegexStr :: RSLT -> String -> Either String [Node]
     qRegexStr g s = do
       let r = mkRegex s
       let ns = nodes $ labfilter 
@@ -52,7 +52,7 @@
                        $ edgeless g
       Right ns
 
-    qInsRel :: QNode -> [QNode] -> SOLRT -> Either String SOLRT
+    qInsRel :: QNode -> [QNode] -> RSLT -> Either String RSLT
     qInsRel qtn qns g = do
       tn <- qGet g qtn 
       ns <- mapM (qGet g) qns

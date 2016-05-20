@@ -8,7 +8,7 @@
     import qualified Data.Map as Map
 
 -- exports
-    g1,g1Alt :: SOLRT
+    g1,g1Alt :: RSLT
 
     g1 = let mbr = RelEdge . Mbr
              tplt = RelEdge RelTplt
@@ -42,7 +42,7 @@
           $ insRelUsf 2 [0,3]   $ insRelUsf 1 [0,4]
           $ insStr"brandy"      $ insStr"water"
           $ insTplt"_ needs _"  $ insTplt"_ wants _"
-          $ insStr"dog"         $ empty :: SOLRT
+          $ insStr"dog"         $ empty :: RSLT
 
     tRelSpec = Map.fromList [ (RelTplt, VarSpec It)
                            , (Mbr 1,   NodeSpec 0)

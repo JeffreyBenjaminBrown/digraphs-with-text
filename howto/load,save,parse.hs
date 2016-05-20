@@ -4,7 +4,7 @@
 
 --
   gf <- readFile filename
-  let g = read gf :: SOLRT
+  let g = read gf :: RSLT
 
 -- ! DESTRUCTIVE !
   g <- p $ insStr _ g
@@ -17,7 +17,7 @@
 
 -- load
   gf <- readFile "data/agent.dwt"
-  let g = read gf :: SOLRT
+  let g = read gf :: RSLT
 
 -- save
   writeFile filename $ graphToText g
@@ -31,4 +31,4 @@
   -- with redundant Arities
     let fr = frame $ frameOrphanStyles spec :: Either String DwtFrame
     let fWithNodes = fromRight $ loadNodes (spec, fromRight fr)
-    let g = compressGraph $ fromRight $ loadEdges spec fWithNodes :: SOLRT
+    let g = compressGraph $ fromRight $ loadEdges spec fWithNodes :: RSLT

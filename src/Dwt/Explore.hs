@@ -13,7 +13,7 @@
                      )
 
 -- io loop
-    loop :: SOLRT -> IO Int
+    loop :: RSLT -> IO Int
     loop g = do
         putStrLn "type an integer\n"
         line <- getLine

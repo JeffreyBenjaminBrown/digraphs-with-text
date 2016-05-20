@@ -5,4 +5,4 @@ So I made a direction:
     (Mbr 1,VarSpec Up),
     (Mbr 2,VarSpec Down)]
 And added it:
-  g <- p $ fr $ (insRelSpec r g :: Either String SOLRT)
+  g <- p $ fr $ (insRelSpec r g :: Either String RSLT)

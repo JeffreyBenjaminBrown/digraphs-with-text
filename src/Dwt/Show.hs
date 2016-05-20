@@ -33,10 +33,10 @@
                              }
 
 -- things _showExpr uses, maybe useful elsewhere -- TODO ? export|promote x-file
-    exprDepth :: SOLRT -> Node -> Depth -- TODO ? Use the [Node]
+    exprDepth :: RSLT -> Node -> Depth -- TODO ? Use the [Node]
     exprDepth g n = fst $ _exprDepth g (0,[n]) (1,[]) []
 
-    _exprDepth :: SOLRT -> Gen -- this gen
+    _exprDepth :: RSLT -> Gen -- this gen
                           -> Gen -- next gen
                           -> [Node] -- accum every node visited
                           -> (Depth,[Node]) -- depth + the accum
@@ -50,7 +50,7 @@
       _exprDepth (delNode n g) (d,ns) (d', newNodes ++ ns') (n:acc)
 
 -- _showExpr and things only it uses
-    _showExpr :: ViewProg -> SOLRT -> Depth -> Maybe Node -> String
+    _showExpr :: ViewProg -> RSLT -> Depth -> Maybe Node -> String
     _showExpr vp g d Nothing = "#absent_node#"
     _showExpr vp g d (Just n) = 
       let show_maybe_node mn = _showExpr vp g (d+1) mn
@@ -83,10 +83,10 @@
 
           Just (Rel) -> _showRel vp g d n
 
-    _showRel :: ViewProg -> SOLRT -> Depth -> Node -> String
+    _showRel :: ViewProg -> RSLT -> Depth -> Node -> String
     _showRel vp g d n =
       let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr))
-                              $ lsuc g n :: Map.Map SOLRTEdge (Maybe Node)
+                              $ lsuc g n :: Map.Map RSLTEdge (Maybe Node)
             -- in a well-formed graph, any edge label emits
             -- from a given node at most once
           Just tpltAddr = -- todo ? case of missing Tplt
@@ -102,9 +102,9 @@
            (map (_showExpr vp g $ d-1) memberNodes)
            d
 
-    nullMbrMap :: Expr -> Map.Map SOLRTEdge (Maybe Node) 
+    nullMbrMap :: Expr -> Map.Map RSLTEdge (Maybe Node) 
       -- in the result, each Maybe is Nothing, and
-        -- the SOLRTEdges run from (Mbr 1) to (Mbr arity)
+        -- the RSLTEdges run from (Mbr 1) to (Mbr arity)
     nullMbrMap t@(Tplt _) =
       let arity = tpltArity t
           mns = replicate arity Nothing :: [Maybe Node]
@@ -121,13 +121,13 @@
     prefixerTerse = Prefixer {_str=f, _tplt=f, _coll=f, _rel = \a b ->""}
       where f = const ""
 
-    showExpr :: SOLRT -> Node -> String
+    showExpr :: RSLT -> Node -> String
     showExpr g n = _showExpr vp g d (Just n)
       where d = exprDepth g n
             vp = ViewProg { vpPrefixer = prefixerDefault
                           , vpShowFiats = Map.empty }
 
-    showExprT :: SOLRT -> Node -> String -- terse, no addresses
+    showExprT :: RSLT -> Node -> String -- terse, no addresses
     showExprT g n = _showExpr vp g d (Just n)
       where d = exprDepth g n
             vp = ViewProg { vpPrefixer = prefixerDefault
@@ -135,17 +135,17 @@
 
     -- TODO NEXT: count clarifications
 
-    v :: SOLRT -> [Node] -> IO ()
+    v :: RSLT -> [Node] -> IO ()
     v g ns = mapM_ putStrLn $ map f ns
       where f n = show $ (fromRight $ length <$> users g n -- emul: counts users
                          , showExpr g n)
 
-    vt :: SOLRT -> [Node] -> IO () -- terse; no countUsers, no addresses
+    vt :: RSLT -> [Node] -> IO () -- terse; no countUsers, no addresses
     vt g ns = mapM_ putStrLn $ map (showExprT g) ns
 
 -- mostly unused
     bracket :: String -> String -- unused, but a useful pair of characters
     bracket s = "\171" ++ s ++ "\187" -- = «s»
 
-    showRaw :: SOLRT -> IO ()
+    showRaw :: RSLT -> IO ()
     showRaw g = putStr $ graphToText g
