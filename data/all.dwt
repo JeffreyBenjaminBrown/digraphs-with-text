@@ -1,8 +1,40 @@
 mkGraph [
-(0,Tplt ["","subproc/",""]),
 (1,Str "cosmology"),
 (2,Str "inference"),
-(3,Rel)
+(4,Tplt ["","is a",""]),
+(5,Tplt ["kind of",""]),
+(8,Tplt ["","is a kind of",""]),
+(9,Rel),
+(10,Tplt ["","do that to",""]),
+(11,Str "discard"),
+(12,Str "data"),
+(13,Str "unpleasant"),
+(14,Tplt ["","that is",""]),
+(15,Rel),
+(16,Rel),
+(17,Tplt ["","produces",""]),
+(18,Str "bias"),
+(19,Rel),
+(20,Str "or"),
+(21,Str "fun"),
+(22,Tplt ["","is",""]),
+(23,Rel),
+(24,Rel),
+(25,Rel),
+(26,Rel),
+(27,Str "practical"),
+(28,Rel),
+(29,Str "interesting"),
+(30,Coll)
 ][
-(3,0,RelEdge RelTplt),(3,2,RelEdge (Mbr 1)),(3,1,RelEdge (Mbr 2))
+(30,20,CollEdge CollPrinciple),(30,29,CollEdge CollMbr),(30,21,CollEdge CollMbr),
+(28,22,RelEdge RelTplt),(28,2,RelEdge (Mbr 1)),(28,27,RelEdge (Mbr 2)),
+(26,22,RelEdge RelTplt),(26,2,RelEdge (Mbr 1)),(26,21,RelEdge (Mbr 2)),
+(25,22,RelEdge RelTplt),(25,1,RelEdge (Mbr 1)),(25,21,RelEdge (Mbr 2)),
+(24,22,RelEdge RelTplt),(24,12,RelEdge (Mbr 1)),(24,21,RelEdge (Mbr 2)),
+(23,22,RelEdge RelTplt),(23,18,RelEdge (Mbr 1)),(23,21,RelEdge (Mbr 2)),
+(19,17,RelEdge RelTplt),(19,16,RelEdge (Mbr 1)),(19,18,RelEdge (Mbr 2)),
+(16,10,RelEdge RelTplt),(16,11,RelEdge (Mbr 1)),(16,15,RelEdge (Mbr 2)),
+(15,14,RelEdge RelTplt),(15,12,RelEdge (Mbr 1)),(15,13,RelEdge (Mbr 2)),
+(9,8,RelEdge RelTplt),(9,2,RelEdge (Mbr 1)),(9,1,RelEdge (Mbr 2))
 ]
