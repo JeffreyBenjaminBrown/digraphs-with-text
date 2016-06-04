@@ -39,19 +39,28 @@
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
     type Arity = Int
 
-    type RSLT = Gr Expr RSLTEdge
-    data Expr = Str String | Fl Float | Tplt [String] -- leaves of the graph
-              | Rel  -- the LTs (labeled tuples) in an RSLT
-              | Coll -- "Collection". Intended to make sets, lists simpler.
-                     -- Ignorable, incomplete, possibly unjustified.
-              | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
+    type RSLT = Gr Expr RSLTEdge -- Recursive Set of Labeled Tuples
+    data Expr = Str String | Fl Float -- 
+              | Rel  -- labeled tuple (LT), like "[cats] need [sun]"
+              | Tplt [String] -- template for a labeled tuple, like "_ did _ to _"
+                -- TODO: generalize Tplt [String] to Tplt [Expr]
+              | Coll -- "Collection". Makes sets and lists easier to encode.
+                -- In a well-formed graph, every Coll has a CollPrinciple.
+                -- Examples of CollPrinciples are "and" and "or".
+                -- The Coll is particularly helpful for "or"; without it,
+                -- "cats need [water or batteries or ..]" is surprisingly costly to encode.
+              | RelSpecExpr RelVarSpec -- for partially specifying Rels
+              deriving(Show,Read,Eq,Ord)
 
     data RSLTEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
+      -- anything can receive edges (be a member of a superexpression)
+      -- but only Rels and Colls emit edges (have subexpressions).
     data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord)
-    data CollRole = CollMbr | CollPrinciple deriving(Show,Read,Eq,Ord)
-      -- examples of CollPrinciples include "and" and "or"
+      -- the kind of edge emitted by a Rel. each emits exactly one RelTplt.
+    data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
+      -- the kind of edge emitted by a Coll. each emits exactly one CollPrinciple.
 
-  -- for (partially) specifying Rels
+  -- for RelSpec
     data MbrVar = It | Any | Up | Down -- todo ? use omission instead of Any
       -- name ? MbrShip
       deriving (Show,Read,Eq,Ord)
