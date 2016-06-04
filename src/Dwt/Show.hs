@@ -63,7 +63,10 @@
           Just (Fl f)   -> (_str $ vpPrefixer vp) n ++ show f
           Just t@(Tplt ts) -> (_tplt $ vpPrefixer vp) n ++
             (subInTplt t $ replicate (tpltArity t) "_")
-          Just (Coll)    -> (_coll $ vpPrefixer vp) n ++ "TODO: use name" ++ ": "
+          Just (Coll)    -> (_coll $ vpPrefixer vp) n
+            ++ (show_maybe_node . Just . head)
+                 [m | (m,CollEdge CollPrinciple) <- lsuc g n]
+            ++ ": "
             ++ ( intercalate ", "
                $ map (show_maybe_node . Just) 
                      [m | (m,CollEdge CollMbr) <- lsuc g n] )
