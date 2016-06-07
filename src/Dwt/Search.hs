@@ -43,7 +43,7 @@
       lengthOne ns
       Right $ head ns
 
-    qRegexStr :: RSLT -> String -> Either String [Node]
+    qRegexStr :: RSLT -> String -> Either String [Node] -- why Either?
     qRegexStr g s = do
       let r = mkRegex s
       let ns = nodes $ labfilter 

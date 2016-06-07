@@ -36,8 +36,8 @@
     import Data.Text (splitOn, pack, unpack, strip)
 
 -- types
+    type Arity = Int -- tuples have Arity: pairs have arity 2, triples arity 3 ..
     type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
-    type Arity = Int
 
     type RSLT = Gr Expr RSLTEdge -- Recursive Set of Labeled Tuples
     data Expr = Str String | Fl Float -- 
