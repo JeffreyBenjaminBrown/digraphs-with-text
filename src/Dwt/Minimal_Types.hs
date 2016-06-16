@@ -1,4 +1,6 @@
 -- This file is for illustration purposes only; it is not part of the codebase.
+-- Once this makes sense to you,
+  -- the natural place to start reading the codebase is at Graph.hs.
 
 import Data.Graph.Inductive
 
