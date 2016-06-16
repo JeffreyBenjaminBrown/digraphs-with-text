@@ -1,5 +1,5 @@
 -- This file is for illustration purposes only; it is not part of the codebase.
--- Once this makes sense to you,
+-- Once this file makes sense to you,
   -- the natural place to start reading the codebase is at Graph.hs.
 
 import Data.Graph.Inductive
@@ -13,7 +13,7 @@ type RSLT = Gr Expr RSLTEdge -- Recursive Set of Labeled Tuples
 
 data Expr = Str String
           | Rel  -- labeled tuple (LT), like "[cats] need [sun]"
-          | Tplt [String] -- template for a labeled tuple, like "_ did _ to _"
+          | Tplt [String] -- template for a labeled tuple, like "_ need _"
 
 data RSLTEdge = RelTplt | Mbr RelPos -- !Not every possible edge is valid!
   -- Rule 1: any Expr can receive an edge (be a member of a superexpression),
