@@ -1,3 +1,5 @@
+-- This is Haskell code, designed to be evaluated in a Haskell interpreter such as GHCI.
+
 -- Data Set 1:
 --     Mildred is a person.
 --     Mildred has stable angina.

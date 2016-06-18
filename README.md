@@ -1,22 +1,7 @@
-# What is Dwt?
+The folder "introduction" contains three or four great places to start.
 
-Dwt is an editor for hypergraphs with text on them. Everything I am aware of can be represented as a hypergraph -- tables, lists|arrays|tuples, graphs, dictionaries, bitmapped imagines ...
+You might try the [paper](/introduction/the_rslt,_why_and_how/it.pdf), which explains what the RSLT is and why it is helpful.
 
-In Dwt an expression (Expr) can be a string of text (Str), a template for a k-ary relationship (Tplt k), or a k-ary relationship (Rel k). The elements of Rels are other Exprs.
+There is an [interactive demonstration](/introduction/demo.hs  of how the RSLT represents data. The [howto](/howto) folder shows how to do other things, such as parse a Freeplane .mm file or search along branches.
 
-The file data/minimalGraph.hs, 10 lines long, contains an example graph. It demonstrates both the meaning of those three Expr constructors and how Dwt uses FGL, the Functional Graph Library, to implement hypergraphs. (Thanks to Elliot Cameron for that and many other suggestions.)
-
-# Glossary of Abbreviations
-
-*  ch = change
-*  ins = insert
-*  lab = label
-*  mbr = member
-In a a k-ary Rel, there are k AsPos Roles for k member Exprs, 
-plus one more AsTplt Role for the Tplt (which must be k-ary).
-*  pos = position
-*  rel = relationship
-*  sep = separator, for instance ","
-*  sub = substitute
-*  tplt = (relationship) template
-*  usf = unsafe
+If you are interested in the code itself, the [simplified model](/introduction/Minimal_Types.hs) of the type system is a good place to start. A harder but still plausible place to start would be [Graph.hs](/src/Dwt/Graph.hs).
