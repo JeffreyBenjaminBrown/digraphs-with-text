@@ -133,18 +133,17 @@
     showExprT :: RSLT -> Node -> String -- terse, no addresses
     showExprT g n = _showExpr vp g d (Just n)
       where d = exprDepth g n
-            vp = ViewProg { vpPrefixer = prefixerDefault
+            vp = ViewProg { vpPrefixer = prefixerTerse
                           , vpShowFiats = Map.empty }
-
-    -- TODO NEXT: count clarifications
 
     v :: RSLT -> [Node] -> IO ()
     v g ns = mapM_ putStrLn $ map f ns
       where f n = show $ (fromRight $ length <$> users g n -- emul: counts users
                          , showExpr g n)
 
-    vt :: RSLT -> [Node] -> IO () -- terse; no countUsers, no addresses
-    vt g ns = mapM_ putStrLn $ map (showExprT g) ns
+    view :: RSLT -> [Node] -> IO () -- terse: no inner addresses, no neighborhoods
+    view g ns = mapM_ putStrLn $ map f ns
+      where f n = show $ (n, showExprT g n)
 
 -- mostly unused
     bracket :: String -> String -- unused, but a useful pair of characters

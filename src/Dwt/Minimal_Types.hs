@@ -1,6 +1,6 @@
--- This file is for illustration purposes only; it is not part of the codebase.
 -- Once this file makes sense to you,
   -- the natural place to start reading the codebase is at Graph.hs.
+-- This file is for illustration purposes only; it is not part of the codebase.
 
 import Data.Graph.Inductive
 
@@ -11,7 +11,7 @@ type RSLT = Gr Expr RSLTEdge -- Recursive Set of Labeled Tuples
   -- Read this as "a graph (Gr) in which
   -- each node is an Expr and each edge is an RSLTEdge"
 
-data Expr = Str String
+data Expr = Word String
           | Rel  -- labeled tuple (LT), like "[cats] need [sun]"
           | Tplt [String] -- template for a labeled tuple, like "_ need _"
 
