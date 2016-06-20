@@ -1,0 +1,6 @@
+source: https://askubuntu.com/questions/50170/how-to-convert-pdf-to-image/604639
+
+I meant to do this:
+    convert -density 300 input.pdf -quality 90 output.png
+
+I forgot to use the -quality flag. It does not seem to have hurt.
