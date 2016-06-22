@@ -1,23 +1,35 @@
 -- Once this file makes sense to you,
-  -- the natural place to start reading the codebase is at Graph.hs.
+  -- the natural place to begin reading the codebase is at src/Dwt/Graph.hs.
 -- This file is for illustration purposes only; it is not part of the codebase.
 
-import Data.Graph.Inductive
+import Data.Graph.Inductive -- import code for working with graphs
 
-type Arity = Int -- tuples have Arity: pairs have arity 2, triples arity 3 ..
-type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
+-- Define some synonyms for "integer":
+type Arity = Int -- Tuples have "arity": pairs have arity 2, triples arity 3, etc.
+type RelPos = Int -- a position in a relationship
+  -- The k members of a k-ary Rel take RelPos values 1 through k.
 
-type RSLT = Gr Expr RSLTEdge -- Recursive Set of Labeled Tuples
-  -- Read this as "a graph (Gr) in which
-  -- each node is an Expr and each edge is an RSLTEdge"
+type RSLT = Gr Expr RSLTEdge -- This says "the RSLT is a Graph in which
+  -- each node is an Expr(ession)
+  -- and each edge is a RSLTEdge."
 
+-- An Expr can be one of three things:
 data Expr = Word String
-          | Rel  -- labeled tuple (LT), like "[cats] need [sun]"
-          | Tplt [String] -- template for a labeled tuple, like "_ need _"
+          | Rel  -- labeled tuple, like "[cats] need [sun]"
+          | Tempalte [String] -- template for a labeled tuple, like "_ need _"
+  -- A k-ary Template (that is, a Tempalte for a relationship with k members)
+    -- must contain k+1 Strings. For instance, the binary Template
+    -- "I need _ to _ by tomorrow" uses the three labels
+    -- "I need", "to" and "by tomorrow".
+  -- While Words and Templates contain String information, a Rel contains no information at all. Rels are meaningful only because of the edges it emits.
 
-data RSLTEdge = RelTplt | Mbr RelPos -- !Not every possible edge is valid!
-  -- Rule 1: any Expr can receive an edge (be a member of a superexpression),
+-- A RSLTEdge can be one of two things:
+data RSLTEdge = RelTemplate | Member RelPos
+-- Not every possible edge is valid.
+  -- Rule 1: Any Expr can receive an edge (be a member of a superexpression),
     -- but only Rels emit edges (have subexpressions).
-  -- Rule 2: Each k-ary Rel emits exactly one RelTplt edge and k Mbr edges
-    -- with the Mbr edges labeled 1 through k
-  --These rules are not reified; respecting them is the coder's responsibility.
+  -- Rule 2: Each k-ary Rel emits one RelTemplate edge, toward a k-ary Template.
+  -- Rule 3: Each k-ary Rel emits k Member edges, one to each of its k Members. 
+    -- Each Member edge is labeled with a RelPos values from 1 to k,
+    -- indicating that Member's position in the Template.
+  -- These rules are not reified; respecting them is the coder's responsibility.
