@@ -46,7 +46,7 @@ Table of Contents (eventually this format is Haskell)
     In Freeplane, I see the node with this text
         = already big enough to sort within
     is gold.
-    > labfilter (== Str "= already big enough to sort within") g
+    > labfilter (== Word "= already big enough to sort within") g
       1182
     > view g $ pre g 1182
       1526:24 [1182: = already big enough to sort within] uses font-> [7: AutomaticLayout.level,2]

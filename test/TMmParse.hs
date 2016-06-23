@@ -9,18 +9,18 @@
                         ]
 
 -- parse .mm(the xml format)
-    tParseMmXml = TestList [ TestLabel "tMmStr" tMmStr
+    tParseMmXml = TestList [ TestLabel "tMmWord" tMmWord
                            , TestLabel "tWord" tWord
                            , TestLabel "tComment" tComment
                            , TestLabel "tKeyValPair" tKeyValPair
                            , TestLabel "tStrip" tStrip
                            , TestLabel "tMlTag" tMlTag]
 
-    tMmStr = TestCase $ do
-      assertBool "mmStr" $ eParse2 mmStr "\"aygaw\"bbbb"
+    tMmWord = TestCase $ do
+      assertBool "mmWord" $ eParse2 mmWord "\"aygaw\"bbbb"
         == Right ("aygaw","bbbb")
       assertBool "the escape characters"
-        $ eParse2 mmStr "\"&lt;&amp;&gt;  &apos;&quot;&#xa;\"111"
+        $ eParse2 mmWord "\"&lt;&amp;&gt;  &apos;&quot;&#xa;\"111"
         == Right ("<&>  '\"\n","111")
 
     tWord = TestCase $ do

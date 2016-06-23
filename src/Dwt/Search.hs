@@ -18,7 +18,7 @@
 
     -- queries
     data QNode = QNode Node -- when you already know the Node
-      | QStr String | QTplt [String] -- when you don't but you know its contents
+      | QWord String | QTplt [String] -- when you don't but you know its contents
       | QRel QNode [QNode] -- todo ? use
       deriving (Show, Eq)
 
@@ -32,8 +32,8 @@
 
     qGet :: RSLT -> QNode -> Either String Node
     qGet g (QNode n) = gelemM g n >> Right n
-    qGet g (QStr s) = do
-      let ns = nodes $ labfilter (\n -> case n of Str t -> s==t; _ -> False)
+    qGet g (QWord s) = do
+      let ns = nodes $ labfilter (\n -> case n of Word t -> s==t; _ -> False)
                $ edgeless g
       lengthOne ns
       Right $ head ns
@@ -43,11 +43,11 @@
       lengthOne ns
       Right $ head ns
 
-    qRegexStr :: RSLT -> String -> Either String [Node] -- why Either?
-    qRegexStr g s = do
+    qRegexWord :: RSLT -> String -> Either String [Node] -- why Either?
+    qRegexWord g s = do
       let r = mkRegex s
       let ns = nodes $ labfilter 
-                       (\lab -> case lab of Str t -> Mb.isJust $ matchRegex r t;
+                       (\lab -> case lab of Word t -> Mb.isJust $ matchRegex r t;
                                             _ -> False)
                        $ edgeless g
       Right ns

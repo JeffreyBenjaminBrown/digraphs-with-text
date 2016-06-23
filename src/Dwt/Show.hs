@@ -22,7 +22,7 @@
       -- todo ! use for shorthand like It
 
     data Prefixer = Prefixer {
-        _str :: (Node -> String) -- Str|Fl -> String
+        _str :: (Node -> String) -- Word|Fl -> String
       , _tplt :: (Node -> String)
       , _rel :: (Node -> Node -> String) -- Rel -> Tplt -> String
       , _coll :: (Node -> String)
@@ -59,7 +59,7 @@
         Just s -> s
         Nothing -> case lab g n of
           Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
-          Just (Str s)   -> (_str $ vpPrefixer vp) n ++ s
+          Just (Word s)   -> (_str $ vpPrefixer vp) n ++ s
           Just (Fl f)   -> (_str $ vpPrefixer vp) n ++ show f
           Just t@(Tplt ts) -> (_tplt $ vpPrefixer vp) n ++
             (subInTplt t $ replicate (tpltArity t) "_")
@@ -115,11 +115,11 @@
       in Map.fromList $ zip es mns
 
 -- things using _showExpr
-    prefixerDefault = Prefixer { _str = colStrFunc
+    prefixerDefault = Prefixer { _str = colWordFunc
                         , _tplt = \n -> ":" ++ show n ++ " "
                         , _rel = \n tn -> show n ++ ":" ++ show tn ++ " "
-                        , _coll = colStrFunc } where
-      colStrFunc = \n -> show n ++ ": "
+                        , _coll = colWordFunc } where
+      colWordFunc = \n -> show n ++ ": "
 
     prefixerTerse = Prefixer {_str=f, _tplt=f, _coll=f, _rel = \a b ->""}
       where f = const ""

@@ -7,7 +7,7 @@
   let g = read gf :: RSLT
 
 -- ! DESTRUCTIVE !
-  g <- p $ insStr _ g
+  g <- p $ insWord _ g
   g <- p $ fr $ (insRel 2 [4,3] g :: EM)
   putStrLn $ graphToText g
 

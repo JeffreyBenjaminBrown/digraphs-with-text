@@ -14,10 +14,10 @@
       , subInTplt, padTpltStrings, subInTpltWithDollars
       , tpltArity, nodesMatchTplt
       , replaceUsf, insLeaf, insRel, insRelUsf, insColl
-        , insStr, insTplt, insFl -- deprec ? insLeaf generalizes these
+        , insWord, insTplt, insFl -- deprec ? insLeaf generalizes these
         , partitionRelSpec, insRelSpec, relNodeSpec, relSpec
       , chNonUser, chNonUserUsf, chRelRole
-      , gelemM, hasLEdgeM, isStr, isStrM, isTplt, isTpltM, isFl, isFlM
+      , gelemM, hasLEdgeM, isWord, isWordM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , node, tpltAt, relElts, validRole, relTplt, collPrinciple
       , rels, mbrs, users, usersInRole, usersInRoleUsf
@@ -40,7 +40,7 @@
     type MbrPos = Int -- the k members of a k-ary Rel take MbrPos values [1..k]
 
     type RSLT = Gr Expr RSLTEdge -- Recursive Set of Labeled Tuples
-    data Expr = Str String | Fl Float -- 
+    data Expr = Word String | Fl Float -- 
               | Rel  -- labeled tuple (LT), like "[cats] need [sun]"
               | Tplt [String] -- template for a labeled tuple, like "_ did _ to _"
                 -- TODO: generalize Tplt [String] to Tplt [Expr]
@@ -140,8 +140,8 @@
         where [newAddr] = newNodes 1 g
       False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
 
-    insStr :: String -> RSLT -> RSLT
-    insStr str g = insLeaf (Str str) g
+    insWord :: String -> RSLT -> RSLT
+    insWord str g = insLeaf (Word str) g
 
     insTplt :: String -> RSLT -> RSLT
     insTplt s g = insLeaf (mkTplt s) g
@@ -171,7 +171,7 @@
           then error "insRelUsf: One of those Nodes is not in the RSLT."
         else f (zip ns [1..ta]) g'
       where te@(Tplt ts) = fromJust $ lab g t -- can also error:
-              -- by finding Str or Rel where expected Tplt
+              -- by finding Word or Rel where expected Tplt
             ta = tpltArity te
             newNode = head $ newNodes 1 g
             f []     g = g
@@ -234,12 +234,12 @@
 
   -- edit (but not insert)
     chNonUser :: (MonadError String m) => RSLT -> Node -> Expr -> m RSLT
-      -- Strs and Tplts are used, but are not users. (Rels and Colls use them.)
+      -- Words and Tplts are used, but are not users. (Rels and Colls use them.)
     chNonUser g n e' = do
       let me = lab g n
       let mismatch = throwError $ "chNonUser: constructor mismatch"
       case me of
-        Just e@(Str _)  -> if areLikeExprs e e' then return () else mismatch
+        Just e@(Word _)  -> if areLikeExprs e e' then return () else mismatch
         Just e@(Tplt _) -> if areLikeExprs e e' then return () else mismatch
         Nothing -> throwError $ "chNonUser: Node " ++ show n ++ " absent."
         _       -> throwError $ "chNonUser: Node " ++ show n ++ " is a user."
@@ -284,11 +284,11 @@
                                         False -> throwError $ "is not"
       where mExpr = lab g n
 
-    isStr :: Expr -> Bool
-    isStr x = case x of Str _ -> True; _ -> False
+    isWord :: Expr -> Bool
+    isWord x = case x of Word _ -> True; _ -> False
 
-    isStrM :: (MonadError String m) => RSLT -> Node -> m ()
-    isStrM = _isExprMConstructor isStr
+    isWordM :: (MonadError String m) => RSLT -> Node -> m ()
+    isWordM = _isExprMConstructor isWord
 
     isTplt :: Expr -> Bool
     isTplt x = case x of Tplt _ -> True; _ -> False
@@ -315,14 +315,14 @@
     isCollM = _isExprMConstructor isColl
 
     isLeaf :: Expr -> Bool -- todo ? make Leaf an Expr constructor
-    isLeaf (Str _) = True
+    isLeaf (Word _) = True
     isLeaf (Fl _) = True
     isLeaf (Tplt _) = True
     isLeaf _ = False
 
     areLikeExprs :: Expr -> Expr -> Bool
     areLikeExprs e f = case e of
-      Str _  ->  case f of Str  _ -> True;  _ -> False
+      Word _  ->  case f of Word  _ -> True;  _ -> False
       Tplt _ ->  case f of Tplt _ -> True;  _ -> False
       Rel    ->  case f of Rel    -> True;  _ -> False
       Coll   ->  case f of Coll   -> True;  _ -> False

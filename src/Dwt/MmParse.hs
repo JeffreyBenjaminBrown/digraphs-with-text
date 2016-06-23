@@ -24,7 +24,7 @@
 --          , parseWithEof, eParse, eParse2
 --        -- parsing the .mm format
 --          -- elements of the mlTag parser
---            , lexeme, mmEscapedChar, mmStr, word, keyValPair
+--            , lexeme, mmEscapedChar, mmWord, word, keyValPair
 --          -- tags and comments
 --            , richText, mlTag, comment, strip, stripRichTags, mlTags
 --        -- functions of type (Functor f => f MlTag -> _), and their helpers
@@ -99,7 +99,7 @@
             mmAmpersand = pure '&' <* sandwich "amp"
             mmApostrophe = pure '\'' <* sandwich "apos"
 
-    mmStr = between quot quot 
+    mmWord = between quot quot 
       $ many $ mmEscapedChar <|> satisfy (/= '"')
       where quot = char '"'
 
@@ -107,7 +107,7 @@
     word = many1 $ alphaNum <|> char '_'
 
     keyValPair :: Parser (String,String)
-    keyValPair = (,) <$> (lexeme word <* lexeme (char '=')) <*> lexeme mmStr
+    keyValPair = (,) <$> (lexeme word <* lexeme (char '=')) <*> lexeme mmWord
 
    -- parsing tags and comments
     richText :: Parser MlTag
@@ -261,16 +261,16 @@
 
 -- DwtSpec -> _
     frameNodes :: RSLT -- no styles and no edges in this one
-    frameNodes = mkGraph [ (0, Str "root")
-                           , (1, Str ".system")
-                             , (2, Str ".mm rels")
+    frameNodes = mkGraph [ (0, Word "root")
+                           , (1, Word ".system")
+                             , (2, Word ".mm rels")
                                , (3, mkTplt "_ .mm/ _")
                                , (4, mkTplt "_ .mm~ _")
-                             , (5, Str "times")
+                             , (5, Word "times")
                                , (6, mkTplt "_ was created on _")
                                , (7, mkTplt "_ was last modified on _")
-                             , (8, Str "styles") 
-                           , (9, Str "rels")
+                             , (8, Word "styles") 
+                           , (9, Word "rels")
                              , (10, mkTplt "_ instance/ _")
                              , (11, mkTplt "_ uses font-> _")
                              , (12, mkTplt "_ then read-> _")
@@ -282,23 +282,23 @@
     edgeNode ArrowEdge = - (head $ node frameNodes $ mkTplt "_ .mm~ _")
     edgeNode ThenReadEdge = - (head $ node frameNodes $ mkTplt "_ then read-> _")
 
-    stylesNode = - (head $ node frameNodes $ Str "styles")
+    stylesNode = - (head $ node frameNodes $ Word "styles")
     instanceNode = - (head $ node frameNodes $ mkTplt "_ instance/ _")
     usesFontNode = - (head $ node frameNodes $ mkTplt "_ uses font-> _")
 
     frameSansStylesOrDirections :: RSLT
-    frameSansStylesOrDirections = f (Str "root") (Str ".system") 
-      $ f (Str "root") (Str "rels")
-      $ f (Str ".system") (Str "times")
-      $ f (Str ".system") (Str "styles")
-      $ f (Str ".mm rels") (mkTplt "_ .mm/ _")
-      $ f (Str ".mm rels") (mkTplt "_ .mm~ _")
-      $ f (Str "times") (mkTplt "_ was created on _")
-      $ f (Str "times") (mkTplt "_ was last modified on _")
-      $ f (Str "rels") (mkTplt "_ instance/ _")
-      $ f (Str ".system") (Str ".mm rels")
-      $ f (Str "rels") (mkTplt "_ uses font-> _")
-      $ f (Str "rels") (mkTplt "_ then read-> _")
+    frameSansStylesOrDirections = f (Word "root") (Word ".system") 
+      $ f (Word "root") (Word "rels")
+      $ f (Word ".system") (Word "times")
+      $ f (Word ".system") (Word "styles")
+      $ f (Word ".mm rels") (mkTplt "_ .mm/ _")
+      $ f (Word ".mm rels") (mkTplt "_ .mm~ _")
+      $ f (Word "times") (mkTplt "_ was created on _")
+      $ f (Word "times") (mkTplt "_ was last modified on _")
+      $ f (Word "rels") (mkTplt "_ instance/ _")
+      $ f (Word ".system") (Word ".mm rels")
+      $ f (Word "rels") (mkTplt "_ uses font-> _")
+      $ f (Word "rels") (mkTplt "_ then read-> _")
       $ frameNodes
       where conn = insRelUsf (-instanceNode)
             f a b = conn [head $ node frameNodes a, head $ node frameNodes b]
@@ -320,7 +320,7 @@
 
     frameOrphanStyles :: DwtSpec -> DwtFrame
     frameOrphanStyles spec = let ss = styles spec
-      in ( negateGraph $ foldl (\mm font -> insStr font mm) frameSansStyles ss
+      in ( negateGraph $ foldl (\mm font -> insWord font mm) frameSansStyles ss
          , Map.fromList $ zip (styles spec) 
                               [firstStyleNode, firstStyleNode-1 ..]
          )
@@ -334,7 +334,7 @@
 
     loadNodes :: (DwtSpec, DwtFrame) -> Either String RSLT
     loadNodes ( (ns,_), (mm, mp) ) =
-      let noded = foldl (\mm n -> insNode (mmId n, Str $ text n) mm) mm ns
+      let noded = foldl (\mm n -> insNode (mmId n, Word $ text n) mm) mm ns
       in foldM (\mm n -> insRel (usesFontNode) 
                                  [ mmId n
                                  , (Map.!) mp $ Mb.fromJust $ style n

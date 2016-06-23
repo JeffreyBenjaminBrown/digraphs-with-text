@@ -1,15 +1,15 @@
     import Data.Graph.Inductive
 
     type MyGraph = Gr Expr Role
-    type Expr = Str String | Rel
+    type Expr = Word String | Rel
     data Role = AsTplt | AsPos Int
       deriving (Show,Read,Eq,Ord)
 
     g1 = mkGraph
-      [   (0, Str "dog")
-        , (1, Str "_ wants _ for _")
-        , (2, Str "yams")
-        , (3, Str "dinner")
+      [   (0, Word "dog")
+        , (1, Word "_ wants _ for _")
+        , (2, Word "yams")
+        , (3, Word "dinner")
         , (4, Rel)
       ] [ (4,1,AsTplt), (4,0, AsPos 1), (4,2,AsPos 2), (4,3,AsPos 3)
       ]

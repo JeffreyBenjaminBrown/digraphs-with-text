@@ -15,7 +15,7 @@ Here are the types:
     type Arity = Int
 
     type RSLT = Gr Expr RSLTEdge
-    data Expr = Str String | Tplt [String] | Rel | Coll String
+    data Expr = Word String | Tplt [String] | Rel | Coll String
               | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
 
     data RSLTEdge = RoleEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
@@ -38,9 +38,9 @@ The following is an obsolete (uses an earlier version of Dwt) RSLT that represen
       -- that is, mkGraph takes a list of nodes followed by a list of edges
     g1 :: RSLT
     g1 = mkGraph
-      [   (0, Str "dog"       )
+      [   (0, Word "dog"       )
         , (1, mkTplt "_ wants _" ) -- produces a Tplt with Arity 2
-        , (3, Str "water"     )
+        , (3, Word "water"     )
         , (4, Rel 2           )
       ] [ -- "dog wants water"
             (4,1, RelTplt)  -- Node 1 is the Template for the Rel at Node 4
@@ -52,12 +52,12 @@ The next RSLT encodes the previous statement and a second statement stating that
 
     g2 :: RSLT
     g2 = mkGraph
-      [   (0, Str "dog"       )
+      [   (0, Word "dog"       )
         , (1, mkTplt "_ wants _" )
-        , (3, Str "water"     )
+        , (3, Word "water"     )
         , (4, Rel 2           )
         , (5, mkTplt "_ is _")
-        , (6, Str "dubious"   )
+        , (6, Word "dubious"   )
         , (7, Rel 2           )
       ] 
       [ -- "dog wants water" is represented just like it was in g1

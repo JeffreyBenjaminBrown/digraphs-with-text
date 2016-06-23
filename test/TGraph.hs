@@ -34,7 +34,7 @@
         == "man #wants peace"
 
     tInsert = TestCase $ do
-      assertBool "mkTplt (and thereby splitStringForTplt), insRelUsf, insStr, insTplt" $ g1 == g1Alt
+      assertBool "mkTplt (and thereby splitStringForTplt), insRelUsf, insWord, insTplt" $ g1 == g1Alt
 
     tInsRelM = TestCase $ do
       assertBool "1" $ (insRel 2 [0,0] g1 :: Either String RSLT)
@@ -79,10 +79,10 @@
       assertBool "the edge" $ hasLEdge g2 (newNode, 0, RelEdge $ Mbr 1)
 
     tChNonRelAt = TestCase $ do
-      let gCat = fromRight $ chNonUser g1 0 $ Str "cat"
+      let gCat = fromRight $ chNonUser g1 0 $ Word "cat"
       let gUses = fromRight $ chNonUser g1 1 $ mkTplt "_ uses _"
-      assertBool "change Str" $ 
-        Str "cat" == (lab' $ fromJust $ fst $ match 0 $ gCat)
+      assertBool "change Word" $ 
+        Word "cat" == (lab' $ fromJust $ fst $ match 0 $ gCat)
       assertBool "change Tplt" $ 
         mkTplt "_ uses _" == (lab' $ fromJust $ fst $ match 1 $ gUses)
       assertBool "not in graph" $
@@ -90,7 +90,7 @@
       assertBool "change Rel" $
         isLeft $ chNonUser g1 11  $ Coll
       assertBool "constructor mismatch" $
-        isLeft $ chNonUser g1 4  $ mkTplt "_ is _" -- LNode 4 is a Str
+        isLeft $ chNonUser g1 4  $ mkTplt "_ is _" -- LNode 4 is a Word
 
     tChMbr = TestCase $ do
       let gDogDog = fromRight $ chRelRole g1 5 0 (Mbr 2)
@@ -137,7 +137,7 @@
       assertBool "arity 1" $ 
         tpltArity (Tplt ["one arg","possible here"]) == 1
       -- ? how to test the following
-      -- assertBool "Str is not Tplt" $ tpltArity (Str "nog")
+      -- assertBool "Word is not Tplt" $ tpltArity (Word "nog")
         -- == error "tpltArity: Expr not a Tplt."
 
   -- ask [Node]

@@ -17,7 +17,7 @@ view g $ nodes g
 -- Each expression appears alongside its address. For instance, the unary "every _" Template resides at address 0, and the binary "_ needs _" Template is at address 4.
 
 -- add the Words we will use. (for these purposes "stable angina" and "coronary artery disease" are one word. We could subdivide them if we needed to.)
-g <- pure $ foldl (flip insStr) g ["person","Mildred","stable angina","coronary artery disease","mustard"]
+g <- pure $ foldl (flip insWord) g ["person","Mildred","stable angina","coronary artery disease","mustard"]
 
 -- now the RSLT has some Words after the Templates
 view g $ nodes g

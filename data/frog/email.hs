@@ -5,7 +5,7 @@ We beseech your involvement! DWT is open-source and actively seeking co-develope
 This transcript makes tiny digressions about what monads are capable of.
 
 > let g = empty :: Mindmap -- g is now an empty mindmap (which is a kind of graph).
-> g <- pure $ insStr "frog" g -- This inserts a string into g.
+> g <- pure $ insWord "frog" g -- This inserts a string into g.
 >   -- "g <- pure $" because we use the IO monad to redefine g.
 > -- Now g has one thing, the word frog:
 > v g $ nodes g -- This views every expression in g.
@@ -13,8 +13,8 @@ This transcript makes tiny digressions about what monads are capable of.
 >   -- The 0 before the comma is a count of how many expressions refer to that expression. None do, because none yet exist. Such contexts offer many possibilities for tracking where you are (the data) and how you got there (also kind of the data, and perhaps enabling a desirable kind of removal of self|redaction).
 >   -- The second 0 is an FGL Node, the address of the string "frog".
 > -- Let's add more words:
-> g <- pure $ insStr "moist" g
-> g <- pure $ insStr "springy" g
+> g <- pure $ insWord "moist" g
+> g <- pure $ insWord "springy" g
 > -- Now g has three words:
 > v g $ nodes g
 (0,"0: frog")
@@ -52,7 +52,7 @@ This transcript makes tiny digressions about what monads are capable of.
 > -- DWT can encode meta-statements, statements about other statements. As an example, next let's encode that maybe frogs are springy because they use rubber bands. 
 > -- First we should insert a new string and a couple new templates for relationships.
 > g <- pure $ insTplt "maybe _ because _" g
-> g <- pure $ insStr "rubber bands" g
+> g <- pure $ insWord "rubber bands" g
 > g <- pure $ insTplt "_ uses _" g
 > v g $ nodes g
 (2,"0: frog")

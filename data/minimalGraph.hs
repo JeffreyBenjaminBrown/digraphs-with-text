@@ -4,9 +4,9 @@
       -- that is, mkGraph takes a list of nodes followed by a list of edges
     g1, g2 :: Mindmap
     g1 = mkGraph
-      [   (0, Str "dog"       )
+      [   (0, Word "dog"       )
         , (1, mkTplt "_ wants _" ) -- produces a Tplt with Arity 2
-        , (3, Str "water"     )
+        , (3, Word "water"     )
         , (4, Rel 2           )
       ] [ -- "dog wants water"
             (4,1, RelTplt)  -- Node 1 is the Template for the Rel at Node 4
@@ -15,12 +15,12 @@
       ]
 
     g2 = mkGraph
-      [   (0, Str "dog"       )
+      [   (0, Word "dog"       )
         , (1, mkTplt "_ wants _" )
-        , (3, Str "water"     )
+        , (3, Word "water"     )
         , (4, Rel 2           )
         , (5, mkTplt "_ is _")
-        , (6, Str "dubious"   )
+        , (6, Word "dubious"   )
         , (7, Rel 2           )
       ] 
       [ -- "dog wants water" is represented just like it was in g1

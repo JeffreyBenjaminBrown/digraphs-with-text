@@ -2,7 +2,7 @@
 > let g = empty :: Mindmap -- g is now an empty mindmap.
 >   -- I use the letter g because Mindmaps are Graphs,
 >   -- a class provided by the Functional Graph Library.
-> g <- pure $ insStr "frog" g -- This inserts a string into g.
+> g <- pure $ insWord "frog" g -- This inserts a string into g.
 >   -- "g <- pure $" because we use the IO monad to redefine g.
 > -- Now g has one thing, the word frog:
 > v g $ nodes g -- This views every expression in g.
@@ -10,8 +10,8 @@
 >   -- The 0 before the comma is a count of how many expressions refer to that expression. None do, because none yet exist.
 >   -- The second 0 is a Node, which one should think of as the address of the string "frog".
 > -- Let's add more words:
-> g <- pure $ insStr "moist" g
-> g <- pure $ insStr "springy" g
+> g <- pure $ insWord "moist" g
+> g <- pure $ insWord "springy" g
 > -- Now g has three words:
 > v g $ nodes g
 (0,"0: frog")
@@ -49,7 +49,7 @@
 > -- DWT can encode meta-statements, statements about other statements. As an example, next let's encode that maybe frogs are springy because they use rubber bands. 
 > -- First we should insert a new string and a couple new templates for relationships.
 > g <- pure $ insTplt "maybe _ because _" g
-> g <- pure $ insStr "rubber bands" g
+> g <- pure $ insWord "rubber bands" g
 > g <- pure $ insTplt "_ uses/ _" g
 > v g $ nodes g
 (2,"0: frog")

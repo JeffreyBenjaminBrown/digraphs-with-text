@@ -11,11 +11,11 @@
                        ]
 
     tQGet = TestCase $ do
-      assertBool "one (Right)" $ qGet g1 (QStr "brandy") == Right 4
-      assertBool "has none (Left)" $ isLeft $ qGet g1_0 (QStr "brandy")
-      assertBool "has two (Left)" $ isLeft $ qGet g1_2 (QStr "brandy")
+      assertBool "one (Right)" $ qGet g1 (QWord "brandy") == Right 4
+      assertBool "has none (Left)" $ isLeft $ qGet g1_0 (QWord "brandy")
+      assertBool "has two (Left)" $ isLeft $ qGet g1_2 (QWord "brandy")
       where g1_0 = delNode 4 g1
-            g1_2 = insStr "brandy" g1
+            g1_2 = insWord "brandy" g1
 
     tQInsRel = TestCase $ do
       let g1' = fromRight $ qInsRel (qt "_ wants _") [qn 4, qs "dog"] g1

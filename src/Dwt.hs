@@ -36,7 +36,7 @@
 -- shorthand
   -- mindmap things
     ns = NodeSpec
-    (qn, qs) = (QNode, QStr)
+    (qn, qs) = (QNode, QWord)
     qt = QTplt . map (T.unpack . T.strip . T.pack) . _splitStringForTplt
       -- is nearly mkTplt, but swaps QTplt for Tplt
 
