@@ -11,7 +11,7 @@ Here are the types:
     -- RelSpecExprs use RelRoles.
       -- but unlike Rels, they can be well-formed without emitting any.
 
-    type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
+    type MbrPos = Int -- the k members of a k-ary Rel take MbrPos values [1..k]
     type Arity = Int
 
     type RSLT = Gr Expr RSLTEdge
@@ -19,7 +19,7 @@ Here are the types:
               | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
 
     data RSLTEdge = RoleEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
-    data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
+    data RelRole = RelTplt | Mbr MbrPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
     data CollRole = CollMbr | CollTitle | CollSeparator deriving(Show,Read,Eq,Ord)
 
     data MbrVar = It | Any | Up | Down
@@ -30,7 +30,7 @@ Here are the types:
       -- a RelVarSpec in an RSLT is transformable into a RelSpec.
       -- The rest of the info can be inferred from the edges connected to it.
     type RelSpec = Map.Map RelRole MbConcreteMbr
-      -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
+      -- if well-formed, has a Tplt, and MbrPoss from 1 to the Tplt's Arity
 
 The following is an obsolete (uses an earlier version of Dwt) RSLT that represents the expression "dog needs water" using the subexpressions "dog" (a string), "water" (a string), and "_ wants _" (a relationship two things can have, that is a binary Rel):
 

@@ -97,7 +97,7 @@
       let gImpossible         = chRelRole g1 5 0 (Mbr 99) -- 99 is too high
       assertBool "1" $ showExpr gDogDog 5
                        == "5:1 0: dog ##wants 0: dog"
-      assertBool "RelPos out of range" $ isLeft gImpossible
+      assertBool "MbrPos out of range" $ isLeft gImpossible
 
   -- ask, minor
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM

@@ -7,7 +7,7 @@
 
     module Dwt.Graph
       (
-        RelPos, Arity
+        MbrPos, Arity
       , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
       , MbrVar(..), MbConcreteMbr(..), RelVarSpec, RelNodeSpec, RelSpec
       , _splitStringForTplt, mkTplt
@@ -37,7 +37,7 @@
 
 -- types
     type Arity = Int -- tuples have Arity: pairs have arity 2, triples arity 3 ..
-    type RelPos = Int -- the k members of a k-ary Rel take RelPos values [1..k]
+    type MbrPos = Int -- the k members of a k-ary Rel take MbrPos values [1..k]
 
     type RSLT = Gr Expr RSLTEdge -- Recursive Set of Labeled Tuples
     data Expr = Str String | Fl Float -- 
@@ -55,7 +55,7 @@
     data RSLTEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
       -- anything can receive edges (be a member of a superexpression)
       -- but only Rels and Colls emit edges (have subexpressions).
-    data RelRole = RelTplt | Mbr RelPos deriving(Show,Read,Eq,Ord)
+    data RelRole = RelTplt | Mbr MbrPos deriving(Show,Read,Eq,Ord)
       -- the kind of edge emitted by a Rel. each emits exactly one RelTplt.
     data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
       -- the kind of edge emitted by a Coll. each emits exactly one CollPrinciple.
@@ -72,7 +72,7 @@
       -- a RelSpecExpr points to its concrete members.
     type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
     type RelSpec =     Map.Map RelRole MbConcreteMbr
-      -- if well-formed, has a Tplt, and RelPoss from 1 to the Tplt's Arity
+      -- if well-formed, has a Tplt, and MbrPoss from 1 to the Tplt's Arity
 
 -- Tplts
     _splitStringForTplt :: String -> [String]
@@ -257,7 +257,7 @@
       gelemM g newMbr
       let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
       if length candidates /= 1
-        then throwError "chRelRole: invalid graph state, or RelPos out of range"
+        then throwError "chRelRole: invalid graph state, or MbrPos out of range"
         else return ()
       let oldMbr = head candidates
       return $ delLEdge (user,oldMbr,RelEdge role)
@@ -355,12 +355,12 @@
       case role of
         RelTplt -> return ()
         Mbr p -> do
-          if p < 1 then throwError $ "validRole: RelPos < 1" else return ()
+          if p < 1 then throwError $ "validRole: MbrPos < 1" else return ()
           t <- relTplt g relNode
           let a = tpltArity t
           if p <= a then return ()
             else throwError $ "validRole: Arity " ++ show a ++ 
-              " < RelPos " ++ show p
+              " < MbrPos " ++ show p
 
     relTplt :: RSLT -> Node -> Either String Expr -- unsafe
       -- might not be called on a template

@@ -1,0 +1,7 @@
+Tables can only express certain kinds of data. Trees, only certain kinds of data. Lists, sets, maps, tuples; only certain kinds of data.
+
+The expressivity limits of data structures are a problem, because information that cannot be represented cannot be processed automatically. Medicine provides the most stark example of the problem, but it is ubiquitous.
+
+The Reflective Set of Labeled Tuples (RSLT) is a data structure, only slightly more complex than a graph, that can represent any kind of data.
+
+I wrote a short paper describing the RSLT. It requires no familiarity with computer programming.
