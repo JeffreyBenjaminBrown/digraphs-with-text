@@ -1,0 +1,101 @@
+Graphs
+======
+Undirected graphs
+-----------------
+Undirected graphs are commonly drawn as a set of dots with lines between them. The dots are called node, and (for reasons I cannot explain) the lines are called edges.
+
+Graphs can be described without using pictures. Text Box 1 describes the same undirected graph as Figure 1, without using a picture.
+
+When computer scientists use graphs, they attach information called "node labels" and "edge labels". Figure 1 is an example, a graph where the nodes are labeled with peoples' names, and the edges are labeled "is married to" or "swims with regularly".
+
+Multiple edges can connect the same two nodes in a graph. For instance, Alice and Bob are married and swim regularly.
+
+Directed graphs
+---------------
+Marriage and swimming together are both examples of "undirected" or "symmetric" relationships. If you're married to someone, they are married to you. "Directed" relationships are not like that. If I disrupt your television, you might not disrupt mine. If I am colder than you, you are certainly not colder than me.
+
+Directed relationships call for directed graphs, which are like undirected ones but now the edges have arrowheads to indicate their direction.
+
+Figure 2 is a (directed) graph. The nodes in it are labeled with the names of people., and the edges are labeled one of two things:
+
+    _ turned _ into a newt
+    _ gave a shrubbery to _
+
+(Those "_" symbols are pronounced "blank".) Each label provides a template for a relationship: "_ turned _ into a newt", for instance, provides the template for the relationship "Aubrey turned Jim into a newt".
+
+Directed relationships are hard to represent with an undirected graph. Undirected relationships, however, are easy to represent in a directed graph: just use an arrow and ignore its direction. When computer scientists talk about graphs, they generally mean directed graph. I will adhere to that convention.
+
+
+Expressing more with a graph
+============================
+The arity of a relationship
+---------------------------
+All the relationships we have seen before are "binary" ones. That is, they have exactly two members. Other relationship are possible. For instance, "_ said _ to _" relates three things. It is a "ternary" relationship.
+
+Arity is the word for the number of members in a relationship. Binary relationships have (or are) arity 2; ternary ones have arity 3. Any positive arity is possible; we could think of a 5-member relationship if we wanted to.
+
+Arity 1 or "unary" relationships are also valid. Some important unary relationships include "maybe _", "not _", "for every _" and "there exists _".
+
+
+How to encode relationships of any arity in a graph:
+The "relationships as labeled nodes" idiom
+---------------------------------------------------
+Suppose we had to store this data in a graph:
+
+	Data Set 1
+	----------
+	Bill likes the cheese.
+	Ted likes the chair.
+	Bill did spin the chair for fun.
+        Ted did dance the air guitar for profit.
+
+You could parse that a few ways. One way would be as a pair of binary "_ likes _" relationships and a pair of arity-4 "_ did _ the _ for _" relationships.
+
+But a graph only has nodes and edges, and edges only connect pairs of nodes! How can we represent a relationship with four members, when every edge connects only two nodes?
+
+We only have to change how we read the graph.
+
+In this new graph idiom (see Figure 3), the relationships in Data Set 1 are not represented using edges, but instead using "relationship nodes". The label on a relationship node indicates the template for the relationship: either "_ likes _" or "_ did _ the _ for _".
+
+Not every node in the graph represents a relationship. The other kind of node, we will call "word nodes". The word nodes include Bill, Ted, cheese, air guitar, chair, fun, and profit. Notice that while word nodes usually represent single words, they can represent multi-word phrases like "air guitar" too. (If treating phrases the same as words seems inelegant, I agree. One of the appendices describes how to preserve the distinction, by constructing the phrases from the words, using associativity and a fold.)
+
+Each blank in a relationship node's label is assigned a member using an edge label. For instance, an arity-2 relationship must emit an edge labeled "member 1" to its first member, and another edge labeled "member 2" to its second member. An arity-4 relationship must emit 4 edges, one to each of its 4 members.
+
+Higher-order relationships
+--------------------------
+The relationships we have seen so far are all first-order, in the sense that they are not nested. In none of those relationship was a member another relationship. But consider Statement 4:
+
+    Statement 4
+    -----------
+    Intel needs silicon because Intel makes computer chips.
+
+It is (at the top level) a "_ because _" relationship, connecting (at the next level) a "_ needs _" and a "_ makes _" relationship. Its members are both first-order relationships, so it is a second-order relationship.
+
+In general, an order-n relationship is one in which its members all have order n-1 or less and at least one of them has exactly order n-1. n corresponds to the number of levels in the statement. Intuitively, the order of a relationship is the number of levels in it.
+
+Can we represent higher-order relationships? With our new relationships-as-nodes idiom, yes, we can. Figure 4 encodes Statement 4 in a graph.
+
+A redundancy problem
+--------------------
+Consider the following data:
+
+	 Data Set 5
+	 ----------
+	 Donald has ten dollars.
+	 Donald has a boat.
+
+We can use the relationships-as-labeled-nodes idiom to represent Data Set 5 with a graph. Figure 5 does that.
+
+Notice that the two relationship nodes in Figure 5 carry redundant information: we have written "_ has _" on both of them. Among data programmers, this is a red flag. Redundant data wastes space and time.
+
+For instance, suppose an auditor checked the data and said, "Donald, there is an error: you have used 'has' where you really mean 'borrowed'. You need to fix that." Donald would have to change the "_ has _" label on every relationship node using it.
+
+
+Abstracting the common template away:
+Relationships as unlabeled nodes
+------------------------------------
+The "relationships-as-unlabeled-nodes" idiom solves the template redundancy problem. In this new idiom, relationship nodes carry no information at all! They are meaningful only because of the edges they emits. In addition to the k edges going to its k members, a relationship emits one more edge, labeled "template", toward a new kind of node.
+
+The new kind is called a template node. Its label provides the template for a relationship: "_ likes _", "_ said _ to _", etc.
+
+Figure 5.1 encodes the information in Data Set 5 using the "relationships as unlabeled nodes" idiom. Rather than duplicating the label, each relationship node emits an edge to the same relationship template node. Now someone can attach metadata to the label -- a disambiguation, a date of creation, the author's name, etc. -- by changing one thing, and the change will be reflected in every relevant context.
