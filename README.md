@@ -8,4 +8,4 @@ This [short paper](/introduction/the_rslt,_why_and_how/it.pdf) describes what th
 
 There is an [interactive demonstration](/introduction/demo.hs) of how the RSLT represents data. The [howto](/howto) folder shows how to do other things, such as parse a Freeplane .mm file or search along branches.
 
-The [simplified model of the type system](/introduction/Minimal_Types.hs) is the best place to start exploring the code.
+For coders, the [simplified model of the type system](/introduction/Minimal_Types.hs) is probably the best place to start exploring this code.
