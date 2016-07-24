@@ -33,7 +33,7 @@
     import Data.Maybe (catMaybes, fromJust)
     import Control.Monad (mapM_)
     import Control.Monad.Except (MonadError, throwError, catchError)
-    import Data.Text (splitOn, pack, unpack, strip)
+    import Data.Text (pack, unpack, strip, splitOn)
 
 -- types
     type Arity = Int -- tuples have Arity: pairs have arity 2, triples arity 3 ..
