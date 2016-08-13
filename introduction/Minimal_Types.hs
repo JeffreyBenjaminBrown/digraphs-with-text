@@ -1,6 +1,6 @@
--- Once this file makes sense to you,
-  -- the natural place to begin reading the codebase is at src/Dwt/Graph.hs.
--- This file is for illustration purposes only; it is not part of the codebase.
+-- This file is not part of the codebase. It is intended to illustrate the RSLT types -- which is why it has so many comments.
+-- Once this file makes sense to you, the natural place to begin reading the codebase is at src/Dwt/Graph.hs.
+
 
 import Data.Graph.Inductive -- import code for working with graphs
 
