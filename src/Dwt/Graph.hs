@@ -50,8 +50,8 @@
     data RSLTEdge = RelEdge RelRole | CollEdge CollRole
                   deriving(Show,Read,Eq,Ord)
       -- only Rels and Colls emit edges, have subexpressions
-    data RelRole = RelTplt | Mbr MbrPos deriving(Show,Read,Eq,Ord)
-      -- a k-ary Rel emits one RelTplt and k RelMbrs
+    data RelRole = TpltRole | Mbr MbrPos deriving(Show,Read,Eq,Ord)
+      -- a k-ary Rel emits one TpltRole and k RelMbrs
     data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord) -- a Col emits one CollPrinciple, any number of CollMbrs
 
   -- for RelSpec
@@ -59,7 +59,7 @@
       deriving (Show,Read,Eq,Ord)
     data MbConcreteMbr = VarSpec Mbrship | NodeSpec Node deriving(Show,Read,Eq,Ord)
 
-    -- at the RelTplt key is always a concrete NodeSpec
+    -- at the TpltRole key is always a concrete NodeSpec
     type RelVarSpec = Map.Map RelRole Mbrship -- Is a subset of RelSpec info, but
       -- in a graph implies a complete RelSpec, because
       -- a RelSpecExpr points to its concrete members.
@@ -149,7 +149,7 @@
             addMbrs []     g = g
             addMbrs (p:ps) g = addMbrs ps $ insEdge
               (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
-            addTplt = insEdge (newNode, template, RelEdge RelTplt)
+            addTplt = insEdge (newNode, template, RelEdge TpltRole)
                       . insNode (newNode, Rel) :: RSLT -> RSLT
 
     insRelUsf :: Node -> [Node] -> RSLT -> RSLT
@@ -157,6 +157,7 @@
       Left s -> error s
       Right r -> r
 
+    -- >>>
     insColl :: (MonadError String m) => 
       (Maybe Node) -> -- title
       [Node] -> RSLT -> m RSLT
@@ -331,7 +332,7 @@
       isRelM g relNode `catchError` (\_ -> throwError 
         $ "validRole: Node " ++ show relNode ++ " absent or not a Rel.")
       case role of
-        RelTplt -> return ()
+        TpltRole -> return ()
         Mbr p -> do
           if p < 1 then throwError $ "validRole: MbrPos < 1" else return ()
           t <- relTplt g relNode
@@ -343,7 +344,7 @@
     relTplt :: RSLT -> Node -> Either String Expr -- unsafe
       -- might not be called on a template
     relTplt g relNode = do
-      [n] <- relElts g relNode [RelTplt]
+      [n] <- relElts g relNode [TpltRole]
       return $ fromJust $ lab g n
 
     collPrinciple :: (MonadError String m) => RSLT -> Node -> m Expr
