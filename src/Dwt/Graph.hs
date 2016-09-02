@@ -36,33 +36,26 @@
     import Data.Text (pack, unpack, strip, splitOn)
 
 -- types
-    type Arity = Int -- tuples have Arity: pairs have arity 2, triples arity 3 ..
-    type MbrPos = Int -- the k members of a k-ary Rel take MbrPos values [1..k]
+    type Arity = Int
+    type MbrPos = Int -- k members of k-ary Rel, MbrPos values [1..k]
 
-    type RSLT = Gr Expr RSLTEdge -- Recursive Set of Labeled Tuples
-    data Expr = Word String | Fl Float -- 
-              | Rel  -- labeled tuple (LT), like "[cats] need [sun]"
-              | Tplt [String] -- template for a labeled tuple, like "_ did _ to _"
-                -- TODO: generalize Tplt [String] to Tplt [Expr]
-              | Coll -- "Collection". Makes sets and lists easier to encode.
-                -- In a well-formed graph, every Coll has a CollPrinciple.
-                -- Examples of CollPrinciples are "and" and "or".
-                -- The Coll is particularly helpful for "or"; without it,
-                -- "cats need [water or batteries or ..]" is surprisingly costly to encode.
-              | RelSpecExpr RelVarSpec -- for partially specifying Rels
+    type RSLT = Gr Expr RSLTEdge -- reflective set of labeled tuples
+    data Expr = Word String | Fl Float
+              | Rel
+              | Tplt [String]
+              | RelSpecExpr RelVarSpec
+              | Coll -- has a CollPrinciple like "and" or "or"
               deriving(Show,Read,Eq,Ord)
 
-    data RSLTEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
-      -- anything can receive edges (be a member of a superexpression)
-      -- but only Rels and Colls emit edges (have subexpressions).
+    data RSLTEdge = RelEdge RelRole | CollEdge CollRole
+                  deriving(Show,Read,Eq,Ord)
+      -- only Rels and Colls emit edges, have subexpressions
     data RelRole = RelTplt | Mbr MbrPos deriving(Show,Read,Eq,Ord)
-      -- the kind of edge emitted by a Rel. each emits exactly one RelTplt.
-    data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
-      -- the kind of edge emitted by a Coll. each emits exactly one CollPrinciple.
+      -- a k-ary Rel emits one RelTplt and k RelMbrs
+    data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord) -- a Col emits one CollPrinciple, any number of CollMbrs
 
   -- for RelSpec
-    data MbrVar = It | Any | Up | Down -- todo ? use omission instead of Any
-      -- name ? MbrShip
+    data MbrVar = It | Any | Up | Down -- !name -> MbrShip
       deriving (Show,Read,Eq,Ord)
     data MbConcreteMbr = VarSpec MbrVar | NodeSpec Node deriving(Show,Read,Eq,Ord)
 
@@ -75,6 +68,7 @@
       -- if well-formed, has a Tplt, and MbrPoss from 1 to the Tplt's Arity
 
 -- Tplts
+  -- mkTplt
     _splitStringForTplt :: String -> [String]
     _splitStringForTplt t = map unpack $ splitOn (pack "_") (pack t)
 
@@ -84,6 +78,7 @@
       . map (unpack . strip . pack)
       . _splitStringForTplt
 
+  -- subInTpltWithDollars
     subInTpltWithDollars :: Expr -> [String] -> Int -> String
       -- todo ? test length (should match arity), use Either
       -- todo ? test each tplt-string; if has space, wrap in parens
@@ -113,10 +108,12 @@
           
       in [doToFirst a] ++ map doToMiddle middle ++ [doToLast z]
 
+  -- more
     tpltArity :: Expr -> Arity
     tpltArity e = case e of Tplt ss -> length ss - 1
                             _       -> error "tpltArity: Expr not a Tplt."
 
+    -- ! rename to $ mbrListArityMatches
     nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m ()
     nodesMatchTplt ns e = case e of
       Tplt _ -> if (tpltArity e) == length ns
