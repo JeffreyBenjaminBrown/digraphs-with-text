@@ -13,7 +13,7 @@
       , _splitStringForTplt, mkTplt
       , subInTplt, padTpltStrings, subInTpltWithDollars
       , tpltArity, mbrListMatchesTpltArity
-      , replaceUsf, insLeaf, insRel, insRelUsf, insColl
+      , insLeaf, insRel, insRelUsf, insColl
         , insWord, insTplt, insFl -- deprec ? insLeaf generalizes these
         , partitionRelSpec, insRelSpec, relNodeSpec, relSpec
       , chNonUser, chNonUserUsf, chRelRole
@@ -121,21 +121,15 @@
       _ -> throwError "mbrListMatchesTpltArity: Expr not a Tplt."
 
 -- build
-    replaceUsf :: Node -> Expr -> RSLT -> RSLT
-    replaceUsf n expr g =
-      let (Just (a,b,expr',d), g') = match n g
-      in if areLikeExprs expr expr' then (a,b,expr,d) & g' 
-                                    else error "unlike Exprs"
-
   -- insert
    -- insert leaf
-    insLeaf :: Expr -> RSLT -> RSLT -- TODO ! use, to avoid duplicates 
+    insLeaf :: Expr -> RSLT -> RSLT -- TODO ! use to avoids dups 
       -- duplicate ways to delete, replace, ...
     insLeaf e g = case isLeaf e of
-      True -> insNode (newAddr, e) g
-        where [newAddr] = newNodes 1 g
+      True -> insNode (newAddr, e) g where [newAddr] = newNodes 1 g
       False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
 
+    -- >>>
     insWord :: String -> RSLT -> RSLT
     insWord str g = insLeaf (Word str) g
 
@@ -146,18 +140,17 @@
     insFl f g = insLeaf (Fl f) g
 
    -- insert something more complex than leaf
-    insRel :: Node -> -- the template node
-              [Node] -> RSLT -> Either String RSLT
-    insRel tn ns g =
-      do mapM_ (gelemM g) $ tn:ns
-         t <- tpltAt g tn
+    insRel :: Node -> [Node] -> RSLT -> Either String RSLT
+    insRel template mbrs g =
+      do mapM_ (gelemM g) $ template:mbrs
+         t <- tpltAt g template
          let a = tpltArity t
-         mbrListMatchesTpltArity ns t
-         return $ f (zip ns [1..a]) g'
+         mbrListMatchesTpltArity mbrs t
+         return $ f (zip mbrs [1..a]) g'
       where newNode = head $ newNodes 1 g
             f []     g = g
             f (p:ps) g = f ps $ insEdge (newNode, fst p, RelEdge $ Mbr $ snd p) g
-            g' =                insEdge (newNode, tn, RelEdge RelTplt)
+            g' =                insEdge (newNode, template, RelEdge RelTplt)
                               $ insNode (newNode, Rel) g
 
     insRelUsf :: Node -> [Node] -> RSLT -> RSLT
