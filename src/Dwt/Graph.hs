@@ -55,7 +55,7 @@
     data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord) -- a Col emits one CollPrinciple, any number of CollMbrs
 
   -- for RelSpec
-    data Mbrship = It | Any | Up | Down -- !name -> MbrShip
+    data Mbrship = It | Any | Up | Down
       deriving (Show,Read,Eq,Ord)
     data MbConcreteMbr = VarSpec Mbrship | NodeSpec Node deriving(Show,Read,Eq,Ord)
 

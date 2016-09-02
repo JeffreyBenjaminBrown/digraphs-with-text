@@ -22,11 +22,11 @@ Here are the types:
     data RelRole = RelTplt | Mbr MbrPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
     data CollRole = CollMbr | CollTitle | CollSeparator deriving(Show,Read,Eq,Ord)
 
-    data MbrVar = It | Any | Up | Down
+    data Mbrship = It | Any | Up | Down
       deriving (Show,Read,Eq,Ord)
-    data MbConcreteMbr = VarSpec MbrVar | MbConcreteMbr Node deriving(Show,Read,Eq,Ord)
+    data MbConcreteMbr = VarSpec Mbrship | MbConcreteMbr Node deriving(Show,Read,Eq,Ord)
 
-    type RelVarSpec = Map.Map RelRole MbrVar -- subset of RelSpec info, but
+    type RelVarSpec = Map.Map RelRole Mbrship -- subset of RelSpec info, but
       -- a RelVarSpec in an RSLT is transformable into a RelSpec.
       -- The rest of the info can be inferred from the edges connected to it.
     type RelSpec = Map.Map RelRole MbConcreteMbr
