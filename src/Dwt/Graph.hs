@@ -129,7 +129,6 @@
       True -> insNode (newAddr, e) g where [newAddr] = newNodes 1 g
       False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
 
-    -- >>>
     insWord :: String -> RSLT -> RSLT
     insWord str g = insLeaf (Word str) g
 
@@ -143,10 +142,9 @@
     insRel :: Node -> [Node] -> RSLT -> Either String RSLT
     insRel template mbrs g =
       do mapM_ (gelemM g) $ template:mbrs
-         t <- tpltAt g template
-         let a = tpltArity t
-         mbrListMatchesTpltArity mbrs t
-         return $ f (zip mbrs [1..a]) g'
+         tplt <- tpltAt g template
+         mbrListMatchesTpltArity mbrs tplt
+         return $ f (zip mbrs [1..tpltArity tplt]) g'
       where newNode = head $ newNodes 1 g
             f []     g = g
             f (p:ps) g = f ps $ insEdge (newNode, fst p, RelEdge $ Mbr $ snd p) g
