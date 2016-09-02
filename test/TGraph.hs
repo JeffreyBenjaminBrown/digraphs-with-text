@@ -64,7 +64,7 @@
     tPartitionRelSpec = TestCase $ do
       let (vs,ns) = partitionRelSpec tRelSpec
       assertBool "1" $ Set.fromList (Map.toList vs)
-        == Set.fromList [ (RelTplt, It)
+        == Set.fromList [ (TpltRole, It)
                         , (Mbr 2,   Any) ]
       assertBool "2" $ Set.fromList (Map.toList ns)
         == Set.fromList [ (Mbr 1, 0) ]
@@ -176,12 +176,12 @@
         $ fork1Dir g1 0 (Down, tRelSpec2) == Right [4]
 
     tValidRole = TestCase $ do
-      assertBool "Tplt: valid role" $ isRight $ validRole g1 5 RelTplt
+      assertBool "Tplt: valid role" $ isRight $ validRole g1 5 TpltRole
       assertBool "Mbr 0: not valid role" $ isLeft $  validRole g1 5 (Mbr 0)
       assertBool "Mbr 1: valid role" $ isRight $ validRole g1 5 (Mbr 1)
       assertBool "Mbr 3: too big, invalid role" $ isLeft $  validRole g1 5 (Mbr 3)
 
     tRelElts = TestCase $ do
       assertBool "dog wants water -> dog" $ relElts g1 5 [Mbr 1] == Right [0]
-      assertBool "dog wants water -> dog" $ relElts g1 5 [RelTplt] == Right [1]
+      assertBool "dog wants water -> dog" $ relElts g1 5 [TpltRole] == Right [1]
       assertBool "dog wants water -> dog" $ isLeft $ relElts g1 5 [Mbr 3]

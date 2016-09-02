@@ -11,7 +11,7 @@
     g1,g1Alt :: RSLT
 
     g1 = let mbr = RelEdge . Mbr
-             tplt = RelEdge RelTplt
+             tplt = RelEdge TpltRole
       in mkGraph [
           (0, Word "dog"       )
         , (1, mkTplt "_ wants _" )
@@ -44,17 +44,17 @@
           $ insTplt"_ needs _"  $ insTplt"_ wants _"
           $ insWord"dog"         $ empty :: RSLT
 
-    tRelSpec = Map.fromList [ (RelTplt, VarSpec It)
+    tRelSpec = Map.fromList [ (TpltRole, VarSpec It)
                            , (Mbr 1,   NodeSpec 0)
                            , (Mbr 2,   VarSpec Any)
                            ] :: RelSpec
 
-    tRelSpec2 = Map.fromList [ (RelTplt, NodeSpec 2)
+    tRelSpec2 = Map.fromList [ (TpltRole, NodeSpec 2)
                            , (Mbr 1,   VarSpec Up)
                            , (Mbr 2,   VarSpec Down)
                            ] :: RelSpec
 
-    tRelSpecNonsense = Map.fromList [ (RelTplt, NodeSpec 0) -- "dog" Word, not Tplt
+    tRelSpecNonsense = Map.fromList [ (TpltRole, NodeSpec 0) -- "dog" Word, not Tplt
                                    , (Mbr 1,   VarSpec It)
                                    , (Mbr 2,   VarSpec Up)
                                    ] :: RelSpec

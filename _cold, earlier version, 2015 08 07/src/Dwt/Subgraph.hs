@@ -8,7 +8,7 @@
       --Any: "disregard whatever appears in this position"
       --example: "It needs These for Any when (StmtIdx 3)"
         --returns all y such that there exists x such that It needs y for x when Stmt 3
-    data VRel = VRel { _vRelTplt :: StmtIdx   
+    data VRel = VRel { _vTpltRole :: StmtIdx   
                      , _vRelMbrs :: [GVar] }
     data Subgraph =
       TheNodes [NodeIdx]

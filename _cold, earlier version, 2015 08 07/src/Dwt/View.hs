@@ -11,9 +11,9 @@
 -- example
   -- regarding the following view ...
     -- View (NodeView (NodeIdx 5)) -- Node 5 = the volcano
-    --     [ View FanView { fanRelTplt = RelNodeIdx 1, -- Rel 1 = "_ has _ for _"
+    --     [ View FanView { fanTpltRole = RelNodeIdx 1, -- Rel 1 = "_ has _ for _"
     --         fanMembers = [It,These,Something] } -- "It has These"
-    --     , View FanView { fanRelTplt = RelNodeIdx 2, -- Rel 2 ="_ needs _ to _"
+    --     , View FanView { fanTpltRole = RelNodeIdx 2, -- Rel 2 ="_ needs _ to _"
     --         fanMembers = [It,NodeVar $ NodeIdx 10, These] } -- 10 = the gods
     --     ]
   -- -- ... that view should display like this:

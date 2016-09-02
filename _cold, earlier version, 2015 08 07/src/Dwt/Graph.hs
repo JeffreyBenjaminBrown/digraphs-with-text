@@ -130,8 +130,8 @@
       in foldl f g nis
 -- not ?yet necessary
   -- ? delete a Node: what happens to others?
-    -- _forGoneNodeIdxUpdateRelTplt :: NodeIdx -> Rel -> Rel
-    -- _forGoneNodeIdxUpdateRelTplt ni r =
+    -- _forGoneNodeIdxUpdateTpltRole :: NodeIdx -> Rel -> Rel
+    -- _forGoneNodeIdxUpdateTpltRole ni r =
       -- let replaceIfNi = \x -> case x of ni -> NullNodeIdx
       --                                   _ -> x
       -- in case ni of StmtNodeIdx si -> over tplt replaceIfNi r

@@ -32,7 +32,7 @@ Table of Contents (eventually this format is Haskell)
 
 -- 2016 02 12
   view g $ concatMap (pre g) (rels g) -- every use of every rel
-  let rs = M.fromList [(RelTplt,NodeSpec 8), (Mbr 1,VarSpec Down), (Mbr 2,VarSpec Up)] :: RelSpec
+  let rs = M.fromList [(TpltRole,NodeSpec 8), (Mbr 1,VarSpec Down), (Mbr 2,VarSpec Up)] :: RelSpec
   let rvs = M.fromList [(Mbr 1, Down), (Mbr 2, Up)] :: RelVarSpec
 
 -- 2016 01 16

@@ -75,7 +75,7 @@
             let rs = fromRight $ relSpec g n
                 rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
                   -- e.g. rsl = [(Mbr 1,VarSpec Down),(Mbr 2,NodeSpec 3)]
-                tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup RelTplt rs
+                tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup TpltRole rs
                 Just tpltLab = lab g tpltNode :: Maybe Expr
                 showMbConcreteMbr ms = case ms of
                   VarSpec var -> show var
@@ -93,10 +93,10 @@
             -- in a well-formed graph, any edge label emits
             -- from a given node at most once
           Just tpltAddr = -- todo ? case of missing Tplt
-            elts Map.! (RelEdge RelTplt)
+            elts Map.! (RelEdge TpltRole)
           Just tpltExpr = lab g tpltAddr
           memberNodes = map snd $ sortOn fst $ Map.toList $ Map.union
-            (Map.delete  (RelEdge RelTplt)  elts)
+            (Map.delete  (RelEdge TpltRole)  elts)
             (nullMbrMap tpltExpr) :: [Maybe Node]
             -- handles missing nodes
             -- todo ? ordered list bad; just pass map
