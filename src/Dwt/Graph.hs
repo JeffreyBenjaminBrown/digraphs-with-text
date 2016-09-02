@@ -9,7 +9,7 @@
       (
         MbrPos, Arity
       , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
-      , MbrVar(..), MbConcreteMbr(..), RelVarSpec, RelNodeSpec, RelSpec
+      , Mbrship(..), MbConcreteMbr(..), RelVarSpec, RelNodeSpec, RelSpec
       , _splitStringForTplt, mkTplt
       , subInTplt, padTpltStrings, subInTpltWithDollars
       , tpltArity, nodesMatchTplt
@@ -55,12 +55,12 @@
     data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord) -- a Col emits one CollPrinciple, any number of CollMbrs
 
   -- for RelSpec
-    data MbrVar = It | Any | Up | Down -- !name -> MbrShip
+    data Mbrship = It | Any | Up | Down -- !name -> MbrShip
       deriving (Show,Read,Eq,Ord)
-    data MbConcreteMbr = VarSpec MbrVar | NodeSpec Node deriving(Show,Read,Eq,Ord)
+    data MbConcreteMbr = VarSpec Mbrship | NodeSpec Node deriving(Show,Read,Eq,Ord)
 
     -- at the RelTplt key is always a concrete NodeSpec
-    type RelVarSpec = Map.Map RelRole MbrVar -- Is a subset of RelSpec info, but
+    type RelVarSpec = Map.Map RelRole Mbrship -- Is a subset of RelSpec info, but
       -- in a graph implies a complete RelSpec, because
       -- a RelSpecExpr points to its concrete members.
     type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
@@ -416,17 +416,17 @@
 --               $ Map.filter (\x -> case x of VarSpec Up -> True; _ -> False) 
 --               rc
 
-    has1Dir :: MbrVar -> RelSpec -> Bool
+    has1Dir :: Mbrship -> RelSpec -> Bool
     has1Dir mv rc = length as == 1
       where as = Map.toList
                $ Map.filter (\x -> case x of VarSpec y -> y==mv; _ -> False) 
                rc
 
-    otherDir :: MbrVar -> MbrVar -- incomplete; non-invertible cases will err
+    otherDir :: Mbrship -> Mbrship -- incomplete; non-invertible cases will err
     otherDir Up = Down
     otherDir Down = Up
 
-    fork1Dir:: RSLT -> Node -> (MbrVar,RelSpec) -> Either String [Node]
+    fork1Dir:: RSLT -> Node -> (Mbrship,RelSpec) -> Either String [Node]
     fork1Dir g n (dir,r) = do -- returns one generation, neighbors
       if has1Dir (otherDir dir) r
          then return [] 
@@ -440,10 +440,10 @@
         -- TODO: this line is unnecessary. just return the rels, not their elts.
         -- EXCEPT: that might hurt the dfs, bfs functions below
 
-    fork1Dirs :: RSLT -> Node -> [(MbrVar,RelSpec)] -> Either String [Node]
+    fork1Dirs :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either String [Node]
     fork1Dirs g n rs = concat <$> mapM (fork1Dir g n) rs
 
-    subNodeForVars :: Node -> MbrVar -> RelSpec  -> RelSpec
+    subNodeForVars :: Node -> Mbrship -> RelSpec  -> RelSpec
     subNodeForVars n v r = Map.map -- change each VarSpec v to NodeSpec n
       (\x -> case x of VarSpec v' -> if v==v' then NodeSpec n else VarSpec v'
                        _          -> x   -- yes, the v,v' distinction is needed
@@ -452,7 +452,7 @@
   -- dfs and bfs
     -- algorithmically, the difference is only newNodes++ns v. ns++newNodes
 
-    _dwtDfs :: RSLT -> (MbrVar, RelSpec) -> [Node] -> [Node] ->
+    _dwtDfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] ->
                Either String [Node]
     _dwtDfs _ _   []             acc = return acc
     _dwtDfs g dir pending@(n:ns) acc = do
@@ -461,19 +461,19 @@
       _dwtDfs g dir (nub $ newNodes++ns) (n:acc)
         -- ifdo speed: discard visited nodes from graph (bfs too)
 
-    dwtDfs :: RSLT -> (MbrVar,RelSpec) -> [Node] -> Either String [Node]
+    dwtDfs :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either String [Node]
     dwtDfs g dir starts = do
       mapM_ (gelemM g) $ starts
       (nub . reverse) <$> _dwtDfs g dir starts []
 
-    _dwtBfs :: RSLT -> (MbrVar, RelSpec) -> [Node] -> [Node] -> 
+    _dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> 
                Either String [Node]
     _dwtBfs _ _   []             acc = return acc
     _dwtBfs g dir pending@(n:ns) acc = do
       newNodes <- fork1Dir g n dir
       _dwtBfs g dir (nub $ ns++newNodes) (n:acc)
 
-    dwtBfs :: RSLT -> (MbrVar, RelSpec) -> [Node] -> Either String [Node]
+    dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either String [Node]
     dwtBfs g dir starts = do
       mapM_ (gelemM g) $ starts
       (nub . reverse) <$> _dwtBfs g dir starts []
