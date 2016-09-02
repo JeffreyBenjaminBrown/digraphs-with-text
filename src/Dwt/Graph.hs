@@ -12,7 +12,7 @@
       , Mbrship(..), MbConcreteMbr(..), RelVarSpec, RelNodeSpec, RelSpec
       , _splitStringForTplt, mkTplt
       , subInTplt, padTpltStrings, subInTpltWithDollars
-      , tpltArity, nodesMatchTplt
+      , tpltArity, mbrListMatchesTpltArity
       , replaceUsf, insLeaf, insRel, insRelUsf, insColl
         , insWord, insTplt, insFl -- deprec ? insLeaf generalizes these
         , partitionRelSpec, insRelSpec, relNodeSpec, relSpec
@@ -113,13 +113,12 @@
     tpltArity e = case e of Tplt ss -> length ss - 1
                             _       -> error "tpltArity: Expr not a Tplt."
 
-    -- ! rename to $ mbrListArityMatches
-    nodesMatchTplt :: (MonadError String m) => [Node] -> Expr -> m ()
-    nodesMatchTplt ns e = case e of
+    mbrListMatchesTpltArity :: (MonadError String m) => [Node] -> Expr -> m ()
+    mbrListMatchesTpltArity ns e = case e of
       Tplt _ -> if (tpltArity e) == length ns
         then return ()
-        else throwError "nodesMatchTplt: Tplt Arity /= number of member Nodes." 
-      _ -> throwError "nodesMatchTplt: Expr not a Tplt."
+        else throwError "mbrListMatchesTpltArity: Tplt Arity /= number of member Nodes." 
+      _ -> throwError "mbrListMatchesTpltArity: Expr not a Tplt."
 
 -- build
     replaceUsf :: Node -> Expr -> RSLT -> RSLT
@@ -153,7 +152,7 @@
       do mapM_ (gelemM g) $ tn:ns
          t <- tpltAt g tn
          let a = tpltArity t
-         nodesMatchTplt ns t
+         mbrListMatchesTpltArity ns t
          return $ f (zip ns [1..a]) g'
       where newNode = head $ newNodes 1 g
             f []     g = g

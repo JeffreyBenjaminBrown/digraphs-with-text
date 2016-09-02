@@ -44,7 +44,7 @@
       assertBool "3" $ (insRel 2 [100,0] g1 :: Either String RSLT)
             == Left "gelemM: Node 100 absent."
       assertBool "4" $ (insRel 2 [1,1,1] g1 :: Either String RSLT)
-            == Left "nodesMatchTplt: Tplt Arity /= number of member Nodes."
+            == Left "mbrListMatchesTpltArity: Tplt Arity /= number of member Nodes."
       assertBool "5" $ (insRel 0 [1,1,1] g1 :: Either String RSLT)
             == Left "tpltAt: LNode 0 not a Tplt."
 
