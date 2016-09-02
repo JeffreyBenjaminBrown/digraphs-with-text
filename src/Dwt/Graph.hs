@@ -147,24 +147,15 @@
          return $ addMbrs (zip mbrs [1..tpltArity tplt]) $ addTplt g
       where newNode = head $ newNodes 1 g
             addMbrs []     g = g
-            addMbrs (p:ps) g = f ps $ insEdge (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
+            addMbrs (p:ps) g = addMbrs ps $ insEdge
+              (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
             addTplt = insEdge (newNode, template, RelEdge RelTplt)
                       . insNode (newNode, Rel) :: RSLT -> RSLT
 
     insRelUsf :: Node -> [Node] -> RSLT -> RSLT
-    insRelUsf t ns g = if ta /= length ns -- t is tplt, otherwise like ns
-        then error "insRelUsf: Tplt Arity /= number of members Nodes."
-        else if any (==False) $ map (flip gelem g) $ (t:ns)
-          then error "insRelUsf: One of those Nodes is not in the RSLT."
-        else f (zip ns [1..ta]) g'
-      where te@(Tplt ts) = fromJust $ lab g t -- can also error:
-              -- by finding Word or Rel where expected Tplt
-            ta = tpltArity te
-            newNode = head $ newNodes 1 g
-            f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelEdge $ Mbr $ snd p) g
-            g' =                insEdge (newNode, t, RelEdge RelTplt)
-                              $ insNode (newNode, Rel) g
+    insRelUsf t ns g = case insRel t ns g of
+      Left s -> error s
+      Right r -> r
 
     insColl :: (MonadError String m) => 
       (Maybe Node) -> -- title
