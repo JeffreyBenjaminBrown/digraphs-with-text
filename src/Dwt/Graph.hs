@@ -144,12 +144,12 @@
       do mapM_ (gelemM g) $ template:mbrs
          tplt <- tpltAt g template
          mbrListMatchesTpltArity mbrs tplt
-         return $ f (zip mbrs [1..tpltArity tplt]) g'
+         return $ f (zip mbrs [1..tpltArity tplt]) $ addTplt g
       where newNode = head $ newNodes 1 g
             f []     g = g
-            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelEdge $ Mbr $ snd p) g
-            g' =                insEdge (newNode, template, RelEdge RelTplt)
-                              $ insNode (newNode, Rel) g
+            f (p:ps) g = f ps $ insEdge (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
+            addTplt = insEdge (newNode, template, RelEdge RelTplt)
+                      . insNode (newNode, Rel) :: RSLT -> RSLT
 
     insRelUsf :: Node -> [Node] -> RSLT -> RSLT
     insRelUsf t ns g = if ta /= length ns -- t is tplt, otherwise like ns
