@@ -44,7 +44,7 @@
               | Rel
               | Tplt [String]
               | RelSpecExpr RelVarSpec
-              | Coll -- has a CollPrinciple like "and" or "or"
+              | Coll -- each uses a CollPrinciple like "and" or "or"
               deriving(Show,Read,Eq,Ord)
 
     data RSLTEdge = RelEdge RelRole | CollEdge CollRole
@@ -157,7 +157,6 @@
       Left s -> error s
       Right r -> r
 
-    -- >>>
     insColl :: (MonadError String m) => 
       (Maybe Node) -> -- title
       [Node] -> RSLT -> m RSLT
@@ -211,6 +210,7 @@
               rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
           return $ Map.fromList $ rvsl' ++ rnsl'
 
+  -- >>>
   -- edit (but not insert)
     chNonUser :: (MonadError String m) => RSLT -> Node -> Expr -> m RSLT
       -- Words and Tplts are used, but are not users. (Rels and Colls use them.)
