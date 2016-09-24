@@ -11,8 +11,9 @@
       , module Dwt.Show
       , module Dwt.Explore
       , module Dwt.FileIO
-      , module Dwt.Parse
+      , module P -- Dwt.Parse, which exports Parsec
       , module Dwt.MmParse
+      , module Dwt.Wiz
       , module M
       , module L
       ) where
@@ -25,8 +26,9 @@
     import Dwt.Show
     import Dwt.Explore
     import Dwt.FileIO
-    import Dwt.Parse
+    import qualified Dwt.Parse as P
     import Dwt.MmParse
+    import Dwt.Wiz
 
     import qualified Data.Text as T
     import qualified Data.List as L
