@@ -17,6 +17,7 @@
     eParse :: Parser a -> String -> Either ParseError a
     eParse p = parse p ""
 
-    eParse2 :: Parser a -> String -> Either ParseError (a,String)
+    eParse2 :: Parser a -> String
+      -> Either ParseError (a,String) -- (parsed, remainder)
     eParse2 p = parse ((,) <$> p <*> leftOver) ""
       where leftOver = manyTill anyToken eof
