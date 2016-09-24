@@ -57,7 +57,8 @@
   -- for RelSpec
     data Mbrship = It | Any | Up | Down
       deriving (Show,Read,Eq,Ord)
-    data MbConcreteMbr = VarSpec Mbrship | NodeSpec Node deriving(Show,Read,Eq,Ord)
+    data MbConcreteMbr = VarSpec Mbrship | NodeSpec Node deriving(Show,Read,Eq,Ord) -- or MbAddressedMbr?
+      -- maybe it is addressed; else it is a Mbrship variable
 
     -- at the TpltRole key is always a concrete NodeSpec
     type RelVarSpec = Map.Map RelRole Mbrship -- Is a subset of RelSpec info, but
@@ -216,7 +217,7 @@
       -- Words and Tplts are used, but are not users. (Rels and Colls use them.)
     chNonUser g n e' = do
       let me = lab g n
-      let mismatch = throwError $ "chNonUser: constructor mismatch"
+          mismatch = throwError $ "chNonUser: constructor mismatch"
       case me of
         Just e@(Word _)  -> if areLikeExprs e e' then return () else mismatch
         Just e@(Tplt _) -> if areLikeExprs e e' then return () else mismatch
