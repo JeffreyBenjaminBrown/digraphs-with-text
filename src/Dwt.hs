@@ -14,7 +14,9 @@
       , module P -- Dwt.Parse, which exports Parsec
       , module Dwt.MmParse
       , module Dwt.Wiz
+      , module R
       , module M
+      , module Mb
       , module L
       ) where
 
@@ -34,6 +36,8 @@
     import qualified Data.List as L
     import qualified Data.Map as M
     import qualified Data.Maybe as Mb
+
+    import qualified Text.Read as R
 
 -- shorthand
   -- mindmap things
