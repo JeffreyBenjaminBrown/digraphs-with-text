@@ -24,7 +24,7 @@
         InsWord ->  tryStateIO "Enter a Str to add"
                           (const True)
                           insWord g
-        -- InsRel -> insWordWiz g
+        InsRel -> do h <- insRelWiz g; wiz h
 
     tryStateIO :: String                   -> (String-> Bool)
           -> (String-> State-> State) -> State -> IO State
@@ -56,10 +56,14 @@
           True -> return ns
           False -> do putStrLn "Those are not all in the graph!"; getMbrListWiz g
 
---    insRelWiz :: RSLT -> IO RSLT
---    insRelWiz g = do
---      putStrLn "Enter the address of a Template for the new Rel."
---      n <- (\s->read s::Node) <$> getLine
---      case gelem n g of False -> do "No, seriously!"; wordWiz g
---                        True -> 
---
+    insRelWiz :: State -> IO State
+    insRelWiz g = do 
+      tn <- getTpltAddrWiz g
+      ns <- getMbrListWiz g
+      let mbExpr = lab g tn
+      case mbExpr of Nothing -> error "By getTpltAddrWiz, this is impossible."
+                     Just tplt -> if tpltArity tplt == length ns
+                                  then case insRel tn ns g of
+                                         Right h -> return h
+                                         _ -> error "Impossible, by wizzes."
+                                  else do putStrLn "Arity mismatch!"; insRelWiz g
