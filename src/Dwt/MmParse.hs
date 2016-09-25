@@ -43,6 +43,9 @@
     import Dwt.Util
     import Dwt.Parse
 
+    import Text.Parsec -- >>>
+    import Text.Parsec.String (Parser)
+
     import Data.Graph.Inductive
     import Data.Text (stripEnd,pack,unpack)
     import Control.Monad (foldM)
