@@ -1,4 +1,4 @@
-    module Play where
+    module Experim where
     
 -- lifted from the tutorial
     import Control.Monad (void)
@@ -44,19 +44,20 @@
     ioA = do mba <- parseMaybe parseA <$> getLine
              maybe (retry "Parse failure." ioA) pure mba
 
---  -- operators!
---    data PairTree = Leaf String | Pair PairTree PairTree
---      deriving Show
---
---    ptExpr :: Parser PairTree
---    ptExpr = makeExprParser ptTerm ptOperators
---
---    aTerm :: Parser PairTree
---    aTerm = parens aExpr
---         <|> Var      <$> identifier
---
---    ptOperators :: [[Operator Parser PairTree]]
---    ptOperators =
---      [ [InfixL (symbol "$" *> pure Pair) ]
---      , [ InfixL (symbol "$$" *> pure Pair) ]
---      ]
+  -- operators!
+    data AExpr = Var String | Pair AExpr AExpr deriving (Show)
+    
+    aExpr :: Parser AExpr
+    aExpr = makeExprParser aTerm aOperators
+    
+    aTerm :: Parser AExpr
+    aTerm = parens aExpr   <|>   Var <$> identifier
+
+    aOperators :: [[Operator Parser AExpr]]
+    aOperators =
+      [ [ InfixN $ symbol "$" *> pure (Pair) ]
+      , [ InfixN $ symbol "$$" *> pure (Pair) ]
+      ]
+
+    identifier :: Parser String
+    identifier = lexeme $ (:) <$> letterChar <*> many alphaNumChar
