@@ -4,7 +4,6 @@
       ( module Data.Graph.Inductive
 
       , module Dwt
-
       , module Dwt.Util
       , module Dwt.Graph
       , module Dwt.Search
@@ -49,13 +48,12 @@
     ns = NodeSpec
     (qn, qs) = (QNode, QWord)
     qt = QTplt . map (T.unpack . T.strip . T.pack) . _splitStringForTplt
-      -- is nearly mkTplt, but swaps QTplt for Tplt
+      -- is nearly mkTplt, but subs QTplt for Tplt
 
     p :: (Applicative f) => a -> f a
     p = pure
 
   -- monad things
     (n, j) = (Mb.Nothing, Mb.Just)
-    -- p = pure -- todo ? GHC will not compile, but GHCI accepts
     fr = fromRight
     type EM = Either String

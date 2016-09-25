@@ -43,7 +43,7 @@
     import Dwt.Util
     import Dwt.Parse
 
-    import Text.Parsec -- >>>
+    import Text.Parsec
     import Text.Parsec.String (Parser)
 
     import Data.Graph.Inductive

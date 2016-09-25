@@ -18,10 +18,10 @@
       case cmd of 
         Id -> wiz g
         Quit -> return g
-        InsTplt -> tryStateIO "Enter a Tplt to add"
+        InsTplt -> tryStateIO "Enter a Tplt to add."
                          ((>0) . length . filter (=='_'))
                          insTplt g
-        InsWord ->  tryStateIO "Enter a Str to add"
+        InsWord ->  tryStateIO "Enter a Word (any string, really) to add."
                           (const True)
                           insWord g
         InsRel -> do h <- insRelWiz g; wiz h
