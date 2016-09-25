@@ -24,19 +24,39 @@
     integer :: Parser Integer
     integer = lexeme L.integer
 
--- >>>
+-- mine
+  -- parse a disjunction
     data Cmd = A | B deriving Show
 
     parseA = lexeme (string "A") *> pure A
     parseB = lexeme (string "B") *> pure B
     parseCmd = sc *> parseA <|> parseB
 
+  -- parse a list
     parseInts :: Parser [Int]
     parseInts = sc *> (many $ fromIntegral <$> integer)
 
-    ioA :: IO Cmd
-    ioA = do mba <- parseMaybe parseA <$> getLine
-             maybe (retry "Parse failure." ioA) return mba
-
+  -- input from a fallible user
     retry :: String -> IO a -> IO a
     retry error f = do putStrLn $ error ++ " Try again?"; f
+
+    ioA :: IO Cmd
+    ioA = do mba <- parseMaybe parseA <$> getLine
+             maybe (retry "Parse failure." ioA) pure mba
+
+--  -- operators!
+--    data PairTree = Leaf String | Pair PairTree PairTree
+--      deriving Show
+--
+--    ptExpr :: Parser PairTree
+--    ptExpr = makeExprParser ptTerm ptOperators
+--
+--    aTerm :: Parser PairTree
+--    aTerm = parens aExpr
+--         <|> Var      <$> identifier
+--
+--    ptOperators :: [[Operator Parser PairTree]]
+--    ptOperators =
+--      [ [InfixL (symbol "$" *> pure Pair) ]
+--      , [ InfixL (symbol "$$" *> pure Pair) ]
+--      ]
