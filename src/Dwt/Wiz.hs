@@ -39,17 +39,18 @@
 -- IO
     wiz :: WizState -> IO WizState
     wiz g = do
-      putStrLn "Command me!"
-      cmd <- (\s->read s::Cmd) <$> getLine
-      case cmd of 
-        Quit -> return g
-        InsTplt -> tryWizStateIO "Enter a Tplt to add."
-                         ((>0) . length . filter (=='_'))
-                         insTplt g
-        InsWord ->  tryWizStateIO "Enter a Word (any string, really) to add."
-                          (const True)
-                          insWord g
-        InsRel -> do h <- insRelWiz g; wiz h
+      putStrLn "Go!"
+      mbCmd <- parseMaybe parseCmd <$> getLine
+      maybe (wiz g) f mbCmd where
+        f cmd = case cmd of 
+          Quit -> return g
+          InsTplt -> tryWizStateIO "Enter a Tplt to add."
+                           ((>0) . length . filter (=='_'))
+                           insTplt g
+          InsWord ->  tryWizStateIO "Enter a Word (any string, really) to add."
+                            (const True)
+                            insWord g
+          InsRel -> do h <- insRelWiz g; wiz h
 
     tryWizStateIO :: String                   -> (String-> Bool)
           -> (String-> WizState-> WizState) -> WizState -> IO WizState
