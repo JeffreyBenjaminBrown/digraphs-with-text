@@ -18,12 +18,17 @@
     type WizState = RSLT
 
 -- Read a command name.
+    commandAliases :: [(String, Cmd)]
+    commandAliases = [ ("iw", InsWord)
+                     , ("it", InsTplt)
+                     , ("ir", InsRel)
+                     , ("q",  Quit)
+                     ]
+
     parseCmd :: Parser Cmd
-    parseCmd = sc *> f <* sc where
-      f = symbol "iw" *> pure InsWord
-          <|> symbol "ir" *> pure InsRel
-          <|> symbol "it" *> pure InsTplt
-          <|> symbol "q" *> pure Quit
+    parseCmd = sc *> foldl1 (<|>) parsers <* sc where
+      parsers = map f commandAliases where
+        f (name,cmd) = try $ symbol name *> pure cmd
 
     sc :: Parser ()
     sc = L.space (void spaceChar) lineCmnt blockCmnt
