@@ -14,12 +14,17 @@
 
     import qualified Text.Read as R -- trying not to need
 
-    data Cmd = Id | InsWord | InsTplt | InsRel | Quit deriving (Show, Read) --Eq
+    data Cmd = InsWord | InsTplt | InsRel | Quit deriving (Show, Read)
     type WizState = RSLT
 
-    --parseCmd = sc *> (lexeme $ 
+-- Read a command name.
+    parseCmd :: Parser Cmd
+    parseCmd = sc *> f <* sc where
+      f = symbol "iw" *> pure InsWord
+          <|> symbol "ir" *> pure InsRel
+          <|> symbol "it" *> pure InsTplt
+          <|> symbol "q" *> pure Quit
 
--- >>>
     sc :: Parser ()
     sc = L.space (void spaceChar) lineCmnt blockCmnt
       where lineCmnt  = L.skipLineComment "//"
@@ -31,13 +36,12 @@
     symbol :: String -> Parser String
     symbol = L.symbol sc
     
--- >>>
+-- IO
     wiz :: WizState -> IO WizState
     wiz g = do
       putStrLn "Command me!"
       cmd <- (\s->read s::Cmd) <$> getLine
       case cmd of 
-        Id -> wiz g
         Quit -> return g
         InsTplt -> tryWizStateIO "Enter a Tplt to add."
                          ((>0) . length . filter (=='_'))
