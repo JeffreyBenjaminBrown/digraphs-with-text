@@ -5,34 +5,55 @@
     import Data.Graph.Inductive
     import Dwt.Graph
     import Dwt.Show
-    import qualified Text.Read as R
     import qualified Data.Maybe as Mb
 
-    data Cmd = Id | InsWord | InsTplt | InsRel | Quit deriving (Show, Read) --Eq
-    type State = RSLT
+    import Control.Monad (void)
+    import Text.Megaparsec
+    import Text.Megaparsec.String -- input stream is of type ‘String’
+    import qualified Text.Megaparsec.Lexer as L
 
-    wiz :: State -> IO State
+    import qualified Text.Read as R -- trying not to need
+
+    data Cmd = Id | InsWord | InsTplt | InsRel | Quit deriving (Show, Read) --Eq
+    type WizState = RSLT
+
+    --parseCmd = sc *> (lexeme $ 
+
+-- >>>
+    sc :: Parser ()
+    sc = L.space (void spaceChar) lineCmnt blockCmnt
+      where lineCmnt  = L.skipLineComment "//"
+            blockCmnt = L.skipBlockComment "/*" "*/"
+    
+    lexeme :: Parser a -> Parser a
+    lexeme = L.lexeme sc
+    
+    symbol :: String -> Parser String
+    symbol = L.symbol sc
+    
+-- >>>
+    wiz :: WizState -> IO WizState
     wiz g = do
       putStrLn "Command me!"
       cmd <- (\s->read s::Cmd) <$> getLine
       case cmd of 
         Id -> wiz g
         Quit -> return g
-        InsTplt -> tryStateIO "Enter a Tplt to add."
+        InsTplt -> tryWizStateIO "Enter a Tplt to add."
                          ((>0) . length . filter (=='_'))
                          insTplt g
-        InsWord ->  tryStateIO "Enter a Word (any string, really) to add."
+        InsWord ->  tryWizStateIO "Enter a Word (any string, really) to add."
                           (const True)
                           insWord g
         InsRel -> do h <- insRelWiz g; wiz h
 
-    tryStateIO :: String                   -> (String-> Bool)
-          -> (String-> State-> State) -> State -> IO State
-    tryStateIO askUser good change g = do
+    tryWizStateIO :: String                   -> (String-> Bool)
+          -> (String-> WizState-> WizState) -> WizState -> IO WizState
+    tryWizStateIO askUser good change g = do
       putStrLn askUser
       s <- getLine
       case good s of False -> do putStrLn "No seriously!"
-                                 tryStateIO askUser good change g
+                                 tryWizStateIO askUser good change g
                      True -> wiz $ change s g
 
     getTpltAddrWiz :: RSLT -> IO Node
@@ -56,7 +77,7 @@
           True -> return ns
           False -> do putStrLn "Those are not all in the graph!"; getMbrListWiz g
 
-    insRelWiz :: State -> IO State
+    insRelWiz :: WizState -> IO WizState
     insRelWiz g = do 
       tn <- getTpltAddrWiz g
       ns <- getMbrListWiz g

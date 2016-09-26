@@ -10,7 +10,6 @@
       , module Dwt.Show
       , module Dwt.Explore
       , module Dwt.FileIO
-      , module Dwt.Parse
       , module Dwt.MmParse
       , module Dwt.Wiz
 
@@ -30,11 +29,16 @@
     import Dwt.Show
     import Dwt.Explore
     import Dwt.FileIO
-    import Dwt.Parse
-    import Dwt.MmParse
     import Dwt.Wiz
+    import qualified Dwt.Parse as P
+    import Dwt.MmParse
 
-    import qualified Text.Parsec as P -- >>>
+    import Control.Monad (void)
+    import Text.Megaparsec as Mp
+    import Text.Megaparsec.String as Mp
+    import qualified Text.Megaparsec.Lexer as Mpl
+
+    import qualified Text.Parsec as P
     import qualified Text.Parsec.String as P
     import qualified Text.Read as R
 
@@ -43,7 +47,7 @@
     import qualified Data.Map as M
     import qualified Data.Maybe as Mb
 
--- shorthand
+-- shorthand (can't go in Util.hs; depends on more)
   -- mindmap things
     ns = NodeSpec
     (qn, qs) = (QNode, QWord)
