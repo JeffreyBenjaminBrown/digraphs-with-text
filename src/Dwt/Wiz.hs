@@ -60,9 +60,12 @@
           InsTplt -> tryWizStateIO "Enter a Tplt to add."
                            ((>0) . length . filter (=='_'))
                            insTplt g
-          InsWord ->  tryWizStateIO "Enter a Word (any string, really) to add."
-                            (const True)
-                            insWord g
+          InsWord -> do putStrLn "Enter a Word (any string, really) to add."
+                        s <- getLine
+                        wiz $ insWord s g
+--          InsWord ->  tryWizStateIO "Enter a Word (any string, really) to add."
+--                            (const True)
+--                            insWord g
           InsRel -> do h <- insRelWiz g; wiz h
 
     -- ?? bad
@@ -91,7 +94,7 @@
     getMbrListWiz :: RSLT -> IO [Node]
     getMbrListWiz g = do
       putStrLn "Enter relationship member addresses, separated by space."
-      -- mns <- parseMaybe (sc *> many 
+      -- mns <- parseMaybe (sc *> many integer)
       mns <- map (\a -> R.readMaybe a :: Maybe Node) <$> words <$> getLine
       case or $ map Mb.isNothing mns of 
         True -> do putStrLn "Not a list of addresses!"; getMbrListWiz g
