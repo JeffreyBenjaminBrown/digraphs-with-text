@@ -26,11 +26,11 @@
 
 -- mine
   -- parse a disjunction
-    data Cmd = A | B deriving Show
+    data Cmd = A | B deriving (Show)
 
     parseA = lexeme (string "A") *> pure A
     parseB = lexeme (string "B") *> pure B
-    parseCmd = sc *> parseA <|> parseB
+    parseCmd = sc *> (parseA <|> parseB)
 
   -- parse a list
     parseInts :: Parser [Int]
@@ -44,9 +44,11 @@
     ioA = do mba <- parseMaybe parseA <$> getLine
              maybe (retry "Parse failure." ioA) pure mba
 
+
+
   -- operators!
     data AExpr = Var String | Pair AExpr AExpr deriving (Show)
-    
+   
     aExpr :: Parser AExpr
     aExpr = makeExprParser aTerm aOperators
     
