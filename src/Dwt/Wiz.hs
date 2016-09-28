@@ -9,11 +9,11 @@
 
     import Control.Monad (void)
     import Text.Megaparsec
-    import Text.Megaparsec.String -- input stream is of type ‘String’
+    import Text.Megaparsec.String
     import qualified Text.Megaparsec.Lexer as L
 
 -- data
-    data Cmd = InsWord | InsTplt | InsRel | Quit deriving (Show, Read)
+    data Cmd = Help | View | InsWord | InsTplt | InsRel | Quit deriving (Show, Read)
     type WizState = RSLT
 
 -- parser utilities
@@ -33,12 +33,14 @@
 
 -- read a command name
     commandAliases :: [(String, Cmd)]
-    commandAliases = [ ("iw", InsWord)
+    commandAliases = [ ("?", Help)
+                     , ("v", View)
+                     , ("iw", InsWord)
                      , ("it", InsTplt)
                      , ("ir", InsRel)
                      , ("q",  Quit)
                      ]
-    
+
     parseCmd :: Parser Cmd
     parseCmd = sc *> foldl1 (<|>) parsers <* sc where
       parsers = map f commandAliases where
@@ -50,21 +52,23 @@
 
     wiz :: WizState -> IO WizState
     wiz g = do
-      putStrLn "Go!"
+      putStrLn "What next? (Type ? for help.)"
       mbCmd <- parseMaybe parseCmd <$> getLine
       maybe (retry "Command not understood." $ wiz g) f mbCmd where
         f cmd = case cmd of 
-          Quit -> return g
-          InsTplt -> tryWizStateIO "Enter a Tplt to add."
-                           ((>0) . length . filter (=='_'))
-                           insTplt g
+          Help -> do putStrLn "Type v to view, iw to insert word, it to insert template, ir to insert relationship."; wiz g
+          View -> do view g $ nodes g; wiz g
           InsWord -> do putStrLn "Enter a Word (any string, really) to add."
                         s <- getLine
                         wiz $ insWord s g
+          InsTplt -> tryWizStateIO "Enter a Tplt to add."
+                           ((>0) . length . filter (=='_'))
+                           insTplt g
           InsRel -> do h <- insRelWiz g; wiz h
+          Quit -> return g
 
-    -- only used once
-    tryWizStateIO :: String
+    tryWizStateIO :: -- only used once
+          String -- tell the user
           -> (String-> Bool) -- is the input good?
           -> (String-> WizState-> WizState) -- how to change the wizstate
           -> WizState -> IO WizState
