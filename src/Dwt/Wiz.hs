@@ -18,19 +18,7 @@
     data Cmd = InsWord | InsTplt | InsRel | Quit deriving (Show, Read)
     type WizState = RSLT
 
--- Read a command name.
-    commandAliases :: [(String, Cmd)]
-    commandAliases = [ ("iw", InsWord)
-                     , ("it", InsTplt)
-                     , ("ir", InsRel)
-                     , ("q",  Quit)
-                     ]
-
-    parseCmd :: Parser Cmd
-    parseCmd = sc *> foldl1 (<|>) parsers <* sc where
-      parsers = map f commandAliases where
-        f (name,cmd) = try $ symbol name *> pure cmd
-
+-- Parser utilities
     sc :: Parser ()
     sc = L.space (void spaceChar) lineCmnt blockCmnt
       where lineCmnt  = L.skipLineComment "//"
@@ -41,7 +29,20 @@
 
     symbol :: String -> Parser String
     symbol = L.symbol sc
+
+-- Read a command name.
+    commandAliases :: [(String, Cmd)]
+    commandAliases = [ ("iw", InsWord)
+                     , ("it", InsTplt)
+                     , ("ir", InsRel)
+                     , ("q",  Quit)
+                     ]
     
+    parseCmd :: Parser Cmd
+    parseCmd = sc *> foldl1 (<|>) parsers <* sc where
+      parsers = map f commandAliases where
+        f (name,cmd) = try $ symbol name *> pure cmd
+
 -- IO
     retry :: String -> IO WizState -> IO WizState
     retry msgToUser f = do putStrLn msgToUser;  f
@@ -50,7 +51,7 @@
     wiz g = do
       putStrLn "Go!"
       mbCmd <- parseMaybe parseCmd <$> getLine
-      maybe (wiz g) f mbCmd where -- better: "retry msgToUser $ wiz g"
+      maybe (retry "Command not understood." $ wiz g) f mbCmd where
         f cmd = case cmd of 
           Quit -> return g
           InsTplt -> tryWizStateIO "Enter a Tplt to add."
