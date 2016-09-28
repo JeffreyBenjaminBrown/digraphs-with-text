@@ -12,13 +12,11 @@
     import Text.Megaparsec.String -- input stream is of type ‘String’
     import qualified Text.Megaparsec.Lexer as L
 
-    import qualified Text.Read as R -- trying not to need
-
---
+-- data
     data Cmd = InsWord | InsTplt | InsRel | Quit deriving (Show, Read)
     type WizState = RSLT
 
--- Parser utilities
+-- parser utilities
     sc :: Parser ()
     sc = L.space (void spaceChar) lineCmnt blockCmnt
       where lineCmnt  = L.skipLineComment "//"
@@ -33,7 +31,7 @@
     integer :: Parser Integer
     integer = lexeme L.integer
 
--- Read a command name.
+-- read a command name
     commandAliases :: [(String, Cmd)]
     commandAliases = [ ("iw", InsWord)
                      , ("it", InsTplt)
@@ -63,12 +61,9 @@
           InsWord -> do putStrLn "Enter a Word (any string, really) to add."
                         s <- getLine
                         wiz $ insWord s g
---          InsWord ->  tryWizStateIO "Enter a Word (any string, really) to add."
---                            (const True)
---                            insWord g
           InsRel -> do h <- insRelWiz g; wiz h
 
-    -- ?? bad
+    -- only used once
     tryWizStateIO :: String
           -> (String-> Bool) -- is the input good?
           -> (String-> WizState-> WizState) -- how to change the wizstate
@@ -94,13 +89,13 @@
     getMbrListWiz :: RSLT -> IO [Node]
     getMbrListWiz g = do
       putStrLn "Enter relationship member addresses, separated by space."
-      -- mns <- parseMaybe (sc *> many integer)
-      mns <- map (\a -> R.readMaybe a :: Maybe Node) <$> words <$> getLine
-      case or $ map Mb.isNothing mns of 
-        True -> do putStrLn "Not a list of addresses!"; getMbrListWiz g
-        False -> let ns = Mb.catMaybes mns in case and $ map (flip gelem g) ns of
-          True -> return ns
-          False -> do putStrLn "Those are not all in the graph!"; getMbrListWiz g
+      mns <- parseMaybe (sc *> many integer) <$> getLine
+      case mns of 
+        Nothing -> do putStrLn "Error parsing address list."; getMbrListWiz g
+        Just ns -> let ints = fromIntegral <$> ns 
+          in case and $ map (flip gelem g) $ ints of
+            True -> return ints
+            False -> do putStrLn "Addresses not all in graph."; getMbrListWiz g
 
     insRelWiz :: WizState -> IO WizState
     insRelWiz g = do 
