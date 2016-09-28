@@ -14,6 +14,7 @@
 
     import qualified Text.Read as R -- trying not to need
 
+--
     data Cmd = InsWord | InsTplt | InsRel | Quit deriving (Show, Read)
     type WizState = RSLT
 
@@ -37,16 +38,19 @@
     
     lexeme :: Parser a -> Parser a
     lexeme = L.lexeme sc
-    
+
     symbol :: String -> Parser String
     symbol = L.symbol sc
     
 -- IO
+    retry :: String -> IO WizState -> IO WizState
+    retry msgToUser f = do putStrLn msgToUser;  f
+
     wiz :: WizState -> IO WizState
     wiz g = do
       putStrLn "Go!"
       mbCmd <- parseMaybe parseCmd <$> getLine
-      maybe (wiz g) f mbCmd where
+      maybe (wiz g) f mbCmd where -- better: "retry msgToUser $ wiz g"
         f cmd = case cmd of 
           Quit -> return g
           InsTplt -> tryWizStateIO "Enter a Tplt to add."
