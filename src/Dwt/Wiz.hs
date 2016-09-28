@@ -62,8 +62,10 @@
                             insWord g
           InsRel -> do h <- insRelWiz g; wiz h
 
-    tryWizStateIO :: String                   -> (String-> Bool)
-          -> (String-> WizState-> WizState) -> WizState -> IO WizState
+    tryWizStateIO :: String
+          -> (String-> Bool) -- is the input good?
+          -> (String-> WizState-> WizState) -- how to change the wizstate
+          -> WizState -> IO WizState
     tryWizStateIO askUser good change g = do
       putStrLn askUser
       s <- getLine
@@ -73,7 +75,7 @@
 
     getTpltAddrWiz :: RSLT -> IO Node
     getTpltAddrWiz g = do
-      putStrLn "Enter the address of a Template."
+      putStrLn "Enter the address of a relationship Template."
       s <- getLine
       case (R.readMaybe s :: Maybe Node) of 
         Nothing -> do putStrLn "Not an address!"; getTpltAddrWiz g
