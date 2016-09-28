@@ -24,11 +24,14 @@
       where lineCmnt  = L.skipLineComment "//"
             blockCmnt = L.skipBlockComment "/*" "*/"
     
+    symbol :: String -> Parser String
+    symbol = L.symbol sc
+
     lexeme :: Parser a -> Parser a
     lexeme = L.lexeme sc
 
-    symbol :: String -> Parser String
-    symbol = L.symbol sc
+    integer :: Parser Integer
+    integer = lexeme L.integer
 
 -- Read a command name.
     commandAliases :: [(String, Cmd)]
@@ -44,7 +47,7 @@
         f (name,cmd) = try $ symbol name *> pure cmd
 
 -- IO
-    retry :: String -> IO WizState -> IO WizState
+    retry :: String -> IO a -> IO a
     retry msgToUser f = do putStrLn msgToUser;  f
 
     wiz :: WizState -> IO WizState
@@ -62,6 +65,7 @@
                             insWord g
           InsRel -> do h <- insRelWiz g; wiz h
 
+    -- ?? bad
     tryWizStateIO :: String
           -> (String-> Bool) -- is the input good?
           -> (String-> WizState-> WizState) -- how to change the wizstate
@@ -76,17 +80,18 @@
     getTpltAddrWiz :: RSLT -> IO Node
     getTpltAddrWiz g = do
       putStrLn "Enter the address of a relationship Template."
-      s <- getLine
-      case (R.readMaybe s :: Maybe Node) of 
-        Nothing -> do putStrLn "Not an address!"; getTpltAddrWiz g
+      s <- fmap fromIntegral . parseMaybe (sc *> L.integer <* sc) <$> getLine
+      case s of 
+        Nothing -> retry "Address = integer." $ getTpltAddrWiz g
         Just n -> case lab g n of 
-          Nothing -> do putStrLn "Address absent."; getTpltAddrWiz g
           Just (Tplt _) -> return n
-          Just _ -> do putStrLn "Not a template!"; getTpltAddrWiz g
+          Nothing -> retry "Address absent." $ getTpltAddrWiz g
+          Just _ -> retry "Address holds not a Template." $ getTpltAddrWiz g
 
     getMbrListWiz :: RSLT -> IO [Node]
     getMbrListWiz g = do
-      putStrLn "Enter member addresses, separated by space."
+      putStrLn "Enter relationship member addresses, separated by space."
+      -- mns <- parseMaybe (sc *> many 
       mns <- map (\a -> R.readMaybe a :: Maybe Node) <$> words <$> getLine
       case or $ map Mb.isNothing mns of 
         True -> do putStrLn "Not a list of addresses!"; getMbrListWiz g
