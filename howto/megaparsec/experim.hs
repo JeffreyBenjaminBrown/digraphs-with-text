@@ -36,13 +36,6 @@
     parseInts :: Parser [Int]
     parseInts = sc *> (many $ fromIntegral <$> integer)
 
-  -- parse a disjunction
-    data Cmd = A | B deriving (Show)
-
-    parseA = lexeme (string "A") *> pure A
-    parseB = lexeme (string "B") *> pure B
-    parseCmd = sc *> (parseA <|> parseB)
-
   -- operators!
     data AExpr = Var String | Pair AExpr AExpr deriving (Show)
    
