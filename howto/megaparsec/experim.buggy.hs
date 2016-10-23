@@ -42,7 +42,7 @@
     aTerm = parens aExpr   <|>   Var <$> identifier
 
     aOperators :: [[Operator Parser AExpr]]
-    aOperators =
+    aOperators = -- the bug is here. see experim.hs for explanation
       [ [ InfixN $ symbol "#" *> pure (Pair) ]
       , [ InfixN $ symbol "##" *> pure (Pair) ]
       ]
