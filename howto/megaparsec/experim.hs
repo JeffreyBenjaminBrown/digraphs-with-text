@@ -43,14 +43,14 @@
 
     aOperators :: [[Operator Parser AExpr]]
     aOperators =
-      [ [ InfixN $ symbol "$" *> pure (Pair) ]
-      , [ InfixN $ symbol "$$" *> pure (Pair) ]
+      [ [ InfixN $ symbol "#" *> pure (Pair) ]
+      , [ InfixN $ symbol "##" *> pure (Pair) ]
       ]
 
   -- test it
     test = map (parseMaybe aExpr) exprsToParse
-    exprsToParse = [ "a $ b"             -- works
-                   , "a $$ b"            -- fails!
-                   , "a $ b $$ c $ d"    -- works
-                   , "(a $ b) $ (c $ d)" -- works
+    exprsToParse = [ "a # b"             -- works
+                   , "a ## b"            -- fails!
+                   , "a # b ## c # d"    -- works
+                   , "(a # b) # (c # d)" -- works
                    ]
