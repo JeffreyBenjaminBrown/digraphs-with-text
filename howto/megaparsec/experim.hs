@@ -1,12 +1,21 @@
+-- based on (and simpler than) the tutorial at https://mrkkrp.github.io/megaparsec/tutorials/parsing-simple-imperative-language.html
+
     module Experim where
     
--- lifted from the tutorial
     import Control.Monad (void)
     import Text.Megaparsec
     import Text.Megaparsec.Expr
     import Text.Megaparsec.String -- input stream is of type ‘String’
     import qualified Text.Megaparsec.Lexer as L
-    
+
+    test = map (parseMaybe aExpr) exprsToParse
+    exprsToParse = [ "a $ b"             -- works
+                   , "a $$ b"            -- fails!
+                   , "a $ b $$ c $ d"    -- works
+                   , "(a $ b) $ (c $ d)" -- works
+                   ]
+
+  -- tiny parsers
     sc :: Parser () -- space consumer
     sc = L.space (void spaceChar) lineCmnt blockCmnt
       where lineCmnt  = L.skipLineComment "//"
@@ -24,27 +33,15 @@
     integer :: Parser Integer
     integer = lexeme L.integer
 
--- mine
+    parseInts :: Parser [Int]
+    parseInts = sc *> (many $ fromIntegral <$> integer)
+
   -- parse a disjunction
     data Cmd = A | B deriving (Show)
 
     parseA = lexeme (string "A") *> pure A
     parseB = lexeme (string "B") *> pure B
     parseCmd = sc *> (parseA <|> parseB)
-
-  -- parse a list
-    parseInts :: Parser [Int]
-    parseInts = sc *> (many $ fromIntegral <$> integer)
-
-  -- input from a fallible user
-    retry :: String -> IO a -> IO a
-    retry error f = do putStrLn $ error ++ " Try again?"; f
-
-    ioA :: IO Cmd
-    ioA = do mba <- parseMaybe parseA <$> getLine
-             maybe (retry "Parse failure." ioA) pure mba
-
-
 
   -- operators!
     data AExpr = Var String | Pair AExpr AExpr deriving (Show)
