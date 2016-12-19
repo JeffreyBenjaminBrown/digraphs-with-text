@@ -40,7 +40,7 @@
     type MbrPos = Int -- k members of k-ary Rel, MbrPos values [1..k]
 
     type RSLT = Gr Expr RSLTEdge -- reflective set of labeled tuples
-    data Expr = Word String | Fl Float
+    data Expr = Word String | Fl Float -- similar
               | Rel
               | Tplt [String]
               | RelSpecExpr RelVarSpec
