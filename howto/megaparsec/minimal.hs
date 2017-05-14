@@ -43,15 +43,23 @@
 
     aOperators :: [[Operator Parser AExpr]]
     aOperators =
-      [ [ InfixN $ symbol "#1" *> pure (Pair) ]
-      , [ InfixN $ symbol "#2" *> pure (Pair) ]
+      [ [ InfixN $ symbol "|+|" *> pure (Pair) ]
+      , [ InfixN $ symbol "|-|" *> pure (Pair) ] -- binds last, I think
       ]
       -- PITFALL: Previously, these symbols were # and ##, and the # was listed first. In that case, "a ## b" would not parse, because it would read the first # and think it was done. (See Haskell Cafe thread "Why is Megaparsec treating these two operators differently?", from October 23 2016, and|or the file "experim.buggy.hs".)
 
   -- it almost works!
-    test = mapM_ putStrLn $ map (show . parseMaybe aExpr) exprsToParse
-    exprsToParse = [ "a #1 b"
-                   , "a #2 b"
-                   , "a #1 b #2 c #1 d"
-                   , "(a #1 b) #1 (c #1 d)"
-                   ]
+    test exprs = mapM_ putStrLn $ map (show . parseMaybe aExpr) exprs
+
+    exprs = [ "a |+| b"
+            , "a |-| b"
+            , "a |+| b |-| c"
+            , "a |-| b |+| c"
+            , "a |+| b   |-|  c |+| d"
+            ]
+
+    exprOverkill =
+      [ "a |-| b   |+|  c |-| d"
+      , "(a |+| b) |+| (c |+| d)"
+      ]
+
