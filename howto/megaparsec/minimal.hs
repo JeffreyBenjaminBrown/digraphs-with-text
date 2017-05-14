@@ -48,8 +48,8 @@
       ]
       -- PITFALL: Previously, these symbols were # and ##, and the # was listed first. In that case, "a ## b" would not parse, because it would read the first # and think it was done. (See Haskell Cafe thread "Why is Megaparsec treating these two operators differently?", from October 23 2016, and|or the file "experim.buggy.hs".)
 
-  -- it works!
-    test = map (parseMaybe aExpr) exprsToParse
+  -- it almost works!
+    test = mapM_ putStrLn $ map (show . parseMaybe aExpr) exprsToParse
     exprsToParse = [ "a #1 b"
                    , "a #2 b"
                    , "a #1 b #2 c #1 d"
