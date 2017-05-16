@@ -1,5 +1,5 @@
 # The Hash language
-Hash is a DSL for encoding natural language in a graph. It uses words from any ordinary natural language (Swahili, Chinese, anything), and only one operator, the `#` symbol. Loosely, `#` means "make it higher" or "make it connect the others".
+You already know about words and parentheses. The only remaining thing to learn about is the # symbol. Loosely, `#` means "make it higher" or "make it connect the others".
 
 ## Building relationships with #
 
