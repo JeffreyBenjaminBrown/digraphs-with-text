@@ -1,6 +1,3 @@
--- now using a fuller tutorial: https://mrkkrp.github.io/megaparsec/tutorials/parsing-simple-imperative-language.html
-  -- which built on this one: https://mrkkrp.github.io/megaparsec/tutorials/parsing-simple-imperative-language.html
-
     module Experim where
 
     import Control.Monad (void)
@@ -11,47 +8,23 @@
 
     import Data.Maybe
 
-  -- tiny parsers
-    sc :: Parser () -- space consumer
-    sc = L.space (void spaceChar) lineCmnt blockCmnt
-      where lineCmnt  = L.skipLineComment "//"
-            blockCmnt = L.skipBlockComment "/*" "*/"
-
-    lexeme :: Parser a -> Parser a
-    lexeme = L.lexeme sc
-
-    symbol :: String -> Parser String
-    symbol = L.symbol sc
-
-    integer :: Parser Integer
-    integer = lexeme L.integer
-
-    integerList :: Parser [Int]
-    integerList = sc *> (many $ fromIntegral <$> integer)
-
-    parens :: Parser a -> Parser a
-    parens = between (symbol "(") (symbol ")")
-
-    identifier :: Parser String
-    identifier = lexeme $ (:) <$> letterChar <*> many alphaNumChar
-
-  -- >>>
-    -- easier to start: no parens, no punctuation except $
-    -- no abut except for some $ symbols before a word
-
+-- Goal: transform from a Hash statement (see the-hash-language.md) to an Expr
     data Expr = ExprAtom String
-              | Expr { rels :: [Expr]
-                     , members :: [Maybe Expr] }
+              | Expr {
+                  rels :: [Expr] -- rename to relWords
+                  , members :: [Maybe Expr] }
 
     validExpr :: Expr -> Bool
+      -- "bob #needs #someday cabbage" is invalid: either a member should be specified between needs and someday, or they should be part of the same rel-word (like "bob #needs-someday cabbage")
     validExpr (ExprAtom s) = s /= "" -- to write nothing is to express nothing
     validExpr (Expr rels mbrs) =
       length rels + 1 == length mbrs
       && (and $ map (not . isNothing) middleMbrs)
       where middleMbrs = tail $ reverse $ tail mbrs
 
-    type Level = Int
+  -- somehow this is an intermediate type
     type LevelList a = [(Level,a)]
+    type Level = Int
 
     maxLevel :: LevelList a -> Int
     maxLevel = maximum . map fst
@@ -73,19 +46,9 @@
       -- It works!
         -- *Experim> parseOneLevel 3 [(3,x),(2,y),(1,z),(3,x),(1,z)]
         -- [(Just "x",[]),(Just "x",[(2,"y"),(1,"z")]),(Nothing,[(1,"z")])]
-        -- *Experim> 
+        -- *Experim>
 
-  -- too soon ! tried to start with parentheticals that abut
-    -- type Level = Int
-    -- data Tokenn = Tokenn String | Punct String -- "Token" already taken
-    -- data LevelToken = LevelToken Level Tokenn
-    -- newtype FlatExpr = FlatExpr [LevelToken]
-    -- data Expr = ExprToken Tokenn
-    --           | Expr { rels :: [Expr]
-    --                  , members :: [Maybe Expr] }
-    -- 
-    -- validExpr :: Expr -> Bool
-    -- validExpr (Expr rels mbrs) =
-    --   length rels + 1 == length mbrs
-    --   && (and $ map (not . isNothing) middleMbrs)
-    --   where middleMbrs = tail $ reverse $ tail mbrs
+    -- ? If parseOneLevel does it once, how do you recurse across the LevelList?
+      -- That is, what is the _ in parseLevels :: Eq a => LevelList a -> _
+
+    -- Am I missing a case: What if they are atoms? That is, top level = only level, and there's only one (Level,a) in the list?
