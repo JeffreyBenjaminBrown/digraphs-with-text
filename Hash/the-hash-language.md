@@ -13,7 +13,7 @@ You already know about words and parentheses. The only remaining thing to learn 
 In a compound relationship, at least one member is itself a relationship. An example is `bob #likes traveling ##during summer`. That creates a `when`-relationship between the level-1 relationship `bob likes traveling` and the level-0 expression `summer`.
 
 ### A compound unary relationship
-A `relationship` does not have to have more than one member. `maybe` and `not` are two important unary relationships. `##maybe I #need help` creates a level-2 `maybe`-relationship with only one member, `I #need help`. 
+A `relationship` does not have to have multiple members. `maybe` and `not` are two important unary relationships. `##maybe I #need help` creates a `maybe`-relationship with only one member, `I #need help`.
 
 ## Parentheses help too
-Parentheses offer another way to delineate subexpressions. # can be applied to a parenthetical expression just like it was a single word -- as in, for instance, `skin #(made out of) teeth`.
+Parentheses offer another way to delineate subexpressions. # can be applied to a parenthetical expression just like it was a single word -- as in, for instance, `gold #(produced by) a goose`.
