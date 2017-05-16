@@ -1,6 +1,6 @@
 # Why use Hash?
 
-[Hash](the-hash-language.md) is a DSL for encoding natural language in a graph. It uses words from any ordinary natural language (Swahili, Chinese, anything), and only one operator, the `#` symbol. 
+[Hash](the-hash-language.md) is a DSL for encoding natural language in a graph, inspired by [Markdown](https://daringfireball.net/projects/markdown/syntax). Hash works with ordinary natural language (Swahili, Chinese, anything), and introduces only one new symbol, the `#` symbol.
 
 Reasons to use Hash include:
 
@@ -8,9 +8,9 @@ Reasons to use Hash include:
 The [language specification](the-hash-language.md) is only ten sentences long, and that's mostly examples. There is only one rule to learn.
 
 ## Natural order
-Hash looks like natural language. The order in which a user enters an expression corresponds closely, often perfectly, to the language they already speak.
+Hash looks like natural language. The order in which a user enters an expression can correspond closely, often perfectly, to the language they already speak.
 
-Consider the statement `nuclear power needs water for cooling`. It's a ternary (three-member) relationship between nuclear power, water, and cooling. To say that in other systems, you might have to do something awkward like `needs-for(nuclear power, water, cooling)`. Here is the Hash representation for it: `nuclear power #needs water #for cooling`.
+Consider the statement `nuclear power needs water for cooling`. It's a ternary (three-member) relationship between nuclear power, water, and cooling. To say that in other systems, you might have to do something awkward like `needs-for(nuclear power, water, cooling)`. By contrast, in Hash you would write `nuclear power #needs water #for cooling`.
 
 ## Relationships of arbitrary arity
 In many systems a relationship must be binary -- that is, it must have exactly two members. For instance, edges in a graph connect exactly two nodes in the graph.
