@@ -19,4 +19,5 @@ Sometimes binary relationships are expressive enough. The statements `Fred knows
 
 Hash lets a user encode relationships of any arity, in the same uniform way.
 
-## Compound relationships: Using Hash, relationships involving other relationships can be represented as easily as first-order relationships. `she #(smiles at) me ##when I #work hard`, for instance, represents a second-order `when`-relationship, which connects the two first-order relationships `she #(smiles at) me` and `I #work hard`.
+## Compound relationships
+Using Hash, relationships involving other relationships can be represented as easily as first-order relationships. `she #(smiles at) me ##when I #work hard`, for instance, represents a second-order `when`-relationship, which connects the two first-order relationships `she #(smiles at) me` and `I #work hard`.
