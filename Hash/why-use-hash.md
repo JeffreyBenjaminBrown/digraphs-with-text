@@ -1,14 +1,14 @@
 # Why use Hash?
 
-Hash is a DSL for encoding arbitrary natural language expressions in a graph. Hash's advtantages include:
+Hash is a DSL for encoding arbitrary natural language expressions in a graph. Its advtantages include:
 
 ## Simplicity
-The [language specification](the-hash-language.md) is something a clever dog might be able to learn.
+The [language specification](the-hash-language.md) is something a clever bird might be able to learn.
 
 ## Natural order
 Hash looks like natural language. The order in which a user enters an expression corresponds closely, often perfectly, to the language they already speak.
 
-Consider the statement `nuclear power needs water for cooling`. It's a ternary (three-member) relationship between nuclear power, water, and cooling. The Hash representation for it would be `nuclear power #needs water #for cooling`. In other systems you would have to do something awkward like `needs-for(nuclear power, water, cooling)`.
+Consider the statement `nuclear power needs water for cooling`. It's a ternary (three-member) relationship between nuclear power, water, and cooling. To say that in other systems, you might have to do something awkward like `needs-for(nuclear power, water, cooling)`. Here is the Hash representation for it: `nuclear power #needs water #for cooling`.
 
 ## Relationships of arbitrary arity
 In many systems a relationship must be binary -- that is, it must have exactly two members. For instance, edges in a graph connect exactly two nodes in the graph.
