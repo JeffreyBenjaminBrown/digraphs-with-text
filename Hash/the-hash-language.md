@@ -10,7 +10,7 @@ You already know about words and parentheses. The only remaining thing to learn 
 `bob #needs money #when traveling` represents a ternary `needs-when`-relationship, between `bob`, `money` and `traveling`.
 
 ### A compound (level-2) relationship
-In a compound relationship, at least one member is itself a relationship. An example is `bob #likes traveling ##during summer`. That creates a `when`-relationship between the level-1 relationship `bob likes traveling` and the level-0 expression `summer`.
+In a compound relationship, at least one member is itself a relationship. An example is `bob #likes traveling ##during summer`. That creates a `during`-relationship between the level-1 relationship `bob likes traveling` and the level-0 expression `summer`.
 
 ### A compound unary relationship
 A `relationship` does not have to have multiple members. `maybe` and `not` are two important unary relationships. `##maybe I #need help` creates a `maybe`-relationship with only one member, `I #need help`.
