@@ -52,7 +52,7 @@ If a word is part of a phrase, that generates another kind of relationship. They
        greed  v?  self-respect   //about    only if you hold  out for the highest bidder do you feel like groceries
 ```
 
-(If that last portion looks awkward, there's a solution: see "`that` as context", below.)
+(If that last portion looks awkward, there's a solution: see "anaphora for brevity", below.)
 
 If a phrase involving the focus expression is interesting enough to deserve promotion out of that `phrases` category, it can be recorded as a relationship like `[phrase involving word] \(is interesting about) word`. Which leads naturally to the next topic:
 
@@ -68,7 +68,7 @@ Some relationships are not listed explicitly, but rather describe how the others
 `X >(should precede) Y .(in order to argue) Z` (that's one ternary relationship)
 
 
-## `That` as context
+## Anaphora for brevity: Refer to context as `that`
 
 Earlier we saw something kind of awkward:
 
