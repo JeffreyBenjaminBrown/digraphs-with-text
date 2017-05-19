@@ -23,9 +23,21 @@ respect
   respect ? [5 things]
     ..
 
+## One tree, many focii
+
+The focus of the view does not have to be a single expression; it could be a family of expressions. For instance, for every expression E, the family {E, not E, maybe E, all E, some E} deserves to be viewable together:
+
+```
+respect*, where [word]* means {word, not word, maybe word, ..}
+  disrespect ? problem
+  greed v? self-respect
+  some respect $is morbid
+  ..
+```
+
 ## Phrases involving a word can be interesting
 
-If a word is part of a phrase, that generates another kind of relationship. They are likely less relevant than the non-phrse relationships, so they should probably be buried under a `phrases` subcategory which the user can fold or unfold:
+If a word is part of a phrase, that generates another kind of relationship. They are likely less relevant than the non-phrse relationships, so they should probably be buried under a `phrases` subcategory, which the user can fold or unfold:
 
 ```
 `respect`-phrases 
@@ -48,15 +60,3 @@ Some relationships are not listed explicitly, but rather describe how the others
 `X >(should precede) Y .(in order to remember) Y`
   (or `X >(should precede # in order to remember) Y`
 `X >(should precede) Y .(in order to argue) Z` (that's one ternary relationship)
-
-## One tree, many focii
-
-The focus of the view does not have to be a single expression; it could be a family of expressions. For instance, for every expression E, the family {E, not E, maybe E, all E, some E} deserves to be viewable together:
-
-```
-respect*, where [word]* means {word, not word, maybe word, ..}
-  disrespect ? problem
-  greed v? self-respect
-  some respect $is morbid
-  ..
-```
