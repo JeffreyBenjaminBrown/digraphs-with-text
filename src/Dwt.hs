@@ -11,7 +11,7 @@
       , module Dwt.Explore
       , module Dwt.FileIO
       , module Dwt.MmParse
-      , module Dwt.Wiz
+      -- , module Dwt.Wiz
 
       , module P
       , module R
@@ -29,14 +29,14 @@
     import Dwt.Show
     import Dwt.Explore
     import Dwt.FileIO
-    import Dwt.Wiz
+    -- import Dwt.Wiz
     import qualified Dwt.Parse as P
     import Dwt.MmParse
 
     import Control.Monad (void)
     import Text.Megaparsec as Mp
-    import Text.Megaparsec.String as Mp
-    import qualified Text.Megaparsec.Lexer as Mpl
+    -- import Text.Megaparsec.String as Mp
+    -- import qualified Text.Megaparsec.Lexer as Mpl
 
     import qualified Text.Parsec as P
     import qualified Text.Parsec.String as P
