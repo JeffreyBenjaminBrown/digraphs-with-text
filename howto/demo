@@ -1,5 +1,6 @@
 -- -- the commands alone
 let g = empty :: RSLT
+
 g <- pure $ foldl (flip insWord) g ["the cat","water","living organism"]
 view g $ nodes g
 g <- pure $ foldl (flip insTplt) g ["_ needs _", "_ is a _","_ because _"]

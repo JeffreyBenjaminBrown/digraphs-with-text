@@ -2,5 +2,5 @@ flags: {}
 packages:
 - '.'
 extra-deps: []
-resolver: lts-5.5
+resolver: lts-8.13
 system-ghc: false
