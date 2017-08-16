@@ -7,7 +7,7 @@ Table of Contents (eventually this format is Haskell)
     matchRelUsf
 
 -- 2016 02 13: bfs, dfs
-    *Main> view g $ 8:[45..(length $ nodes g)-1] -- show relevant portion of graph
+    *Main> putStr $ view g $ 8:[45..(length $ nodes g)-1] -- show relevant portion of graph
     :8 _ isa\ _ -- node 8 is the template for "x isa\ y" relationships
       -- you can tell it's a template and not a string 
       -- because a string would start "8:" instead of ":8"
@@ -31,7 +31,7 @@ Table of Contents (eventually this format is Haskell)
     *Main> 
 
 -- 2016 02 12
-  view g $ concatMap (pre g) (rels g) -- every use of every rel
+  putStr $ view g $ concatMap (pre g) (rels g) -- every use of every rel
   let rs = M.fromList [(TpltRole,NodeSpec 8), (Mbr 1,VarSpec Down), (Mbr 2,VarSpec Up)] :: RelSpec
   let rvs = M.fromList [(Mbr 1, Down), (Mbr 2, Up)] :: RelVarSpec
 
@@ -39,7 +39,7 @@ Table of Contents (eventually this format is Haskell)
   Find all nodes using a Tplt
     > labfilter (== mkTplt "_ uses font-> _") g
       mkGraph [(24,Tplt 2 [""," uses font-> ",""])] []
-    > view g $ pre g 24
+    > putStr $ view g $ pre g 24
       [The links here to Default Style could be deleted.]
 
   Find all gold nodes:
@@ -48,17 +48,17 @@ Table of Contents (eventually this format is Haskell)
     is gold.
     > labfilter (== Word "= already big enough to sort within") g
       1182
-    > view g $ pre g 1182
+    > putStr $ view g $ pre g 1182
       1526:24 [1182: = already big enough to sort within] uses font-> [7: AutomaticLayout.level,2]
         ..
     > let gold = 7 :: Dwt.Node
-    > view g $ pre g gold
+    > putStr $ view g $ pre g gold
 
 -- earlier
   -- some important nodes
-    view g $ pre g 771 -- lets see every Rel involving the root
-    view g $ nodes $ labfilter (== mkTplt "_ .mm/ _") g -- Node 32
-    view g $ nodes $ labfilter (== mkTplt "_ then read-> _") g -- Node 23
+    putStr $ view g $ pre g 771 -- lets see every Rel involving the root
+    putStr $ view g $ nodes $ labfilter (== mkTplt "_ .mm/ _") g -- Node 32
+    putStr $ view g $ nodes $ labfilter (== mkTplt "_ then read-> _") g -- Node 23
 
   -- how I found that (Nodes obsolete, method still valid)
     length $ nodes g
@@ -69,7 +69,7 @@ Table of Contents (eventually this format is Haskell)
     matchRelUsf g [Just 32,Nothing,Just 274]
     showExpr g 1753
     -- now I know the root Node is 763
-    view g $ pre g 763 -- lets see every Rel involving the root
+    putStr $ view g $ pre g 763 -- lets see every Rel involving the root
 
   -- important nodes
     -- root: 33

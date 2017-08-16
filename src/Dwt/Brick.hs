@@ -40,6 +40,7 @@ makeLenses ''St
 
 drawUI :: St -> [T.Widget Name]
 drawUI st = [ui] where
+  v = str $ "RSLT goes here"
   e1 = F.withFocusRing
          (st^.focusRing)
          (  -- :: Bool -> a -> b
@@ -55,6 +56,8 @@ drawUI st = [ui] where
        (str "Input 1 (unlimited): " <+> (hLimit 30 $ vLimit 5 e1)) <=>
        str " " <=>
        (str "Input 2 (limited to 2 lines): " <+> (hLimit 30 e2)) <=>
+       str " " <=>
+       (str "The RSLT: " <+> v) <=>
        str " " <=>
        str "Press Tab to switch between editors, Esc to quit."
 

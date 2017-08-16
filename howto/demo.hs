@@ -2,14 +2,14 @@
 let g = empty :: RSLT
 
 g <- pure $ foldl (flip insWord) g ["the cat","water","living organism"]
-view g $ nodes g
+putStr $ view g $ nodes g
 g <- pure $ foldl (flip insTplt) g ["_ needs _", "_ is a _","_ because _"]
-view g $ nodes g
+putStr $ view g $ nodes g
 g <- pure $ fromRight $ insRel 3 [0,1] g
 g <- pure $ fromRight $ insRel 4 [0,2] g
-view g $ nodes g
+putStr $ view g $ nodes g
 g <- pure $ fromRight $ insRel 5 [6,7] g
-view g $ nodes g
+putStr $ view g $ nodes g
 
  
 -- -- with output and comments
@@ -24,7 +24,7 @@ view g $ nodes g
 > g <- pure $ foldl (flip insTplt) g ["_ needs _", "_ is a _","_ because _"]
 
 -- view the graph so far
-> view g $ nodes g
+> putStr $ view g $ nodes g
 (0,"the cat") -- Expressions 0, 1 and 2 are "Words"
 (1,"water")
 (2,"living organism")
@@ -36,7 +36,7 @@ view g $ nodes g
 > g <- pure $ fromRight $ insRel 3 [0,1] g
 > g <- pure $ fromRight $ insRel 4 [0,2] g
 
-> view g $ nodes g
+> putStr $ view g $ nodes g
 (0,"the cat")
 (1,"water")
 (2,"living organism")
@@ -49,7 +49,7 @@ view g $ nodes g
 -- nesting! create a "because" relationship between relationships 6 and 7
 > g <- pure $ fromRight $ insRel 5 [6,7] g
 
-> view g $ nodes g
+> putStr $ view g $ nodes g
 (0,"the cat")
 (1,"water")
 (2,"living organism")

@@ -11,6 +11,7 @@
       , module Dwt.Explore
       , module Dwt.FileIO
       , module Dwt.MmParse
+      , module Dwt.Brick
       -- , module Dwt.Wiz
 
       , module P
@@ -19,6 +20,7 @@
       , module L
       , module M
       , module Mb
+      , module B
       ) where
 
     import Data.Graph.Inductive
@@ -32,6 +34,7 @@
     -- import Dwt.Wiz
     import qualified Dwt.Parse as P
     import Dwt.MmParse
+    import Dwt.Brick
 
     import Control.Monad (void)
     import Text.Megaparsec as Mp
@@ -46,6 +49,8 @@
     import qualified Data.List as L
     import qualified Data.Map as M
     import qualified Data.Maybe as Mb
+    import qualified Brick.Main as B
+
 
 -- shorthand (can't go in Util.hs; depends on more)
   -- mindmap things

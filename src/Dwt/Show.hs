@@ -141,9 +141,9 @@
       where f n = show $ (fromRight $ length <$> users g n -- emul: counts users
                          , showExpr g n)
 
-    view :: RSLT -> [Node] -> IO () -- terse: no inner addresses, no neighborhoods
-    view g ns = mapM_ putStrLn $ map f ns
-      where f n = show $ (n, showExprT g n)
+    view :: RSLT -> [Node] -> String -- terse: no inner addresses, no neighborhoods
+    view g ns = unlines $ map f ns
+      where f n = show (n, showExprT g n)
 
 -- mostly unused
     bracket :: String -> String -- unused, but a useful pair of characters
