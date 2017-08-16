@@ -1,5 +1,0 @@
-Why the Graph class is good
----------------------------
-Rels can involve any number of things: "_ needs _ for _" is a valid Rel. By contrast, in the traditional graph from mathematics, a relationship ("edge") connects exactly two nodes.
-
-Rels can involve Rels as easily as Stmts. They can thus naturally represent meta-information, ideas about ideas -- such as "If I believed [sugar causes happiness] I might [pay someone for sugar]" -- without any increase in complexity.

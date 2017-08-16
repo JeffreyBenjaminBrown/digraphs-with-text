@@ -1,1 +1,0 @@
-relv = relative (noun)
