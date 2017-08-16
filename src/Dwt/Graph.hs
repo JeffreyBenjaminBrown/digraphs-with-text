@@ -52,7 +52,8 @@
       -- only Rels and Colls emit edges, have subexpressions
     data RelRole = TpltRole | Mbr MbrPos deriving(Show,Read,Eq,Ord)
       -- a k-ary Rel emits one TpltRole and k RelMbrs
-    data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord) -- a Col emits one CollPrinciple, any number of CollMbrs
+    data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
+      -- a Col emits one CollPrinciple, any number of CollMbrs
 
   -- for RelSpec
     data Mbrship = It | Any | Up | Down
