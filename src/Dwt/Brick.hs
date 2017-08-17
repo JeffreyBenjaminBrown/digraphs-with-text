@@ -106,10 +106,7 @@ theApp =
           , M.appAttrMap = const theMap
           }
 
-main :: IO ()
+main :: IO (RSLT)
 main = do
     st <- M.defaultMain theApp initialState
-    putStrLn "In input 1 you entered:\n"
-    putStrLn $ unlines $ E.getEditContents $ st^.edit1
-    putStrLn "In input 2 you entered:\n"
-    putStrLn $ unlines $ E.getEditContents $ st^.edit2
+    return $ st ^. rslt

@@ -11,12 +11,12 @@
       , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
       , Mbrship(..), MbConcreteMbr(..), RelVarSpec, RelNodeSpec, RelSpec
       , _splitStringForTplt, mkTplt
-      , subInTplt, padTpltStrings, subInTpltWithDollars
+      , subInTplt, padTpltStrings, subInTpltWithHashes
       , tpltArity, mbrListMatchesTpltArity
       , insLeaf, insRel, insRelUsf, insColl
         , insWord, insTplt, insFl -- deprec ? insLeaf generalizes these
         , partitionRelSpec, insRelSpec, relNodeSpec, relSpec
-      , chNonUser, chNonUserUsf, chRelRole
+      , chLeaf, chLeafUsf, chRelRole
       , gelemM, hasLEdgeM, isWord, isWordM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , node, tpltAt, relElts, validRole, relTplt, collPrinciple
@@ -80,21 +80,24 @@
       . map (unpack . strip . pack)
       . _splitStringForTplt
 
-  -- subInTpltWithDollars
-    subInTpltWithDollars :: Expr -> [String] -> Int -> String
+  -- subInTpltWithHashes
+    subInTpltWithHashes :: Expr     -- must be a Tplt
+                         -> [String] -- members for the Tplt
+                         -> Int      -- relationship level = number of $s
+                         -> String
       -- todo ? test length (should match arity), use Either
       -- todo ? test each tplt-string; if has space, wrap in parens
-    subInTpltWithDollars (Tplt ts) ss prefixCount =
+    subInTpltWithHashes (Tplt ts) ss prefixCount =
       let ts' = padTpltStrings (Tplt ts)
               $ replicate (2^prefixCount) '#'
           pairList = zip ts' $ ss ++ [""]
            -- append "" because there are n+1 segments in an n-ary Tplt; 
              -- zipper ends early otherwise
       in foldl (\s (a,b) -> s++a++b) "" pairList
-    subInTpltWithDollars _ _ _ = error "subInTplt: not a Tplt" -- todo ? omit
+    subInTpltWithHashes _ _ _ = error "subInTplt: not a Tplt" -- todo ? omit
 
     subInTplt :: Expr -> [String] -> String
-    subInTplt (Tplt ts) ss = subInTpltWithDollars (Tplt ts) ss 0
+    subInTplt (Tplt ts) ss = subInTpltWithHashes (Tplt ts) ss 0
 
     padTpltStrings :: Expr -> String -> [String]
     padTpltStrings (Tplt ss) prefix =
@@ -107,7 +110,6 @@
                                   _ -> prefix ++ f s ++ " "
           doToLast  s = case s of "" -> ""
                                   _ -> " " ++ prefix ++ f s
-          
       in [doToFirst a] ++ map doToMiddle middle ++ [doToLast z]
 
   -- more
@@ -125,20 +127,20 @@
 -- build
   -- insert
    -- insert leaf
-    insLeaf :: Expr -> RSLT -> RSLT -- TODO ! use to avoids dups 
-      -- duplicate ways to delete, replace, ...
+    insLeaf :: Expr -> RSLT -> RSLT
+      -- TODO : use this to avoid duplicate ways to delete, replace, ...
     insLeaf e g = case isLeaf e of
       True -> insNode (newAddr, e) g where [newAddr] = newNodes 1 g
       False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
 
     insWord :: String -> RSLT -> RSLT
-    insWord str g = insLeaf (Word str) g
+    insWord str = insLeaf (Word str)
 
     insTplt :: String -> RSLT -> RSLT
-    insTplt s g = insLeaf (mkTplt s) g
+    insTplt s = insLeaf $ mkTplt s
 
     insFl :: Float -> RSLT -> RSLT
-    insFl f g = insLeaf (Fl f) g
+    insFl f = insLeaf $ Fl f
 
    -- insert something more complex than leaf
     insRel :: Node -> [Node] -> RSLT -> Either String RSLT
@@ -159,14 +161,15 @@
       Left s -> error s
       Right r -> r
 
-    insColl :: (MonadError String m) => 
-      (Maybe Node) -> -- title
-      [Node] -> RSLT -> m RSLT
+    insColl :: (MonadError String m)
+            => (Maybe Node) -- title|principle, e.g. "alternatives"
+            -> [Node] -> RSLT -> m RSLT
     insColl mt ns g = do
       mapM_ (gelemM g) ns
       let newNode = head $ newNodes 1 g
-          nameEdges = case mt of Nothing -> []
-                                 Just tn -> [(newNode, tn,CollEdge CollPrinciple)]
+          nameEdges = case mt of
+            Nothing -> []
+            Just tn -> [(newNode, tn,CollEdge CollPrinciple)]
           newEdges = nameEdges ++
             map (\n -> (newNode, n, CollEdge CollMbr)) ns
       return $ insEdges newEdges $ insNode (newNode,Coll) g
@@ -212,22 +215,21 @@
               rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
           return $ Map.fromList $ rvsl' ++ rnsl'
 
-  -- >>>
   -- edit (but not insert)
-    chNonUser :: (MonadError String m) => RSLT -> Node -> Expr -> m RSLT
+    chLeaf :: (MonadError String m) => RSLT -> Node -> Expr -> m RSLT
       -- Words and Tplts are used, but are not users. (Rels and Colls use them.)
-    chNonUser g n e' = do
+    chLeaf g n e' = do
       let me = lab g n
-          mismatch = throwError $ "chNonUser: constructor mismatch"
+          mismatch = throwError $ "chLeaf: constructor mismatch"
       case me of
         Just e@(Word _)  -> if areLikeExprs e e' then return () else mismatch
         Just e@(Tplt _) -> if areLikeExprs e e' then return () else mismatch
-        Nothing -> throwError $ "chNonUser: Node " ++ show n ++ " absent."
-        _       -> throwError $ "chNonUser: Node " ++ show n ++ " is a user."
-      return $ chNonUserUsf g n e'
+        Nothing -> throwError $ "chLeaf: Node " ++ show n ++ " absent."
+        _       -> throwError $ "chLeaf: Node " ++ show n ++ " is a user."
+      return $ chLeafUsf g n e'
 
-    chNonUserUsf :: RSLT -> Node -> Expr -> RSLT
-    chNonUserUsf g n newExpr = let (Just (a,b,c,d),g') = match n g
+    chLeafUsf :: RSLT -> Node -> Expr -> RSLT
+    chLeafUsf g n newExpr = let (Just (a,b,c,d),g') = match n g
       in (a,b,newExpr,d) & g'
 
     chRelRole :: (MonadError String m) => 

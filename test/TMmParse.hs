@@ -46,11 +46,11 @@
 
     tMlTag = TestCase $ do
       assertBool "parse mlTag" $ eParse mlTag "<hi a=\"1\" bb =\"22\" >"
-        == Right ( MlTag "hi" True False -- WHY can't I dollar these parens?
+        == Right ( MlTag "hi" True False
                          ( Map.fromList [("a","1"), ("bb","22")] )
                  )
       assertBool "parse mlTag" $ eParse mlTag "</hi a=\"1\" bb =\"22\" />"
-        == Right ( MlTag "hi" False True -- WHY can't I dollar these parens?
+        == Right ( MlTag "hi" False True
                          ( Map.fromList [("a","1"), ("bb","22")] )
                  )
 

@@ -101,7 +101,7 @@
             -- handles missing nodes
             -- todo ? ordered list bad; just pass map
       in ((_rel $ vpPrefixer vp) n tpltAddr ++)
-         $ subInTpltWithDollars tpltExpr
+         $ subInTpltWithHashes tpltExpr
            (map (_showExpr vp g $ d-1) memberNodes)
            d
 
