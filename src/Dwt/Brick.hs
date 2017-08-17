@@ -25,6 +25,8 @@ import qualified Brick.AttrMap as A
 import qualified Brick.Focus as F
 import Brick.Util (on)
 
+import qualified Data.Text.Zipper as Z
+
 data Name = Edit1
           | Edit2
           deriving (Ord, Show, Eq)
@@ -64,6 +66,8 @@ drawUI st = [ui] where
 appHandleEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
 appHandleEvent st (T.VtyEvent ev) = case ev of
   V.EvKey V.KEsc [] -> M.halt st
+  V.EvKey V.KIns [] -> M.continue $ st & -- mutate editor state!
+    edit1 %~ E.applyEdit (Z.insertMany " lalala ")
   V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusNext
   V.EvKey V.KBackTab [] -> M.continue $ st & focusRing %~ F.focusPrev
   _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of

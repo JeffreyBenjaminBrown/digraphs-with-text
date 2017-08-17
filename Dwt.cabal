@@ -46,6 +46,9 @@ library
                      , random
                      , vty
 
+                     -- for Brick
+                     , text-zipper
+
                      -- from Brick
                      -- , base <= 5
                      -- , vty >= 5.15
