@@ -8,11 +8,8 @@
       , module Dwt.Graph
       , module Dwt.Search
       , module Dwt.Show
-      , module Dwt.Explore
       , module Dwt.FileIO
-      , module Dwt.MmParse
       , module Dwt.Brick
-      -- , module Dwt.Wiz
 
       , module P
       , module R
@@ -29,23 +26,18 @@
     import Dwt.Graph
     import Dwt.Search
     import Dwt.Show
-    import Dwt.Explore
     import Dwt.FileIO
-    -- import Dwt.Wiz
     import qualified Dwt.Parse as P
-    import Dwt.MmParse
     import Dwt.Brick
 
     import Control.Monad (void)
     import Text.Megaparsec as Mp
-    -- import Text.Megaparsec.String as Mp
-    -- import qualified Text.Megaparsec.Lexer as Mpl
 
     import qualified Text.Parsec as P
     import qualified Text.Parsec.String as P
     import qualified Text.Read as R
-
     import qualified Data.Text as T
+
     import qualified Data.List as L
     import qualified Data.Map as M
     import qualified Data.Maybe as Mb
