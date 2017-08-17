@@ -4,7 +4,8 @@
 module Dwt.Brick where
 
 import Dwt.Graph
-import Data.Graph.Inductive (empty)
+import Dwt.Show (view)
+import Data.Graph.Inductive (empty, nodes)
 
 import Lens.Micro
 import Lens.Micro.TH
@@ -32,7 +33,7 @@ data Name = Edit1
           deriving (Ord, Show, Eq)
 
 data St =
-    St { rslt :: RSLT
+    St { _rslt :: RSLT
        ,_focusRing :: F.FocusRing Name
        , _edit1 :: E.Editor String Name
        , _edit2 :: E.Editor String Name
@@ -42,7 +43,8 @@ makeLenses ''St
 
 drawUI :: St -> [T.Widget Name]
 drawUI st = [ui] where
-  v = str $ "RSLT goes here"
+  g = st ^. rslt
+  v = str $ view g $ nodes g
   e1 = F.withFocusRing
          (st^.focusRing)
          (  -- :: Bool -> a -> b
@@ -66,8 +68,11 @@ drawUI st = [ui] where
 appHandleEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
 appHandleEvent st (T.VtyEvent ev) = case ev of
   V.EvKey V.KEsc [] -> M.halt st
-  V.EvKey V.KIns [] -> M.continue $ st & -- mutate editor state!
-    edit1 %~ E.applyEdit (Z.insertMany " lalala ")
+  V.EvKey V.KIns [] -> do
+    let strings = st ^. edit1 & E.getEditContents
+        f1 = edit1 %~ E.applyEdit Z.clearZipper
+        f2 = rslt %~ (\g -> foldl (flip insWord) g $ strings)
+    M.continue $ st & f1 . f2
   V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusNext
   V.EvKey V.KBackTab [] -> M.continue $ st & focusRing %~ F.focusPrev
   _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of
