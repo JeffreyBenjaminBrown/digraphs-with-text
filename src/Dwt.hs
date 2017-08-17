@@ -27,7 +27,7 @@
     import Dwt.Search
     import Dwt.Show
     import Dwt.FileIO
-    import qualified Dwt.Parse as P
+    import qualified Dwt.ParsecUtils as P
     import Dwt.Brick
 
     import Control.Monad (void)

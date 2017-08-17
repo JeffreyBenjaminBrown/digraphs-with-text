@@ -4,7 +4,7 @@
 
     import Data.Graph.Inductive
     import Dwt.Graph
-    import Dwt.Parse
+    import Dwt.ParsecUtils
     import Data.List (intersperse, sortOn)
 
 -- pretty-print graph for svn|git diff

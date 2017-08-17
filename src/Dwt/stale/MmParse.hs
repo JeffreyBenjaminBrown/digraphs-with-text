@@ -41,7 +41,7 @@
 
     import Dwt.Graph
     import Dwt.Util
-    import Dwt.Parse
+    import Dwt.ParsecUtils
 
     import Text.Parsec
     import Text.Parsec.String (Parser)

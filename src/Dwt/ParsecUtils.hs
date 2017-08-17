@@ -1,4 +1,4 @@
-    module Dwt.Parse where
+    module Dwt.ParsecUtils where
 
     import Text.Parsec
     import Text.Parsec.String (Parser)
