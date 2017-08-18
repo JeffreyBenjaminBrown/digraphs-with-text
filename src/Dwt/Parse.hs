@@ -25,10 +25,12 @@ word w = lexeme $ C.string w <* notFollowedBy wordChar
 anyWord :: Parser String
 anyWord = lexeme $ some wordChar
 
-hasBlanks :: Parser Bool
-hasBlanks = (>0) . length . concat
-            <$> (sc *> (many $ blank <|> other))
-  where blank :: Parser String
+hasBlanks :: String -> Either  (ParseError (Token String) Void) Bool
+hasBlanks = parse p "not a file"
+  where p :: Parser Bool
+        p = (>0) . length . concat
+            <$> (sc *> (many $ blank <|> other)) -- order across <|> matters
+        blank :: Parser String
         blank = try $ word "_"
         other :: Parser String
         other = const "" <$> anyWord

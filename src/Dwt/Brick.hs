@@ -3,9 +3,10 @@
 {-# LANGUAGE RankNTypes #-}
 module Dwt.Brick where
 
+import Data.Graph.Inductive (empty, nodes)
 import Dwt.Graph
 import Dwt.Show (view)
-import Data.Graph.Inductive (empty, nodes)
+import Dwt.Parse
 
 import Lens.Micro
 import Lens.Micro.TH
@@ -68,11 +69,7 @@ drawUI st = [ui] where
 appHandleEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
 appHandleEvent st (T.VtyEvent ev) = case ev of
   V.EvKey V.KEsc [] -> M.halt st
-  V.EvKey V.KIns [] -> do
-    let strings = st ^. edit1 & E.getEditContents
-        f1 = edit1 %~ E.applyEdit Z.clearZipper
-        f2 = rslt %~ (\g -> foldl (flip insWord) g $ strings)
-    M.continue $ st & f1 . f2
+  V.EvKey V.KIns [] -> addToRSLT st
   V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusNext
   V.EvKey V.KBackTab [] -> M.continue $ st & focusRing %~ F.focusPrev
   _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of
@@ -80,6 +77,15 @@ appHandleEvent st (T.VtyEvent ev) = case ev of
     Just Edit2 -> T.handleEventLensed st edit2 E.handleEditorEvent ev
     Nothing -> return st
 appHandleEvent st _ = M.continue st
+
+addToRSLT :: St -> T.EventM Name (T.Next St)
+addToRSLT st = do
+    let strings = st ^. edit1 & E.getEditContents
+        strings' = filter (not . either (const False) id . hasBlanks) strings
+          -- test: can I run a parser in here?
+        f1 = edit1 %~ E.applyEdit Z.clearZipper
+        f2 = rslt %~ (\g -> foldl (flip insWord) g $ strings')
+    M.continue $ st & f2 . f1 --surprisingly, order of f1, f2 has no effect
 
 initialState :: RSLT -> St
 initialState g = St g
