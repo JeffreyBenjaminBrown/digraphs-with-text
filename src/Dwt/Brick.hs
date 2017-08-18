@@ -81,12 +81,11 @@ appHandleEvent st (T.VtyEvent ev) = case ev of
     Nothing -> return st
 appHandleEvent st _ = M.continue st
 
-initialState :: St
-initialState =
-    St (empty :: RSLT)
-       (F.focusRing [Edit1, Edit2])
-       (E.editor Edit1 Nothing "")
-       (E.editor Edit2 (Just 2) "")
+initialState :: RSLT -> St
+initialState g = St g
+                    (F.focusRing [Edit1, Edit2])
+                    (E.editor Edit1 Nothing "")
+                    (E.editor Edit2 (Just 2) "")
 
 theMap :: A.AttrMap
 theMap = A.attrMap V.defAttr
@@ -106,7 +105,7 @@ theApp =
           , M.appAttrMap = const theMap
           }
 
-main :: IO (RSLT)
-main = do
-    st <- M.defaultMain theApp initialState
+ui :: RSLT -> IO (RSLT)
+ui g = do
+    st <- M.defaultMain theApp $ initialState g
     return $ st ^. rslt

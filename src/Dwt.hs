@@ -4,12 +4,12 @@
       ( module Data.Graph.Inductive
 
       , module Dwt
-      , module Dwt.Util
+      , module Dwt.Brick
+      , module Dwt.FileIO
       , module Dwt.Graph
       , module Dwt.Search
       , module Dwt.Show
-      , module Dwt.FileIO
-      , module Dwt.Brick
+      , module Dwt.Util
 
       , module P
       , module R
