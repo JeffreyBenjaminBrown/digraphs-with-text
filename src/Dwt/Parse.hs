@@ -56,14 +56,15 @@ aTerm = parens aExpr   <|>   Var <$> identifier
 
 aOperators :: [[Operator Parser AExpr]]
 aOperators = -- the bug is here. see experim.hs for explanation
-  [ [ InfixN $ op "#" *> pure (Pair) ]
-  , [ InfixN $ op "##" *> pure (Pair) ]
+  [ [ InfixL $ op "#" *> pure (Pair) ]
+  , [ InfixL $ op "##" *> pure (Pair) ]
   ] where
   op :: String -> Parser String
   op n = (lexeme . try) (C.string n <* notFollowedBy C.punctuationChar)
 
 testMegaparsecExpr = map (parseMaybe aExpr)
   [ "a # b"
+  , "a # b # c"
   , "a ## b"
   , "a # b ## c # d"
   , "(a # b) # (c # d)"
