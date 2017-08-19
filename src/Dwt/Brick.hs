@@ -8,10 +8,6 @@ import Dwt.Graph
 import Dwt.Show (view)
 import Dwt.Parse
 
-import Lens.Micro
-import Lens.Micro.TH
-import qualified Graphics.Vty as V
-
 import qualified Brick.Main as M
 import qualified Brick.Types as T
 import Brick.Widgets.Core
@@ -27,7 +23,12 @@ import qualified Brick.AttrMap as A
 import qualified Brick.Focus as F
 import Brick.Util (on)
 
+import Lens.Micro
+import Lens.Micro.TH
+import qualified Graphics.Vty as V
 import qualified Data.Text.Zipper as Z
+
+import Data.List (partition)
 
 data Name = Edit1
           | Edit2
@@ -81,11 +82,13 @@ appHandleEvent st _ = M.continue st
 addToRSLT :: St -> T.EventM Name (T.Next St)
 addToRSLT st = do
     let strings = st ^. edit1 & E.getEditContents
-        strings' = filter (not . either (const False) id . hasBlanks) strings
-          -- test: can I run a parser in here?
+        (templates,words) =
+          partition (either (const False) id . hasBlanks) strings
+          -- (const False) should work if it happens but shouldn't happen
         f1 = edit1 %~ E.applyEdit Z.clearZipper
-        f2 = rslt %~ (\g -> foldl (flip insWord) g $ strings')
-    M.continue $ st & f2 . f1 --surprisingly, order of f1, f2 has no effect
+        f2 = rslt %~ (\g -> foldl (flip insWord) g $ words)
+        f3 = rslt %~ (\g -> foldl (flip insTplt) g $ templates)
+    M.continue $ st & f3 . f2 . f1
 
 initialState :: RSLT -> St
 initialState g = St g
