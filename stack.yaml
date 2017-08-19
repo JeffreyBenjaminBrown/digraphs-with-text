@@ -34,7 +34,7 @@ extra-deps:
 - kan-extensions-5.0.2
 - lens-4.15.3
 - linear-1.20.7
-- megaparsec-6.0.2
+- megaparsec-6.1.1 # was 6.0.2
 - microlens-0.4.8.0
 - microlens-mtl-0.1.11.0
 - microlens-th-0.4.1.1
