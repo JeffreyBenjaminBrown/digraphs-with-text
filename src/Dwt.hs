@@ -7,6 +7,7 @@
       , module Dwt.Brick
       , module Dwt.FileIO
       , module Dwt.Graph
+      , module Dwt.Parse 
       , module Dwt.Search
       , module Dwt.Show
       , module Dwt.Util
@@ -28,6 +29,7 @@
     import Dwt.Show
     import Dwt.FileIO
     import qualified Dwt.ParsecUtils as P
+    import Dwt.Parse
     import Dwt.Brick
 
     import Control.Monad (void)
@@ -42,7 +44,6 @@
     import qualified Data.Map as M
     import qualified Data.Maybe as Mb
     import qualified Brick.Main as B
-
 
 -- shorthand (can't go in Util.hs; depends on more)
   -- mindmap things

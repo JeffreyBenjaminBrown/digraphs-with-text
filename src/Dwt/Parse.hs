@@ -5,6 +5,7 @@ import Control.Monad (void)
 import Data.Maybe (catMaybes)
 import Data.Void (Void)
 import Text.Megaparsec
+import Text.Megaparsec.Expr
 import qualified Text.Megaparsec.Char as C
 import qualified Text.Megaparsec.Char.Lexer as L
 
@@ -34,3 +35,36 @@ hasBlanks = parse p "not a file"
         blank = try $ word "_"
         other :: Parser String
         other = const "" <$> anyWord
+
+-- ========== Megaparsec.Expr
+symbol :: String -> Parser String -- ? word v. symbol
+symbol = L.symbol sc
+
+parens :: Parser a -> Parser a
+parens = between (symbol "(") (symbol ")")
+
+identifier :: Parser String
+identifier = lexeme $ (:) <$> C.letterChar <*> many C.alphaNumChar
+
+data AExpr = Var String | Pair AExpr AExpr deriving (Show)
+
+aExpr :: Parser AExpr
+aExpr = makeExprParser aTerm aOperators
+
+aTerm :: Parser AExpr
+aTerm = parens aExpr   <|>   Var <$> identifier
+
+aOperators :: [[Operator Parser AExpr]]
+aOperators = -- the bug is here. see experim.hs for explanation
+  [ [ InfixN $ op "#" *> pure (Pair) ]
+  , [ InfixN $ op "##" *> pure (Pair) ]
+  ] where
+  op :: String -> Parser String
+  op n = (lexeme . try) (C.string n <* notFollowedBy C.punctuationChar)
+
+testMegaparsecExpr = map (parseMaybe aExpr)
+  [ "a # b"
+  , "a ## b"
+  , "a # b ## c # d"
+  , "(a # b) # (c # d)"
+  ]
