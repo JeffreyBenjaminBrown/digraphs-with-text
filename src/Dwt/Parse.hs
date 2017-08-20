@@ -26,6 +26,15 @@ word w = lexeme $ C.string w <* notFollowedBy wordChar
 anyWord :: Parser String
 anyWord = lexeme $ some wordChar
 
+symbol :: String -> Parser String -- ? word v. symbol
+symbol = L.symbol sc
+
+parens :: Parser a -> Parser a
+parens = between (symbol "(") (symbol ")")
+
+identifier :: Parser String
+identifier = lexeme $ (:) <$> C.letterChar <*> many C.alphaNumChar
+
 hasBlanks :: String -> Either  (ParseError (Token String) Void) Bool
 hasBlanks = parse p "not a file"
   where p :: Parser Bool
@@ -36,25 +45,16 @@ hasBlanks = parse p "not a file"
         other :: Parser String
         other = const "" <$> anyWord
 
--- ========== Megaparsec.Expr
-symbol :: String -> Parser String -- ? word v. symbol
-symbol = L.symbol sc
+-- ========== Binary Nesting Hash Expressions
+data BinaryHashExpr = Var String | Pair BinaryHashExpr BinaryHashExpr deriving (Show)
 
-parens :: Parser a -> Parser a
-parens = between (symbol "(") (symbol ")")
+binHashExpr :: Parser BinaryHashExpr
+binHashExpr = makeExprParser aTerm aOperators
 
-identifier :: Parser String
-identifier = lexeme $ (:) <$> C.letterChar <*> many C.alphaNumChar
+aTerm :: Parser BinaryHashExpr
+aTerm = parens binHashExpr   <|>   Var <$> identifier
 
-data AExpr = Var String | Pair AExpr AExpr deriving (Show)
-
-aExpr :: Parser AExpr
-aExpr = makeExprParser aTerm aOperators
-
-aTerm :: Parser AExpr
-aTerm = parens aExpr   <|>   Var <$> identifier
-
-aOperators :: [[Operator Parser AExpr]]
+aOperators :: [[Operator Parser BinaryHashExpr]]
   -- each list is a set of operators of equal precedence
 aOperators = [ [ InfixL $ op "#" *> pure (Pair) ]
              , [ InfixL $ op "##" *> pure (Pair) ]
@@ -62,10 +62,20 @@ aOperators = [ [ InfixL $ op "#" *> pure (Pair) ]
   op :: String -> Parser String
   op n = lexeme . try $ C.string n <* notFollowedBy (C.char '#')
 
-testMegaparsecExpr = mapM_ (putStrLn . show) $ map (parseMaybe aExpr)
+testBinHashExpr :: IO ()
+testBinHashExpr = mapM_ (putStrLn . show) $ map (parseMaybe binHashExpr)
   [ "a # b"               -- # and ## do the same thing
   , "a ## b"
   , "a # b # c"           -- both bind from the left
   , "a  #  b  ## c #  d"  -- ## binds after #
   , "(a ## b) # (c ## d)"
   ]
+
+-- == Optional arguments to an infix
+f :: Parser [String]
+f = do
+  sc
+  x <- (:[]) <$> option "" (C.string "s") <* sc
+  y <- (:[]) . show <$> L.float <* sc
+  z <- (:[]) <$> option "" (C.string "t") <* sc
+  return $ x ++ y ++ z
