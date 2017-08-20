@@ -55,17 +55,17 @@ aTerm :: Parser AExpr
 aTerm = parens aExpr   <|>   Var <$> identifier
 
 aOperators :: [[Operator Parser AExpr]]
-aOperators = -- the bug is here. see experim.hs for explanation
-  [ [ InfixL $ op "#" *> pure (Pair) ]
-  , [ InfixL $ op "##" *> pure (Pair) ]
-  ] where
+  -- each list is a set of operators of equal precedence
+aOperators = [ [ InfixL $ op "#" *> pure (Pair) ]
+             , [ InfixL $ op "##" *> pure (Pair) ]
+             ] where
   op :: String -> Parser String
-  op n = (lexeme . try) (C.string n <* notFollowedBy C.punctuationChar)
+  op n = lexeme . try $ C.string n <* notFollowedBy (C.char '#')
 
-testMegaparsecExpr = map (parseMaybe aExpr)
-  [ "a # b"
-  , "a # b # c"
+testMegaparsecExpr = mapM_ (putStrLn . show) $ map (parseMaybe aExpr)
+  [ "a # b"               -- # and ## do the same thing
   , "a ## b"
-  , "a # b ## c # d"
-  , "(a # b) # (c # d)"
+  , "a # b # c"           -- both bind from the left
+  , "a  #  b  ## c #  d"  -- ## binds after #
+  , "(a ## b) # (c ## d)"
   ]
