@@ -70,12 +70,3 @@ testBinHashExpr = mapM_ (putStrLn . show) $ map (parseMaybe binHashExpr)
   , "a  #  b  ## c #  d"  -- ## binds after #
   , "(a ## b) # (c ## d)"
   ]
-
--- == Optional arguments to an infix
-f :: Parser [String]
-f = do
-  sc
-  x <- (:[]) <$> option "" (C.string "s") <* sc
-  y <- (:[]) . show <$> L.float <* sc
-  z <- (:[]) <$> option "" (C.string "t") <* sc
-  return $ x ++ y ++ z
