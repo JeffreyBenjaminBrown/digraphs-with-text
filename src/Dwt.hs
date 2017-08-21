@@ -4,12 +4,12 @@
       ( module Data.Graph.Inductive
 
       , module Dwt
-      , module Dwt.Brick
       , module Dwt.FileIO
       , module Dwt.Graph
       , module Dwt.Parse 
       , module Dwt.Search
       , module Dwt.Show
+      , module Dwt.UI
       , module Dwt.Util
 
       , module P
@@ -30,7 +30,7 @@
     import Dwt.FileIO
     import qualified Dwt.ParsecUtils as P
     import Dwt.Parse
-    import Dwt.Brick
+    import Dwt.UI
 
     import Control.Monad (void)
     import Text.Megaparsec as Mp

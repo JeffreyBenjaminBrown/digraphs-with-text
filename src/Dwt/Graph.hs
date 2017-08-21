@@ -81,9 +81,9 @@
       . _splitStringForTplt
 
   -- subInTpltWithHashes
-    subInTpltWithHashes :: Expr     -- must be a Tplt
+    subInTpltWithHashes :: Expr      -- must be a Tplt
                          -> [String] -- members for the Tplt
-                         -> Int      -- relationship level = number of $s
+                         -> Int      -- relationship level = number of #s
                          -> String
       -- todo ? test length (should match arity), use Either
       -- todo ? test each tplt-string; if has space, wrap in parens

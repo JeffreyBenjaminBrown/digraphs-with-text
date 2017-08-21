@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RankNTypes #-}
-module Dwt.Brick where
+module Dwt.UI where
 
 import Data.Graph.Inductive (empty, nodes)
 import Dwt.Graph
