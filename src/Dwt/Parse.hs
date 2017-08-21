@@ -4,36 +4,14 @@ import Control.Applicative (empty)
 import Control.Monad (void)
 import Data.Maybe (catMaybes)
 import Data.Void (Void)
+import Data.List (intersperse)
+
 import Text.Megaparsec
 import Text.Megaparsec.Expr
 import qualified Text.Megaparsec.Char as C
 import qualified Text.Megaparsec.Char.Lexer as L
 
 type Parser = Parsec Void String
-
-sc :: Parser ()
-sc = L.space C.space1 empty empty
-
-lexeme :: Parser a -> Parser a
-lexeme = L.lexeme sc
-
-wordChar :: Parser Char
-wordChar = C.alphaNumChar <|> C.char '_' <|> C.char '-'
-
-word :: String -> Parser String -- could fail half-in, so requires "try"
-word w = lexeme $ C.string w <* notFollowedBy wordChar
-
-anyWord :: Parser String
-anyWord = lexeme $ some wordChar
-
-symbol :: String -> Parser String -- ? word v. symbol
-symbol = L.symbol sc
-
-parens :: Parser a -> Parser a
-parens = between (symbol "(") (symbol ")")
-
-identifier :: Parser String
-identifier = lexeme $ (:) <$> C.letterChar <*> many C.alphaNumChar
 
 hasBlanks :: String -> Either  (ParseError (Token String) Void) Bool
 hasBlanks = parse p "not a file"
@@ -45,7 +23,23 @@ hasBlanks = parse p "not a file"
         other :: Parser String
         other = const "" <$> anyWord
 
--- ========== Binary Nesting Hash Expressions
+-- == an instruction type for adding an expression to the graph
+type End = Maybe Half
+type Join = String
+data GraphAdd = Leaf String
+              | GraphAdd End Join [(Half,Join)] End
+
+-- == "#" can abut a word or a parenthesized string of words
+-- TODO: let it adjoin an entire nested expression
+hashes :: Int -> Parser String
+hashes n = C.string prefix
+           *> notFollowedBy (C.char '#')
+           *> option "" something
+  where prefix = take n $ repeat '#' :: String
+        something = concat . intersperse " " <$> parens (many anyWord)
+                    <|> anyWord
+
+-- == Binary Nesting Hash Expressions
 data BinaryHashExpr = Var String | Pair BinaryHashExpr BinaryHashExpr deriving (Show)
 
 binHashExpr :: Parser BinaryHashExpr
@@ -70,3 +64,28 @@ testBinHashExpr = mapM_ (putStrLn . show) $ map (parseMaybe binHashExpr)
   , "a  #  b  ## c #  d"  -- ## binds after #
   , "(a ## b) # (c ## d)"
   ]
+
+-- little things
+sc :: Parser ()
+sc = L.space C.space1 empty empty
+
+lexeme :: Parser a -> Parser a
+lexeme = L.lexeme sc
+
+wordChar :: Parser Char
+wordChar = C.alphaNumChar <|> C.char '_' <|> C.char '-'
+
+word :: String -> Parser String -- could fail half-in, so requires "try"
+word w = lexeme $ C.string w <* notFollowedBy wordChar
+
+anyWord :: Parser String
+anyWord = lexeme $ some wordChar
+
+symbol :: String -> Parser String -- is a lexeme; consumes trailing space
+symbol = L.symbol sc
+
+parens :: Parser a -> Parser a
+parens = between (symbol "(") (symbol ")")
+
+identifier :: Parser String
+identifier = lexeme $ (:) <$> C.letterChar <*> many C.alphaNumChar

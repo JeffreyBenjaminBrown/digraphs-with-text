@@ -2,7 +2,6 @@
 
     module Dwt
       ( module Data.Graph.Inductive
-
       , module Dwt
       , module Dwt.FileIO
       , module Dwt.Graph
@@ -11,14 +10,6 @@
       , module Dwt.Show
       , module Dwt.UI
       , module Dwt.Util
-
-      , module P
-      , module R
-      , module T
-      , module L
-      , module M
-      , module Mb
-      , module B
       ) where
 
     import Data.Graph.Inductive
@@ -28,7 +19,6 @@
     import Dwt.Search
     import Dwt.Show
     import Dwt.FileIO
-    import qualified Dwt.ParsecUtils as P
     import Dwt.Parse
     import Dwt.UI
 
