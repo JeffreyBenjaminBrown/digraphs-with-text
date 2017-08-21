@@ -24,10 +24,10 @@ hasBlanks = parse p "not a file"
         other = const "" <$> anyWord
 
 -- == an instruction type for adding an expression to the graph
-type End = Maybe Half
+type End = Maybe GraphAdd
 type Join = String
 data GraphAdd = Leaf String
-              | GraphAdd End Join [(Half,Join)] End
+              | GraphAdd End Join [(GraphAdd,Join)] End
 
 -- == "#" can abut a word or a parenthesized string of words
 -- TODO: let it adjoin an entire nested expression
