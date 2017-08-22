@@ -33,25 +33,23 @@ data GraphAdd = Leaf String
               | GraphAdd End Join [(GraphAdd,Join)] End
   -- TODO: The Tplt constructor for RSLT itself should be like this.
 
-
--- based on Text.Megaparsec.Expr
-addPrecLevel' :: MonadParsec e s m => m a -> [Operator m a] -> m a
-addPrecLevel' term ops =
-  term' >>= \x -> choice [ras' x, las' x, nas' x, return x] <?> "operator"
-  where (ras, las, nas, prefix, postfix) = foldr splitOp ([],[],[],[],[]) ops
-        term' = pTerm (choice prefix) term (choice postfix)
-        ras'  = pInfixR (choice ras) term'
-        las'  = pInfixL (choice las) term'
-        nas'  = pInfixN (choice nas) term'
-
 expr :: Parser String
-expr = foldl addPrecLevel term ops
+expr = foldl addPrecLevel term []
+
+addPrecLevel' :: MonadParsec e s m => m a -> [Operator m a] -> m a
+addPrecLevel' term ops = -- based on Text.Megaparsec.Expr
+  term' >>= \x -> choice [las' x, return x] <?> "operator"
+  where (_, las, _, prefix, _) = foldr splitOp ([],[],[],[],[]) ops
+        term' = pTerm (choice prefix) term (return id)
+        las'  = pInfixL (choice las) term'
 
 term :: Parser String
 term = parens expr
        <|> concat . intersperse " " <$> many anyWord
 
-ops = []
+hashes :: Int -> Parser ()
+hashes n = C.string prefix *> notFollowedBy (C.char '#')
+  where prefix = take n $ repeat '#' :: String
 
 -- == "#" can abut a word or a parenthesized string of words
 -- TODO: let it adjoin an entire nested expression
