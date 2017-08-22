@@ -11,7 +11,10 @@ import Text.Megaparsec.Expr
 import qualified Text.Megaparsec.Char as C
 import qualified Text.Megaparsec.Char.Lexer as L
 
+
 type Parser = Parsec Void String
+
+
 
 hasBlanks :: String -> Either  (ParseError (Token String) Void) Bool
 hasBlanks = parse p "not a file"
@@ -28,12 +31,32 @@ type End = Maybe GraphAdd
 type Join = String
 data GraphAdd = Leaf String
               | GraphAdd End Join [(GraphAdd,Join)] End
+  -- TODO: The Tplt constructor for RSLT itself should be like this.
+
+
+-- based on Text.Megaparsec.Expr
+addPrecLevel' :: MonadParsec e s m => m a -> [Operator m a] -> m a
+addPrecLevel' term ops =
+  term' >>= \x -> choice [ras' x, las' x, nas' x, return x] <?> "operator"
+  where (ras, las, nas, prefix, postfix) = foldr splitOp ([],[],[],[],[]) ops
+        term' = pTerm (choice prefix) term (choice postfix)
+        ras'  = pInfixR (choice ras) term'
+        las'  = pInfixL (choice las) term'
+        nas'  = pInfixN (choice nas) term'
+
+expr :: Parser String
+expr = foldl addPrecLevel term ops
+
+term :: Parser String
+term = parens expr
+       <|> concat . intersperse " " <$> many anyWord
+
+ops = []
 
 -- == "#" can abut a word or a parenthesized string of words
 -- TODO: let it adjoin an entire nested expression
-hashes :: Int -> Parser String
-hashes n = C.string prefix
-           *> notFollowedBy (C.char '#')
+hashed :: Int -> Parser String
+hashed n = C.string prefix *> notFollowedBy (C.char '#')
            *> option "" something
   where prefix = take n $ repeat '#' :: String
         something = concat . intersperse " " <$> parens (many anyWord)

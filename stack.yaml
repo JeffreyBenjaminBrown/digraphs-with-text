@@ -18,7 +18,6 @@ extra-deps:
 - brick-0.20.1
 - bytes-0.15.3
 - call-stack-0.1.0
-- case-insensitive-1.2.0.10
 - cereal-0.5.4.0
 - comonad-5.0.2
 - contravariant-1.4
@@ -34,14 +33,12 @@ extra-deps:
 - kan-extensions-5.0.2
 - lens-4.15.3
 - linear-1.20.7
-- megaparsec-6.1.1 # was 6.0.2
 - microlens-0.4.8.0
 - microlens-mtl-0.1.11.0
 - microlens-th-0.4.1.1
 - mtl-2.2.1
 - parallel-3.2.1.1
 - parsec-3.1.11
-- parser-combinators-0.2.0
 - prelude-extras-0.4.0.3
 - primitive-0.6.2.0
 - profunctors-5.2.1
@@ -67,6 +64,8 @@ extra-deps:
 - vty-5.16
 - word-wrap-0.1
 - cabal-doctest-1.0.2
+- case-insensitive-1.2.0.10
+- parser-combinators-0.2.0
 compiler-check: match-exact
 compiler: ghc-8.2.1
 resolver: ghc-8.2.1
