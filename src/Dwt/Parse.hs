@@ -26,8 +26,8 @@ hasBlanks = parse p "not a file"
 
 -- Solution?
 data AddX = Leaf String -- expresses how to add (nested) data to the RSLT
-             | BothX EO AddX Joint [(AddX,Joint)] AddX
-             deriving (Show, Eq)
+          | BothX EO AddX Joint [(AddX,Joint)] AddX
+          deriving (Show, Eq)
 type Level = Int
 data Joint = Joint String deriving (Show, Eq)
 data EO = EO { inParens :: Bool -- "expression orderer"
@@ -38,6 +38,9 @@ instance Ord EO where
   EO a b <= EO c d
     | a /= c = c <= a
     | otherwise = b <= d
+
+startLevel :: Level -> Joint -> AddX -> AddX -> AddX
+startLevel l j a b = BothX (EO False l) a j [] b
 
 rightConcat :: Joint -> AddX -> AddX -> AddX
   -- TODO: if|when need speed, use a two-sided list of pairs
@@ -52,13 +55,19 @@ leftConcat j' left' (BothX eo left j pairs right)
   where pairs' = (left,j) : pairs
 leftConcat _ _ _ = error "can only leftConcat onto a BothX"
 
+markParens :: AddX -> AddX
+markParens (Leaf x) = Leaf x
+markParens x@(BothX (EO _ a) b c d e) = BothX (EO True a) b c d e
+
 joint :: Level -> Joint -> AddX -> AddX -> AddX
 joint l j@(Joint _) a@(Leaf _) b@(Leaf _)
   = BothX (EO False l) a j [] b
-joint l j@(Joint _) a@(Leaf _) b@(BothX _ _ _ _ _)
+joint l j@(Joint _) a@(Leaf _) b@(BothX (EO True _) _ _ _ _)
   = BothX (EO False l) a j [] b -- I *think* level doesn't matter here.
-joint l j@(Joint _) a@(BothX _ _ _ _ _) b@(Leaf _)
-  = BothX (EO False l) a j [] b -- I *think* level doesn't matter here.
+--joint l j@(Joint _) a@(BothX _ _ _ _ _) b@(Leaf _)
+--  = BothX (EO False l) a j [] b -- I *think* level doesn't matter here.
+
+
 
 -- a ## b ## c
 -- a # b ## c = (a,(b,c))
