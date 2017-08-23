@@ -31,14 +31,26 @@ data AddX = Leaf String -- expresses how to add (nested) data to the RSLT
 type Level = Int
 data Joint = Joint String deriving (Show, Eq)
 data EO = EO { inParens :: Bool -- "expression orderer"
-             , inLevel :: Level } deriving (Show, Eq)
+             , inLevel :: Level } deriving (Eq)
+instance Show EO where
+  show (EO x y) = "EO " ++ show x ++ " " ++ show y
 instance Ord EO where
   EO a b <= EO c d
     | a /= c = c <= a
     | otherwise = b <= d
 
---rightConcat :: AddX -> AddX -> AddX
---rightConcat new big@(BothX eo
+rightConcat :: Joint -> AddX -> AddX -> AddX
+  -- TODO: if|when need speed, use a two-sided list of pairs
+rightConcat j' right' (BothX eo left j pairs right)
+  = BothX eo left j pairs' right'
+  where pairs' = pairs ++ [(right, j')]
+rightConcat _ _ _ = error "can only rightConcat onto a BothX"
+
+leftConcat :: Joint -> AddX -> AddX -> AddX
+leftConcat j' left' (BothX eo left j pairs right)
+  = BothX eo left' j' pairs' right
+  where pairs' = (left,j) : pairs
+leftConcat _ _ _ = error "can only leftConcat onto a BothX"
 
 joint :: Level -> Joint -> AddX -> AddX -> AddX
 joint l j@(Joint _) a@(Leaf _) b@(Leaf _)
