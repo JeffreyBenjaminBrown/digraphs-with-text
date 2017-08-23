@@ -1,3 +1,5 @@
+-- discussion: https://www.reddit.com/r/haskell/comments/6v9b13/can_this_problem_be_approached_from_the_bottomup/
+
 module Dwt.Parse where
 
 import Control.Applicative (empty)
@@ -14,6 +16,7 @@ import qualified Text.Megaparsec.Char.Lexer as L
 
 type Parser = Parsec Void String
 
+-- for parsing Tplt values
 hasBlanks :: String -> Either  (ParseError (Token String) Void) Bool
 hasBlanks = parse p "not a file"
   where p :: Parser Bool
@@ -24,7 +27,7 @@ hasBlanks = parse p "not a file"
         other :: Parser String
         other = const "" <$> anyWord
 
--- Solution?
+-- for parsing Word and Rel values
 data AddX = Leaf String -- expresses how to add (nested) data to the RSLT
           | BothX EO AddX Joint [(AddX,Joint)] AddX
           deriving (Show, Eq)
@@ -42,6 +45,13 @@ instance Ord EO where
 startLevel :: Level -> Joint -> AddX -> AddX -> AddX
 startLevel l j a b = BothX (EO False l) a j [] b
 
+-- | PITFALL: In "a # b # c # d", you might imagine evaluating the middle #
+-- after the others. In that case both sides would be a BothX, and you would
+-- want to modify both, rather than make one a member of the other. These
+-- concat functions skip that possibility; one of the two AddX arguments is
+-- always incorporated into the other. I believe that is safe, because 
+-- expressions in serial on the same level will always be parsed left to
+-- right, not outside to inside.
 rightConcat :: Joint -> AddX -> AddX -> AddX
   -- TODO: if|when need speed, use a two-sided list of pairs
 rightConcat j' right' (BothX eo left j pairs right)
@@ -59,21 +69,25 @@ markParens :: AddX -> AddX
 markParens (Leaf x) = Leaf x
 markParens x@(BothX (EO _ a) b c d e) = BothX (EO True a) b c d e
 
-joint :: Level -> Joint -> AddX -> AddX -> AddX
-joint l j@(Joint _) a@(Leaf _) b@(Leaf _)
-  = BothX (EO False l) a j [] b
-joint l j@(Joint _) a@(Leaf _) b@(BothX (EO True _) _ _ _ _)
-  = BothX (EO False l) a j [] b -- I *think* level doesn't matter here.
---joint l j@(Joint _) a@(BothX _ _ _ _ _) b@(Leaf _)
---  = BothX (EO False l) a j [] b -- I *think* level doesn't matter here.
-
-
+hash :: Level -> Joint -> AddX -> AddX -> AddX
+hash l j a@(Leaf _) b@(Leaf _)
+  = startLevel l j a b
+hash l j a@(Leaf _) b@(BothX (EO True _) _ _ _ _)
+  = startLevel l j a b
+hash l j a@(Leaf _) b@(BothX (EO False l') _ _ _ _)
+  | l < l' = error "Higher level should not have been evaluated first."
+  | l == l' = leftConcat j a b -- suspect this won't happen either
+  | l > l' = startLevel l j a b
+hash l j a@(BothX (EO True _) _ _ _ _) b@(Leaf _)
+  = startLevel l j a b
+hash l j a@(BothX (EO False l') _ _ _ _) b@(Leaf _)
+  | l < l' = error "Higher level should not have been evaluated first."
+  | l == l' = rightConcat j b a -- but this will
+  | l > l' = startLevel l j a b
 
 -- a ## b ## c
 -- a # b ## c = (a,(b,c))
 -- b@(BothX (EO inp l') x1 j'@(Joint _) ps x2)
-
--- discussion: https://www.reddit.com/r/haskell/comments/6v9b13/can_this_problem_be_approached_from_the_bottomup/
 
 -- later: more cases
 -- data AddExpr = ...
