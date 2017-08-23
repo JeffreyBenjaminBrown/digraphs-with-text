@@ -14,8 +14,6 @@ import qualified Text.Megaparsec.Char.Lexer as L
 
 type Parser = Parsec Void String
 
-
-
 hasBlanks :: String -> Either  (ParseError (Token String) Void) Bool
 hasBlanks = parse p "not a file"
   where p :: Parser Bool
@@ -26,26 +24,80 @@ hasBlanks = parse p "not a file"
         other :: Parser String
         other = const "" <$> anyWord
 
--- == an instruction type for adding an expression to the graph
-type End = Maybe GraphAdd
-type Join = String
-data GraphAdd = Leaf String
-              | GraphAdd End Join [(GraphAdd,Join)] End
-  -- TODO: The Tplt constructor for RSLT itself should be like this.
+-- Solution?
+data AddExpr = Leaf String
+             | BothX  EO AddExpr Joint [(AddExpr,Joint)] AddExpr
+             deriving (Show, Eq)
+type Level = Int
+data Joint = Joint String deriving (Show, Eq)
+data EO = EO { inParens :: Bool -- "expression orderer"
+             , inLevel :: Level } deriving (Show, Eq)
+instance Ord EO where
+  EO a b <= EO c d
+    | a /= c = c <= a
+    | otherwise = b <= d
 
-expr :: Parser String
-expr = foldl addPrecLevel term []
+joint :: Level -> Joint -> AddExpr -> AddExpr -> AddExpr
+joint l j@(Joint _) a@(Leaf _) b@(Leaf _)
+  = BothX (EO False l) a j [] b
+joint l j@(Joint _) a@(Leaf _) b@(BothX _ _ _ _ _)
+  = BothX (EO False l) a j [] b
 
-addPrecLevel' :: MonadParsec e s m => m a -> [Operator m a] -> m a
-addPrecLevel' term ops = -- based on Text.Megaparsec.Expr
-  term' >>= \x -> choice [las' x, return x] <?> "operator"
-  where (_, las, _, prefix, _) = foldr splitOp ([],[],[],[],[]) ops
-        term' = pTerm (choice prefix) term (return id)
-        las'  = pInfixL (choice las) term'
+-- a ## (b ## c) = (a,(b,c))
+-- b@(BothX (EO inp l') x1 j'@(Joint _) ps x2)
 
-term :: Parser String
-term = parens expr
-       <|> concat . intersperse " " <$> many anyWord
+-- discussion: https://www.reddit.com/r/haskell/comments/6v9b13/can_this_problem_be_approached_from_the_bottomup/
+
+-- later: more cases
+-- data AddExpr = ...
+          -- | Absent
+          -- | LeftX  EO AddExpr Joint [(AddExpr,Joint)]
+          -- | RightX EO         Joint [(AddExpr,Joint)] AddExpr
+--joint j@(Joint k _) a@(Leaf _) b@(Leaf _)
+--  = BothX  (EO False k) a j [] b
+--joint j@(Joint k _) Absent b@(Leaf _)
+--  = RightX (EO False k)   j [] b
+--joint j@(Joint k _) a@(Leaf _) Absent
+--  = LeftX  (EO False k) a j []
+
+
+--   a ## b ## c
+-- = (RelExpr (EO False 2) (Leaf a) (Joint 2 "") (Leaf b))  ##  c
+-- = RelExpr (EO False 2) (Leaf a) (Joint 2 "") 
+
+-- == Option: Use "many" to parse a bunch of the same level
+
+-- == Option: use an Int field in the RelExpr and Join constructors
+-- data Expr = Leaf String
+--          | RelExpr Mex Join [(Expr,Join)] Mex
+-- type Join = Join Int Add
+-- type Mex = Maybe Expr
+
+-- == Option: Use Megaparsec.Expr. Close!
+  -- (In this I was calling Expr "Mad", for "Maybe Graph Add instruction".)
+-- expr :: Parser Mad
+-- expr = foldl addPrecLevel term []
+-- 
+-- addPrecLevel' :: MonadParsec e s m
+--               => m Mad -> [Operator m Mad] -> m Mad
+-- addPrecLevel' term ops = -- based on Text.Megaparsec.Expr
+--   term' >>= \x -> choice [las' x, return x] <?> "operator"
+--   where (_, las, _, prefix, _) = foldr splitOp ([],[],[],[],[]) ops
+--         term' = option Nothing
+--           $ Just <$> pTerm (choice prefix) term (return id)
+--         las'  = pInfixL (choice las) term'
+-- 
+-- pInfixL' :: MonadParsec e s m
+--   => m (Mad -> Mad -> Mad) -> m Mad -> Mad -> m Mad
+-- pInfixL' op p x = do
+--   f <- op
+--   y <- p
+--   let r = f x y
+--   pInfixL op p r <|> return r
+-- 
+-- term :: Parser Mad
+-- term = parens expr
+--        <|> Just . Leaf . concat . intersperse " " <$> many anyWord
 
 hashes :: Int -> Parser ()
 hashes n = C.string prefix *> notFollowedBy (C.char '#')
