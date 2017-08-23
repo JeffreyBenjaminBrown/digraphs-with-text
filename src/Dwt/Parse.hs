@@ -25,8 +25,8 @@ hasBlanks = parse p "not a file"
         other = const "" <$> anyWord
 
 -- Solution?
-data AddExpr = Leaf String
-             | BothX  EO AddExpr Joint [(AddExpr,Joint)] AddExpr
+data AddX = Leaf String -- expresses how to add (nested) data to the RSLT
+             | BothX EO AddX Joint [(AddX,Joint)] AddX
              deriving (Show, Eq)
 type Level = Int
 data Joint = Joint String deriving (Show, Eq)
@@ -37,13 +37,19 @@ instance Ord EO where
     | a /= c = c <= a
     | otherwise = b <= d
 
-joint :: Level -> Joint -> AddExpr -> AddExpr -> AddExpr
+--rightConcat :: AddX -> AddX -> AddX
+--rightConcat new big@(BothX eo
+
+joint :: Level -> Joint -> AddX -> AddX -> AddX
 joint l j@(Joint _) a@(Leaf _) b@(Leaf _)
   = BothX (EO False l) a j [] b
 joint l j@(Joint _) a@(Leaf _) b@(BothX _ _ _ _ _)
-  = BothX (EO False l) a j [] b
+  = BothX (EO False l) a j [] b -- I *think* level doesn't matter here.
+joint l j@(Joint _) a@(BothX _ _ _ _ _) b@(Leaf _)
+  = BothX (EO False l) a j [] b -- I *think* level doesn't matter here.
 
--- a ## (b ## c) = (a,(b,c))
+-- a ## b ## c
+-- a # b ## c = (a,(b,c))
 -- b@(BothX (EO inp l') x1 j'@(Joint _) ps x2)
 
 -- discussion: https://www.reddit.com/r/haskell/comments/6v9b13/can_this_problem_be_approached_from_the_bottomup/
