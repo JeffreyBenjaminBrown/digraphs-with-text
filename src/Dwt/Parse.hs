@@ -29,15 +29,18 @@ hasBlanks = parse p "not a file"
 
 -- == Things used when parsing Word and Rel values
 data AddX = Leaf String -- expresses how to add (nested) data to the RSLT
-          | BothX EO AddX Joint [(AddX,Joint)] AddX
+          | RelX EO AddX Joint [(AddX,Joint)] AddX
           deriving (Show, Eq)
-type Level = Int
+type Level = Int -- in "cats like you because you like them", the "because"
+  -- relationship is level 2, and the "like" relationships are level 1
 data Joint = Joint String deriving (Show, Eq)
+  -- in "you #like peaches #at noon", "like" and "at" are joints
 data EO = EO     -- EO = "expression orderer"
   { open :: Bool -- open = "more expressions can be concatentated into it"
-                 -- In b@(BothX (EO x _) _ _ _ _), x is true until
+                 -- In b@(RelX (EO x _) _ _ _ _), x is true until
                  -- b has been surrounded by parentheses.
   , inLevel :: Level } deriving (Eq)
+
 instance Show EO where
   show (EO x y) = "EO " ++ show x ++ " " ++ show y
 instance Ord EO where -- Conceptually yes, but I haven't actually used this.
@@ -45,11 +48,11 @@ instance Ord EO where -- Conceptually yes, but I haven't actually used this.
     | a /= c = a <= c
     | otherwise = b <= d
 
-startLevel :: Level -> Joint -> AddX -> AddX -> AddX
-startLevel l j a b = BothX (EO True l) a j [] b
+startRel :: Level -> Joint -> AddX -> AddX -> AddX
+startRel l j a b = RelX (EO True l) a j [] b
 
 -- | PITFALL: In "a # b # c # d", you might imagine evaluating the middle #
--- after the others. In that case both sides would be a BothX, and you would
+-- after the others. In that case both sides would be a RelX, and you would
 -- want to modify both, rather than make one a member of the other. These
 -- concat functions skip that possibility; one of the two AddX arguments is
 -- always incorporated into the other. I believe that is safe, because 
@@ -57,37 +60,37 @@ startLevel l j a b = BothX (EO True l) a j [] b
 -- right, not outside to inside.
 rightConcat :: Joint -> AddX -> AddX -> AddX
   -- TODO: if|when need speed, use a two-sided list of pairs
-rightConcat j' right' (BothX eo left j pairs  right)
-                     = BothX eo left j pairs' right'
+rightConcat j' right' (RelX eo left j pairs  right)
+                     = RelX eo left j pairs' right'
   where pairs' = pairs ++ [(right, j')]
-rightConcat _ _ _ = error "can only rightConcat into a BothX"
+rightConcat _ _ _ = error "can only rightConcat into a RelX"
 
 leftConcat :: Joint -> AddX -> AddX -> AddX
-leftConcat j' left' (BothX eo left j pairs right)
-                   = BothX eo left' j' pairs' right
+leftConcat j' left' (RelX eo left j pairs right)
+                   = RelX eo left' j' pairs' right
   where pairs' = (left,j) : pairs
-leftConcat _ _ _ = error "can only leftConcat into a BothX"
+leftConcat _ _ _ = error "can only leftConcat into a RelX"
 
 close :: AddX -> AddX
 close (Leaf x) = Leaf x
-close (BothX (EO _     a) b c d e)
-     = BothX (EO False a) b c d e
+close (RelX (EO _     a) b c d e)
+     = RelX (EO False a) b c d e
 
 hash :: Level -> Joint -> AddX -> AddX -> AddX
 hash l j a@(Leaf _) b@(Leaf _)
-  = startLevel l j a b
-hash l j a@(Leaf _) b@(BothX (EO False _) _ _ _ _)
-  = startLevel l j a b
-hash l j a@(Leaf _) b@(BothX (EO True l') _ _ _ _)
+  = startRel l j a b
+hash l j a@(Leaf _) b@(RelX (EO False _) _ _ _ _)
+  = startRel l j a b
+hash l j a@(Leaf _) b@(RelX (EO True l') _ _ _ _)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = leftConcat j a b -- I suspect this won't happen either
-  | l > l' = startLevel l j a b
-hash l j a@(BothX (EO False _) _ _ _ _) b@(Leaf _)
-  = startLevel l j a b
-hash l j a@(BothX (EO True l') _ _ _ _) b@(Leaf _)
+  | l > l' = startRel l j a b
+hash l j a@(RelX (EO False _) _ _ _ _) b@(Leaf _)
+  = startRel l j a b
+hash l j a@(RelX (EO True l') _ _ _ _) b@(Leaf _)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = rightConcat j b a -- but this will
-  | l > l' = startLevel l j a b
+  | l > l' = startRel l j a b
 
 hashes :: Int -> Parser ()
 hashes n = C.string prefix *> notFollowedBy (C.char '#')

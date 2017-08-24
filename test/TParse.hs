@@ -12,18 +12,18 @@ import Data.Maybe (fromJust)
 tParse = TestList [ TestLabel "tParseInner" tParseInner
                   ]
 
-tParseInner = TestList [ TestLabel "tJoint" tJoint
+tParseInner = TestList [ TestLabel "tHash" tHash
                        ]
 
-tJoint = TestCase $ do
+tHash = TestCase $ do
   assertBool "1" $
-    joint 2 (Joint "") (Leaf "hi") (Leaf "there")
-    == BothX (EO False 2) (Leaf "hi") (Joint "") [] (Leaf "there")
+    hash 2 (Joint "") (Leaf "hi") (Leaf "there")
+    == RelX (EO True 2) (Leaf "hi") (Joint "") [] (Leaf "there")
   assertBool "2" $
     rightConcat (Joint "") (Leaf "na")
-    (BothX (EO True 3) (Leaf "left") (Joint "zaba") [] (Leaf "right"))
-    == BothX (EO True 3) (Leaf "left") (Joint "zaba") [(Leaf "right",Joint "")] (Leaf "na")
+    (RelX (EO True 3) (Leaf "left") (Joint "zaba") [] (Leaf "right"))
+    == RelX (EO True 3) (Leaf "left") (Joint "zaba") [(Leaf "right",Joint "")] (Leaf "na")
   assertBool "3" $
     leftConcat (Joint "new") (Leaf "new")
-    (BothX (EO True 4) (Leaf "left") (Joint "j") [] (Leaf "right"))
-    == BothX (EO True 4) (Leaf "new") (Joint "new") [(Leaf "left",Joint "j")] (Leaf "right")
+    (RelX (EO True 4) (Leaf "left") (Joint "j") [] (Leaf "right"))
+    == RelX (EO True 4) (Leaf "new") (Joint "new") [(Leaf "left",Joint "j")] (Leaf "right")
