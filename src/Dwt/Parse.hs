@@ -101,7 +101,7 @@ term = parens expr <|> Leaf <$> phrase
 
 pHash :: Parser (AddX -> AddX -> AddX)
 pHash = do
-  level <- length <$> many (C.char '#')
+  level <- length <$> some (C.char '#')
   label <- option "" $ parens phrase <|> anyWord
   return $ hash level (Joint label)
 
