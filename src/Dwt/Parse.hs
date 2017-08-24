@@ -92,9 +92,22 @@ hash l j a@(RelX (EO True l') _ _ _ _) b@(Leaf _)
   | l == l' = rightConcat j b a -- but this will
   | l > l' = startRel l j a b
 
-hashes :: Int -> Parser ()
-hashes n = C.string prefix *> notFollowedBy (C.char '#')
-  where prefix = take n $ repeat '#' :: String
+
+-- the AddX parser
+expr :: Parser AddX
+expr = makeExprParser term [[InfixL pHash]]
+
+term :: Parser AddX
+term = parens expr <|> phrase
+
+pHash :: Parser (AddX -> AddX -> AddX)
+pHash = do
+  level <- length <$> many (C.char '#')
+  label <- option "" $ parens phrase <|> anyWord
+  return $ pHash level $ Joint label
+
+phrase :: Parser AddX
+phrase = Leaf . concat . intersperse " " <$> many anyWord
 
 -- little things
 sc :: Parser ()
