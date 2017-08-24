@@ -19,11 +19,11 @@ expr = makeExprParser term [[InfixL $ lexeme pHash]]
 term :: Parser [String]
 term = parens expr <|> (:[]) <$> lexeme phrase
 
+-- this is the broken one
 pHash :: Parser ([String] -> [String] -> [String])
-pHash = do
-  level <- length <$> many (C.char '#')
-  label <- option "" $ parens phrase <|> anyWord
-  return $ hash level label
+pHash = do level <- length <$> many (C.char '#')
+           label <- option "" $ parens phrase <|> anyWord
+           return $ hash level label
 
 hash :: Int -> String -> [String] -> [String] -> [String]
 hash n s a b = a ++ [" " ++ show n ++ "(" ++ s ++ ") "] ++ b
