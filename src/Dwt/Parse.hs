@@ -92,22 +92,18 @@ hash l j a@(RelX (EO True l') _ _ _ _) b@(Leaf _)
   | l == l' = rightConcat j b a -- but this will
   | l > l' = startRel l j a b
 
-
 -- the AddX parser
 expr :: Parser AddX
 expr = makeExprParser term [[InfixL pHash]]
 
 term :: Parser AddX
-term = parens expr <|> phrase
+term = parens expr <|> Leaf <$> phrase
 
 pHash :: Parser (AddX -> AddX -> AddX)
 pHash = do
   level <- length <$> many (C.char '#')
   label <- option "" $ parens phrase <|> anyWord
-  return $ pHash level $ Joint label
-
-phrase :: Parser AddX
-phrase = Leaf . concat . intersperse " " <$> many anyWord
+  return $ hash level (Joint label)
 
 -- little things
 sc :: Parser ()
@@ -124,6 +120,9 @@ word w = lexeme $ C.string w <* notFollowedBy wordChar
 
 anyWord :: Parser String
 anyWord = lexeme $ some wordChar
+
+phrase :: Parser String
+phrase = concat . intersperse " " <$> many anyWord
 
 symbol :: String -> Parser String -- is a lexeme; consumes trailing space
 symbol = L.symbol sc
