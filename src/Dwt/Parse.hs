@@ -101,7 +101,8 @@ expr :: Parser AddX
 expr = makeExprParser term [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
 term :: Parser AddX
-term = parens expr <|> Leaf <$> phrase1
+term = Leaf <$> (phrase1 <|> absent) <|> parens expr
+  where absent = const "" <$> (try $ symbol "()")
 
 pHashUnlabeled :: Int -> Parser ()
 pHashUnlabeled n = const () <$> f
