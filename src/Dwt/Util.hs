@@ -16,14 +16,14 @@
     listIntersect (x:xs) = foldl intersect x xs
 
 -- for graphs
-    negateGraph :: Graph Gr => Gr a b -> Gr a b
+    negateGraph :: Gr a b -> Gr a b
     negateGraph m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
       where negAdj = map (\(label,n) -> (label,-n))
 
 --  for graphs
     -- in progress
     -- TODO ! fails silently. use Either.
-    replaceNode :: Graph Gr => LNode a -> Gr a b -> Gr a b
+    replaceNode :: LNode a -> Gr a b -> Gr a b
     replaceNode (adr,_) (match adr -> (Nothing, g)) = g
     replaceNode (adr,dat) (match adr -> (Just (a,b,c,d), g)) = (a,b,dat,d) & g
 
