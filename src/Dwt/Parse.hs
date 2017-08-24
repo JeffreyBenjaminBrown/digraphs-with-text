@@ -98,16 +98,20 @@ hash l j a@(RelX (EO True l') _ _ _ _) b@(Leaf _)
 
 -- == the AddX parser
 expr :: Parser AddX
-expr = makeExprParser term [[InfixL pHash]]
+expr = makeExprParser term [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
 term :: Parser AddX
 term = parens expr <|> Leaf <$> phrase1
 
-pHash :: Parser (AddX -> AddX -> AddX)
-pHash = do
-  level <- length <$> some (C.char '#')
+pHashUnlabeled :: Int -> Parser ()
+pHashUnlabeled n = const () <$> f
+  where f = C.string (replicate n '#') <* notFollowedBy (C.char '#')
+
+pHash :: Int -> Parser (AddX -> AddX -> AddX)
+pHash n = lexeme $ do
+  pHashUnlabeled n
   label <- option "" $ anyWord <|> parens phrase
-  return $ hash level (Joint label)
+  return $ hash n $ Joint label
 
 
 -- == little things
