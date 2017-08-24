@@ -1,5 +1,6 @@
 -- discussion: https://www.reddit.com/r/haskell/comments/6v9b13/can_this_problem_be_approached_from_the_bottomup/
 
+
 module Dwt.Parse where
 
 import Control.Applicative (empty)
@@ -16,6 +17,7 @@ import qualified Text.Megaparsec.Char.Lexer as L
 
 type Parser = Parsec Void String
 
+
 -- == Things used when parsing Tplt values
 hasBlanks :: String -> Either  (ParseError (Token String) Void) Bool
 hasBlanks = parse p "not a file"
@@ -26,6 +28,7 @@ hasBlanks = parse p "not a file"
         blank = try $ word "_"
         other :: Parser String
         other = const "" <$> anyWord
+
 
 -- == Things used when parsing Word and Rel values
 data AddX = Leaf String -- expresses how to add (nested) data to the RSLT
@@ -92,20 +95,22 @@ hash l j a@(RelX (EO True l') _ _ _ _) b@(Leaf _)
   | l == l' = rightConcat j b a -- but this will
   | l > l' = startRel l j a b
 
--- the AddX parser
+
+-- == the AddX parser
 expr :: Parser AddX
 expr = makeExprParser term [[InfixL pHash]]
 
 term :: Parser AddX
-term = parens expr <|> Leaf <$> phrase
+term = parens expr <|> Leaf <$> phrase1
 
 pHash :: Parser (AddX -> AddX -> AddX)
 pHash = do
   level <- length <$> some (C.char '#')
-  label <- option "" $ parens phrase <|> anyWord
+  label <- option "" $ anyWord <|> parens phrase
   return $ hash level (Joint label)
 
--- little things
+
+-- == little things
 sc :: Parser ()
 sc = L.space C.space1 empty empty
 
@@ -124,7 +129,10 @@ anyWord = lexeme $ some wordChar
 phrase :: Parser String
 phrase = concat . intersperse " " <$> many anyWord
 
-symbol :: String -> Parser String -- is a lexeme; consumes trailing space
+phrase1 :: Parser String
+phrase1 = concat . intersperse " " <$> some anyWord
+
+symbol :: String -> Parser String -- is already a lexeme
 symbol = L.symbol sc
 
 parens :: Parser a -> Parser a
