@@ -1,12 +1,10 @@
 module Experim where
 
 import Data.Void (Void)
-import Text.Megaparsec (Parsec, (<|>), parseTest, many)
+import Text.Megaparsec (Parsec, (<|>), parseTest, many, notFollowedBy)
 import qualified Text.Megaparsec.Char as C
 
 type Parser = Parsec Void String
-
-main = parseTest broken ""
 
 obviouslyBroken :: Parser [String]
 obviouslyBroken = many $ many $ C.char '#'

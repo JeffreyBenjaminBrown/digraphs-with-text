@@ -1,0 +1,2 @@
+"many" succeeds even if it finds none of them.
+Using that where I should be using "some" can cause a hang.
