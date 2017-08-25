@@ -94,7 +94,11 @@ hash l j a@(RelX (EO True l') _ _ _ _) b@(Leaf _)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = rightConcat j b a -- but this will
   | l > l' = startRel l j a b
-
+hash l j a@(RelX ea _ _ _ _) b@(RelX eb _ _ _ _) =
+  let e = EO True l
+  in if e > ea && e > eb
+     then startRel l j a b
+     else error "Inside relationship should have been evaluated earlier."
 
 -- == the AddX parser
 expr :: Parser AddX

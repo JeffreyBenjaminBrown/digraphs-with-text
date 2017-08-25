@@ -312,7 +312,8 @@
       RelSpecExpr _ ->  case f of RelSpecExpr _ -> True;  _ -> False
 
   -- more complex ("locate"?) queries
-    node :: RSLT -> Expr -> [Node] -- hopefully length = 1
+    node :: RSLT -> Expr -> [Node]
+      -- TODO: dependent types. (hopefully, length = 1)
       -- move ? Search.hs
       -- name ? exprOf
     node g x = nodes $ labfilter (== x) g
