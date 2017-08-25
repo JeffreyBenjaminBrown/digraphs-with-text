@@ -3,6 +3,7 @@
     module Dwt
       ( module Data.Graph.Inductive
       , module Dwt
+      , module Dwt.Add
       , module Dwt.FileIO
       , module Dwt.Graph
       , module Dwt.Parse 
@@ -14,13 +15,14 @@
 
     import Data.Graph.Inductive
 
-    import Dwt.Util
+    import Dwt.Add
+    import Dwt.FileIO
     import Dwt.Graph
+    import Dwt.Parse
     import Dwt.Search
     import Dwt.Show
-    import Dwt.FileIO
-    import Dwt.Parse
     import Dwt.UI
+    import Dwt.Util
 
     import Control.Monad (void)
     import Text.Megaparsec as Mp

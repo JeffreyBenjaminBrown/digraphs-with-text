@@ -45,7 +45,7 @@ data EO = EO     -- EO = "expression orderer"
   , inLevel :: Level } deriving (Eq)
 
 instance Show EO where
-  show (EO x y) = "EO " ++ show x ++ " " ++ show y
+  show (EO x y) = "(EO " ++ show x ++ " " ++ show y ++ ")"
 instance Ord EO where -- Conceptually yes, but I haven't actually used this.
   EO a b <= EO c d
     | a /= c = a <= c
@@ -96,16 +96,23 @@ hash l j a@(RelX (EO True l') _ _ _ _) b@(Leaf _)
   | l > l' = startRel l j a b
 hash l j a@(RelX ea _ _ _ _) b@(RelX eb _ _ _ _) =
   let e = EO True l
-  in if e > ea && e > eb
+  in if e >= ea && e > eb
      then startRel l j a b
-     else error "Inside relationship should have been evaluated earlier."
+     else error $ unlines
+          [ "Joint should have been evaluated earlier."
+          , "level: " ++ show l
+          , show j
+          , "left: " ++ show a
+          , "right: " ++ show b
+          ]
 
 -- == the AddX parser
 expr :: Parser AddX
 expr = makeExprParser term [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
 term :: Parser AddX
-term = Leaf <$> (phrase1 <|> absent) <|> parens expr
+term = Leaf <$> (phrase1 <|> absent)
+       <|> close <$> parens expr
   where absent = const "" <$> (try $ symbol "()")
 
 pHashUnlabeled :: Int -> Parser ()
