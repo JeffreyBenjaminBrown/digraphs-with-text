@@ -111,9 +111,15 @@ expr :: Parser AddX
 expr = makeExprParser term [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
 term :: Parser AddX
-term = Leaf <$> (phrase1 <|> absent)
+term = Leaf <$> (phrase1 <|> symbolForAbsent)
        <|> close <$> parens expr
-  where absent = const "" <$> (try $ symbol "()")
+       <|> (const (Leaf "") <$> reallyAbsent) where
+  symbolForAbsent :: Parser String
+  symbolForAbsent = const ""
+    <$> (try $ (const () <$> symbol "()") )
+  reallyAbsent :: Parser ()
+  reallyAbsent = const () <$> f <?> "Intended to \"find\" nothing."
+    where f = lookAhead $ const () <$> C.satisfy (`elem` ")#") <|> eof
 
 pHashUnlabeled :: Int -> Parser ()
 pHashUnlabeled n = const () <$> f
