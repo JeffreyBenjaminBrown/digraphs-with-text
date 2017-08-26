@@ -23,19 +23,20 @@ data QNode = QNode Node -- when you already know the Node
   | QRel QNode [QNode] -- todo ? use
   deriving (Show, Eq)
 
-edgeless :: Gr a b -> Gr a b -- ? faster or slower
-edgeless = gmap (\(_,b,c,_) -> ([], b, c, []))
+dropEdges :: Gr a b -> Gr a b -- ? faster or slower
+dropEdges = gmap (\(_,b,c,_) -> ([], b, c, []))
 
 qGet :: RSLT -> QNode -> Either String Node
 qGet g (QNode n) = gelemM g n >> Right n
 qGet g (QWord s) = do
   let ns = nodes $ labfilter (\n -> case n of Word t -> s==t; _ -> False)
-           $ edgeless g
+           $ dropEdges g
   lengthOne ns
   Right $ head ns
 qGet g (QTplt s) = do
-  let ns = nodes $ labfilter (\n -> case n of Tplt t -> s==t; _ -> False)
-           $ edgeless g
+  let ns = nodes
+           $ labfilter (\n -> case n of Tplt t -> s==t; _ -> False)
+           $ dropEdges g
   lengthOne ns
   Right $ head ns
 
@@ -45,7 +46,7 @@ qRegexWord g s = do
   let ns = nodes $ labfilter (\lab -> case lab of
                                  Word t -> Mb.isJust $ matchRegex r t;
                                  _ -> False)
-                   $ edgeless g
+                   $ dropEdges g
   Right ns
 
 qInsRel :: QNode -> [QNode] -> RSLT -> Either String RSLT
