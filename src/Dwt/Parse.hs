@@ -1,3 +1,4 @@
+-- From an expression like "I #like turtles ##when the sun #is big", creates a set of instructions for adding expressions to a RSLT.
 -- discussion: https://www.reddit.com/r/haskell/comments/6v9b13/can_this_problem_be_approached_from_the_bottomup/
 
 
@@ -33,6 +34,10 @@ hasBlanks = parse p "not a file"
 -- == Things used when parsing Word and Rel values
 data AddX = Leaf String -- expresses how to add (nested) data to the RSLT
           | RelX EO AddX Joint [(AddX,Joint)] AddX
+          | FoundIt Node -- unused in Parse.hs, used in Add.hs
+  -- Every rel has at least one joint, and potentially members on either side.
+  -- If there are more, the list of pairs stores them.
+  -- TODO: make the rightmost and leftmost members Maybes.
           deriving (Show, Eq)
 type Level = Int -- in "cats like you because you like them", the "because"
   -- relationship is level 2, and the "like" relationships are level 1
