@@ -11,7 +11,6 @@ import Data.Graph.Inductive
 import Dwt.Graph
 import Dwt.Util (lengthOne)
 
-import Data.Map as Map
 import Data.Maybe as Mb
 
 -- see also
@@ -20,24 +19,44 @@ import Data.Maybe as Mb
 -- queries
 data QNode = QNode Node -- when you already know the Node
   | QWord String | QTplt [String] -- when you don't but you know its contents
-  | QRel QNode [QNode] -- todo ? use
+  | QRel QNode [QNode]
   deriving (Show, Eq)
 
 dropEdges :: Gr a b -> Gr a b -- ? faster or slower
 dropEdges = gmap (\(_,b,c,_) -> ([], b, c, []))
 
 qGet :: RSLT -> QNode -> [Node]
+qGet g (QNode n) =  if gelem n g then [n] else []
 qGet g (QWord s) = nodes
   $ labfilter (\n -> case n of Word t -> s==t; _ -> False)
   $ dropEdges g
 qGet g (QTplt s) = nodes
   $ labfilter (\n -> case n of Tplt t -> s==t; _ -> False)
   $ dropEdges g
-qGet g (QNode n) = error "qGet called on a QNode. Use qGet1 instead."
+qGet g (QRel t ns) =
+  let matchedNodes = map (qGet g) ns :: [[Node]]
+      matchedTplts = qGet g t :: [Node]
+  -- TODO for speed: limit search to the intersection of predecessors of
+  -- the template and each Mbr k set
+      f :: Node -> Bool
+      f n = True -- TODO: lpre g n ...
+  in if tpltArity t == length matchedNodes
+     then nodes $ nfilter f g
+     else error $ "arity of " ++ show t
+          ++ " not equal to length of member list"
+  -- find every node that sends a TpltRole to something in tpltWays
+  -- and a Mbr k to something in the kth _
+
+-- TODO: query for relationships
+    --    qGet g (QRel qt qes) = do
+    --      let tn = qGet qt g
+    --          es = mapM (flip qGet g) es
+    --          rs = Map.fromList $ tn : es :: RelSpec
+    --          ns = matchRel g rs
+    --      lengthOne ns -- ifdo clarify: errors look the same as those from qGet above
+    --      Right $ head ns
 
 qGet1 :: RSLT -> QNode -> Either String Node
-qGet1 g (QNode n) = if gelem n g then Right n
-  else Left $ "qGet1: node " ++ show n ++ " not in graph."
 qGet1 g q = let ns = qGet g q
             in case length ns of
                  0 -> Left "qGet1: Expected one match, found none."
@@ -58,12 +77,3 @@ qInsRel qtn qns g = do
   tn <- qGet1 g qtn 
   ns <- mapM (qGet1 g) qns
   insRel tn ns g
-
--- very stale
-    --    qGet g (QRel qt qes) = do
-    --      let tn = qGet qt g
-    --          es = mapM (flip qGet g) es
-    --          rs = Map.fromList $ tn : es :: RelSpec
-    --          ns = matchRel g rs
-    --      lengthOne ns -- ifdo clarify: errors look the same as those from qGet above
-    --      Right $ head ns
