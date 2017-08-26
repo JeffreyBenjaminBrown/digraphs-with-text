@@ -28,7 +28,8 @@ tHash = TestCase $ do
     (RelX (EO True 4) (Leaf "left") (Joint "j") [] (Leaf "right"))
     == RelX (EO True 4) (Leaf "new") (Joint "new") [(Leaf "left",Joint "j")] (Leaf "right")
   assertBool "4" $ p == Right a where
-      p = parse expr "dogs #like you ###becase you #(give or misplace) (bones #that reek like demons) #to dogs ##sometimes"
+      p = parse expr "uhh ... parse error?"
+        "dogs #like you ###becase you #(give or misplace) (bones #that reek super nasty) #to dogs ##sometimes"
       a = RelX
           (EO True 3)
           (RelX
@@ -47,7 +48,7 @@ tHash = TestCase $ do
                   (EO False 1)
                   (Leaf "bones")
                   (Joint "that") []
-                  (Leaf "reek like demons")
+                  (Leaf "reek super nasty")
                 , Joint "to")]
               (Leaf "dogs"))
             (Joint "sometimes") []
