@@ -3,7 +3,7 @@
 
     module Dwt.Util
       ( listIntersect, lengthOne -- for lists
-      , negateGraph, compressGraph -- for graphs
+      , negateGraph, compressGraph, joinGraphs -- for graphs
       , mapLookupMe, eitherToMe, fromRight -- for monads
       ) where
 
@@ -40,6 +40,16 @@
                           chNode n = mp Map.! n
                           chAdj (b,n) = (b, mp Map.! n)
       in gmap (\(a,b,lab,d) -> (map chAdj a, chNode b, lab, map chAdj d)) g
+
+    joinGraphs :: DynGraph gr => gr a b -> gr a b -> gr a b
+    joinGraphs g h =
+      let gMax = snd $ nodeRange g
+          hMin = fst $ nodeRange h
+          shift = 1 + gMax - hMin
+          shiftAdj = map (\(elab,n) -> (elab,n+shift)) :: Adj b -> Adj b
+          h' = gmap (\(ins,n,nlab,outs) ->
+                (shiftAdj ins, n+shift, nlab, shiftAdj outs)) h
+      in mkGraph (labNodes g ++ labNodes h') (labEdges g ++ labEdges h')
 
 -- for monads
     -- TODO: This could use a higher-kinded function, lke eitherToMe, for Maybes

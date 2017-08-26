@@ -1,15 +1,11 @@
     {-# LANGUAGE FlexibleContexts #-}
     {-# LANGUAGE ViewPatterns #-}
 
-    -- trying (in Vew.hs): order 
-      -- not by comprehension (? impossible since traversed nonlinear)
-      -- rather by priority, the user before what it uses
-
     module Dwt.Graph
       (
         MbrPos, Arity
       , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
-      , Mbrship(..), MbConcreteMbr(..), RelVarSpec, RelNodeSpec, RelSpec
+      , Mbrship(..), MbAddressedMbr(..), RelVarSpec, RelNodeSpec, RelSpec
       , _splitStringForTplt, mkTplt
       , subInTplt, padTpltStrings, subInTpltWithHashes
       , tpltArity, mbrListMatchesTpltArity
@@ -22,7 +18,6 @@
       , node, tpltAt, relElts, validRole, relTplt, collPrinciple
       , rels, mbrs, users, usersInRole, usersInRoleUsf
       , matchRel, has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
-      , join
       ) where
 
     import Dwt.Util
@@ -40,11 +35,11 @@
     type MbrPos = Int -- k members of k-ary Rel, MbrPos values [1..k]
 
     type RSLT = Gr Expr RSLTEdge -- reflective set of labeled tuples
-    data Expr = Word String | Fl Float -- similar
+    data Expr = Word String | Fl Float -- these two are similar
               | Rel
               | Tplt [String]
-              | RelSpecExpr RelVarSpec
               | Coll -- each uses a CollPrinciple like "and" or "or"
+              | RelSpecExpr RelVarSpec
               deriving(Show,Read,Eq,Ord)
 
     data RSLTEdge = RelEdge RelRole | CollEdge CollRole
@@ -54,19 +49,24 @@
       -- a k-ary Rel emits one TpltRole and k RelMbrs
     data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
       -- a Col emits one CollPrinciple, any number of CollMbrs
+-- TODO: A CollPrinciple currently can point to anything. It would be
+  -- cleaner, and closer to truth, to pointonly to transitive Tplts.
+  -- Exceptions: "some of," "no more than," "exactly" would use unary Tplts.
+    -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
 
   -- for RelSpec
     data Mbrship = It | Any | Up | Down
       deriving (Show,Read,Eq,Ord)
-    data MbConcreteMbr = VarSpec Mbrship | NodeSpec Node deriving(Show,Read,Eq,Ord) -- or MbAddressedMbr?
-      -- maybe it is addressed; else it is a Mbrship variable
+    data MbAddressedMbr -- or MbAddressedMbr?
+      -- maybe it is addressed; otherwise it is a Mbrship variable
+      = VarSpec Mbrship | NodeSpec Node deriving(Show,Read,Eq,Ord)
 
     -- at the TpltRole key is always a concrete NodeSpec
-    type RelVarSpec = Map.Map RelRole Mbrship -- Is a subset of RelSpec info, but
-      -- in a graph implies a complete RelSpec, because
+    type RelVarSpec = Map.Map RelRole Mbrship -- Is a subset of RelSpec info,
+      -- but in a graph it implies a complete RelSpec, because
       -- a RelSpecExpr points to its concrete members.
     type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
-    type RelSpec =     Map.Map RelRole MbConcreteMbr
+    type RelSpec =     Map.Map RelRole MbAddressedMbr
       -- if well-formed, has a Tplt, and MbrPoss from 1 to the Tplt's Arity
 
 -- Tplts
@@ -386,7 +386,7 @@
     matchRel g spec = do
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
-            $ spec :: [(RelRole,MbConcreteMbr)]
+            $ spec :: [(RelRole,MbAddressedMbr)]
       nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
       return $ listIntersect nodeListList
 
@@ -466,14 +466,3 @@
       (nub . reverse) <$> _dwtBfs g dir starts []
 
     -- chase :: Var -> RSLT -> [RelSpec] -> [Node] -> Either String [Node]
-
--- multi-graph
-    join :: DynGraph gr => gr a b -> gr a b -> gr a b
-    join g h =
-      let gMax = snd $ nodeRange g
-          hMin = fst $ nodeRange h
-          shift = 1 + gMax - hMin
-          shiftAdj = map (\(elab,n) -> (elab,n+shift)) :: Adj b -> Adj b
-          h' = gmap (\(ins,n,nlab,outs) ->
-                (shiftAdj ins, n+shift, nlab, shiftAdj outs)) h
-      in mkGraph (labNodes g ++ labNodes h') (labEdges g ++ labEdges h')
