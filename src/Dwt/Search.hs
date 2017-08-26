@@ -25,36 +25,37 @@ data QNode = QNode Node -- when you already know the Node
 dropEdges :: Gr a b -> Gr a b -- ? faster or slower
 dropEdges = gmap (\(_,b,c,_) -> ([], b, c, []))
 
-qGet :: RSLT -> QNode -> [Node]
-qGet g (QNode n) =  if gelem n g then [n] else []
-qGet g (QWord s) = nodes
+_qGet :: (RSLT -> Node -> x) -- | Used for QNodes
+      -> (RSLT -> [x])             -- | Used for everything else
+      -> RSLT -> QNode -> [x]
+_qGet f _ g (QNode n) =  if gelem n g then [f g n] else []
+_qGet _ f g (QWord s) = f
   $ labfilter (\n -> case n of Word t -> s==t; _ -> False)
   $ dropEdges g
-qGet g (QTplt s) = nodes
+_qGet _ f g (QTplt s) = f
   $ labfilter (\n -> case n of Tplt t -> s==t; _ -> False)
   $ dropEdges g
-qGet g (QRel t ns) =
-  let matchedNodes = map (qGet g) ns :: [[Node]]
-      matchedTplts = qGet g t :: [Node]
-  -- TODO for speed: limit search to the intersection of predecessors of
-  -- the template and each Mbr k set
-      f :: Node -> Bool
-      f n = True -- TODO: lpre g n ...
-  in if tpltArity t == length matchedNodes
-     then nodes $ nfilter f g
-     else error $ "arity of " ++ show t
-          ++ " not equal to length of member list"
-  -- find every node that sends a TpltRole to something in tpltWays
-  -- and a Mbr k to something in the kth _
+-- TODO: Consider Dwt.Graph.matchRel (and RelSpec, ..)
+--_qGet f g (QRel t ns) =
+--  let matchedNodes = map (qGet g) ns :: [[Node]]
+--      matchedTplts = qGet g t :: [Node]
+--  -- TODO for speed: limit search to the intersection of predecessors of
+--  -- the template and each Mbr k set
+--      f :: Node -> Bool
+--      f n = True -- TODO: lpre g n ...
+--  in if True -- tpltArity t == length matchedNodes
+--     then nodes $ nfilter f g
+--     else error $ "arity of " ++ show t
+--          ++ " not equal to length of member list"
+--  -- find every node that sends a TpltRole to something in tpltWays
+--  -- and a Mbr k to something in the kth _
 
--- TODO: query for relationships
-    --    qGet g (QRel qt qes) = do
-    --      let tn = qGet qt g
-    --          es = mapM (flip qGet g) es
-    --          rs = Map.fromList $ tn : es :: RelSpec
-    --          ns = matchRel g rs
-    --      lengthOne ns -- ifdo clarify: errors look the same as those from qGet above
-    --      Right $ head ns
+qGet :: RSLT -> QNode -> [Node]
+qGet = _qGet (\_ n -> n) nodes
+
+qLGet :: RSLT -> QNode -> [LNode Expr]
+qLGet = _qGet (\g n -> (n, fromJust $ lab g n)) labNodes
+  -- this fromJust is excused by the gelem in _qGet
 
 qGet1 :: RSLT -> QNode -> Either String Node
 qGet1 g q = let ns = qGet g q
