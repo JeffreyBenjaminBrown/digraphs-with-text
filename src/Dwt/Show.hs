@@ -77,12 +77,12 @@
                   -- e.g. rsl = [(Mbr 1,VarSpec Down),(Mbr 2,NodeSpec 3)]
                 tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup TpltRole rs
                 Just tpltLab = lab g tpltNode :: Maybe Expr
-                showMbAddressedMbr ms = case ms of
+                showAddressOrVar ms = case ms of
                   VarSpec var -> show var
                   NodeSpec node -> show_maybe_node $ Just node
             in ((_rel $ vpPrefixer vp) n tpltNode ++)  $  ("#RelSpec#: " ++)
               $ subInTplt tpltLab 
-              $ map showMbAddressedMbr $ map snd rsl
+              $ map showAddressOrVar $ map snd rsl
 
           Just (Rel) -> _showRel vp g d n
 

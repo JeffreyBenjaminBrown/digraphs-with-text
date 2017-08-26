@@ -5,7 +5,7 @@
       (
         MbrPos, Arity
       , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
-      , Mbrship(..), MbAddressedMbr(..), RelVarSpec, RelNodeSpec, RelSpec
+      , Mbrship(..), AddressOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
       , _splitStringForTplt, mkTplt
       , subInTplt, padTpltStrings, subInTpltWithHashes
       , tpltArity, mbrListMatchesTpltArity
@@ -40,6 +40,8 @@
               | Tplt [String]
               | Coll -- each uses a CollPrinciple like "and" or "or"
               | RelSpecExpr RelVarSpec
+                -- The RelVarSpec specifies the variable members.
+                -- Edges specify the concrete (addressed) members.
               deriving(Show,Read,Eq,Ord)
 
     data RSLTEdge = RelEdge RelRole | CollEdge CollRole
@@ -57,17 +59,14 @@
   -- for RelSpec
     data Mbrship = It | Any | Up | Down
       deriving (Show,Read,Eq,Ord)
-    data MbAddressedMbr -- or MbAddressedMbr?
-      -- maybe it is addressed; otherwise it is a Mbrship variable
+    data AddressOrVar -- might be addressed; else is Mbrship variable
       = VarSpec Mbrship | NodeSpec Node deriving(Show,Read,Eq,Ord)
 
     -- at the TpltRole key is always a concrete NodeSpec
-    type RelVarSpec = Map.Map RelRole Mbrship -- Is a subset of RelSpec info,
-      -- but in a graph it implies a complete RelSpec, because
-      -- a RelSpecExpr points to its concrete members.
+    type RelVarSpec = Map.Map RelRole Mbrship
     type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
-    type RelSpec =     Map.Map RelRole MbAddressedMbr
-      -- if well-formed, has a Tplt, and MbrPoss from 1 to the Tplt's Arity
+    type RelSpec =     Map.Map RelRole AddressOrVar -- if well-formed, keys
+      -- include a single Tplt, and MbrPos k for all k in [1, Tplt arity]
 
 -- Tplts
   -- mkTplt
@@ -386,7 +385,7 @@
     matchRel g spec = do
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
-            $ spec :: [(RelRole,MbAddressedMbr)]
+            $ spec :: [(RelRole,AddressOrVar)]
       nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
       return $ listIntersect nodeListList
 
