@@ -15,10 +15,10 @@
     listIntersect [] = []
     listIntersect (x:xs) = foldl intersect x xs
 
-    lengthOne :: [a] -> Either String ()
-    lengthOne ns = do
-      if length ns == 0 then Left "zero matches" else return ()
-      if length ns > 1 then Left "multiple matches" else return ()
+    lengthOne :: [a] -> Either String [a]
+    lengthOne ns = if length ns == 0 then Left "zero matches"
+      else if length ns > 1 then Left "multiple matches"
+      else return ns
 
 -- for graphs
     negateGraph :: Gr a b -> Gr a b

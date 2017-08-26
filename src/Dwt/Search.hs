@@ -26,19 +26,23 @@ data QNode = QNode Node -- when you already know the Node
 dropEdges :: Gr a b -> Gr a b -- ? faster or slower
 dropEdges = gmap (\(_,b,c,_) -> ([], b, c, []))
 
-qGet :: RSLT -> QNode -> Either String Node
-qGet g (QNode n) = gelemM g n >> Right n
-qGet g (QWord s) = do
-  let ns = nodes $ labfilter (\n -> case n of Word t -> s==t; _ -> False)
-           $ dropEdges g
-  lengthOne ns
-  Right $ head ns
-qGet g (QTplt s) = do
-  let ns = nodes
-           $ labfilter (\n -> case n of Tplt t -> s==t; _ -> False)
-           $ dropEdges g
-  lengthOne ns
-  Right $ head ns
+qGet :: RSLT -> QNode -> [Node]
+qGet g (QWord s) = nodes
+  $ labfilter (\n -> case n of Word t -> s==t; _ -> False)
+  $ dropEdges g
+qGet g (QTplt s) = nodes
+  $ labfilter (\n -> case n of Tplt t -> s==t; _ -> False)
+  $ dropEdges g
+qGet g (QNode n) = error "qGet called on a QNode. Use qGet1 instead."
+
+qGet1 :: RSLT -> QNode -> Either String Node
+qGet1 g (QNode n) = if gelem n g then Right n
+  else Left $ "qGet1: node " ++ show n ++ " not in graph."
+qGet1 g q = let ns = qGet g q
+            in case length ns of
+                 0 -> Left "qGet1: Expected one match, found none."
+                 1 -> Right $ head ns
+                 _ -> Left "qGet1: Expected one match, found more."
 
 qRegexWord :: RSLT -> String -> Either String [Node]
 qRegexWord g s = do
@@ -51,8 +55,8 @@ qRegexWord g s = do
 
 qInsRel :: QNode -> [QNode] -> RSLT -> Either String RSLT
 qInsRel qtn qns g = do
-  tn <- qGet g qtn 
-  ns <- mapM (qGet g) qns
+  tn <- qGet1 g qtn 
+  ns <- mapM (qGet1 g) qns
   insRel tn ns g
 
 -- very stale
