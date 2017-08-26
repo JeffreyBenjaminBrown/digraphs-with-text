@@ -54,7 +54,7 @@ The RSLT eliminates the distinction between data and metadata. Data is data -- b
 
 Because there is only One Natural Encoding of every fact, merging RSLT data is trivially easy.
 
-The RSLT has a low space cost. (If this paragraph is meaningless to you, don't worry; it's not critical to the ideas in this paper.) To encode your existing data in (behind) an RSLT (interface), the data does not need to change; it just needs to be hooked into the interface. Any space or speed optimizations in your existing non-RSLT data can be retained. After defining the RSLT, I will describe how external space- or time-optimized data can be hooked into an RSLT interface.
+The RSLT has a low space cost. (If this paragraph is meaningless to you, don't worry; it's not critical to the ideas in this paper.) To encode your existing data in (behind) a RSLT (interface), the data does not need to change; it just needs to be hooked into the interface. Any space or speed optimizations in your existing non-RSLT data can be retained. After defining the RSLT, I will describe how external space- or time-optimized data can be hooked into a RSLT interface.
 
 Some people find those few short promises sufficient motivation to learn about the RSLT. If you are like that, you can skip the rest of this motivation section.
 
@@ -77,7 +77,7 @@ The firm, Precision Health Economics, brought medical doctors, economists, stati
 
 Ours was one instance of a widespread, endemic representation problem. Data scientists agree: Metadata is ubiquitous and dangerous.
 
-With an RSLT, no data needs to be meta!
+With a RSLT, no data needs to be meta!
 
 Expressivity limits in data structures
 --------------------------------------
@@ -141,7 +141,7 @@ You can find that code, with explanatory comments, at https://github.com/Jeffrey
 
 Words, Templates and Relationships
 ----------------------------------
-The RSLT contains only three kinds of things: Words, Templates and Relationships. I will capitalize those words to distinguish them from their ordinary usage -- that is, a "Relationship" is part of an RSLT, whereas a "relationship" is pure information, apart of any digital context.
+The RSLT contains only three kinds of things: Words, Templates and Relationships. I will capitalize those words to distinguish them from their ordinary usage -- that is, a "Relationship" is part of a RSLT, whereas a "relationship" is pure information, apart of any digital context.
 
 The Words are the RSLT's atomic, first-order expressions. Examples might include "cat" and "France".
 
@@ -161,9 +161,9 @@ Relationships also have arity. The arity of a Relationship is the number of Memb
 
 Implementing the RSLT using a graph
 -----------------------------------
-One can implement an RSLT using a graph. [[footnote: This insight I owe to Elliot Cameron]]
+One can implement a RSLT using a graph. [[footnote: This insight I owe to Elliot Cameron]]
 
-The nodes in an RSLT graph are expressions. Each expression is either a Word, a Template, or a Relationship.
+The nodes in a RSLT graph are expressions. Each expression is either a Word, a Template, or a Relationship.
 
 The graph has two kinds of edges. One kind runs from a Relationship to its Template, and the other runs from a Relationship to one of its Members. That second kind of edge comes with a number indicating which position in the Template the Member belongs to.
 
@@ -171,13 +171,13 @@ Edges do not point from Words or Templates, only to them.
 
 [[picture; explanation]]
 
-Consider an RSLT with the single Relationship "plants use chlorophyl". It will need a Template, "_ use _", and two Words, "plants" and "chlorophyl". The Relationship will emit one edge to its Template, one edge to the Word "plant" indicating that it is the first Member, and one edge to the word "chlorophyl" indicating that it is the second Member.
+Consider a RSLT with the single Relationship "plants use chlorophyl". It will need a Template, "_ use _", and two Words, "plants" and "chlorophyl". The Relationship will emit one edge to its Template, one edge to the Word "plant" indicating that it is the first Member, and one edge to the word "chlorophyl" indicating that it is the second Member.
 
-Demonstration: Econding high-order facts in an RSLT
+Demonstration: Econding high-order facts in a RSLT
 ===================================================
 The easy way: Top down, using "nested # notation"
 -------------------------------------------------
-Suppose we wanted to encode the following facts in an RSLT:
+Suppose we wanted to encode the following facts in a RSLT:
 
     [Data Set 1]
     Mildred is a person.
@@ -316,7 +316,7 @@ Other kinds of relationships are directed or asymmetric. Examples include "x nee
 
 Mathematicians talk about stars in graphs. A star consists of a central node and a collection of other nodes connected to the central one. The other nodes are called leaves.
 
-Once you can assign Direction to nodes in an RSLT graph, you can ask to see a Star, that is the set of all Expressions bearing some relation to a central Expression. Examples of such Star queries include "(show me) everything that needs electricity" or "(show me) everything that demonstrates kindness".
+Once you can assign Direction to nodes in a RSLT graph, you can ask to see a Star, that is the set of all Expressions bearing some relation to a central Expression. Examples of such Star queries include "(show me) everything that needs electricity" or "(show me) everything that demonstrates kindness".
 
 A Branch in a graph is everything descended from a given node along a given direction. Here are some examples:
 
@@ -340,7 +340,7 @@ There is a kind of statement that the RSLT as so far defined cannot encode. Here
 
 The word "its" in that sentence refers to the subexpression "a cat". The pronoun "it" is meaningful to a human reader, but a computer would not know what it referred to. "its" cannot be replaced by another instance of "a cat", because in that case they might refer to different cats.
 
-The RSLT, in order to represent such statements, needs a fourth kind of object: the Subexpression Reference. In the graph implementation of an RSLT, a Subexpression Reference is a fourth kind of node, an edge from which points to the subexpression being referenced. The Subexpression Reference node indicates the position in the superexpression that the subexpression occupies. (The superexpression itself is already encoded as an edge from the superexpression to the Subexpression Reference.)
+The RSLT, in order to represent such statements, needs a fourth kind of object: the Subexpression Reference. In the graph implementation of a RSLT, a Subexpression Reference is a fourth kind of node, an edge from which points to the subexpression being referenced. The Subexpression Reference node indicates the position in the superexpression that the subexpression occupies. (The superexpression itself is already encoded as an edge from the superexpression to the Subexpression Reference.)
 
 For instance, in the vapor-cat example, the Subexpression Reference at "its" would emit an edge toward the expression "a cat", and the Subexpression Reference node would indicate that the subexpression can be found by taking a right at #until and then a left at #stretches.
 
@@ -390,9 +390,9 @@ The RSLT has good space properties, because it eliminates the need for redundant
 
 There are other data structures optimized for a particular kind of problem, that can outperform the RSLT on a speed or space basis.
 
-Using an RSLT does not mean sacrificing those optimizations!
+Using a RSLT does not mean sacrificing those optimizations!
 
-Example: Hooking a table into an RSLT
+Example: Hooking a table into a RSLT
 .....................................
 A table ("array") is a very space-efficient data structure. Imagine a table that states how many bananas were produced by which country in which year. It describes ten countries and ten years, so there are 100 numbers in the table. As an array, those 100 numbers are stored in sequence, packed as tightly as possible, with no other information between them.
 

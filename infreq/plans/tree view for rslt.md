@@ -1,4 +1,4 @@
-# How to construct a tree view of an expression in an RSLT:
+# How to construct a tree view of an expression in a RSLT:
 
 
 ## Subgroup lists to the extent needed

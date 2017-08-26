@@ -1,0 +1,3 @@
+In Dwt.cabal, the library (the src/ folder) depends on a local copy of Megaparsec, which is not included in this repo. Meanwhile the test suite (under test/) depends on a stack-installed version of Megaparsec. For that reason, not only is megaparsec in the stack.yaml file, but so are all of its dependencies.
+
+This way, if I have to, I can modify Text.Megaparsec.Expr. I haven't had to yet, but cannot anticipate what I will need with a more expressive model.

@@ -27,7 +27,7 @@ Here are the types:
     data MbConcreteMbr = VarSpec Mbrship | MbConcreteMbr Node deriving(Show,Read,Eq,Ord)
 
     type RelVarSpec = Map.Map RelRole Mbrship -- subset of RelSpec info, but
-      -- a RelVarSpec in an RSLT is transformable into a RelSpec.
+      -- a RelVarSpec in a RSLT is transformable into a RelSpec.
       -- The rest of the info can be inferred from the edges connected to it.
     type RelSpec = Map.Map RelRole MbConcreteMbr
       -- if well-formed, has a Tplt, and MbrPoss from 1 to the Tplt's Arity
