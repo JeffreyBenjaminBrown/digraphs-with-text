@@ -7,8 +7,9 @@ module Dwt.Search (
 
 import Text.Regex
 
-import Dwt.Graph
 import Data.Graph.Inductive
+import Dwt.Graph
+import Dwt.Util (lengthOne)
 
 import Data.Map as Map
 import Data.Maybe as Mb
@@ -21,11 +22,6 @@ data QNode = QNode Node -- when you already know the Node
   | QWord String | QTplt [String] -- when you don't but you know its contents
   | QRel QNode [QNode] -- todo ? use
   deriving (Show, Eq)
-
-lengthOne :: [a] -> Either String ()
-lengthOne ns = do
-  if length ns == 0 then Left "zero matches" else return ()
-  if length ns > 1 then Left "multiple matches" else return ()
 
 edgeless :: Gr a b -> Gr a b -- ? faster or slower
 edgeless = gmap (\(_,b,c,_) -> ([], b, c, []))
@@ -43,7 +39,7 @@ qGet g (QTplt s) = do
   lengthOne ns
   Right $ head ns
 
-qRegexWord :: RSLT -> String -> Either String [Node] -- why Either?
+qRegexWord :: RSLT -> String -> Either String [Node]
 qRegexWord g s = do
   let r = mkRegex s
   let ns = nodes $ labfilter (\lab -> case lab of

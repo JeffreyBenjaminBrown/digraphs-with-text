@@ -2,7 +2,7 @@
     {-# LANGUAGE ViewPatterns #-}
 
     module Dwt.Util
-      ( listIntersect
+      ( listIntersect, lengthOne -- for lists
       , negateGraph, compressGraph -- for graphs
       , mapLookupMe, eitherToMe, fromRight -- for monads
       ) where
@@ -14,6 +14,11 @@
 
     listIntersect [] = []
     listIntersect (x:xs) = foldl intersect x xs
+
+    lengthOne :: [a] -> Either String ()
+    lengthOne ns = do
+      if length ns == 0 then Left "zero matches" else return ()
+      if length ns > 1 then Left "multiple matches" else return ()
 
 -- for graphs
     negateGraph :: Gr a b -> Gr a b

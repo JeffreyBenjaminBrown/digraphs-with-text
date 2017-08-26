@@ -4,6 +4,7 @@
 
 module Dwt.Parse where
 
+import Data.Graph.Inductive (Node)
 import Control.Applicative (empty)
 import Control.Monad (void)
 import Data.Maybe (catMaybes)
