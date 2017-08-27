@@ -1,6 +1,6 @@
     module TGraph where
 
-    import Dwt
+    import Dwt hiding (fromRight)
     import TData
     import Test.HUnit
 
@@ -20,11 +20,12 @@
     tBuildGraph = TestList [ TestLabel "tSubInTplt" tSubInTplt
                            , TestLabel "tInsert" tInsert
                            , TestLabel "tInsRelM" tInsRelM
-                           , TestLabel "tInsColl" tInsColl
+                           -- , TestLabel "tInsColl" tInsColl
                            , TestLabel "tPartitionRelSpec" tPartitionRelSpec
                            , TestLabel "tInsRelSpec" tInsRelSpec
-                           , TestLabel "tChNonRelAt" tChNonRelAt
-                           , TestLabel "tChMbr" tChMbr]
+                           -- , TestLabel "tChLeafAt" tChLeafAt
+                           -- , TestLabel "tChMbr" tChMbr
+                           ]
 
     tSubInTplt = TestCase $ do
       assertBool "1" $ subInTplt (fromJust $ lab g1 1) ["man","peace"]
@@ -48,18 +49,18 @@
       assertBool "5" $ (insRel 0 [1,1,1] g1 :: Either String RSLT)
             == Left "tpltAt: LNode 0 not a Tplt."
 
-    tInsColl = TestCase $ do
-      let gg = fromRight $ insColl (j 10) [0,3,4] g1
-          collMbrEdge = CollEdge CollMbr
-          nextNode = head $ newNodes 1 g1
-      assertBool "new 12th node" 
-        $ (lab' $ fromJust $ fst $ match nextNode gg) == Coll
-      assertBool "3 new edges" $ lsuc gg nextNode 
-        == [ (0, collMbrEdge), (3, collMbrEdge), (4, collMbrEdge)
-           , (10, CollEdge CollPrinciple)]
-      assertBool "only 1 new node, only 4 new edges"
-        $    (length $ nodes g1) + 1 == (length $ nodes gg)
-          && (length $ edges g1) + 4 == (length $ edges gg)
+--    tInsColl = TestCase $ do
+--      let gg = fromRight $ insColl (Just 10) [0,3,4] g1 :: RSLT
+--          collMbrEdge = CollEdge CollMbr
+--          nextNode = head $ newNodes 1 g1
+--      assertBool "new 12th node" 
+--        $ (lab' $ fromJust $ fst $ match nextNode gg) == Coll
+--      assertBool "3 new edges" $ lsuc gg nextNode 
+--        == [ (0, collMbrEdge), (3, collMbrEdge), (4, collMbrEdge)
+--           , (10, CollEdge CollPrinciple)]
+--      assertBool "only 1 new node, only 4 new edges"
+--        $    (length $ nodes g1) + 1 == (length $ nodes gg)
+--          && (length $ edges g1) + 4 == (length $ edges gg)
 
     tPartitionRelSpec = TestCase $ do
       let (vs,ns) = partitionRelSpec tRelSpec
@@ -78,26 +79,26 @@
         (length $ edges g1) + 1 == (length $ edges g2)
       assertBool "the edge" $ hasLEdge g2 (newNode, 0, RelEdge $ Mbr 1)
 
-    tChNonRelAt = TestCase $ do
-      let gCat = fromRight $ chNonUser g1 0 $ Word "cat"
-      let gUses = fromRight $ chNonUser g1 1 $ mkTplt "_ uses _"
-      assertBool "change Word" $ 
-        Word "cat" == (lab' $ fromJust $ fst $ match 0 $ gCat)
-      assertBool "change Tplt" $ 
-        mkTplt "_ uses _" == (lab' $ fromJust $ fst $ match 1 $ gUses)
-      assertBool "not in graph" $
-        isLeft $ chNonUser g1 15  $ mkTplt "_ uses _"
-      assertBool "change Rel" $
-        isLeft $ chNonUser g1 11  $ Coll
-      assertBool "constructor mismatch" $
-        isLeft $ chNonUser g1 4  $ mkTplt "_ is _" -- LNode 4 is a Word
+--    tChNonRelAt = TestCase $ do
+--      let gCat = fromRight $ chLeaf g1 0 $ Word "cat"
+--      let gUses = fromRight $ chLeaf g1 1 $ mkTplt "_ uses _"
+--      assertBool "change Word" $ 
+--        Word "cat" == (lab' $ fromJust $ fst $ match 0 $ gCat)
+--      assertBool "change Tplt" $ 
+--        mkTplt "_ uses _" == (lab' $ fromJust $ fst $ match 1 $ gUses)
+--      assertBool "not in graph" $
+--        isLeft $ chLeaf g1 15  $ mkTplt "_ uses _"
+--      assertBool "change Rel" $
+--        isLeft $ chLeaf g1 11  $ Coll
+--      assertBool "constructor mismatch" $
+--        isLeft $ chLeaf g1 4  $ mkTplt "_ is _" -- LNode 4 is a Word
 
-    tChMbr = TestCase $ do
-      let gDogDog = fromRight $ chRelRole g1 5 0 (Mbr 2)
-      let gImpossible         = chRelRole g1 5 0 (Mbr 99) -- 99 is too high
-      assertBool "1" $ showExpr gDogDog 5
-                       == "5:1 0: dog ##wants 0: dog"
-      assertBool "MbrPos out of range" $ isLeft gImpossible
+--    tChMbr = TestCase $ do
+--      let gDogDog = fromRight $ chRelRole g1 5 0 (Mbr 2)
+--      let gImpossible         = chRelRole g1 5 0 (Mbr 99) -- 99 is too high
+--      assertBool "1" $ showExpr gDogDog 5
+--                       == "5:1 0: dog ##wants 0: dog"
+--      assertBool "MbrPos out of range" $ isLeft gImpossible
 
   -- ask, minor
     tAskMinor = TestList [ TestLabel "tGelemM" tGelemM

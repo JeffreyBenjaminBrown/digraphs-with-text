@@ -59,7 +59,7 @@ test-suite new-template-test
   main-is:             Main.hs
   other-modules:       TParse
                      , TData
-                     -- , TGraph
+                     , TGraph
                      -- , TShow
                      -- , TSearch
 
