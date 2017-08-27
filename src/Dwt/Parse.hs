@@ -34,9 +34,8 @@ hasBlanks = parse p "not a file"
 
 -- == Things used when parsing Word and Rel values
 -- X is used to distinguish user-typed eXpressions from more native ones.
-data AddX = Leaf String -- expresses how to add (nested) data to the RSLT
+data AddX = LeafX String -- expresses how to add (nested) data to the RSLT
           | RelX EO AddX JointX [(AddX,JointX)] AddX
-          | FoundIt Node -- unused in Parse.hs, used in Add.hs
   -- Every rel has at least one jointX, and potentially members on either side.
   -- If there are more, the list of pairs stores them.
   -- TODO: make the rightmost and leftmost members Maybes.
@@ -82,22 +81,22 @@ leftConcat j' left' (RelX eo left j pairs right)
 leftConcat _ _ _ = error "can only leftConcat into a RelX"
 
 close :: AddX -> AddX
-close (Leaf x) = Leaf x
+close (LeafX x) = LeafX x
 close (RelX (EO _     a) b c d e)
      = RelX (EO False a) b c d e
 
 hash :: Level -> JointX -> AddX -> AddX -> AddX
-hash l j a@(Leaf _) b@(Leaf _)
+hash l j a@(LeafX _) b@(LeafX _)
   = startRel l j a b
-hash l j a@(Leaf _) b@(RelX (EO False _) _ _ _ _)
+hash l j a@(LeafX _) b@(RelX (EO False _) _ _ _ _)
   = startRel l j a b
-hash l j a@(Leaf _) b@(RelX (EO True l') _ _ _ _)
+hash l j a@(LeafX _) b@(RelX (EO True l') _ _ _ _)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = leftConcat j a b -- I suspect this won't happen either
   | l > l' = startRel l j a b
-hash l j a@(RelX (EO False _) _ _ _ _) b@(Leaf _)
+hash l j a@(RelX (EO False _) _ _ _ _) b@(LeafX _)
   = startRel l j a b
-hash l j a@(RelX (EO True l') _ _ _ _) b@(Leaf _)
+hash l j a@(RelX (EO True l') _ _ _ _) b@(LeafX _)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = rightConcat j b a -- but this will
   | l > l' = startRel l j a b
@@ -118,9 +117,9 @@ expr :: Parser AddX
 expr = makeExprParser term [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
 term :: Parser AddX
-term = Leaf <$> (phrase1 <|> symbolForAbsent)
+term = LeafX <$> (phrase1 <|> symbolForAbsent)
        <|> close <$> parens expr
-       <|> (const (Leaf "") <$> reallyAbsent) where
+       <|> (const (LeafX "") <$> reallyAbsent) where
   symbolForAbsent :: Parser String
   symbolForAbsent = const ""
     <$> (try $ (const () <$> symbol "()") )
