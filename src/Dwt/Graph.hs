@@ -175,9 +175,9 @@
 
     partitionRelSpec :: RelSpec -> (RelVarSpec, RelNodeSpec)
     partitionRelSpec rSpec =
-      let (vs,ns) = Map.partition (\mSpec -> case mSpec of VarSpec _ -> True
-                                                           NodeSpec _ -> False
-                                  ) rSpec
+      let f mSpec = case mSpec of VarSpec _ -> True
+                                  NodeSpec _ -> False
+          (vs,ns) = Map.partition f rSpec
       in ( Map.map  (\(VarSpec  v) -> v)  vs
          , Map.map  (\(NodeSpec n) -> n)  ns )
 
@@ -186,12 +186,12 @@
       let (varMap, nodeMap) = partitionRelSpec rSpec
           newAddr = head $ newNodes 1 g
           newLNode = (newAddr, RelSpecExpr varMap)
+            -- this node specifies the variable nodes
       mapM_ (gelemM g) $ Map.elems nodeMap
-      -- add an edge for each concrete node specified
       let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
                     $ Map.toList nodeMap
-      return $ insEdges newLEdges
-             $ insNode newLNode g
+            -- these edges specify the addressed nodes
+      return $ insEdges newLEdges $ insNode newLNode g
 
     relNodeSpec :: (MonadError String m) => RSLT -> Node -> m RelNodeSpec
       -- name ? getRelNodeSpec
