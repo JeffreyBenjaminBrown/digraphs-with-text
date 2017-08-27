@@ -17,16 +17,16 @@ tParseInner = TestList [ TestLabel "tHash" tHash
 
 tHash = TestCase $ do
   assertBool "1" $
-    hash 2 (Joint "") (Leaf "hi") (Leaf "there")
-    == RelX (EO True 2) (Leaf "hi") (Joint "") [] (Leaf "there")
+    hash 2 (JointX "") (Leaf "hi") (Leaf "there")
+    == RelX (EO True 2) (Leaf "hi") (JointX "") [] (Leaf "there")
   assertBool "2" $
-    rightConcat (Joint "") (Leaf "na")
-    (RelX (EO True 3) (Leaf "left") (Joint "zaba") [] (Leaf "right"))
-    == RelX (EO True 3) (Leaf "left") (Joint "zaba") [(Leaf "right",Joint "")] (Leaf "na")
+    rightConcat (JointX "") (Leaf "na")
+    (RelX (EO True 3) (Leaf "left") (JointX "zaba") [] (Leaf "right"))
+    == RelX (EO True 3) (Leaf "left") (JointX "zaba") [(Leaf "right",JointX "")] (Leaf "na")
   assertBool "3" $
-    leftConcat (Joint "new") (Leaf "new")
-    (RelX (EO True 4) (Leaf "left") (Joint "j") [] (Leaf "right"))
-    == RelX (EO True 4) (Leaf "new") (Joint "new") [(Leaf "left",Joint "j")] (Leaf "right")
+    leftConcat (JointX "new") (Leaf "new")
+    (RelX (EO True 4) (Leaf "left") (JointX "j") [] (Leaf "right"))
+    == RelX (EO True 4) (Leaf "new") (JointX "new") [(Leaf "left",JointX "j")] (Leaf "right")
   assertBool "4" $ p == Right a where
       p = parse expr "uhh ... parse error?"
         "dogs #like you ###becase you #(give or misplace) (bones #that reek super nasty) #to dogs ##sometimes"
@@ -35,22 +35,22 @@ tHash = TestCase $ do
           (RelX
             (EO True 1)
             (Leaf "dogs")
-            (Joint "like") []
+            (JointX "like") []
             (Leaf "you"))
-          (Joint "becase") []
+          (JointX "becase") []
           (RelX
             (EO True 2)
             (RelX
               (EO True 1)
               (Leaf "you")
-              (Joint "give or misplace")
+              (JointX "give or misplace")
               [ (RelX
                   (EO False 1)
                   (Leaf "bones")
-                  (Joint "that") []
+                  (JointX "that") []
                   (Leaf "reek super nasty")
-                , Joint "to")]
+                , JointX "to")]
               (Leaf "dogs"))
-            (Joint "sometimes") []
+            (JointX "sometimes") []
             (Leaf ""))
 

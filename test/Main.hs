@@ -7,7 +7,7 @@
     import Dwt
     import TData
     import TParse
---    import TGraph
+    import TGraph
 --    import TSearch
 --    import TShow
 --    import TMmParse
@@ -15,7 +15,7 @@
 -- main
     main = runTestTT $ TestList
       [   TestLabel "tParse"   tParse
---        , TestLabel "tGraph"   tGraph
+      , TestLabel "tGraph"   tGraph
 --        , TestLabel "tView"    tView
 --        , TestLabel "tMmParse" tMmParse
 --        , TestLabel "tSearch" tSearch

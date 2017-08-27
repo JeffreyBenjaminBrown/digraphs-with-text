@@ -198,8 +198,8 @@
     relNodeSpec g n = do
       gelemM g n
       case (fromJust $ lab g n) of
-        RelSpecExpr _ -> return $ Map.fromList 
-          $ map (\(node,RelEdge r)->(r,node)) $ lsuc g n
+        RelSpecExpr _ -> return $ Map.fromList $ map f $ lsuc g n
+          where f (node,RelEdge r) = (r,node)
         _ -> throwError $ "Node " ++ show n ++ " not a RelSpecExpr."
 
     relSpec :: RSLT -> Node -> Either String RelSpec
@@ -414,8 +414,7 @@
 
     fork1Dir:: RSLT -> Node -> (Mbrship,RelSpec) -> Either String [Node]
     fork1Dir g n (dir,r) = do -- returns one generation, neighbors
-      if has1Dir (otherDir dir) r
-         then return [] 
+      if has1Dir (otherDir dir) r then return ()
          else throwError $ "fork1Dir: RelSpec " ++ show r
                          ++ " has a number of " ++ show (otherDir dir)
                          ++ " variables other than 1."

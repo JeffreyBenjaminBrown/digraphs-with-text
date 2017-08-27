@@ -33,17 +33,18 @@ hasBlanks = parse p "not a file"
 
 
 -- == Things used when parsing Word and Rel values
+-- X is used to distinguish user-typed eXpressions from more native ones.
 data AddX = Leaf String -- expresses how to add (nested) data to the RSLT
-          | RelX EO AddX Joint [(AddX,Joint)] AddX
+          | RelX EO AddX JointX [(AddX,JointX)] AddX
           | FoundIt Node -- unused in Parse.hs, used in Add.hs
-  -- Every rel has at least one joint, and potentially members on either side.
+  -- Every rel has at least one jointX, and potentially members on either side.
   -- If there are more, the list of pairs stores them.
   -- TODO: make the rightmost and leftmost members Maybes.
           deriving (Show, Eq)
 type Level = Int -- in "cats like you because you like them", the "because"
   -- relationship is level 2, and the "like" relationships are level 1
-data Joint = Joint String deriving (Show, Eq)
-  -- in "you #like peaches #at noon", "like" and "at" are joints
+data JointX = JointX String deriving (Show, Eq)
+  -- in "you #like peaches #at noon", "like" and "at" are jointXs
 data EO = EO     -- EO = "expression orderer"
   { open :: Bool -- open = "more expressions can be concatentated into it"
                  -- In b@(RelX (EO x _) _ _ _ _), x is true until
@@ -57,7 +58,7 @@ instance Ord EO where -- Conceptually yes, but I haven't actually used this.
     | a /= c = a <= c
     | otherwise = b <= d
 
-startRel :: Level -> Joint -> AddX -> AddX -> AddX
+startRel :: Level -> JointX -> AddX -> AddX -> AddX
 startRel l j a b = RelX (EO True l) a j [] b
 
 -- | PITFALL: In "a # b # c # d", you might imagine evaluating the middle #
@@ -67,14 +68,14 @@ startRel l j a b = RelX (EO True l) a j [] b
 -- always incorporated into the other. I believe that is safe, because 
 -- expressions in serial on the same level will always be parsed left to
 -- right, not outside to inside.
-rightConcat :: Joint -> AddX -> AddX -> AddX
+rightConcat :: JointX -> AddX -> AddX -> AddX
   -- TODO: if|when need speed, use a two-sided list of pairs
 rightConcat j' right' (RelX eo left j pairs  right)
                      = RelX eo left j pairs' right'
   where pairs' = pairs ++ [(right, j')]
 rightConcat _ _ _ = error "can only rightConcat into a RelX"
 
-leftConcat :: Joint -> AddX -> AddX -> AddX
+leftConcat :: JointX -> AddX -> AddX -> AddX
 leftConcat j' left' (RelX eo left j pairs right)
                    = RelX eo left' j' pairs' right
   where pairs' = (left,j) : pairs
@@ -85,7 +86,7 @@ close (Leaf x) = Leaf x
 close (RelX (EO _     a) b c d e)
      = RelX (EO False a) b c d e
 
-hash :: Level -> Joint -> AddX -> AddX -> AddX
+hash :: Level -> JointX -> AddX -> AddX -> AddX
 hash l j a@(Leaf _) b@(Leaf _)
   = startRel l j a b
 hash l j a@(Leaf _) b@(RelX (EO False _) _ _ _ _)
@@ -105,7 +106,7 @@ hash l j a@(RelX ea _ _ _ _) b@(RelX eb _ _ _ _) =
   in if e >= ea && e > eb
      then startRel l j a b
      else error $ unlines
-          [ "Joint should have been evaluated earlier."
+          [ "JointX should have been evaluated earlier."
           , "level: " ++ show l
           , show j
           , "left: " ++ show a
@@ -135,7 +136,7 @@ pHash :: Int -> Parser (AddX -> AddX -> AddX)
 pHash n = lexeme $ do
   pHashUnlabeled n
   label <- option "" $ anyWord <|> parens phrase
-  return $ hash n $ Joint label
+  return $ hash n $ JointX label
 
 
 -- == little things
