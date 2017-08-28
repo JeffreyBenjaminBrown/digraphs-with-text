@@ -4,14 +4,23 @@ import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Graph
 import Dwt.Parse (AddX(..), Level, JointX(..), EO)
 
-import Data.Sequence hiding (replicate, zip)
-
 -- Whereas AddX is optimized for correctness when parsing human-entered data,
 -- Adder is optimized for ease of loading new data into the graph.
 data Adder = Absent
            | Leaf String
            | RelAdder [JointX] [Adder]
            | At Node deriving (Show)
+
+isAbsent :: Adder -> Bool
+isAbsent Absent = True
+isAbsent _ = False
+
+isValid :: Adder -> Bool
+isValid (RelAdder [j] [Absent,Absent]) = False
+isValid (RelAdder [j] _) = True
+isValid (RelAdder _  ms) = not $ any isAbsent $ middle
+  where middle = tail . reverse . tail $ ms
+isValid _ = True
 
 -- Dwt.prettyPrint $ fr $ adder <$> parse expr "" "a # b ##z # (d # e) # e ## f ## g # h"
 prettyPrint :: Adder -> IO ()
