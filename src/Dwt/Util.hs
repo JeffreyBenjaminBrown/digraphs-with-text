@@ -3,7 +3,7 @@
 
     module Dwt.Util (
       listIntersect, lengthOne -- for lists
-      , negateGraph, compressGraph, joinGraphs -- for graphs
+      , dropEdges, negateGraph, compressGraph, joinGraphs -- for graphs
       , mapLookupMe, eitherToMe, fromRight -- for monads
       ) where
 
@@ -20,12 +20,14 @@
       else if length ns > 1 then Left "multiple matches"
       else return ns
 
--- for graphs
+--  for graphs
+    dropEdges :: Gr a b -> Gr a b
+    dropEdges = gmap (\(_,b,c,_) -> ([], b, c, []))
+
     negateGraph :: Gr a b -> Gr a b
     negateGraph m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
       where negAdj = map (\(label,n) -> (label,-n))
 
---  for graphs
     -- in progress
     -- TODO ! fails silently. use Either.
     replaceNode :: LNode a -> Gr a b -> Gr a b

@@ -9,7 +9,7 @@ import Text.Regex
 
 import Data.Graph.Inductive
 import Dwt.Graph
-import Dwt.Util (lengthOne)
+import Dwt.Util (lengthOne, dropEdges)
 
 import Data.Maybe as Mb
 
@@ -21,9 +21,6 @@ data QNode = QNode Node -- when you already know the Node
   | QWord String | QTplt [String] -- when you don't but you know its contents
   | QRel QNode [QNode]
   deriving (Show, Eq)
-
-dropEdges :: Gr a b -> Gr a b -- ? faster or slower
-dropEdges = gmap (\(_,b,c,_) -> ([], b, c, []))
 
 _qGet :: (RSLT -> Node -> x) -- | Used for QNodes
       -> (RSLT -> [x])             -- | Used for everything else
