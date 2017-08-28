@@ -4,8 +4,16 @@ import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Graph
 import Dwt.Parse (AddX(..), Level, JointX(..), EO)
 
--- AddX was (maybe) optimized for correctness when parsing text from users.
+import qualified Data.Sequence as S
+
+-- | AddX was (maybe) optimized for correctness when parsing text from users.
 -- Adder is optimized for ease of loading new data into the graph.
+
+-- | (At n) represents something already extant in the graph.
+-- Leaf and RelAdder represent something that *might* already exist; it will
+-- be searched for. If found, it becomes an At; if not, it is created, and
+-- becomes an At.
+
 data Adder = Absent
            | Leaf String
            | RelAdder [JointX] [Adder]
@@ -51,4 +59,11 @@ add (Leaf s)  g = let g' = insLeaf (Word s) g
                       (_,n) = nodeRange g' -- TODO: change for speed
                   in Right (At n, g')
 add (At n)    g = Right (At n, g)
--- add (Adder 
+add a@(RelAdder _ _) g = if isValid a -- recursive test, so only run once
+  then addRel (S.empty) a g
+  else Left $ "attempt to add invalid Adder: " ++ show a
+  where -- we'll transfer Adders from the RelAdder to the Seq
+    addRel :: S.Seq Node -> Adder -> RSLT -> Either String (Adder, RSLT)
+    addRel found (RelAdder js (At n : as)) g =
+      addRel (found S.|> n) (RelAdder js as) g
+--    addRel found (RelAdder js []) g = 
