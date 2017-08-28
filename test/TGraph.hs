@@ -1,8 +1,9 @@
     module TGraph where
 
     import Dwt hiding (fromRight)
+    import Data.Graph.Inductive
     import TData
-    import Test.HUnit
+    import Test.HUnit hiding (Node)
 
     import qualified Data.Map as Map
     import qualified Data.Set as Set
@@ -149,7 +150,7 @@
 
     tUsers = TestCase $ do
       assertBool "1" $ users g1 0 == Right [5,6,8]
-      assertBool "2" $ isLeft $ (users g1 100 :: Either String [Dwt.Node])
+      assertBool "2" $ isLeft $ (users g1 100 :: Either String [Node])
 
     tSpecUsers = TestCase $ do
       assertBool "with Arity" $ usersInRole g1 0 (Mbr 1) == Right [5,6,8]

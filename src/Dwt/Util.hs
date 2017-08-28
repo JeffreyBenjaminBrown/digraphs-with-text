@@ -1,8 +1,8 @@
     {-# LANGUAGE FlexibleContexts #-}
     {-# LANGUAGE ViewPatterns #-}
 
-    module Dwt.Util
-      ( listIntersect, lengthOne -- for lists
+    module Dwt.Util (
+      listIntersect, lengthOne -- for lists
       , negateGraph, compressGraph, joinGraphs -- for graphs
       , mapLookupMe, eitherToMe, fromRight -- for monads
       ) where

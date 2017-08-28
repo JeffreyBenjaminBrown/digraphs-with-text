@@ -1,8 +1,7 @@
     {-# LANGUAGE FlexibleContexts #-}
 
     module Dwt
-      ( module Data.Graph.Inductive
-      , module Dwt
+      ( module  Dwt
       , module Dwt.Add
       , module Dwt.FileIO
       , module Dwt.Graph
