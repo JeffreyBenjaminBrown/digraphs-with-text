@@ -4,7 +4,7 @@ import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Graph
 import Dwt.Parse (AddX(..), Level, JointX(..), EO)
 
--- Whereas AddX is optimized for correctness when parsing human-entered data,
+-- AddX was (maybe) optimized for correctness when parsing text from users.
 -- Adder is optimized for ease of loading new data into the graph.
 data Adder = Absent
            | Leaf String
@@ -16,9 +16,11 @@ isAbsent Absent = True
 isAbsent _ = False
 
 isValid :: Adder -> Bool
-isValid (RelAdder [j] [Absent,Absent]) = False
-isValid (RelAdder [j] _) = True
-isValid (RelAdder _  ms) = not $ any isAbsent $ middle
+isValid (RelAdder [_] [Absent,Absent]) = False
+isValid (RelAdder [_] _) = True
+isValid (RelAdder js  ms) = (not $ any isAbsent $ middle)
+                           && all isValid ms
+                           && length js + 1 == length ms
   where middle = tail . reverse . tail $ ms
 isValid _ = True
 
@@ -46,7 +48,7 @@ adder (RelX _ a j pairs b) = RelAdder (j : joints)
 add :: Adder -> RSLT -> Either String (Adder, RSLT)
 add Absent    _ = Left "Attempt to add Absent to graph."
 add (Leaf s)  g = let g' = insLeaf (Word s) g
-                      (_,n) = nodeRange g'
-  in Right (At n, g')
--- add (Adder _) = _
+                      (_,n) = nodeRange g' -- TODO: change for speed
+                  in Right (At n, g')
 add (At n)    g = Right (At n, g)
+-- add (Adder 
