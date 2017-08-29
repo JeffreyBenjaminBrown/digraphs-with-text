@@ -33,12 +33,11 @@ hasBlanks = parse p "not a file"
 
 
 -- == Things used when parsing Word and Rel values
--- X is used to distinguish user-typed eXpressions from more native ones.
+-- X is used to distinguish user-typed string eXpressions from native ones.
 data AddX = LeafX String -- expresses how to add (nested) data to the RSLT
           | RelX EO AddX JointX [(AddX,JointX)] AddX
-  -- Every rel has at least one jointX, and potentially members on either side.
+  -- Every rel has at least one jointX, and potentially members on either side
   -- If there are more, the list of pairs stores them.
-  -- TODO: make the rightmost and leftmost members Maybes.
           deriving (Show, Eq)
 type Level = Int -- in "cats like you because you like them", the "because"
   -- relationship is level 2, and the "like" relationships are level 1

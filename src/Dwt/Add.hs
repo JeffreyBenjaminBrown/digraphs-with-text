@@ -3,6 +3,7 @@ module Dwt.Add where
 import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Graph
 import Dwt.Parse (AddX(..), Level, JointX(..), EO)
+import Data.List (mapAccumL)
 
 import qualified Data.Sequence as S
 
@@ -53,17 +54,38 @@ adder (RelX _ a j pairs b) = RelAdder (j : joints)
                              $ map adder $ [a] ++ members ++ [b]
   where (members,joints) = unzip pairs
 
-add :: Adder -> RSLT -> Either String (Adder, RSLT)
-add Absent    _ = Left "Attempt to add Absent to graph."
-add (Leaf s)  g = let g' = insLeaf (Word s) g
-                      (_,n) = nodeRange g' -- TODO: change for speed
-                  in Right (At n, g')
-add (At n)    g = Right (At n, g)
-add a@(RelAdder _ _) g = if isValid a -- recursive test, so only run once
-  then addRel (S.empty) a g
-  else Left $ "attempt to add invalid Adder: " ++ show a
-  where -- we'll transfer Adders from the RelAdder to the Seq
-    addRel :: S.Seq Node -> Adder -> RSLT -> Either String (Adder, RSLT)
-    addRel found (RelAdder js (At n : as)) g =
-      addRel (found S.|> n) (RelAdder js as) g
+--add :: Adder -> RSLT -> Either String (Adder, RSLT)
+--add Absent    _ = Left "Attempt to add Absent to graph."
+--add (Leaf s)  g = let g' = insLeaf (Word s) g
+--                      (_,n) = nodeRange g' -- TODO: change for speed
+--                  in Right (At n, g')
+--add (At n)    g = Right (At n, g)
+--add a@(RelAdder _ _) g = if isValid a -- recursive test, so only run once
+--  then addRel (S.empty) a g
+--  else Left $ "attempt to add invalid Adder: " ++ show a
+--  where -- we'll transfer Adders from the RelAdder to the Seq
+--    addRel :: S.Seq Node -> Adder -> RSLT -> Either String (Adder, RSLT)
+--    addRel (found S.|> n) (RelAdder js as) g
+--    addRel found (RelAdder js (At n : as)) g =
 --    addRel found (RelAdder js []) g = 
+
+-- testing mapAccumL
+-- https://www.reddit.com/r/haskell/comments/6wmrwh/how_to_process_a_tree_of_orderdependent_insertion/
+
+type Acc = Int
+data Test = Done Test | TLeaf Int | TBranch [Test] deriving Show
+
+doLeaf :: Acc -> Test -> (Acc, Test)
+doLeaf acc (TLeaf i) = (acc+i, Done $ TLeaf $ acc+i)
+
+doBranch :: Acc -> Test -> (Acc, Test)
+doBranch acc (TBranch ts) =
+  let branchFree, allDone :: [Test]
+      (a2, branchFree) = mapAccumL doBranch acc ts
+      (a3, allDone) = mapAccumL doLeaf acc branchFree
+  in (a3, Done $ TBranch $ allDone)
+doBranch acc t = (acc, t)
+
+--test = mapAccumL _ [0] [TLeaf 1, TLeaf 2
+--                        , TBranch [TLeaf 3, TLeaf 4]
+--                        , TLeaf 5]

@@ -1,4 +1,4 @@
--- | Simplifies the problem in Add.hs
+-- | Simplifies (and solves) the problem in Add.hs --
 -- that is, the problem of inserting a Hash expression into the graph.
 -- It has weird recursion, because each Hash expression's sub-expressions
 -- are themselves instructions for adding something to the graph,
