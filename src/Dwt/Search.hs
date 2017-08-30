@@ -17,15 +17,15 @@ import Data.Maybe as Mb
 -- Graph.node :: RSLT -> Expr -> [Node] -- hopefully length = 1
 
 -- queries
-data QNode = QNode Node -- when you already know the Node
+data QNode = QAt Node -- when you already know the Node
            | QLeaf Expr -- when you don't but you know its contents
            | QRel QNode [QNode]
   deriving (Show, Eq)
 
-_qGet :: (RSLT -> Node -> x) -- | Used for QNodes
+_qGet :: (RSLT -> Node -> x) -- | Used for QAt
       -> (RSLT -> [x])       -- | Used for everything else
       -> RSLT -> QNode -> [x]
-_qGet f _ g (QNode n) =  if gelem n g then [f g n] else []
+_qGet f _ g (QAt n) =  if gelem n g then [f g n] else []
 _qGet _ f g (QLeaf l) = f $ labfilter (==l) $ dropEdges g
 -- TODO: Consider Dwt.Graph.matchRel (and RelSpec, ..)
 --_qGet f g (QRel t ns) =
