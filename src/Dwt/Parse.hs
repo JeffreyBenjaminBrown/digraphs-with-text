@@ -6,8 +6,6 @@ module Dwt.Parse where
 
 import Data.Graph.Inductive (Node)
 import Control.Applicative (empty)
-import Control.Monad (void)
-import Data.Maybe (catMaybes)
 import Data.Void (Void)
 import Data.List (intersperse)
 
@@ -85,16 +83,13 @@ close (RelX (EO _     a) b c d e)
      = RelX (EO False a) b c d e
 
 hash :: Level -> JointX -> AddX -> AddX -> AddX
-hash l j a@(LeafX _) b@(LeafX _)
-  = startRel l j a b
-hash l j a@(LeafX _) b@(RelX (EO False _) _ _ _ _)
-  = startRel l j a b
+hash l j a@(LeafX _) b@(LeafX _)                   = startRel l j a b
+hash l j a@(LeafX _) b@(RelX (EO False _) _ _ _ _) = startRel l j a b
+hash l j a@(RelX (EO False _) _ _ _ _) b@(LeafX _) = startRel l j a b
 hash l j a@(LeafX _) b@(RelX (EO True l') _ _ _ _)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = leftConcat j a b -- I suspect this won't happen either
   | l > l' = startRel l j a b
-hash l j a@(RelX (EO False _) _ _ _ _) b@(LeafX _)
-  = startRel l j a b
 hash l j a@(RelX (EO True l') _ _ _ _) b@(LeafX _)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = rightConcat j b a -- but this will
@@ -164,6 +159,3 @@ symbol = L.symbol sc
 
 parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
-
-identifier :: Parser String
-identifier = lexeme $ (:) <$> C.letterChar <*> many C.alphaNumChar

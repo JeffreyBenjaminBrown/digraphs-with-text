@@ -4,7 +4,7 @@
 module Dwt.UI where
 
 import Data.Graph.Inductive (empty, nodes)
-import Dwt.Graph
+import Dwt.Graph (RSLT(..), insWord, insTplt)
 import Dwt.Show (view)
 import Dwt.Parse
 
