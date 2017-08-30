@@ -56,9 +56,5 @@ adder (RelX _ a j pairs b) = RelAdder (j : joints)
                              $ map adder $ [a] ++ members ++ [b]
   where (members,joints) = unzip pairs
 
-mapac :: RSLT -> Adder -> (RSLT, Adder)
-mapac g a@(At _) = (g,a)
-mapac g a@(Leaf s) = either left right $ qMbGet g $ QWord s where
-  right (Just n) = (g, At n)
-  right Nothing = let g' = insWord s g in (g', At $ maxNode g')
-  left s = error "mapac: found too many of those"
+-- mapac :: RSLT -> Adder -> (RSLT, Adder)
+-- will use qPut

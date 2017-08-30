@@ -39,9 +39,6 @@
 -- shorthand (can't go in Util.hs; depends on more)
   -- mindmap things
     ns = NodeSpec
-    (qn, qs) = (QNode, QWord)
-    qt = QTplt . map (T.unpack . T.strip . T.pack) . _splitStringForTplt
-      -- is nearly mkTplt, but subs QTplt for Tplt
 
     p :: (Applicative f) => a -> f a
     p = pure

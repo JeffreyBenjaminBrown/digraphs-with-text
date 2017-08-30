@@ -18,6 +18,7 @@
             g1_2 = insWord "brandy" g1
 
     tQInsRel = TestCase $ do
-      let g1' = fromRight $ qInsRel (qt "_ wants _") [qn 4, qs "dog"] g1
+      let g1' = fromRight $ qInsRel (QLeaf $ mkTplt "_ wants _")
+                                    [qn 4, QLeaf $ Word "dog"] g1
       assertBool "brandy wants dog" $ 
-        (pre g1' $ fromRight $ qGet1 g1' $ qs "dog") == [5,6,8,14]
+        (pre g1' $ fromRight $ qGet1 g1' $ QLeaf $ Word "dog") == [5,6,8,14]
