@@ -3,7 +3,9 @@
 
     module Dwt.Util (
       listIntersect, lengthOne -- for lists
-      , dropEdges, negateGraph, compressGraph, joinGraphs -- for graphs
+      -- for graphs
+      , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
+
       , mapLookupMe, eitherToMe, fromRight -- for monads
       ) where
 
@@ -21,6 +23,10 @@
       else return ns
 
 --  for graphs
+    maxNode :: Gr a b -> Node
+    maxNode = snd . nodeRange
+    {-# INLINABLE maxNode #-}
+
     dropEdges :: Gr a b -> Gr a b
     dropEdges = gmap (\(_,b,c,_) -> ([], b, c, []))
 

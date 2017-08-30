@@ -23,7 +23,7 @@ data QNode = QNode Node -- when you already know the Node
   deriving (Show, Eq)
 
 _qGet :: (RSLT -> Node -> x) -- | Used for QNodes
-      -> (RSLT -> [x])             -- | Used for everything else
+      -> (RSLT -> [x])       -- | Used for everything else
       -> RSLT -> QNode -> [x]
 _qGet f _ g (QNode n) =  if gelem n g then [f g n] else []
 _qGet _ f g (QWord s) = f
@@ -53,6 +53,13 @@ qGet = _qGet (\_ n -> n) nodes
 qLGet :: RSLT -> QNode -> [LNode Expr]
 qLGet = _qGet (\g n -> (n, fromJust $ lab g n)) labNodes
   -- this fromJust is excused by the gelem in _qGet
+
+qMbGet :: RSLT -> QNode -> Either String (Maybe Node)
+qMbGet g q = case qGet g q of
+  [] -> Right Nothing
+  [a] -> Right $ Just a
+  many -> Left $ "qMbGet: searched for " ++ show q
+             ++ ", found multiple: " ++ show many
 
 qGet1 :: RSLT -> QNode -> Either String Node
 qGet1 g q = let ns = qGet g q
