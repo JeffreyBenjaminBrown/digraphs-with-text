@@ -11,6 +11,7 @@ import Data.Graph.Inductive
 import Dwt.Graph
 import Dwt.Util (maxNode, lengthOne, dropEdges)
 
+import Data.Map as M
 import Data.Maybe as Mb
 
 -- see also
@@ -23,30 +24,26 @@ data QNode = QAt Node -- when you already know the Node
   deriving (Show, Eq)
 
 _qGet :: (RSLT -> Node -> x) -- | Used for QAt
-      -> (RSLT -> [x])       -- | Used for everything else
+      -> (RSLT -> [x])       -- | Used for leaves
       -> RSLT -> QNode -> [x]
 _qGet f _ g (QAt n) =  if gelem n g then [f g n] else []
 _qGet _ f g (QLeaf l) = f $ labfilter (==l) $ dropEdges g
--- TODO: Consider Dwt.Graph.matchRel (and RelSpec, ..)
---_qGet f g (QRel t ns) =
---  let matchedNodes = map (qGet g) ns :: [[Node]]
---      matchedTplts = qGet g t :: [Node]
---  -- TODO for speed: limit search to the intersection of predecessors of
---  -- the template and each Mbr k set
---      f :: Node -> Bool
---      f n = True -- TODO: lpre g n ...
---  in if True -- tpltArity t == length matchedNodes
---     then nodes $ nfilter f g
---     else error $ "arity of " ++ show t
---          ++ " not equal to length of member list"
---  -- find every node that sends a TpltRole to something in tpltWays
---  -- and a Mbr k to something in the kth _
+--_qGet _ f g (QRel qt qms) = -- ignoring case of multiple qt, qm matches
+--  let t = qGet1 g qt
+--      ms = fmap (qGet1 g) qms
+--      mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ms)
+--      relspec = M.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
+--  in matchRel g relspec
 
 qGet :: RSLT -> QNode -> [Node]
 qGet = _qGet (\_ n -> n) nodes
 
 qPut :: RSLT -> QNode -> Either String (RSLT, Node)
-qPut _ (QRel _ _) = Left "qPut QRel: not yet coded"
+qPut g (QRel qt qms) = do
+  tplt <- qGet1 g qt
+  members <- mapM (qGet1 g) qms
+  g' <- insRel tplt members g
+  Right (g', error "pending: write qGet for Rels")
 qPut g q@(QLeaf l) = either left right $ qMbGet g q where
   right (Just n) = Right (g, n)
   right Nothing = Right (g', maxNode g') where g' = insLeaf l g
@@ -78,9 +75,3 @@ qRegexWord g s = do
                                  _ -> False)
                    $ dropEdges g
   Right ns
-
-qInsRel :: QNode -> [QNode] -> RSLT -> Either String RSLT
-qInsRel qtn qns g = do
-  tn <- qGet1 g qtn 
-  ns <- mapM (qGet1 g) qns
-  insRel tn ns g

@@ -22,9 +22,11 @@ data Adder = Absent
            | RelAdder [JointX] [Adder]
            | At Node deriving (Show)
 
-isAbsent :: Adder -> Bool
+isAt, isAbsent :: Adder -> Bool
 isAbsent Absent = True
 isAbsent _ = False
+isAt (At _) = True
+isAt _ = False
 
 isValid :: Adder -> Bool
 isValid (RelAdder [_] [Absent,Absent]) = False
@@ -56,5 +58,11 @@ adder (RelX _ a j pairs b) = RelAdder (j : joints)
                              $ map adder $ [a] ++ members ++ [b]
   where (members,joints) = unzip pairs
 
--- mapac :: RSLT -> Adder -> (RSLT, Adder)
--- will use qPut
+mapac :: RSLT -> Adder -> (RSLT, Adder)
+mapac g (At n) = (g, At n)
+mapac g Absent = (g, Absent)
+mapac g (Leaf s) = either left right $ qPut g $ QLeaf $ Word s where
+  left s = error $ "mapac: " ++ s
+  right (g',n) = (g', At n)
+-- mapac g (RelAdder js as) = _ where
+--   (g1, as1) = mapAccumL mapac g as
