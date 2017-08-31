@@ -6,7 +6,7 @@
       -- for graphs
       , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
 
-      , mapLookupMe, eitherToMe, fromRight -- for monads
+      , mapLookupMe, eitherToMe, fr, fromRight -- for monads
       ) where
 
     import Data.Graph.Inductive
@@ -75,6 +75,8 @@
     eitherToMe f x = case f x of Right y -> return y
                                  Left e -> throwError $ show e
 
-    fromRight :: Either a b -> b
+    fromRight, fr :: Either a b -> b  -- TODO: doesn't handle the Left case
+      -- is therefore different from Data.Either.fromRight
+    fr = fromRight
     fromRight (Right r) = r
     fromRight _ = error "fromRight applied to Left"

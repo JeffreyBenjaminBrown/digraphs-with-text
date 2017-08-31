@@ -11,7 +11,7 @@
       , tpltArity, mbrListMatchesTpltArity
       , insLeaf, insRel, insRelUsf, insColl
         , insWord, insTplt, insFl -- deprec ? insLeaf generalizes these
-        , partitionRelSpec, insRelSpec, relNodeSpec, relSpec
+        , mkRelSpec, partitionRelSpec, insRelSpec, relNodeSpec, relSpec
       , chLeaf, chLeafUsf, chRelRole
       , gelemM, hasLEdgeM, isWord, isWordM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
@@ -173,6 +173,12 @@
           newEdges = nameEdges ++
             map (\n -> (newNode, n, CollEdge CollMbr)) ns
       return $ insEdges newEdges $ insNode (newNode,Coll) g
+
+    -- | Covers the case where all the nodes the Rel involves are known.
+    -- | For a framework involving uncertainty, see Dwt.Search.QNode
+    mkRelSpec :: Node -> [Node] -> RelSpec
+    mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
+      where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
     partitionRelSpec :: RelSpec -> (RelVarSpec, RelNodeSpec)
     partitionRelSpec rSpec =

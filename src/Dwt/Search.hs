@@ -9,7 +9,7 @@ import Text.Regex
 
 import Data.Graph.Inductive
 import Dwt.Graph
-import Dwt.Util (maxNode, lengthOne, dropEdges, fromRight)
+import Dwt.Util (fr, maxNode, lengthOne, dropEdges, fromRight)
 
 import Data.Map as M
 import Data.Maybe as Mb
@@ -33,8 +33,7 @@ _qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
 _qGet _ _ f g (QRel qt qms) = -- TODO: case of multiple qt, qm matches
   let t = fromRight $ qGet1 g qt
       ms = fmap (fromRight . qGet1 g) qms
-      mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ms)
-      relspec = M.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
+      relspec = mkRelSpec t ms
   in f g relspec
 
 qGet :: RSLT -> QNode -> Either String [Node]
@@ -48,8 +47,12 @@ qPut :: RSLT -> QNode -> Either String (RSLT, Node)
 qPut g (QRel qt qms) = do
   tplt <- qGet1 g qt
   members <- mapM (qGet1 g) qms
-  g' <- insRel tplt members g --TODO: what if it's already there?
-  Right (g', 1234567890) -- TODO: why does this already work?
+  matches <- matchRel g $ mkRelSpec tplt members
+  case matches of
+    [a] -> Right (g,a)
+    [] -> Right (g', maxNode g') where g' = fr $ insRel tplt members g
+      -- fromRight is safe because tplt and members come from qGet1
+    _ -> Left "qPut: can't handle multiple Rel matches yet"
 qPut g q@(QLeaf l) = case qMbGet g q of
   Right (Just n) -> Right (g, n)
   Right Nothing -> Right (g', maxNode g') where g' = insLeaf l g
