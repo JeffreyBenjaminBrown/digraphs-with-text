@@ -1,24 +1,43 @@
-    module TSearch where
+module TSearch where
 
-    import Dwt
-    import TData
-    import Test.HUnit
+import Dwt
+import Data.Graph.Inductive
+import TData
+import Test.HUnit hiding (Node)
+import Data.Set as S hiding (foldl)
 
-    import Data.Either
+import Data.Either
 
-    tSearch = TestList [ TestLabel "tQGet" tQGet
-                       , TestLabel "tQInsRel" tQInsRel
-                       ]
+tSearch = TestList [ TestLabel "tQGet" tQGet
+                   , TestLabel "tQPutRel" tQPutRel
+                   ]
 
-    tQGet = TestCase $ do
-      assertBool "one (Right)" $ qGet1 g1 (QWord "brandy") == Right 4
-      assertBool "has none (Left)" $ isLeft $ qGet1 g1_0 (QWord "brandy")
-      assertBool "has two (Left)" $ isLeft $ qGet1 g1_2 (QWord "brandy")
-      where g1_0 = delNode 4 g1
-            g1_2 = insWord "brandy" g1
+tQGet = let
+  qDog = QLeaf $ Word "dog"
+  extraDog = insLeaf (Word "dog") g1
+  qDogNeedsWater = QRel (QLeaf $ mkTplt "_ needs _")
+    [QLeaf $ Word "dog", QLeaf $ Word "water"]
+  (g2,_) = fr $ qPut g1 qDog
+  
+  in TestCase $ do
+    assertBool "1" $ qGet g1 qDog == Right [0]
+    assertBool "2" $ (S.fromList <$> (qGet g2 qDog))
+                  == (S.fromList <$> Right [0]) -- no extra dog!
+    assertBool "3" $ (S.fromList <$> (qGet extraDog qDog))
+                  == (S.fromList <$> Right [0,14])
+    assertBool "4" $ qGet g1 qDogNeedsWater == Right [6]
 
-    tQInsRel = TestCase $ do
-      let g1' = fromRight $ qInsRel (QLeaf $ mkTplt "_ wants _")
-                                    [qn 4, QLeaf $ Word "dog"] g1
-      assertBool "brandy wants dog" $ 
-        (pre g1' $ fromRight $ qGet1 g1' $ QLeaf $ Word "dog") == [5,6,8,14]
+-- qPut :: RSLT -> QNode -> Either String (RSLT, Node)
+tQPutRel = let
+  qRedundant = QRel (QLeaf $ mkTplt "_ wants _")
+               [QLeaf $ Word "dog", QLeaf $ Word "brandy"]
+  qNestedRedundant = QRel (QLeaf $ mkTplt "_ is _")
+                     [qRedundant, QAt 10] -- 10 = dubious
+  qNovel = QRel (QLeaf $ mkTplt "_ wants _")
+           [QLeaf $ Word "dog", QLeaf $ Word "dog"]
+  (g2,_) = fr $ qPut g1 qNovel
+  in TestCase $ do
+  assertBool "1" $ qGet g1 qRedundant == Right [5]
+  assertBool "2" $ qGet g1 qNestedRedundant == Right [11]
+  assertBool "3" $ qGet g1 qNovel == Right []
+  assertBool "4" $ qGet g2 qNovel == Right [14]

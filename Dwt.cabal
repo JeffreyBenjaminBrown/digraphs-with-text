@@ -61,7 +61,7 @@ test-suite new-template-test
                      , TData
                      , TGraph
                      -- , TShow
-                     -- , TSearch
+                     , TSearch
 
   build-depends:       Dwt
                      , HUnit

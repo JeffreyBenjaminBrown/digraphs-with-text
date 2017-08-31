@@ -45,5 +45,6 @@
 
   -- monad things
     (n, j) = (Mb.Nothing, Mb.Just)
-    fr = fromRight
+    fr = fromRight -- TODO: this fromRight doesn't handle the Left case
+      -- is therefore different from Data.Either.fromRight
     type EM = Either String

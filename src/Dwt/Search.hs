@@ -14,7 +14,7 @@ import Dwt.Util (maxNode, lengthOne, dropEdges, fromRight)
 import Data.Map as M
 import Data.Maybe as Mb
 
--- see also
+-- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.node :: RSLT -> Expr -> [Node] -- hopefully length = 1
 
 -- queries
@@ -48,8 +48,8 @@ qPut :: RSLT -> QNode -> Either String (RSLT, Node)
 qPut g (QRel qt qms) = do
   tplt <- qGet1 g qt
   members <- mapM (qGet1 g) qms
-  g' <- insRel tplt members g
-  Right (g', error "pending: write qGet for Rels")
+  g' <- insRel tplt members g --TODO: what if it's already there?
+  Right (g', 1234567890) -- TODO: why does this already work?
 qPut g q@(QLeaf l) = case qMbGet g q of
   Right (Just n) -> Right (g, n)
   Right Nothing -> Right (g', maxNode g') where g' = insLeaf l g
