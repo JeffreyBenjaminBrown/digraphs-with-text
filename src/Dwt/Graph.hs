@@ -17,7 +17,8 @@
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , node, tpltAt, relElts, validRole, relTplt, collPrinciple
       , rels, mbrs, users, usersInRole, usersInRoleUsf
-      , matchRel, has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
+      , matchRel, matchRelLab
+      , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
       ) where
 
     import Dwt.Util
@@ -388,6 +389,12 @@
             $ spec :: [(RelRole,AddressOrVar)]
       nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
       return $ listIntersect nodeListList
+
+    matchRelLab :: RSLT -> RelSpec -> Either String [LNode Expr]
+    matchRelLab g spec = case matchRel g spec of
+      Left s -> Left $ "matchRelLab: " ++ s
+      Right ns -> Right $ zip ns $ map (fromJust . lab g) ns
+        -- fromJust is safe here, because matchRel only returns Nodes in g
 
 -- using directions (RelSpecs)
     -- todo ? 1Dir because it should have one such direction. I forget why.
