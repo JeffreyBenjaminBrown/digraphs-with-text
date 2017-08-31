@@ -23,11 +23,12 @@ data QNode = QAt Node -- when you already know the Node
            | QRel QNode [QNode]
   deriving (Show, Eq)
 
-_qGet :: (RSLT -> Node -> x) -- | Used for QAt
-      -> (RSLT -> [x])       -- | Used for leaves
-      -> RSLT -> QNode -> [x]
-_qGet f _ g (QAt n) =  if gelem n g then [f g n] else []
-_qGet _ f g (QLeaf l) = f $ labfilter (==l) $ dropEdges g
+_qGet :: -- x herein is either Node or LNode
+     (RSLT -> Node -> x) -- | gets what's there; used for QAt
+  -> (RSLT -> [x])       -- | is nodes or labNodes; used for leaves
+  -> RSLT -> QNode -> Either String [x]
+_qGet f _ g (QAt n) = return $ if gelem n g then [f g n] else []
+_qGet _ f g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
 --_qGet _ f g (QRel qt qms) = -- ignoring case of multiple qt, qm matches
 --  let t = qGet1 g qt
 --      ms = fmap (qGet1 g) qms
@@ -35,7 +36,7 @@ _qGet _ f g (QLeaf l) = f $ labfilter (==l) $ dropEdges g
 --      relspec = M.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
 --  in matchRel g relspec
 
-qGet :: RSLT -> QNode -> [Node]
+qGet :: RSLT -> QNode -> Either String [Node]
 qGet = _qGet (\_ n -> n) nodes
 
 qPut :: RSLT -> QNode -> Either String (RSLT, Node)
@@ -44,28 +45,29 @@ qPut g (QRel qt qms) = do
   members <- mapM (qGet1 g) qms
   g' <- insRel tplt members g
   Right (g', error "pending: write qGet for Rels")
-qPut g q@(QLeaf l) = either left right $ qMbGet g q where
-  right (Just n) = Right (g, n)
-  right Nothing = Right (g', maxNode g') where g' = insLeaf l g
-  left s = Left $ "qPut called: " ++ s
+qPut g q@(QLeaf l) = case qMbGet g q of
+  Right (Just n) -> Right (g, n)
+  Right Nothing -> Right (g', maxNode g') where g' = insLeaf l g
+  Left s -> Left $ "qPut: " ++ s
 
-qLGet :: RSLT -> QNode -> [LNode Expr]
+qLGet :: RSLT -> QNode -> Either String [LNode Expr]
 qLGet = _qGet (\g n -> (n, fromJust $ lab g n)) labNodes
   -- this fromJust is excused by the gelem in _qGet
 
 qMbGet :: RSLT -> QNode -> Either String (Maybe Node)
 qMbGet g q = case qGet g q of
-  [] -> Right Nothing
-  [a] -> Right $ Just a
-  as -> Left $ "qMbGet: searched for " ++ show q
+  Right [] -> Right Nothing
+  Right [a] -> Right $ Just a
+  Right as -> Left $ "qMbGet: searched for " ++ show q
              ++ ", found multiple: " ++ show as
+  Left s -> Left $ "qMbGet: " ++ s
 
 qGet1 :: RSLT -> QNode -> Either String Node
-qGet1 g q = let ns = qGet g q
-            in case length ns of
-                 0 -> Left "qGet1: Expected one match, found none."
-                 1 -> Right $ head ns
-                 _ -> Left "qGet1: Expected one match, found more."
+qGet1 g q = case qGet g q of
+  Left s -> Left $ "qGet1: " ++ s
+  Right [] -> Left "qGet1: Expected one match, found none."
+  Right [a] -> Right a
+  Right as -> Left "qGet1: Expected one match, found more."
 
 qRegexWord :: RSLT -> String -> Either String [Node]
 qRegexWord g s = do
@@ -73,5 +75,5 @@ qRegexWord g s = do
   let ns = nodes $ labfilter (\lab -> case lab of
                                  Word t -> Mb.isJust $ matchRegex r t;
                                  _ -> False)
-                   $ dropEdges g
+                 $ dropEdges g
   Right ns
