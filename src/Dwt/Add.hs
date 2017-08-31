@@ -6,7 +6,6 @@ import Dwt.Search
 import Dwt.Parse (AddX(..), Level, JointX(..), EO)
 import Dwt.Util (maxNode)
 import Data.List (mapAccumL)
-
 import qualified Data.Sequence as S
 
 -- | AddX was (maybe) optimized for correctness when parsing text from users.
@@ -37,6 +36,20 @@ isValid (RelAdder js  ms) = (not $ any isAbsent $ middle)
   where middle = tail . reverse . tail $ ms
 isValid _ = True
 
+extractTplt :: Adder -> Expr
+extractTplt (RelAdder js as) = Tplt $ ja ++ map (\(JointX s) -> s) js ++ jz
+  where (ja,jz) = (f $ head as, f $ last as)
+        f Absent = []
+        f _ = [""]
+
+--  let pairs = zip (map adderString as) (map jointString js)
+--      adderString Absent = "" :: String
+--      adderString _ = " _ "
+--      jointString (JointX s) = " " ++ s ++ " " :: String
+--      splitPair (a,b) = [a,b] :: [String]
+--  in concat (adderString a : concatMap splitPair pairs)
+--    -- use mkTplt
+
 -- Dwt.prettyPrint $ fr $ adder <$> parse expr "" "a # b ##z # (d # e) # e ## f ## g # h"
 prettyPrint :: Adder -> IO ()
 prettyPrint = it 0 where
@@ -54,9 +67,9 @@ prettyPrint = it 0 where
 adder :: AddX -> Adder
 adder (LeafX "") = Absent
 adder (LeafX s) = Leaf s
-adder (RelX _ a j pairs b) = RelAdder (j : joints)
-                             $ map adder $ [a] ++ members ++ [b]
-  where (members,joints) = unzip pairs
+adder a@(RelX _ js as) = let a = RelAdder js $ map adder as
+  in case isValid a of True -> a
+                       False -> error $ "adder: invalid rel: " ++ show a
 
 mapac :: RSLT -> Adder -> (RSLT, Adder)
 mapac g (At n) = (g, At n)
@@ -64,5 +77,6 @@ mapac g Absent = (g, Absent)
 mapac g (Leaf s) = either left right $ qPut g $ QLeaf $ Word s where
   left s = error $ "mapac: " ++ s
   right (g',n) = (g', At n)
--- mapac g (RelAdder js as) = _ where
---   (g1, as1) = mapAccumL mapac g as
+--mapac g (RelAdder js as) = _ where
+--  (g1, as1) = mapAccumL mapac g as
+--  (g2, _) = 

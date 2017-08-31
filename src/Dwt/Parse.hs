@@ -33,7 +33,7 @@ hasBlanks = parse p "not a file"
 -- == Things used when parsing Word and Rel values
 -- X is used to distinguish user-typed string eXpressions from native ones.
 data AddX = LeafX String -- expresses how to add (nested) data to the RSLT
-          | RelX EO AddX JointX [(AddX,JointX)] AddX
+          | RelX EO [JointX] [AddX]
   -- Every rel has at least one jointX, and potentially members on either side
   -- If there are more, the list of pairs stores them.
           deriving (Show, Eq)
@@ -43,19 +43,17 @@ data JointX = JointX String deriving (Show, Eq)
   -- in "you #like peaches #at noon", "like" and "at" are jointXs
 data EO = EO     -- EO = "expression orderer"
   { open :: Bool -- open = "more expressions can be concatentated into it"
-                 -- In b@(RelX (EO x _) _ _ _ _), x is true until
+                 -- In b@(RelX (EO x _) _ _), x is true until
                  -- b has been surrounded by parentheses.
   , inLevel :: Level } deriving (Eq)
 
 instance Show EO where
   show (EO x y) = "(EO " ++ show x ++ " " ++ show y ++ ")"
-instance Ord EO where -- Conceptually yes, but I haven't actually used this.
-  EO a b <= EO c d
-    | a /= c = a <= c
-    | otherwise = b <= d
+instance Ord EO where -- Open > closed. If those are equal, ## > #, etc.
+  EO a b <= EO c d = a <= c && b <= d
 
 startRel :: Level -> JointX -> AddX -> AddX -> AddX
-startRel l j a b = RelX (EO True l) a j [] b
+startRel l j a b = RelX (EO True l) [j] [a,b]
 
 -- | PITFALL: In "a # b # c # d", you might imagine evaluating the middle #
 -- after the others. In that case both sides would be a RelX, and you would
@@ -66,38 +64,36 @@ startRel l j a b = RelX (EO True l) a j [] b
 -- right, not outside to inside.
 rightConcat :: JointX -> AddX -> AddX -> AddX
   -- TODO: if|when need speed, use a two-sided list of pairs
-rightConcat j' right' (RelX eo left j pairs  right)
-                     = RelX eo left j pairs' right'
-  where pairs' = pairs ++ [(right, j')]
+rightConcat j m (RelX eo joints mbrs)
+  = RelX eo (joints ++ [j]) (mbrs ++ [m])
 rightConcat _ _ _ = error "can only rightConcat into a RelX"
 
 leftConcat :: JointX -> AddX -> AddX -> AddX
-leftConcat j' left' (RelX eo left j pairs right)
-                   = RelX eo left' j' pairs' right
-  where pairs' = (left,j) : pairs
+leftConcat j m (RelX eo joints mbrs)
+  = RelX eo (j : joints) (m : mbrs)
 leftConcat _ _ _ = error "can only leftConcat into a RelX"
 
 close :: AddX -> AddX
 close (LeafX x) = LeafX x
-close (RelX (EO _     a) b c d e)
-     = RelX (EO False a) b c d e
+close (RelX (EO _     a) b c)
+     = RelX (EO False a) b c
 
 hash :: Level -> JointX -> AddX -> AddX -> AddX
 hash l j a@(LeafX _) b@(LeafX _)                   = startRel l j a b
-hash l j a@(LeafX _) b@(RelX (EO False _) _ _ _ _) = startRel l j a b
-hash l j a@(RelX (EO False _) _ _ _ _) b@(LeafX _) = startRel l j a b
-hash l j a@(LeafX _) b@(RelX (EO True l') _ _ _ _)
+hash l j a@(LeafX _) b@(RelX (EO False _) _ _) = startRel l j a b
+hash l j a@(RelX (EO False _) _ _) b@(LeafX _) = startRel l j a b
+hash l j a@(LeafX _) b@(RelX (EO True l') _ _)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = leftConcat j a b -- I suspect this won't happen either
   | l > l' = startRel l j a b
-hash l j a@(RelX (EO True l') _ _ _ _) b@(LeafX _)
+hash l j a@(RelX (EO True l') _ _) b@(LeafX _)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = rightConcat j b a -- but this will
   | l > l' = startRel l j a b
-hash l j a@(RelX ea _ _ _ _) b@(RelX eb _ _ _ _) =
+hash l j a@(RelX ea _ _) b@(RelX eb _ _) =
   let e = EO True l
   in if e >= ea && e > eb
-     then startRel l j a b
+     then leftConcat j b a
      else error $ unlines
           [ "JointX should have been evaluated earlier."
           , "level: " ++ show l
