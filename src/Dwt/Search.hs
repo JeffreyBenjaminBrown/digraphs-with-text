@@ -45,7 +45,7 @@ qLGet = _qGet (\g n -> (n, fromJust $ lab g n)) labNodes matchRelLab
 
 qPut :: RSLT -> QNode -> Either String (RSLT, Node)
 qPut g (QRel qt qms) = do
-  tplt <- qGet1 g qt
+  tplt <- qGet1 g qt --TODO: make qMbGet-like, use an okay Left for 0
   members <- mapM (qGet1 g) qms
   matches <- matchRel g $ mkRelSpec tplt members
   case matches of
