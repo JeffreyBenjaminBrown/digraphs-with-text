@@ -5,7 +5,7 @@
 module Dwt.Parse where
 
 import Data.Graph.Inductive (Node)
-import Dwt.Graph (Expr(..))
+import Dwt.Graph (Expr(..), mkTplt)
 
 import Control.Applicative (empty)
 import Data.Void (Void)
@@ -115,12 +115,12 @@ expr :: Parser AddX
 expr = makeExprParser term [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
 term :: Parser AddX
-term = (LeafX . Word) <$> phrase1
+term = LeafX <$> leaf
        <|> close <$> parens expr
-       <|> (const Absent <$> reallyAbsent) where
-  reallyAbsent :: Parser ()
-  reallyAbsent = const () <$> f <?> "Intended to \"find\" nothing."
-    where f = lookAhead $ const () <$> C.satisfy (`elem` ")#") <|> eof
+       <|> absent where
+  absent :: Parser AddX
+  absent = const Absent <$> f <?> "Intended to \"find\" nothing."
+  f = lookAhead $ const () <$> C.satisfy (`elem` ")#") <|> eof
 
 pHashUnlabeled :: Int -> Parser ()
 pHashUnlabeled n = const () <$> f
@@ -143,19 +143,22 @@ lexeme = L.lexeme sc
 wordChar :: Parser Char
 wordChar = C.alphaNumChar <|> C.char '_' <|> C.char '-'
 
-word :: String -> Parser String -- could fail half-in, so requires "try"
+word :: String -> Parser String -- | could fail half-in, so requires "try"
 word w = lexeme $ C.string w <* notFollowedBy wordChar
 
 anyWord :: Parser String
 anyWord = lexeme $ some wordChar
 
-phrase :: Parser String
+phrase :: Parser String -- | accepts the empty string, because it uses "many"
 phrase = concat . intersperse " " <$> many anyWord
 
-phrase1 :: Parser String
-phrase1 = concat . intersperse " " <$> some anyWord
+leaf :: Parser Expr
+leaf = do p <- some anyWord
+          return $ case elem "_" p of True ->  mkTplt . f $ p
+                                      False -> Word   . f $ p
+  where f = concat . intersperse " " 
 
-symbol :: String -> Parser String -- is already a lexeme
+symbol :: String -> Parser String -- | is already a lexeme
 symbol = L.symbol sc
 
 parens :: Parser a -> Parser a

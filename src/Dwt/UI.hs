@@ -7,6 +7,7 @@ import Data.Graph.Inductive (empty, nodes)
 import Dwt.Graph (RSLT(..), insWord, insTplt)
 import Dwt.Show (view)
 import Dwt.Parse
+import Text.Megaparsec (parse)
 
 import qualified Brick.Main as M
 import qualified Brick.Types as T
@@ -82,6 +83,7 @@ appHandleEvent st _ = M.continue st
 addToRSLT :: St -> T.EventM Name (T.Next St)
 addToRSLT st = do
     let strings = st ^. edit1 & E.getEditContents
+        addXs = map (parse expr "") strings
         (templates,words) =
           partition (either (const False) id . hasBlanks) strings
           -- (const False) should work if it happens but shouldn't happen

@@ -9,22 +9,20 @@ import Data.List (mapAccumL)
 import qualified Data.Sequence as S
 
 -- | AddX was (maybe) optimized for correctness when parsing text from users.
--- Adder is optimized for ease of loading new data into the graph.
+-- AddX is optimized for ease of loading new data into the graph.
 
 -- | (At n) represents something already extant in the graph.
 -- Leaf and RelX represent something that *might* already exist; it will
 -- be searched for. If found, it becomes an At; if not, it is created, and
 -- becomes an At.
 
-type Adder = AddX
-
-isAt, isAbsent :: Adder -> Bool
+isAt, isAbsent :: AddX -> Bool
 isAbsent Absent = True
 isAbsent _ = False
 isAt (At _) = True
 isAt _ = False
 
-isValid :: Adder -> Bool
+isValid :: AddX -> Bool
 isValid (RelX _ [_] [Absent,Absent]) = False
 isValid (RelX _ [_] [_,_]) = True
 isValid (RelX _ js  ms) = (not $ any isAbsent $ middle)
@@ -33,28 +31,31 @@ isValid (RelX _ js  ms) = (not $ any isAbsent $ middle)
   where middle = tail . reverse . tail $ ms
 isValid _ = True
 
-extractTplt :: Adder -> Expr
+extractTplt :: AddX -> Expr
 extractTplt (RelX _ js as) = Tplt $ ja ++ map (\(JointX s) -> s) js ++ jz
   where (ja,jz) = (f $ head as, f $ last as)
         f Absent = []
         f _ = [""]
 
 -- Dwt.prettyPrint $ fr $ parse expr "" "a # b ##z # (d # e) # e ## f ## g # h"
-prettyPrint :: Adder -> IO ()
+prettyPrint :: AddX -> IO ()
 prettyPrint = it 0 where
   space :: Int -> String
   space k = replicate (4*k) ' '
-  it :: Int -> Adder -> IO () -- Int = indentation level
+  it :: Int -> AddX -> IO () -- Int = indentation level
   it k (RelX _ js (m:ms)) = do
-    putStrLn $ space k ++ "Adder: "
+    putStrLn $ space k ++ "AddX: "
     it (k+1) m
     let f (j,m) = do putStrLn $ (space $ k+1) ++ show j
                      it (k+1) m
     mapM_ f $ zip js ms
   it k l = putStrLn $ space k ++ show l
 
-mapac :: RSLT -> Adder -> (RSLT, Adder)
-mapac g (At n) = (g, At n)
+execAddX :: RSLT -> AddX -> RSLT
+execAddX g a = fst $ mapac g a
+
+mapac :: RSLT -> AddX -> (RSLT, AddX)
+mapac g (At n) = (g, At n) -- TODO ?(slow) test that it's in the graph
 mapac g Absent = (g, Absent)
 mapac g (LeafX s) = either left right $ qPut g $ QLeaf s where
   left s = error $ "mapac: " ++ s
