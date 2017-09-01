@@ -1,10 +1,12 @@
 -- From an expression like "I #like turtles ##when the sun #is big", creates a set of instructions for adding expressions to a RSLT.
 -- discussion: https://www.reddit.com/r/haskell/comments/6v9b13/can_this_problem_be_approached_from_the_bottomup/
-
+{-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Parse where
 
 import Data.Graph.Inductive (Node)
+import Dwt.Graph (Expr(..))
+
 import Control.Applicative (empty)
 import Data.Void (Void)
 import Data.List (intersperse)
@@ -31,8 +33,10 @@ hasBlanks = parse p "not a file"
 
 
 -- == Things used when parsing Word and Rel values
--- X is used to distinguish user-typed string eXpressions from native ones.
-data AddX = LeafX String -- expresses how to add (nested) data to the RSLT
+-- AddX expresses how to add (nested) data to the RSLT
+data AddX = At Node -- for when you know the expression's node. TODO: parse
+          | Absent
+          | LeafX Expr
           | RelX EO [JointX] [AddX]
   -- Every rel has at least one jointX, and potentially members on either side
   -- If there are more, the list of pairs stores them.
@@ -51,6 +55,10 @@ instance Show EO where
   show (EO x y) = "(EO " ++ show x ++ " " ++ show y ++ ")"
 instance Ord EO where -- Open > closed. If those are equal, ## > #, etc.
   EO a b <= EO c d = a <= c && b <= d
+
+isRelX :: AddX -> Bool
+isRelX (RelX _ _ _) = True
+isRelX _ = False
 
 startRel :: Level -> JointX -> AddX -> AddX -> AddX
 startRel l j a b = RelX (EO True l) [j] [a,b]
@@ -79,40 +87,37 @@ close (RelX (EO _     a) b c)
      = RelX (EO False a) b c
 
 hash :: Level -> JointX -> AddX -> AddX -> AddX
-hash l j a@(LeafX _) b@(LeafX _)                   = startRel l j a b
-hash l j a@(LeafX _) b@(RelX (EO False _) _ _) = startRel l j a b
-hash l j a@(RelX (EO False _) _ _) b@(LeafX _) = startRel l j a b
-hash l j a@(LeafX _) b@(RelX (EO True l') _ _)
+hash l j a@(isRelX -> False) b@(isRelX -> False)       = startRel l j a b
+hash l j a@(isRelX -> False) b@(RelX (EO False _) _ _) = startRel l j a b
+hash l j a@(RelX (EO False _) _ _) b@(isRelX -> False) = startRel l j a b
+hash l j a@(isRelX -> False) b@(RelX (EO True l') _ _)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = leftConcat j a b -- I suspect this won't happen either
   | l > l' = startRel l j a b
-hash l j a@(RelX (EO True l') _ _) b@(LeafX _)
+hash l j a@(RelX (EO True l') _ _) b@(isRelX -> False)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = rightConcat j b a -- but this will
   | l > l' = startRel l j a b
 hash l j a@(RelX ea _ _) b@(RelX eb _ _) =
   let e = EO True l
-  in if e >= ea && e > eb
-     then leftConcat j b a
-     else error $ unlines
-          [ "JointX should have been evaluated earlier."
-          , "level: " ++ show l
-          , show j
-          , "left: " ++ show a
-          , "right: " ++ show b
-          ]
+      msg = unlines [ "JointX should have been evaluated earlier."
+                    , "level: " ++ show l
+                    , "joint: " ++ show j
+                    , "left: " ++ show a
+                    , "right: " ++ show b ]
+  in if e <= eb then error msg
+     else if e > ea then startRel l j a b
+     else if e == ea then rightConcat j b a
+     else error msg
 
 -- == the AddX parser
 expr :: Parser AddX
 expr = makeExprParser term [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
 term :: Parser AddX
-term = LeafX <$> (phrase1 <|> symbolForAbsent)
+term = (LeafX . Word) <$> phrase1
        <|> close <$> parens expr
-       <|> (const (LeafX "") <$> reallyAbsent) where
-  symbolForAbsent :: Parser String
-  symbolForAbsent = const ""
-    <$> (try $ (const () <$> symbol "()") )
+       <|> (const Absent <$> reallyAbsent) where
   reallyAbsent :: Parser ()
   reallyAbsent = const () <$> f <?> "Intended to \"find\" nothing."
     where f = lookAhead $ const () <$> C.satisfy (`elem` ")#") <|> eof
