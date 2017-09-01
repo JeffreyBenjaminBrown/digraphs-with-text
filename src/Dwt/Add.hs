@@ -4,7 +4,7 @@ import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Graph
 import Dwt.Search
 import Dwt.Parse (AddX(..), Level, JointX(..), EO)
-import Dwt.Util (maxNode)
+import Dwt.Util (fr, maxNode)
 import Data.List (mapAccumL)
 import qualified Data.Sequence as S
 
@@ -42,14 +42,6 @@ extractTplt (RelAdder js as) = Tplt $ ja ++ map (\(JointX s) -> s) js ++ jz
         f Absent = []
         f _ = [""]
 
---  let pairs = zip (map adderString as) (map jointString js)
---      adderString Absent = "" :: String
---      adderString _ = " _ "
---      jointString (JointX s) = " " ++ s ++ " " :: String
---      splitPair (a,b) = [a,b] :: [String]
---  in concat (adderString a : concatMap splitPair pairs)
---    -- use mkTplt
-
 -- Dwt.prettyPrint $ fr $ adder <$> parse expr "" "a # b ##z # (d # e) # e ## f ## g # h"
 prettyPrint :: Adder -> IO ()
 prettyPrint = it 0 where
@@ -77,6 +69,11 @@ mapac g Absent = (g, Absent)
 mapac g (Leaf s) = either left right $ qPut g $ QLeaf $ Word s where
   left s = error $ "mapac: " ++ s
   right (g',n) = (g', At n)
---mapac g (RelAdder js as) = _ where
---  (g1, as1) = mapAccumL mapac g as
---  (g2, _) = 
+mapac g a@(RelAdder js as) = (g2, At n) where
+  (g1, as1) = mapAccumL mapac g as
+  mbrQueries = map (QAt . \(At n) -> n) as1
+  tpltQuery = QLeaf $ extractTplt a
+  (g2, n) = fr $ qPut g1 $ QRel tpltQuery mbrQueries
+    -- TODO: fr is not safe here, because tplQuery might not find a tplt
+      -- How to lift a fold|map|both into the Either monad? - Stack Overflow 
+      -- https://stackoverflow.com/questions/45991542/how-to-lift-a-foldmapboth-into-the-either-monad
