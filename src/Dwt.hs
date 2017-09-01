@@ -5,6 +5,7 @@
       , module Dwt.Add
       , module Dwt.FileIO
       , module Dwt.Graph
+      , module Dwt.Leaf
       , module Dwt.Parse 
       , module Dwt.Search
       , module Dwt.Show
@@ -18,6 +19,7 @@
     import Dwt.Add
     import Dwt.FileIO
     import Dwt.Graph
+    import Dwt.Leaf
     import Dwt.Parse
     import Dwt.Search
     import Dwt.Show

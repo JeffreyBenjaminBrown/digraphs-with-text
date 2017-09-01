@@ -5,6 +5,7 @@
       ) where
 
     import Dwt.Graph
+    import Dwt.Leaf (tpltArity, subInTpltWithHashes, subInTplt)
     import Dwt.Types
     import Dwt.Util
     import Dwt.FileIO (graphToText)

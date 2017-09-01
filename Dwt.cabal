@@ -18,6 +18,7 @@ library
   exposed-modules:     Dwt
                      , Dwt.Add
                      , Dwt.FileIO
+                     , Dwt.Leaf
                      , Dwt.Graph
                      , Dwt.Parse
                      , Dwt.ParsecUtils

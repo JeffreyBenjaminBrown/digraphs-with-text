@@ -4,6 +4,7 @@
     ) where
 
     import Dwt.Types
+    import Dwt.Leaf (insLeaf, insFl, insWord, insTplt, mkTplt, tpltArity)
     import Dwt.Graph
     import Data.Graph.Inductive
     import qualified Data.Map as Map

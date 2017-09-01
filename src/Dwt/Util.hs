@@ -5,6 +5,7 @@
       listIntersect, lengthOne -- for lists
       -- for graphs
       , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
+      , hasLEdgeM
 
       , mapLookupMe, eitherToMe, fr, fromRight -- for monads
       ) where
@@ -58,6 +59,11 @@
           h' = gmap (\(ins,n,nlab,outs) ->
                 (shiftAdj ins, n+shift, nlab, shiftAdj outs)) h
       in mkGraph (labNodes g ++ labNodes h') (labEdges g ++ labEdges h')
+
+    hasLEdgeM :: (MonadError String m, Graph gr, Eq b, Show b) => 
+      gr a b -> LEdge b -> m ()
+    hasLEdgeM g le = if hasLEdge g le then return ()
+      else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
 
 -- for monads
     -- TODO: This could use a higher-kinded function, lke eitherToMe, for Maybes

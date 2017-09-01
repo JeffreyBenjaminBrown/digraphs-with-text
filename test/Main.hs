@@ -9,15 +9,13 @@
     import TParse
     import TGraph
     import TSearch
---    import TShow
---    import TMmParse
+    import TShow
 
 -- main
     main = runTestTT $ TestList
       [
---        TestLabel "tParse"   tParse
-            TestLabel "tGraph"   tGraph
-          , TestLabel "tSearch" tSearch
---        , TestLabel "tView"    tView
---        , TestLabel "tMmParse" tMmParse
+        TestLabel "tParse"   tParse
+      , TestLabel "tGraph"   tGraph
+      , TestLabel "tSearch" tSearch
+      , TestLabel "tView"    tView
       ]

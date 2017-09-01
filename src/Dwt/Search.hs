@@ -11,6 +11,7 @@ import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Graph
 import Dwt.Util (fr, maxNode, lengthOne, dropEdges, fromRight)
+import Dwt.Leaf (insLeaf)
 
 import Data.Map as M
 import Data.Maybe as Mb

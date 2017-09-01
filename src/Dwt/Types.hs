@@ -8,6 +8,7 @@ module Dwt.Types (
 import Data.Graph.Inductive
 import Data.Map as Map
 
+-- == Fundamental
 type Arity = Int
 type MbrPos = Int -- k members of k-ary Rel, MbrPos values [1..k]
 
@@ -33,7 +34,8 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
   -- Exceptions: "some of," "no more than," "exactly" would use unary Tplts.
     -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
 
--- == for RelSpec
+
+-- == Specifying kinds of relationships
 data Mbrship = It | Any | Up | Down
   deriving (Show,Read,Eq,Ord)
 data AddressOrVar -- might be addressed; else is Mbrship variable
@@ -45,13 +47,15 @@ type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
 type RelSpec =     Map.Map RelRole AddressOrVar -- if well-formed, keys
   -- include a single Tplt, and MbrPos k for all k in [1, Tplt arity]
 
--- == for Queries
+
+-- == Queries
 data QNode = QAt Node -- when you already know the Node
            | QLeaf Expr -- when you don't but you know its contents
            | QRel QNode [QNode]
   deriving (Show, Eq)
 
--- == for Errors
+
+-- == Errors
 type DwtErr = (BaseErr, ErrOpts, String)
 
 data ErrOpts = ErrOpts { _mNode :: Maybe Node

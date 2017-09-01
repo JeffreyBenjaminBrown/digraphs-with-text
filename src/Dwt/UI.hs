@@ -5,7 +5,7 @@ module Dwt.UI where
 
 import Data.Graph.Inductive (empty, nodes)
 import Dwt.Types
-import Dwt.Graph (insWord, insTplt)
+import Dwt.Leaf (insWord, insTplt)
 import Dwt.Show (view)
 import Dwt.Parse
 import Text.Megaparsec (parse)
