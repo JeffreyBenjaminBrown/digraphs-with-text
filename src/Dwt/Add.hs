@@ -26,7 +26,7 @@ isAt _ = False
 
 isValid :: Adder -> Bool
 isValid (RelX _ [_] [Absent,Absent]) = False
-isValid (RelX _ [_] _) = True -- TODO: check for no internal Absent
+isValid (RelX _ [_] [_,_]) = True
 isValid (RelX _ js  ms) = (not $ any isAbsent $ middle)
                            && all isValid ms
                            && length js + 1 == length ms
