@@ -8,7 +8,7 @@ module Dwt.Search (
 import Text.Regex
 
 import Data.Graph.Inductive
-import Dwt.Error
+import Dwt.Types
 import Dwt.Graph
 import Dwt.Util (fr, maxNode, lengthOne, dropEdges, fromRight)
 
@@ -17,12 +17,6 @@ import Data.Maybe as Mb
 
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.node :: RSLT -> Expr -> [Node] -- hopefully length = 1
-
--- queries
-data QNode = QAt Node -- when you already know the Node
-           | QLeaf Expr -- when you don't but you know its contents
-           | QRel QNode [QNode]
-  deriving (Show, Eq)
 
 _qGet :: -- x herein is either Node or LNode Expr
      (RSLT -> Node -> x) -- | gets what's there; used for QAt

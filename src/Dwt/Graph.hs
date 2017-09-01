@@ -1,12 +1,8 @@
     {-# LANGUAGE FlexibleContexts #-}
     {-# LANGUAGE ViewPatterns #-}
 
-    module Dwt.Graph
-      (
-        MbrPos, Arity
-      , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
-      , Mbrship(..), AddressOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
-      , _splitStringForTplt, mkTplt
+    module Dwt.Graph (
+        _splitStringForTplt, mkTplt
       , subInTplt, padTpltStrings, subInTpltWithHashes
       , tpltArity, mbrListMatchesTpltArity
       , insLeaf, insRel, insRelUsf, insColl
@@ -21,7 +17,7 @@
       , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
       ) where
 
-    import Dwt.Error
+    import Dwt.Types
     import Dwt.Util
     import Data.Graph.Inductive
     import Data.Either (partitionEithers)
@@ -31,44 +27,6 @@
     import Control.Monad (mapM_)
     import Control.Monad.Except (MonadError, throwError, catchError)
     import Data.Text (pack, unpack, strip, splitOn)
-
--- types
-    type Arity = Int
-    type MbrPos = Int -- k members of k-ary Rel, MbrPos values [1..k]
-
-    type RSLT = Gr Expr RSLTEdge -- reflective set of labeled tuples
-    data Expr = Word String | Fl Float -- these two are similar
-              | Rel
-              | Tplt [String]
-              | Coll -- each uses a CollPrinciple like "and" or "or"
-              | RelSpecExpr RelVarSpec
-                -- The RelVarSpec specifies the variable members.
-                -- Edges specify the concrete (addressed) members.
-              deriving(Show,Read,Eq,Ord)
-
-    data RSLTEdge = RelEdge RelRole | CollEdge CollRole
-                  deriving(Show,Read,Eq,Ord)
-      -- only Rels and Colls emit edges, have subexpressions
-    data RelRole = TpltRole | Mbr MbrPos deriving(Show,Read,Eq,Ord)
-      -- a k-ary Rel emits one TpltRole and k RelMbrs
-    data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
-      -- a Col emits one CollPrinciple, any number of CollMbrs
--- TODO: A CollPrinciple currently can point to anything. It would be
-  -- cleaner, and closer to truth, to pointonly to transitive Tplts.
-  -- Exceptions: "some of," "no more than," "exactly" would use unary Tplts.
-    -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
-
-  -- for RelSpec
-    data Mbrship = It | Any | Up | Down
-      deriving (Show,Read,Eq,Ord)
-    data AddressOrVar -- might be addressed; else is Mbrship variable
-      = VarSpec Mbrship | NodeSpec Node deriving(Show,Read,Eq,Ord)
-
-    -- at the TpltRole key is always a concrete NodeSpec
-    type RelVarSpec = Map.Map RelRole Mbrship
-    type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
-    type RelSpec =     Map.Map RelRole AddressOrVar -- if well-formed, keys
-      -- include a single Tplt, and MbrPos k for all k in [1, Tplt arity]
 
 -- Tplts
   -- mkTplt

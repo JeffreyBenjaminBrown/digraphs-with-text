@@ -8,6 +8,7 @@
       , module Dwt.Parse 
       , module Dwt.Search
       , module Dwt.Show
+      , module Dwt.Types
       , module Dwt.UI
       , module Dwt.Util
       ) where
@@ -20,6 +21,7 @@
     import Dwt.Parse
     import Dwt.Search
     import Dwt.Show
+    import Dwt.Types
     import Dwt.UI
     import Dwt.Util
 

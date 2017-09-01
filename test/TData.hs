@@ -3,6 +3,7 @@
       , tRelSpec, tRelSpec2, tRelSpecNonsense
     ) where
 
+    import Dwt.Types
     import Dwt.Graph
     import Data.Graph.Inductive
     import qualified Data.Map as Map

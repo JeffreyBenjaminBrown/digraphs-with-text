@@ -5,7 +5,8 @@
 module Dwt.Parse where
 
 import Data.Graph.Inductive (Node)
-import Dwt.Graph (Expr(..), mkTplt)
+import Dwt.Types
+import Dwt.Graph (mkTplt)
 
 import Control.Applicative (empty)
 import Data.Void (Void)

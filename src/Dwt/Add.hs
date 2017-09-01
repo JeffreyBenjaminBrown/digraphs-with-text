@@ -1,6 +1,7 @@
 module Dwt.Add where
 
 import Data.Graph.Inductive hiding (empty, prettyPrint)
+import Dwt.Types
 import Dwt.Graph
 import Dwt.Search
 import Dwt.Parse (AddX(..), Level, JointX(..), EO)
