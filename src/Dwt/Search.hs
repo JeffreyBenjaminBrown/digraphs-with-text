@@ -8,6 +8,7 @@ module Dwt.Search (
 import Text.Regex
 
 import Data.Graph.Inductive
+import Dwt.Error
 import Dwt.Graph
 import Dwt.Util (fr, maxNode, lengthOne, dropEdges, fromRight)
 
@@ -65,6 +66,14 @@ qMbGet g q = case qGet g q of
   Right as -> Left $ "qMbGet: searched for " ++ show q
              ++ ", found multiple: " ++ show as
   Left s -> Left $ "qMbGet: " ++ s
+
+qGet1dwtErr :: RSLT -> QNode -> Either DwtErr Node
+qGet1dwtErr g q = case qGet g q of
+  Right [] -> Left (FoundNo, noErrOpts, msg)
+  Right [a] -> Right a
+  Right as -> Left (FoundMany, noErrOpts, msg)
+  Left s -> Left (Legacy, noErrOpts, s)
+  where msg = "qGet1dwtErr searched for " ++ show q
 
 qGet1 :: RSLT -> QNode -> Either String Node
 qGet1 g q = case qGet g q of

@@ -16,11 +16,12 @@
       , gelemM, hasLEdgeM, isWord, isWordM, isTplt, isTpltM, isFl, isFlM
       , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
       , node, tpltAt, relElts, validRole, relTplt, collPrinciple
-      , rels, mbrs, users, usersInRole, usersInRoleUsf
+      , rels, mbrs, users, usersInRole
       , matchRel, matchRelLab
       , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
       ) where
 
+    import Dwt.Error
     import Dwt.Util
     import Data.Graph.Inductive
     import Data.Either (partitionEithers)
@@ -258,6 +259,10 @@
     gelemM g n = if gelem n g then return () 
       else throwError $ "gelemM: Node " ++ show n ++ " absent."
 
+--    gelemMDe :: (MonadError DwtErr m, Graph gr) => gr a b -> Node -> m ()
+--    gelemMDe g n = if gelem n g then return () 
+--      else throwError $ (FoundNo, 
+
     hasLEdgeM :: (MonadError String m, Graph gr, Eq b, Show b) => 
       gr a b -> LEdge b -> m ()
     hasLEdgeM g le = if hasLEdge g le then return ()
@@ -380,21 +385,29 @@
     users g n = do gelemM g n
                    return [m | (m,label@_) <- lpre g n]
 
-    usersInRole :: (MonadError String m) => RSLT -> Node -> RelRole -> m [Node]
-    usersInRole g n r = do -- Rels using Node n in RelRole r
-      gelemM g n
-      return $ usersInRoleUsf g n r
-
-    usersInRoleUsf :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
-    usersInRoleUsf g n r = [m | (m,r') <- lpre g n, r'==RelEdge r]
+    usersInRole :: (MonadError String m) -- | Rels using Node n in RelRole r
+                => RSLT -> Node -> RelRole -> m [Node]
+    usersInRole g n r = do gelemM g n -- makes f safe
+                           return $ f g n r
+      where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
+            f g n r = [m | (m,r') <- lpre g n, r'==RelEdge r]
 
     matchRel :: RSLT -> RelSpec -> Either String [Node]
+    -- | TODO: Deprecate, in favore of matchRelDwtErr
     matchRel g spec = do
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
             $ spec :: [(RelRole,AddressOrVar)]
       nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
       return $ listIntersect nodeListList
+
+--    matchRelDe :: RSLT -> RelSpec -> Either DwtErr [Node]
+--    matchRelDe g spec = do
+--      let specList = Map.toList
+--            $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
+--            $ spec :: [(RelRole,AddressOrVar)]
+--      nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
+--      return $ listIntersect nodeListList
 
     matchRelLab :: RSLT -> RelSpec -> Either String [LNode Expr]
     matchRelLab g spec = case matchRel g spec of
