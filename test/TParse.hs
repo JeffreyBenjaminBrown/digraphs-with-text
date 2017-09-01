@@ -17,40 +17,44 @@ tParseInner = TestList [ TestLabel "tHash" tHash
 
 tHash = TestCase $ do
   assertBool "1" $
-    hash 2 (JointX "") (LeafX "hi") (LeafX "there")
-    == RelX (EO True 2) (LeafX "hi") (JointX "") [] (LeafX "there")
+    hash 2 (JointX "") (LeafX $ Word "hi") (LeafX $ Word "there")
+    == RelX (EO True 2) [JointX ""] [(LeafX $ Word "hi")
+                                    ,(LeafX $ Word "there")]
   assertBool "2" $
-    rightConcat (JointX "") (LeafX "na")
-    (RelX (EO True 3) (LeafX "left") (JointX "zaba") [] (LeafX "right"))
-    == RelX (EO True 3) (LeafX "left") (JointX "zaba") [(LeafX "right",JointX "")] (LeafX "na")
-  assertBool "3" $
-    leftConcat (JointX "new") (LeafX "new")
-    (RelX (EO True 4) (LeafX "left") (JointX "j") [] (LeafX "right"))
-    == RelX (EO True 4) (LeafX "new") (JointX "new") [(LeafX "left",JointX "j")] (LeafX "right")
+    rightConcat (JointX "") (LeafX $ Word "na")
+    (RelX (EO True 3) [JointX "zaba"] [(LeafX $ Word "left")
+                                      ,(LeafX $ Word "right")])
+    == RelX (EO True 3) [JointX "zaba",JointX ""] [(LeafX $ Word "left")
+                                        ,(LeafX $ Word "right")
+                                        ,(LeafX $ Word "na")]
+  assertBool "3"
+    $ leftConcat (JointX "new") (LeafX $ Word "new")
+      (RelX (EO True 4) [JointX "j"] [(LeafX $ Word "left")
+                                    ,(LeafX $ Word "right")])
+    == RelX (EO True 4) [JointX "new",JointX "j"]
+      [(LeafX $ Word "new"),(LeafX $ Word "left"),(LeafX $ Word "right")]
   assertBool "4" $ p == Right a where
       p = parse expr "uhh ... parse error?"
         "dogs #like you ###becase you #(give or misplace) (bones #that reek super nasty) #to dogs ##sometimes"
-      a = RelX
-          (EO True 3)
-          (RelX
-            (EO True 1)
-            (LeafX "dogs")
-            (JointX "like") []
-            (LeafX "you"))
-          (JointX "becase") []
-          (RelX
-            (EO True 2)
-            (RelX
-              (EO True 1)
-              (LeafX "you")
-              (JointX "give or misplace")
-              [ (RelX
-                  (EO False 1)
-                  (LeafX "bones")
-                  (JointX "that") []
-                  (LeafX "reek super nasty")
-                , JointX "to")]
-              (LeafX "dogs"))
-            (JointX "sometimes") []
-            (LeafX ""))
-
+      a = RelX 
+            (EO True 3) 
+            [JointX "becase"] 
+            [RelX 
+              (EO True 1) 
+              [JointX "like"] 
+              [LeafX (Word "dogs")
+              ,LeafX (Word "you")]
+            ,RelX 
+              (EO True 2) 
+              [JointX "sometimes"] 
+              [RelX 
+                (EO True 1) 
+                [JointX "give or misplace", JointX "to"] 
+                [LeafX (Word "you")
+                ,RelX 
+                  (EO False 1) 
+                  [JointX "that"] 
+                  [LeafX (Word "bones")
+                  ,LeafX  (Word "reek super nasty")]
+                ,LeafX (Word "dogs")]
+              ,Absent]]
