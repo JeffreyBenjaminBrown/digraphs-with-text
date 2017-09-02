@@ -116,7 +116,8 @@
 
     relSpecDe :: RSLT -> Node -> Either DwtErr RelSpec
       -- name ? getRelSpecDe
-    relSpecDe g n = do -- nearly inverse to partitionRelSpec
+      -- is nearly inverse to partitionRelSpec
+    relSpecDe g n = prependCaller "relSpecDe" $ do
       gelemMDe g n
       case (fromJust $ lab g n) of
         RelSpecExpr rvs -> do
@@ -228,6 +229,14 @@
       where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
             f g n r = [m | (m,r') <- lpre g n, r'==RelEdge r]
 
+    -- | Rels using Node n in RelRole r
+    usersInRoleDe :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
+    usersInRoleDe g n r = prependCaller "usersInRoleDe" $
+      do gelemMDe g n -- makes f safe
+         return $ f g n r
+      where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
+            f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
+
     matchRel :: RSLT -> RelSpec -> Either String [Node]
     -- | TODO: Deprecate, in favore of matchRelDwtErr
     matchRel g spec = do
@@ -237,13 +246,13 @@
       nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
       return $ listIntersect nodeListList
 
---    matchRelDe :: RSLT -> RelSpec -> Either DwtErr [Node]
---    matchRelDe g spec = do
---      let specList = Map.toList
---            $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
---            $ spec :: [(RelRole,AddressOrVar)]
---      nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
---      return $ listIntersect nodeListList
+    matchRelDe :: RSLT -> RelSpec -> Either DwtErr [Node]
+    matchRelDe g spec = prependCaller "matchRelDe" $ do
+      let specList = Map.toList
+            $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
+            $ spec :: [(RelRole,AddressOrVar)]
+      nodeListList <- mapM (\(r,NodeSpec n) -> usersInRoleDe g n r) specList
+      return $ listIntersect nodeListList
 
     matchRelLab :: RSLT -> RelSpec -> Either String [LNode Expr]
     matchRelLab g spec = case matchRel g spec of
