@@ -108,23 +108,23 @@
       gelemM g n
       case (fromJust $ lab g n) of
         RelSpecExpr rvs -> do
-          let rnsl = Map.toList $ fromRight $ relNodeSpec g n -- RelNodeSpec list
-              rvsl = Map.toList rvs -- RelVarSpec list
+          let rnsl = Map.toList $ fromRight $ relNodeSpec g n
+              rvsl = Map.toList rvs
               rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
               rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
           return $ Map.fromList $ rvsl' ++ rnsl'
 
---    relSpecDe :: RSLT -> Node -> Either DwtErr RelSpec
---      -- name ? getRelSpecDe
---    relSpec g n = do -- nearly inverse to partitionRelSpec
---      gelemM g n
---      case (fromJust $ lab g n) of
---        RelSpecExpr rvs -> do
---          let rnsl = Map.toList $ fromRight $ relNodeSpec g n -- RelNodeSpec list
---              rvsl = Map.toList rvs -- RelVarSpec list
---              rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
---              rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
---          return $ Map.fromList $ rvsl' ++ rnsl'
+    relSpecDe :: RSLT -> Node -> Either DwtErr RelSpec
+      -- name ? getRelSpecDe
+    relSpecDe g n = do -- nearly inverse to partitionRelSpec
+      gelemMDe g n
+      case (fromJust $ lab g n) of
+        RelSpecExpr rvs -> do
+          let rnsl = Map.toList $ fromRight $ relNodeSpec g n
+              rvsl = Map.toList rvs
+              rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
+              rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
+          return $ Map.fromList $ rvsl' ++ rnsl'
 
   -- edit (but not insert)
     chLeaf :: (MonadError String m) => RSLT -> Node -> Expr -> m RSLT

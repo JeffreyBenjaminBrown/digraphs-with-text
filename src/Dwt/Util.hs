@@ -99,3 +99,7 @@ fromRight, fr :: Either a b -> b  -- TODO: doesn't handle the Left case
 fr = fromRight
 fromRight (Right r) = r
 fromRight _ = error "fromRight applied to Left"
+
+prependCallerName :: String -> Either DwtErr a -> Either DwtErr a
+prependCallerName name e@(Right _) = e
+prependCallerName name (Left e) = Left $ 

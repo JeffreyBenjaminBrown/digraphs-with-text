@@ -6,7 +6,7 @@ module Dwt.Types (
   , Mbrship(..), AddressOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
   , QNode(..)
   , DwtErr(..), _mExpr, mExpr, _mNode, mNode, _mQNode, mQNode
-  , noErrOpts, BaseErr(..)
+  , noErrOpts, ErrBase(..)
   ) where
 
 import Data.Graph.Inductive
@@ -61,12 +61,18 @@ data QNode = QAt Node -- when you already know the Node
 
 
 -- == Errors
-data BaseErr = Legacy -- | for when the String has all the info
+data ErrBase = Legacy -- | for when the String has all the info
              | FoundNo | FoundMany | ArityMismatch | Impossible
              | NotRelSpecExpr | NotTplt | NotColl
   deriving Show
 
-type DwtErr = (BaseErr, ErrOpts, String)
+type DwtErr = (ErrBase, ErrOpts, String)
+errBase :: Lens' DwtErr ErrBase
+errBase = _1
+errOpts :: Lens' DwtErr ErrOpts
+errOpts = _2
+errString :: Lens' DwtErr String
+errString = _3
 
 data ErrOpts = ErrOpts { _mNode :: Maybe Node
                        , _mExpr :: Maybe Expr
