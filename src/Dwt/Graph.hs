@@ -83,6 +83,18 @@
             -- these edges specify the addressed nodes
       return $ insEdges newLEdges $ insNode newLNode g
 
+    insRelSpecDe :: RelSpec -> RSLT -> Either DwtErr RSLT
+    insRelSpecDe rSpec g = do
+      let (varMap, nodeMap) = partitionRelSpec rSpec
+          newAddr = head $ newNodes 1 g
+          newLNode = (newAddr, RelSpecExpr varMap)
+            -- this node specifies the variable nodes
+      mapM_ (gelemMDe g) $ Map.elems nodeMap
+      let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
+                    $ Map.toList nodeMap
+            -- these edges specify the addressed nodes
+      return $ insEdges newLEdges $ insNode newLNode g
+
     relNodeSpec :: (MonadError String m) => RSLT -> Node -> m RelNodeSpec
       -- name ? getRelNodeSpec
     relNodeSpec g n = do
