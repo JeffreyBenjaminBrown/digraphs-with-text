@@ -6,6 +6,7 @@ module Dwt.Types (
   , Mbrship(..), AddressOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
   , QNode(..)
   , DwtErr(..), _mExpr, mExpr, _mNode, mNode, _mQNode, mQNode
+  , errBase, errOpts, errString
   , noErrOpts, ErrBase(..)
   ) where
 

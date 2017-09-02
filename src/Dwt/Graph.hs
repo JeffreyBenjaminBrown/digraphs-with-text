@@ -93,14 +93,14 @@
         _ -> throwError $ "Node " ++ show n ++ " not a RelSpecExpr."
 
     relNodeSpecDe :: RSLT -> Node -> Either DwtErr RelNodeSpec
-    relNodeSpecDe g n = let name = "relNodeSpecDe" in do
+    relNodeSpecDe g n = prependCaller "relNodeSpecDe" $ do
       gelemMDe g n
       case lab g n of
         Just (RelSpecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
           where f (node,RelEdge r) = (r,node)
         Just _ -> Left
-          (NotRelSpecExpr, mNode .~ Just n $ noErrOpts, name)
-        Nothing -> Left (FoundNo, mNode .~ Just n $ noErrOpts, name)
+          (NotRelSpecExpr, mNode .~ Just n $ noErrOpts, "")
+        Nothing -> Left (FoundNo, mNode .~ Just n $ noErrOpts, "")
 
     relSpec :: RSLT -> Node -> Either String RelSpec
       -- name ? getRelSpec

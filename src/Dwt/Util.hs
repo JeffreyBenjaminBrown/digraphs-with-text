@@ -8,7 +8,7 @@ module Dwt.Util (
   , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
   , hasLEdgeM, gelemM, gelemMDe -- graphs & monads
 
-  , mapLookupMe, eitherToMe, fr, fromRight -- monads
+  , mapLookupMe, eitherToMe, fr, fromRight, prependCaller -- monads
   ) where
 
 import Data.Graph.Inductive
@@ -16,7 +16,7 @@ import Dwt.Types
 import Data.List (intersect)
 import qualified Data.Map as Map
 import Control.Monad.Except (MonadError, throwError)
-import Control.Lens  ((.~))
+import Control.Lens  ((.~), (%~))
 
 -- == lists
 listIntersect [] = []
@@ -100,6 +100,6 @@ fr = fromRight
 fromRight (Right r) = r
 fromRight _ = error "fromRight applied to Left"
 
-prependCallerName :: String -> Either DwtErr a -> Either DwtErr a
-prependCallerName name e@(Right _) = e
-prependCallerName name (Left e) = Left $ 
+prependCaller :: String -> Either DwtErr a -> Either DwtErr a
+prependCaller name e@(Right _) = e
+prependCaller name (Left e) = Left $ errString %~ (name++) $ e
