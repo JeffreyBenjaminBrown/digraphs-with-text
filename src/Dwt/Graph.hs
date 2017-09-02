@@ -91,6 +91,14 @@
           where f (node,RelEdge r) = (r,node)
         _ -> throwError $ "Node " ++ show n ++ " not a RelSpecExpr."
 
+--    relNodeSpecDe :: RSLT -> Node -> Either DwtErr RelNodeSpec
+--    relNodeSpecDe g n = do
+--      gelemM g n
+--      case fromJust $ lab g n of
+--        RelSpecExpr _ -> return $ Map.fromList $ map f $ lsuc g n
+--          where f (node,RelEdge r) = (r,node)
+--        _ -> Left (NotRelSpecExpr, noErrOpts
+
     relSpec :: RSLT -> Node -> Either String RelSpec
       -- name ? getRelSpec
     relSpec g n = do -- nearly inverse to partitionRelSpec

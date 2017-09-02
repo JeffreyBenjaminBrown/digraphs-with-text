@@ -1,12 +1,17 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 module Dwt.Types (
   MbrPos, Arity
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , Mbrship(..), AddressOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
-  , QNode(..), DwtErr(..), noErrOpts, BaseErr(..)
+  , QNode(..)
+  , DwtErr(..), _mExpr, mExpr, _mNode, mNode, _mQNode, mQNode
+  , noErrOpts, BaseErr(..)
   ) where
 
 import Data.Graph.Inductive
 import Data.Map as Map
+import Control.Lens
 
 -- == Fundamental
 type Arity = Int
@@ -56,15 +61,19 @@ data QNode = QAt Node -- when you already know the Node
 
 
 -- == Errors
+data BaseErr = Legacy -- | for when the String has all the info
+             | FoundNo | FoundMany | ArityMismatch | Impossible
+             | NotRelSpecExpr | NotTplt | NotColl
+  deriving Show
+
 type DwtErr = (BaseErr, ErrOpts, String)
 
 data ErrOpts = ErrOpts { _mNode :: Maybe Node
                        , _mExpr :: Maybe Expr
-                       , _mQNode :: Maybe QNode }
+                       , _mQNode :: Maybe QNode } deriving Show
+-- | adjust it like "noErrOpts L.& mNode L..~ (Just 2)"
+
+makeLenses ''ErrOpts
 
 noErrOpts :: ErrOpts
 noErrOpts = ErrOpts Nothing Nothing Nothing
-
-data BaseErr = Legacy -- | for when the String has all the info
-             | FoundNo | FoundMany | NonTplt | ArityMismatch | Impossible
-  deriving Show

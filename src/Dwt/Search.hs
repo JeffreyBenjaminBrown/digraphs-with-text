@@ -2,7 +2,13 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Search (
-  module Dwt.Search
+  qGet
+  , qLGet
+  , qPut
+  , qMbGet
+  , qGet1De
+  , qGet1
+  , qRegexWord
 ) where
 
 import Text.Regex
@@ -62,8 +68,8 @@ qMbGet g q = case qGet g q of
              ++ ", found multiple: " ++ show as
   Left s -> Left $ "qMbGet: " ++ s
 
-qGet1dwtErr :: RSLT -> QNode -> Either DwtErr Node
-qGet1dwtErr g q = case qGet g q of
+qGet1De :: RSLT -> QNode -> Either DwtErr Node
+qGet1De g q = case qGet g q of
   Right [] -> Left (FoundNo, noErrOpts, msg)
   Right [a] -> Right a
   Right as -> Left (FoundMany, noErrOpts, msg)
