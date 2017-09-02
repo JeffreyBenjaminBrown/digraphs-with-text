@@ -3,12 +3,13 @@
 
     module Dwt.Graph (
       insRel, insRelUsf, insColl
-      , mkRelSpec, partitionRelSpec, insRelSpec, relNodeSpec, relSpec
-      , chLeaf, chRelRole
+      , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecDe
+      , relNodeSpec, relNodeSpecDe, relSpec, relSpecDe
+      , chLeaf, chLeafDe, chRelRole
       , gelemM, node, tpltAt
       , relElts, validRole, relTplt, collPrinciple
-      , rels, mbrs, users, usersInRole
-      , matchRel, matchRelLab
+      , rels, mbrs, users, usersDe, usersInRole, usersInRoleDe
+      , matchRel, matchRelDe, matchRelLab, matchRelLabDe
       , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
       ) where
 
@@ -244,6 +245,10 @@
     users g n = do gelemM g n
                    return [m | (m,label@_) <- lpre g n]
 
+    usersDe :: Graph gr => gr a b -> Node -> Either DwtErr [Node]
+    usersDe g n = do gelemMDe g n
+                     return [m | (m,label@_) <- lpre g n]
+
     usersInRole :: (MonadError String m) -- | Rels using Node n in RelRole r
                 => RSLT -> Node -> RelRole -> m [Node]
     usersInRole g n r = do gelemM g n -- makes f safe
@@ -260,7 +265,6 @@
             f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
 
     matchRel :: RSLT -> RelSpec -> Either String [Node]
-    -- | TODO: Deprecate, in favore of matchRelDwtErr
     matchRel g spec = do
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
@@ -280,6 +284,12 @@
     matchRelLab g spec = case matchRel g spec of
       Left s -> Left $ "matchRelLab: " ++ s
       Right ns -> Right $ zip ns $ map (fromJust . lab g) ns
+        -- fromJust is safe here, because matchRel only returns Nodes in g
+
+    matchRelLabDe :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
+    matchRelLabDe g spec = prependCaller "matchRelLabDe" $ do
+      ns <- matchRelDe g spec
+      return $ zip ns $ map (fromJust . lab g) ns
         -- fromJust is safe here, because matchRel only returns Nodes in g
 
 -- using directions (RelSpecs)
