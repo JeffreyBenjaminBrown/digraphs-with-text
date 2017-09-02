@@ -63,8 +63,10 @@ data QNode = QAt Node -- when you already know the Node
 
 -- == Errors
 data ErrBase = Legacy -- | for when the String has all the info
-             | FoundNo | FoundMany | ArityMismatch | Impossible
-             | NotRelSpecExpr | NotTplt | NotColl
+             | FoundNo | FoundMany
+             | ArityMismatch | ConstructorMistmatch
+             | NotRelSpecExpr | NotTplt | NotColl | NotLeaf
+             | Impossible
   deriving Show
 
 type DwtErr = (ErrBase, ErrOpts, String)

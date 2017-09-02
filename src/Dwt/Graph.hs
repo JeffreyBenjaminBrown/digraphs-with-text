@@ -4,7 +4,7 @@
     module Dwt.Graph (
       insRel, insRelUsf, insColl
       , mkRelSpec, partitionRelSpec, insRelSpec, relNodeSpec, relSpec
-      , chLeaf, chLeafUsf, chRelRole
+      , chLeaf, chRelRole
       , gelemM, node, tpltAt
       , relElts, validRole, relTplt, collPrinciple
       , rels, mbrs, users, usersInRole
@@ -141,7 +141,6 @@
 
   -- edit (but not insert)
     chLeaf :: (MonadError String m) => RSLT -> Node -> Expr -> m RSLT
-      -- Words and Tplts are used, but are not users. (Rels and Colls use them.)
     chLeaf g n e' = do
       let me = lab g n
           mismatch = throwError $ "chLeaf: constructor mismatch"
@@ -150,10 +149,20 @@
         Just e@(Tplt _) -> if areLikeExprs e e' then return () else mismatch
         Nothing -> throwError $ "chLeaf: Node " ++ show n ++ " absent."
         _       -> throwError $ "chLeaf: Node " ++ show n ++ " is a user."
-      return $ chLeafUsf g n e'
+      return $ _chLeafUsf g n e'
 
-    chLeafUsf :: RSLT -> Node -> Expr -> RSLT
-    chLeafUsf g n newExpr = let (Just (a,b,c,d),g') = match n g
+    chLeafDe :: RSLT -> Node -> Expr -> Either DwtErr RSLT
+    chLeafDe g n e' = prependCaller "chLeafDe" $ do
+      let me = lab g n
+      case me of
+        Just e@(isLeaf -> True) -> if areLikeExprs e e' then return ()
+          else Left (ConstructorMistmatch, noErrOpts, ".")
+        Nothing -> Left (FoundNo, mNode .~ Just n $ noErrOpts, ".")
+        _       -> Left (NotLeaf, mNode .~ Just n $ noErrOpts, ".")
+      return $ _chLeafUsf g n e'
+
+    _chLeafUsf :: RSLT -> Node -> Expr -> RSLT
+    _chLeafUsf g n newExpr = let (Just (a,b,c,d),g') = match n g
       in (a,b,newExpr,d) & g'
 
     chRelRole :: (MonadError String m) => 
@@ -230,6 +239,7 @@
     mbrs g n = [addr | (addr,elab) <- lsuc g n, isMbrEdge elab]
       where isMbrEdge e = case e of (RelEdge (Mbr _)) -> True; _ -> False
 
+    -- Words and Tplts are used, but are not users. (Rels and Colls use them.)
     users :: (MonadError String m, Graph gr) => gr a b -> Node -> m [Node]
     users g n = do gelemM g n
                    return [m | (m,label@_) <- lpre g n]
