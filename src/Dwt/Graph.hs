@@ -23,6 +23,7 @@
     import Control.Monad (mapM_)
     import Control.Monad.Except (MonadError, throwError, catchError)
     import Data.Text (pack, unpack, strip, splitOn)
+    import Control.Lens  ((.~))
 
 -- build
     insRel :: Node -> [Node] -> RSLT -> Either String RSLT
@@ -91,13 +92,15 @@
           where f (node,RelEdge r) = (r,node)
         _ -> throwError $ "Node " ++ show n ++ " not a RelSpecExpr."
 
---    relNodeSpecDe :: RSLT -> Node -> Either DwtErr RelNodeSpec
---    relNodeSpecDe g n = do
---      gelemM g n
---      case fromJust $ lab g n of
---        RelSpecExpr _ -> return $ Map.fromList $ map f $ lsuc g n
---          where f (node,RelEdge r) = (r,node)
---        _ -> Left (NotRelSpecExpr, noErrOpts
+    relNodeSpecDe :: RSLT -> Node -> Either DwtErr RelNodeSpec
+    relNodeSpecDe g n = let name = "relNodeSpecDe" in do
+      gelemMDe g n
+      case lab g n of
+        Just (RelSpecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
+          where f (node,RelEdge r) = (r,node)
+        Just _ -> Left
+          (NotRelSpecExpr, mNode .~ Just n $ noErrOpts, name)
+        Nothing -> Left (FoundNo, mNode .~ Just n $ noErrOpts, name)
 
     relSpec :: RSLT -> Node -> Either String RelSpec
       -- name ? getRelSpec
@@ -110,6 +113,18 @@
               rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
               rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
           return $ Map.fromList $ rvsl' ++ rnsl'
+
+--    relSpecDe :: RSLT -> Node -> Either DwtErr RelSpec
+--      -- name ? getRelSpecDe
+--    relSpec g n = do -- nearly inverse to partitionRelSpec
+--      gelemM g n
+--      case (fromJust $ lab g n) of
+--        RelSpecExpr rvs -> do
+--          let rnsl = Map.toList $ fromRight $ relNodeSpec g n -- RelNodeSpec list
+--              rvsl = Map.toList rvs -- RelVarSpec list
+--              rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
+--              rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
+--          return $ Map.fromList $ rvsl' ++ rnsl'
 
   -- edit (but not insert)
     chLeaf :: (MonadError String m) => RSLT -> Node -> Expr -> m RSLT
@@ -143,15 +158,6 @@
              $ insEdge (user,newMbr,RelEdge role) g
 
 -- query
-  -- the simplest
-    gelemM :: (MonadError String m, Graph gr) => gr a b -> Node -> m ()
-    gelemM g n = if gelem n g then return () 
-      else throwError $ "gelemM: Node " ++ show n ++ " absent."
-
---    gelemMDe :: (MonadError DwtErr m, Graph gr) => gr a b -> Node -> m ()
---    gelemMDe g n = if gelem n g then return () 
---      else throwError $ (FoundNo, 
-
   -- more complex ("locate"?) queries
     node :: RSLT -> Expr -> [Node]
       -- TODO: dependent types. (hopefully, length = 1)
