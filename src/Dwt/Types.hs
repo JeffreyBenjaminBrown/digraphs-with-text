@@ -48,7 +48,7 @@ data AddressOrVar -- might be addressed; else is Mbrship variable
   = VarSpec Mbrship | NodeSpec Node deriving(Show,Read,Eq,Ord)
 
 -- at the TpltRole key is always a concrete NodeSpec
-type RelVarSpec = Map.Map RelRole Mbrship
+type RelVarSpec =  Map.Map RelRole Mbrship
 type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
 type RelSpec =     Map.Map RelRole AddressOrVar -- if well-formed, keys
   -- include a single Tplt, and MbrPos k for all k in [1, Tplt arity]

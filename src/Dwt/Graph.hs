@@ -6,7 +6,7 @@
       , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecDe
       , relNodeSpec, relNodeSpecDe, relSpec, relSpecDe
       , chLeaf, chLeafDe, chRelRole
-      , gelemM, node, tpltAt
+      , gelemM, whereis, tpltAt
       , relElts, validRole, relTplt, collPrinciple
       , rels, mbrs, users, usersDe, usersInRole, usersInRoleDe
       , matchRel, matchRelDe, matchRelLab, matchRelLabDe
@@ -182,11 +182,11 @@
 
 -- query
   -- more complex ("locate"?) queries
-    node :: RSLT -> Expr -> [Node]
+    whereis :: RSLT -> Expr -> [Node]
       -- TODO: dependent types. (hopefully, length = 1)
       -- move ? Search.hs
       -- name ? exprOf
-    node g x = nodes $ labfilter (== x) g
+    whereis g x = nodes $ labfilter (== x) g
 
     tpltAt :: (MonadError String m) => RSLT -> Node -> m Expr
     tpltAt g tn = case lab g tn of
