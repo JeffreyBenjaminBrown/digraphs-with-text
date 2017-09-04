@@ -112,11 +112,11 @@ qGet1 g q = case qGet g q of
 
 qGet1De :: RSLT -> QNode -> Either DwtErr Node
 qGet1De g q = prependCaller "qGet1De: " $ case qGetDe g q of
-    Right [] -> Left (FoundNo, eo, ".")
+    Right [] -> Left (FoundNo, queryError, ".")
     Right [a] -> Right a
-    Right as -> Left (FoundMany, eo, ".")
+    Right as -> Left (FoundMany, queryError, ".")
     Left e -> Left e
-  where eo = mQNode .~ Just q $ noErrOpts 
+  where queryError = mQNode .~ Just q $ noErrOpts 
 
 qRegexWord :: RSLT -> String -> Either String [Node]
 qRegexWord g s = do

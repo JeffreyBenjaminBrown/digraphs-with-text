@@ -67,7 +67,7 @@ data ErrBase = Legacy -- | for when the String has all the info
              | ArityMismatch | ConstructorMistmatch
              | NotRelSpecExpr | NotTplt | NotColl | NotLeaf
              | Impossible
-  deriving Show
+  deriving (Show, Eq)
 
 type DwtErr = (ErrBase, ErrOpts, String)
 errBase :: Lens' DwtErr ErrBase
@@ -79,7 +79,7 @@ errString = _3
 
 data ErrOpts = ErrOpts { _mNode :: Maybe Node
                        , _mExpr :: Maybe Expr
-                       , _mQNode :: Maybe QNode } deriving Show
+                       , _mQNode :: Maybe QNode } deriving (Show, Eq)
 -- | adjust it like "noErrOpts L.& mNode L..~ (Just 2)"
 
 makeLenses ''ErrOpts

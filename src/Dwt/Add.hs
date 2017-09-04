@@ -78,14 +78,14 @@ mapac' g (At n) = (g, Right $ At n)
   -- TODO ?(slow) test that it's in the graph
     -- better: perform such tests only when the At is created
 mapac' g Absent = (g, Right Absent)
---mapac' g (LeafX s) = either left right $ qPutDe g $ QLeaf s where
---  left e = (g, prependCaller "mapac': " e)
---  right (g',n) = (g', Right $ At n)
+mapac' g (LeafX s) = case qPutDe g $ QLeaf s of
+  Left e  -> (g, prependCaller "mapac': " $ Left e)
+  Right (g',n) -> (g', Right $ At n)
+mapac' g a@(RelX _ js as) =
+  let (g1, as1) = mapAccumL mapac g as
+  in case qPutDe g (QLeaf $ extractTplt a)
+  of Left e -> error $ "mapac: " ++ show e
 
---mapac' g a@(RelX _ js as) =
---  let (g1, as1) = mapAccumL mapac g as
---  in case qPutDe g (QLeaf $ extractTplt a)
---  of Left e -> error $ "mapac: " ++ show e
 --     Right (g2, tn) -> case qPutDe g2 $ QRel (QAt tn)
 --                                      $ map (QAt . \(At n) -> n) as1
 --                       of Right (g3,n) -> (g3, At n)
