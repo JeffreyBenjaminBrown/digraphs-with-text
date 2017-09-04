@@ -23,7 +23,6 @@ readOp Mul = _1 %~ (*2)
 
 type Mdl = (Float,Float)
 
-type Chg = Mdl -> Mdl
 data OpNode = Leaf Op         | DoneLeaf Mdl
             | Branch [OpNode] | DoneBranch Mdl [OpNode] deriving Show
 

@@ -1,12 +1,4 @@
-flags: {}
-extra-package-dbs: []
-setup-info:
-  ghc:
-    linux64:
-      8.2.1:
-        url: https://downloads.haskell.org/~ghc/8.2.1/ghc-8.2.1-x86_64-deb8-linux.tar.xz
-        sha1: 3e52527de6f1cad6d7f1c392ddde8148116d4e36
-        content-length: 126809836
+resolver: nightly-2017-09-03
 extra-deps:
 - HUnit-1.6.0.0
 - QuickCheck-2.10.0.1
@@ -67,6 +59,3 @@ extra-deps:
 - cabal-doctest-1.0.2
 - case-insensitive-1.2.0.10
 - parser-combinators-0.2.0
-compiler-check: match-exact
-compiler: ghc-8.2.1
-resolver: ghc-8.2.1

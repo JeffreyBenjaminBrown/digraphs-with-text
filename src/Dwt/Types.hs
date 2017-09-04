@@ -5,9 +5,9 @@ module Dwt.Types (
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , Mbrship(..), AddressOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
   , QNode(..)
-  , DwtErr(..), _mExpr, mExpr, _mNode, mNode, _mQNode, mQNode
+  , DwtErr(..), mExpr, mNode, mQNode
   , errBase, errOpts, errString
-  , noErrOpts, ErrBase(..)
+  , ErrOpts(..), noErrOpts, ErrBase(..)
   ) where
 
 import Data.Graph.Inductive

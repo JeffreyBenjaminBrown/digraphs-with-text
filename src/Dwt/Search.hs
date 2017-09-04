@@ -79,7 +79,6 @@ qPut g q@(QLeaf l) = case qMbGet g q of
   Right Nothing -> Right (g', maxNode g') where g' = insLeaf l g
   Left s -> Left $ "qPut: " ++ s
 
--- >>>
 qPutDe :: RSLT -> QNode -> Either DwtErr (RSLT, Node)
 qPutDe g (QRel qt qms) = prependCaller "qPutDe: " $ do
   (g1, tplt) <- qPutDe g qt
