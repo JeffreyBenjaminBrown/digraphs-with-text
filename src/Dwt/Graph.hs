@@ -106,7 +106,7 @@
         _ -> throwError $ "Node " ++ show n ++ " not a RelSpecExpr."
 
     relNodeSpecDe :: RSLT -> Node -> Either DwtErr RelNodeSpec
-    relNodeSpecDe g n = prependCaller "relNodeSpecDe" $ do
+    relNodeSpecDe g n = prependCaller "relNodeSpecDe: " $ do
       gelemMDe g n
       case lab g n of
         Just (RelSpecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
@@ -130,7 +130,7 @@
     relSpecDe :: RSLT -> Node -> Either DwtErr RelSpec
       -- name ? getRelSpecDe
       -- is nearly inverse to partitionRelSpec
-    relSpecDe g n = prependCaller "relSpecDe" $ do
+    relSpecDe g n = prependCaller "relSpecDe: " $ do
       gelemMDe g n
       case (fromJust $ lab g n) of
         RelSpecExpr rvs -> do
@@ -153,7 +153,7 @@
       return $ _chLeafUsf g n e'
 
     chLeafDe :: RSLT -> Node -> Expr -> Either DwtErr RSLT
-    chLeafDe g n e' = prependCaller "chLeafDe" $ do
+    chLeafDe g n e' = prependCaller "chLeafDe: " $ do
       let me = lab g n
       case me of
         Just e@(isLeaf -> True) -> if areLikeExprs e e' then return ()
@@ -258,7 +258,7 @@
 
     -- | Rels using Node n in RelRole r
     usersInRoleDe :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
-    usersInRoleDe g n r = prependCaller "usersInRoleDe" $
+    usersInRoleDe g n r = prependCaller "usersInRoleDe: " $
       do gelemMDe g n -- makes f safe
          return $ f g n r
       where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
@@ -273,7 +273,7 @@
       return $ listIntersect nodeListList
 
     matchRelDe :: RSLT -> RelSpec -> Either DwtErr [Node]
-    matchRelDe g spec = prependCaller "matchRelDe" $ do
+    matchRelDe g spec = prependCaller "matchRelDe: " $ do
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
             $ spec :: [(RelRole,AddressOrVar)]
@@ -287,7 +287,7 @@
         -- fromJust is safe here, because matchRel only returns Nodes in g
 
     matchRelLabDe :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
-    matchRelLabDe g spec = prependCaller "matchRelLabDe" $ do
+    matchRelLabDe g spec = prependCaller "matchRelLabDe: " $ do
       ns <- matchRelDe g spec
       return $ zip ns $ map (fromJust . lab g) ns
         -- fromJust is safe here, because matchRel only returns Nodes in g

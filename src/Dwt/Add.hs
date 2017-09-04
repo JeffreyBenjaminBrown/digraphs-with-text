@@ -5,7 +5,7 @@ import Dwt.Types
 import Dwt.Graph
 import Dwt.Search
 import Dwt.Parse (AddX(..), Level, JointX(..), EO)
-import Dwt.Util (fr, maxNode)
+import Dwt.Util (fr, maxNode, prependCaller)
 import Data.List (mapAccumL)
 import qualified Data.Sequence as S
 
@@ -61,11 +61,14 @@ mapac g Absent = (g, Absent)
 mapac g (LeafX s) = either left right $ qPut g $ QLeaf s where
   left s = error $ "mapac: " ++ s
   right (g',n) = (g', At n)
-mapac g a@(RelX _ js as) = (g2, At n) where
-  (g1, as1) = mapAccumL mapac g as
-  mbrQueries = map (QAt . \(At n) -> n) as1
-  tpltQuery = QLeaf $ extractTplt a
-  (g2, n) = fr $ qPut g1 $ QRel tpltQuery mbrQueries
+mapac g a@(RelX _ js as) =
+  let (g1, as1) = mapAccumL mapac g as
+  in case qPutDe g (QLeaf $ extractTplt a)
+  of Left e -> error $ "mapac: " ++ show e
+     Right (g2, tn) -> case qPutDe g2 $ QRel (QAt tn)
+                                      $ map (QAt . \(At n) -> n) as1
+                       of Right (g3,n) -> (g3, At n)
+                          Left e -> error $ "mapac: " ++ show e
   -- TODO: fr is not safe here, because tplQuery might not find a tplt
     -- question
       -- How to lift a fold|map|both into the Either monad? - Stack Overflow 

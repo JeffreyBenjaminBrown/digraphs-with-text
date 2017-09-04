@@ -2,9 +2,9 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Search (
-  qGet
+  qGet, qGetDe
   , qLGet
-  , qPut
+  , qPut, qPutDe
   , qMbGet
   , qGet1De
   , qGet1
@@ -22,6 +22,7 @@ import Dwt.Leaf (insLeaf)
 import Control.Lens
 import Data.Map as M
 import Data.Maybe as Mb
+import Control.Monad (foldM)
 
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1
@@ -47,7 +48,7 @@ _qGetDe :: -- x herein is either Node or LNode Expr
   -> RSLT -> QNode -> Either DwtErr [x]
 _qGetDe f _ _ g (QAt n) = return $ if gelem n g then [f g n] else []
 _qGetDe _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
-_qGetDe _ _ f g (QRel qt qms) = prependCaller "_qGetDe" $ do
+_qGetDe _ _ f g (QRel qt qms) = prependCaller "_qGetDe: " $ do
   t <- qGet1De g qt   -- TODO ? case of multiple qt, qms matches
   ms <- mapM (qGet1De g) qms
   let relspec = mkRelSpec t ms
@@ -78,17 +79,19 @@ qPut g q@(QLeaf l) = case qMbGet g q of
   Right Nothing -> Right (g', maxNode g') where g' = insLeaf l g
   Left s -> Left $ "qPut: " ++ s
 
+-- >>>
 qPutDe :: RSLT -> QNode -> Either DwtErr (RSLT, Node)
-qPutDe g (QRel qt qms) = prependCaller "qPutDe" $ do
-  tplt <- qGet1De g qt --TODO: make qMbGet-like, use an okay Left for 0
-  members <- mapM (qGet1De g) qms
+qPutDe g (QRel qt qms) = prependCaller "qPutDe: " $ do
+  (g1, tplt) <- qPutDe g qt
+   --TODO: make qMbGet-like, use an okay Left for 0
+  members <- mapM (qGet1De g1) qms
   matches <- matchRelDe g $ mkRelSpec tplt members
   case matches of
     [a] -> return (g,a)
     [] -> Right (g', maxNode g') where g' = fr $ insRel tplt members g
       -- fromRight is safe because tplt and members come from qGet1
     _ -> Left (FoundMany, noErrOpts, ".")
-qPutDe g q@(QLeaf l) = prependCaller "qPutDe" $ case qGet1De g q of
+qPutDe g q@(QLeaf l) = prependCaller "qPutDe: " $ case qGet1De g q of
   Right n -> Right (g, n)
   Left (FoundNo,_,_) -> Right (g', maxNode g') where g' = insLeaf l g
   Left e -> Left e
@@ -109,7 +112,7 @@ qGet1 g q = case qGet g q of
   Right as -> Left "qGet1: Expected one match, found more."
 
 qGet1De :: RSLT -> QNode -> Either DwtErr Node
-qGet1De g q = prependCaller "qGet1De" $ case qGetDe g q of
+qGet1De g q = prependCaller "qGet1De: " $ case qGetDe g q of
     Right [] -> Left (FoundNo, eo, ".")
     Right [a] -> Right a
     Right as -> Left (FoundMany, eo, ".")

@@ -29,6 +29,7 @@ library
                      , Dwt.Util
 
   build-depends:       base
+                     -- , conduit
                      , containers 
                      , fgl
                      , HUnit
