@@ -4,16 +4,18 @@ import Dwt
 import Data.Graph.Inductive
 import TData
 import Test.HUnit hiding (Node)
-import Data.Set as S hiding (foldl)
+import qualified Data.Set as S
 import Control.Lens ((.~))
 
 import Data.Either
 
 tSearch = TestList [ TestLabel "tQGet" tQGet
+                   , TestLabel "tQPutDe" tQPutDe
                    , TestLabel "tQGetDe" tQGetDe
                    , TestLabel "tQPutRel" tQPutRel
                    ]
 
+-- some of these are redundant but eh
 gExtraDog = insLeaf (Word "dog") g1
 dogWantsBrandyWords =  QRel (QLeaf $ mkTplt "_ wants _")
   [QLeaf $ Word "dog", QLeaf $ Word "brandy"]
@@ -21,6 +23,20 @@ dogBrandyDubious = QRel (QLeaf $ mkTplt "_ is _")
   [dogWantsBrandyWords, QLeaf $ Word "dubious"]
 dubiousBackwards = QRel (QLeaf $ mkTplt "_ is _")
   [QLeaf $ Word "dubious", dogWantsBrandyWords]
+
+qDog = QLeaf $ Word "dog"
+qCat = QLeaf $ Word "cat"
+qBrandy = QLeaf $ Word "brandy"
+qWants = QLeaf $ mkTplt "_ wants _"
+qDogWantsBrandy =  QRel qWants [qDog, qBrandy]
+
+tQPutDe = TestCase $ do
+  assertBool "1" $ qPut empty qDog == Right (mkGraph [(0,Word "dog")] [], 0)
+  assertBool "2" $ let Right (_, n) = qPut g1 qCat in n == 14
+  assertBool "3" $ let Right (_, n) = qPut g1 qDogWantsBrandy in n==5
+  assertBool "4" $ let Right (g,n) = qPut empty qDogWantsBrandy in n > (-1)
+--  assertBool "4" $ qPut empty qDogWantsBrandy
+--    == Right (mkGraph [(0, Word "dog"), (1, word "brandy"), (2, mkTplt "_ wants _"), (3, Rel)] [], 3)
 
 tQGetDe = TestCase $ do
   assertBool "1" $ qGetDe g1 (QAt 1) == Right [1]
