@@ -2,12 +2,10 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Search (
-  qGet, qGetDe
-  , qLGet
-  , qPut, qPutDe
+  qGet, qLGet, qGet1
   , qMbGet
-  , qGet1De
-  , qGet1
+  , qGetDe, qGet1De
+  , qPut, qPutDe
   , qRegexWord
 ) where
 
@@ -28,6 +26,7 @@ import Control.Monad (foldM)
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1
 
+-- == Get
 _qGet :: -- x herein is either Node or LNode Expr
      (RSLT -> Node -> x) -- | gets what's there; used for QAt
   -> (RSLT -> [x])       -- | nodes or labNodes; used for QLeaf
@@ -58,13 +57,37 @@ _qGetDe _ _ f g (QRel qt qms) = prependCaller "_qGetDe: " $ do
 qGet :: RSLT -> QNode -> Either String [Node]
 qGet = _qGet (\_ n -> n) nodes matchRel
 
-qGetDe :: RSLT -> QNode -> Either DwtErr [Node]
-qGetDe = _qGetDe (\_ n -> n) nodes matchRelDe
-
 qLGet :: RSLT -> QNode -> Either String [LNode Expr]
 qLGet = _qGet (\g n -> (n, Mb.fromJust $ lab g n)) labNodes matchRelLab
   -- this fromJust is excused by the gelem in _qGet
 
+qGet1 :: RSLT -> QNode -> Either String Node
+qGet1 g q = case qGet g q of
+  Left s -> Left $ "qGet1: " ++ s
+  Right [] -> Left "qGet1: Expected one match, found none."
+  Right [a] -> Right a
+  Right as -> Left "qGet1: Expected one match, found more."
+
+qMbGet :: RSLT -> QNode -> Either String (Maybe Node)
+qMbGet g q = case qGet g q of
+  Right [] -> Right Nothing
+  Right [a] -> Right $ Just a
+  Right as -> Left $ "qMbGet: searched for " ++ show q
+             ++ ", found multiple: " ++ show as
+  Left s -> Left $ "qMbGet: " ++ s
+
+qGetDe :: RSLT -> QNode -> Either DwtErr [Node]
+qGetDe = _qGetDe (\_ n -> n) nodes matchRelDe
+
+qGet1De :: RSLT -> QNode -> Either DwtErr Node
+qGet1De g q = prependCaller "qGet1De: " $ case qGetDe g q of
+    Right [] -> Left (FoundNo, queryError, ".")
+    Right [a] -> Right a
+    Right as -> Left (FoundMany, queryError, ".")
+    Left e -> Left e
+  where queryError = mQNode .~ Just q $ noErrOpts 
+
+-- == Put
 qPut :: RSLT -> QNode -> Either String (RSLT, Node)
 qPut g (QRel qt qms) = do
   tplt <- qGet1 g qt --TODO: make qMbGet-like, use an okay Left for 0
@@ -96,29 +119,7 @@ qPutDe g q@(QLeaf l) = prependCaller "qPutDe: " $ case qGet1De g q of
   Left (FoundNo,_,_) -> Right (g', maxNode g') where g' = insLeaf l g
   Left e -> Left e
 
-qMbGet :: RSLT -> QNode -> Either String (Maybe Node)
-qMbGet g q = case qGet g q of
-  Right [] -> Right Nothing
-  Right [a] -> Right $ Just a
-  Right as -> Left $ "qMbGet: searched for " ++ show q
-             ++ ", found multiple: " ++ show as
-  Left s -> Left $ "qMbGet: " ++ s
-
-qGet1 :: RSLT -> QNode -> Either String Node
-qGet1 g q = case qGet g q of
-  Left s -> Left $ "qGet1: " ++ s
-  Right [] -> Left "qGet1: Expected one match, found none."
-  Right [a] -> Right a
-  Right as -> Left "qGet1: Expected one match, found more."
-
-qGet1De :: RSLT -> QNode -> Either DwtErr Node
-qGet1De g q = prependCaller "qGet1De: " $ case qGetDe g q of
-    Right [] -> Left (FoundNo, queryError, ".")
-    Right [a] -> Right a
-    Right as -> Left (FoundMany, queryError, ".")
-    Left e -> Left e
-  where queryError = mQNode .~ Just q $ noErrOpts 
-
+-- == Regex
 qRegexWord :: RSLT -> String -> Either String [Node]
 qRegexWord g s = do
   let r = mkRegex s
