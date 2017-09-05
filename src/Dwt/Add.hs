@@ -7,6 +7,7 @@ import Dwt.Search
 import Dwt.Parse (AddX(..), Level, JointX(..), EO)
 import Dwt.Util (fr, maxNode, prependCaller)
 import Control.Monad.Trans.State
+import Control.Monad.Trans.Class (lift)
 import Data.List (mapAccumL)
 import qualified Data.Sequence as S
 
@@ -72,6 +73,10 @@ mapac g a@(RelX _ js as) =
                           Left e -> error $ "mapac: " ++ show e
 
 sMapac :: AddX -> State RSLT (Either DwtErr AddX)
+sMapac a@(RelX _ js as) = get >>= \g -> do-- TODO: prependCaller "sMapac: "..
+  -- TODO: complete
+  let (as1, g1) = flip runState g $ mapM sMapac as
+  return $ Right a
 sMapac a@(At _) = return $ Right a -- | pitfall ! assumes existence of At values
 sMapac Absent = return $ Right Absent
 sMapac (LeafX x) =  get >>= \g -> case qPutDe g $ QLeaf x of

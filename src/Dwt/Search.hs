@@ -19,9 +19,10 @@ import Dwt.Graph
 import Dwt.Util (fr, maxNode, lengthOne, dropEdges, fromRight, prependCaller)
 import Dwt.Leaf (insLeaf)
 
+import Control.Monad.Trans.Class (lift)
 import Control.Lens
-import Data.Map as M
-import Data.Maybe as Mb
+import qualified Data.Map as M
+import qualified Data.Maybe as Mb
 import Control.Monad (foldM)
 
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
@@ -61,7 +62,7 @@ qGetDe :: RSLT -> QNode -> Either DwtErr [Node]
 qGetDe = _qGetDe (\_ n -> n) nodes matchRelDe
 
 qLGet :: RSLT -> QNode -> Either String [LNode Expr]
-qLGet = _qGet (\g n -> (n, fromJust $ lab g n)) labNodes matchRelLab
+qLGet = _qGet (\g n -> (n, Mb.fromJust $ lab g n)) labNodes matchRelLab
   -- this fromJust is excused by the gelem in _qGet
 
 qPut :: RSLT -> QNode -> Either String (RSLT, Node)
@@ -82,7 +83,7 @@ qPut g q@(QLeaf l) = case qMbGet g q of
 qPutDe :: RSLT -> QNode -> Either DwtErr (RSLT, Node)
 qPutDe g (QRel qt qms) = prependCaller "qPutDe: " $ do
   (g1, tplt) <- qPutDe g qt
-   --TODO: make qMbGet-like, use an okay Left for 0
+  -- TODO: something like: members <- map snd $ mapM (qPutDe g1) qms
   members <- mapM (qGet1De g1) qms
   matches <- matchRelDe g $ mkRelSpec tplt members
   case matches of

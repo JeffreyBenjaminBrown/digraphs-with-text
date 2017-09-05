@@ -28,7 +28,7 @@
     import Dwt.Util
 
     import Control.Monad (void)
-    import Text.Megaparsec as Mp
+    import qualified Text.Megaparsec as Mp
 
     import qualified Text.Parsec as P
     import qualified Text.Parsec.String as P
