@@ -36,6 +36,8 @@ library
                      , lens
                      , megaparsec
                      , mtl
+                          -- only for MonadError, I think
+                     , transformers
                      , parsec
                      , regex-compat
                      , text

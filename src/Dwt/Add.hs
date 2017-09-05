@@ -6,6 +6,7 @@ import Dwt.Graph
 import Dwt.Search
 import Dwt.Parse (AddX(..), Level, JointX(..), EO)
 import Dwt.Util (fr, maxNode, prependCaller)
+import Control.Monad.Trans.State
 import Data.List (mapAccumL)
 import qualified Data.Sequence as S
 
@@ -56,7 +57,7 @@ execAddX :: RSLT -> AddX -> RSLT
 execAddX g a = fst $ mapac g a
 
 mapac :: RSLT -> AddX -> (RSLT, AddX)
-mapac g (At n) = (g, At n) -- TODO ?(slow) test that it's in the graph
+mapac g (At n) = (g, At n)
 mapac g Absent = (g, Absent)
 mapac g (LeafX s) = either left right $ qPut g $ QLeaf s where
   left s = error $ "mapac: " ++ s
@@ -70,8 +71,12 @@ mapac g a@(RelX _ js as) =
                        of Right (g3,n) -> (g3, At n)
                           Left e -> error $ "mapac: " ++ show e
 
-execAddX' :: RSLT -> AddX -> RSLT
-execAddX' g a = fst $ mapac' g a
+sMapac :: AddX -> State RSLT (Either DwtErr AddX)
+sMapac a@(At _) = return $ Right a -- | pitfall ! assumes existence of At values
+sMapac Absent = return $ Right Absent
+sMapac (LeafX x) =  get >>= \g -> case qPutDe g $ QLeaf x of
+  Left e  -> return $ prependCaller "mapac': " $ Left e
+  Right (g',n) -> put g' >> return (Right $ At n)
 
 mapac' :: RSLT -> AddX -> (RSLT, Either DwtErr AddX)
 mapac' g (At n) = (g, Right $ At n)
