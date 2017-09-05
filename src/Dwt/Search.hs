@@ -5,7 +5,7 @@ module Dwt.Search (
   qGet, qLGet, qGet1
   , qMbGet
   , qGetDe, qGet1De
-  , qPut, qPutDe
+  , qPut, qPutDe, qPutDeSt
   , qRegexWord
 ) where
 
@@ -18,6 +18,7 @@ import Dwt.Util (fr, maxNode, lengthOne, dropEdges, fromRight, prependCaller)
 import Dwt.Leaf (insLeaf)
 
 import Control.Monad.Trans.Class (lift)
+import Control.Monad.Trans.State
 import Control.Lens
 import qualified Data.Map as M
 import qualified Data.Maybe as Mb
@@ -102,6 +103,15 @@ qPut g q@(QLeaf l) = case qMbGet g q of
   Right (Just n) -> Right (g, n)
   Right Nothing -> Right (g', maxNode g') where g' = insLeaf l g
   Left s -> Left $ "qPut: " ++ s
+
+qPutDeSt :: QNode -> State RSLT (Either DwtErr Node)
+-- qPutDeSt Absent = return $ Left 
+qPutDeSt (QAt n) = return $ Right n
+qPutDeSt q@(QLeaf x) = get >>= \g -> case qGet1De g q of
+  Right n -> return $ Right n
+  Left (FoundNo,_,_) -> let g' = insLeaf x g
+    in put g' >> return (Right $ maxNode g')
+  Left e -> return $ prependCaller "qPutDeSt: " $ Left e
 
 qPutDe :: RSLT -> QNode -> Either DwtErr (RSLT, Node)
 qPutDe g (QRel qt qms) = prependCaller "qPutDe: " $ do
