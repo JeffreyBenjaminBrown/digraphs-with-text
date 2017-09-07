@@ -17,6 +17,7 @@ import Dwt.Graph
 import Dwt.Util (fr, maxNode, lengthOne, dropEdges, fromRight, prependCaller)
 import Dwt.Leaf (insLeaf)
 
+import Control.Monad (liftM)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State
 import Control.Lens
@@ -104,14 +105,20 @@ qPut g q@(QLeaf l) = case qMbGet g q of
   Right Nothing -> Right (g', maxNode g') where g' = insLeaf l g
   Left s -> Left $ "qPut: " ++ s
 
-qPutDeSt :: QNode -> State RSLT (Either DwtErr Node)
--- qPutDeSt Absent = return $ Left 
-qPutDeSt (QAt n) = return $ Right n
+qPutDeSt :: QNode -> StateT RSLT (Either DwtErr) Node
+qPutDeSt (QRel qt qms) = do
+  let tag = prependCaller "qPutDeSt: "
+  g <- get
+  t <- qPutDeSt qt
+  ms <- mapM qPutDeSt qms
+  let matches = matchRelDe g $ mkRelSpec t ms
+  lift $ Right 0 -- TODO
+qPutDeSt (QAt n) = lift $ Right n
 qPutDeSt q@(QLeaf x) = get >>= \g -> case qGet1De g q of
-  Right n -> return $ Right n
+  Right n -> lift $ Right n
   Left (FoundNo,_,_) -> let g' = insLeaf x g
-    in put g' >> return (Right $ maxNode g')
-  Left e -> return $ prependCaller "qPutDeSt: " $ Left e
+    in put g' >> lift (Right $ maxNode g')
+  Left e -> lift $ prependCaller "qPutDeSt: " $ Left e
 
 qPutDe :: RSLT -> QNode -> Either DwtErr (RSLT, Node)
 qPutDe g (QRel qt qms) = prependCaller "qPutDe: " $ do

@@ -38,6 +38,8 @@ library
                      , mtl
                           -- only for MonadError, I think
                      , transformers
+                     -- , either
+                         -- EitherT is in either, not transformers
                      , parsec
                      , regex-compat
                      , text
