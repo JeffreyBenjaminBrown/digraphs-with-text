@@ -65,7 +65,15 @@ execAddX' g r@(RelX _ js as) = do
   Left $ (Legacy, noErrOpts,
           "Chaining qPutDeSt operations will be easier in the State monad.")
 
---execAddX'' :: RSLT -> AddX -> Either DwtErr (Node, RSLT)
+execAddXSt :: AddX -> StateT RSLT (Either DwtErr) Node
+execAddXSt (At n) = get >>= lift . flip gelemMDe n >> return n
+execAddXSt Absent = lift $ Left (Impossible
+  , mAddX .~ Just Absent $ noErrOpts, "execAddX.")
+execAddXSt (LeafX e) = qPutDeSt $ QLeaf e
+execAddXSt q@(RelX _ js as) = do
+  ms <- mapM execAddXSt as
+  t <- qPutDeSt $ QLeaf $ extractTplt q
+  qPutDeSt $ QRel (QAt t) (map QAt ms)
 
 execAddX :: RSLT -> AddX -> RSLT
 execAddX g a = fst $ mapac g a
