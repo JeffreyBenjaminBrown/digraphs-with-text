@@ -36,28 +36,6 @@ hasBlanks = parse p "not a file"
 
 -- == Things used when parsing Word and Rel values
 -- AddX expresses how to add (nested) data to the RSLT
-data AddX = At Node -- for when you know the expression's node. TODO: parse
-          | Absent
-          | LeafX Expr
-          | RelX EO [JointX] [AddX]
-  -- Every rel has at least one jointX, and potentially members on either side
-  -- If there are more, the list of pairs stores them.
-          deriving (Show, Eq)
-type Level = Int -- in "cats like you because you like them", the "because"
-  -- relationship is level 2, and the "like" relationships are level 1
-data JointX = JointX String deriving (Show, Eq)
-  -- in "you #like peaches #at noon", "like" and "at" are jointXs
-data EO = EO     -- EO = "expression orderer"
-  { open :: Bool -- open = "more expressions can be concatentated into it"
-                 -- In b@(RelX (EO x _) _ _), x is true until
-                 -- b has been surrounded by parentheses.
-  , inLevel :: Level } deriving (Eq)
-
-instance Show EO where
-  show (EO x y) = "(EO " ++ show x ++ " " ++ show y ++ ")"
-instance Ord EO where -- Open > closed. If those are equal, ## > #, etc.
-  EO a b <= EO c d = a <= c && b <= d
-
 isRelX :: AddX -> Bool
 isRelX (RelX _ _ _) = True
 isRelX _ = False

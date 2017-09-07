@@ -4,12 +4,12 @@ import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Types
 import Dwt.Graph
 import Dwt.Search
-import Dwt.Parse (AddX(..), Level, JointX(..), EO)
 import Dwt.Util (fr, maxNode, prependCaller)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)
 import Data.List (mapAccumL)
 import qualified Data.Sequence as S
+import Control.Lens ((.~))
 
 -- | AddX was (maybe) optimized for correctness when parsing text from users.
 -- AddX is optimized for ease of loading new data into the graph.
@@ -54,6 +54,17 @@ prettyPrint = it 0 where
     mapM_ f $ zip js ms
   it k l = putStrLn $ space k ++ show l
 
+--execAddX' :: RSLT -> AddX -> Either DwtErr (Node, RSLT)
+--execAddX' g (At n) = do gelemM m g
+--                        return (n,g)
+--execAddX' g Absent = Left (Impossible, mAddX .~ Just Absent, "execAddX."
+--execAddX' g (LeafX e) = runStateT (qPutDeSt $ QLeaf e) g
+--execAddX' g r@(RelX _ js as) =
+--  let qt = QLeaf $ extractTplt a
+--  qPutDeSt qt
+--
+--execAddX' :: RSLT -> AddX -> Either DwtErr (Node, RSLT)
+
 execAddX :: RSLT -> AddX -> RSLT
 execAddX g a = fst $ mapac g a
 
@@ -72,14 +83,14 @@ mapac g a@(RelX _ js as) =
                        of Right (g3,n) -> (g3, At n)
                           Left e -> error $ "mapac: " ++ show e
 
-sMapac :: AddX -> State RSLT (Either DwtErr AddX)
-sMapac a@(RelX _ js as) = get >>= \g -> do-- TODO: prependCaller "sMapac: "..
+mapacSt :: AddX -> State RSLT (Either DwtErr AddX)
+mapacSt a@(RelX _ js as) = get >>= \g -> do-- TODO: prependCaller "mapacSt: "..
   -- TODO: complete
-  let (as1, g1) = flip runState g $ mapM sMapac as
+  let (as1, g1) = flip runState g $ mapM mapacSt as
   return $ Right a
-sMapac a@(At _) = return $ Right a -- | pitfall ! assumes existence of At values
-sMapac Absent = return $ Right Absent
-sMapac (LeafX x) =  get >>= \g -> case qPutDe g $ QLeaf x of
+mapacSt a@(At _) = return $ Right a -- | pitfall ! assumes existence of At values
+mapacSt Absent = return $ Right Absent
+mapacSt (LeafX x) =  get >>= \g -> case qPutDe g $ QLeaf x of
   Left e  -> return $ prependCaller "mapac': " $ Left e
   Right (g',n) -> put g' >> return (Right $ At n)
 

@@ -107,14 +107,13 @@ qPut g q@(QLeaf l) = case qMbGet g q of
 
 qPutDeSt :: QNode -> StateT RSLT (Either DwtErr) Node
 qPutDeSt (QRel qt qms) = do
+  -- TODO ? would be more efficient to return even the half-completed state
   let tag = prependCaller "qPutDeSt: " -- TODO: use
   t <- qPutDeSt qt
   ms <- mapM qPutDeSt qms
   g <- get
   let matches = matchRelDe g $ mkRelSpec t ms
-  -- put $ insRelDe t ms g -- maybe insRelDe has to be a State?
-  --get >>= return . maxNode
-  lift $ Right t -- TODO >>>
+  qPutDeSt $ QRel (QAt t) (map QAt ms)
 qPutDeSt (QAt n) = lift $ Right n
 qPutDeSt q@(QLeaf x) = get >>= \g -> case qGet1De g q of
   Right n -> lift $ Right n
