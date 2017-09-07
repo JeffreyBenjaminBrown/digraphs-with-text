@@ -4,7 +4,7 @@ import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Types
 import Dwt.Graph
 import Dwt.Search
-import Dwt.Util (fr, maxNode, prependCaller)
+import Dwt.Util (fr, maxNode, prependCaller, gelemMDe)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)
 import Data.List (mapAccumL)
@@ -54,16 +54,18 @@ prettyPrint = it 0 where
     mapM_ f $ zip js ms
   it k l = putStrLn $ space k ++ show l
 
---execAddX' :: RSLT -> AddX -> Either DwtErr (Node, RSLT)
---execAddX' g (At n) = do gelemM m g
---                        return (n,g)
---execAddX' g Absent = Left (Impossible, mAddX .~ Just Absent, "execAddX."
---execAddX' g (LeafX e) = runStateT (qPutDeSt $ QLeaf e) g
---execAddX' g r@(RelX _ js as) =
---  let qt = QLeaf $ extractTplt a
---  qPutDeSt qt
---
---execAddX' :: RSLT -> AddX -> Either DwtErr (Node, RSLT)
+execAddX' :: RSLT -> AddX -> Either DwtErr (Node, RSLT)
+execAddX' g (At n) = do gelemMDe g n
+                        return (n,g)
+execAddX' g Absent = Left (Impossible
+                          , mAddX .~ Just Absent $ noErrOpts, "execAddX.")
+execAddX' g (LeafX e) = runStateT (qPutDeSt $ QLeaf e) g
+execAddX' g r@(RelX _ js as) = do
+  let qt = QLeaf $ extractTplt r
+  Left $ (Legacy, noErrOpts,
+          "Chaining qPutDeSt operations will be easier in the State monad.")
+
+--execAddX'' :: RSLT -> AddX -> Either DwtErr (Node, RSLT)
 
 execAddX :: RSLT -> AddX -> RSLT
 execAddX g a = fst $ mapac g a

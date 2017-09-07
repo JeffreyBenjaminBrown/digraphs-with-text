@@ -6,7 +6,7 @@
       , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecDe
       , relNodeSpec, relNodeSpecDe, relSpec, relSpecDe
       , chLeaf, chLeafDe, chRelRole
-      , gelemM, whereis, tpltAt
+      , whereis, tpltAt
       , relElts, validRole, relTplt, collPrinciple
       , rels, mbrs, users, usersDe, usersInRole, usersInRoleDe
       , matchRel, matchRelDe, matchRelLab, matchRelLabDe
