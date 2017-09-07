@@ -2,7 +2,7 @@
     {-# LANGUAGE ViewPatterns #-}
 
     module Dwt.Graph (
-      insRel, insRelDe, insRelUsf, insColl
+      insRel, insRelDe, insRelDeSt, insRelUsf, insColl
       , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecDe
       , relNodeSpec, relNodeSpecDe, relSpec, relSpecDe
       , chLeaf, chLeafDe, chRelRole
@@ -16,13 +16,15 @@
     import Dwt.Types
     import Dwt.Leaf
     import Dwt.Util
-    import Data.Graph.Inductive
+    import Data.Graph.Inductive hiding (lift)
     import Data.Either (partitionEithers)
     import Data.List (intersect, nub)
     import qualified Data.Map as Map
     import Data.Maybe (catMaybes, fromJust)
     import Control.Monad (mapM_)
     import Control.Monad.Except (MonadError, throwError, catchError)
+    import Control.Monad.Trans.State
+    import Control.Monad.Trans.Class    
     import Data.Text (pack, unpack, strip, splitOn)
     import Control.Lens  ((.~))
 
@@ -52,6 +54,22 @@
               (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
             addTplt = insEdge (newNode, template, RelEdge TpltRole)
                       . insNode (newNode, Rel) :: RSLT -> RSLT
+
+    insRelDeSt :: Node -> [Node] -> StateT RSLT (Either DwtErr) Node
+    insRelDeSt template mbrs =
+      do g <- get
+         let newNode = head $ newNodes 1 g
+             addMbrs []     g = g
+             addMbrs (p:ps) g = addMbrs ps $ insEdge
+               (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
+             addTplt = insEdge (newNode, template, RelEdge TpltRole)
+               . insNode (newNode, Rel) :: RSLT -> RSLT
+         lift $ mapM_ (gelemMDe g) $ template:mbrs
+         tplt <- tpltAtDe g template
+         mbrListMatchesTpltArityDe mbrs tplt
+         modify $ addMbrs (zip mbrs [1..tpltArity tplt]) . addTplt
+         g' <- get
+         return $ maxNode g'
 
     insRelUsf :: Node -> [Node] -> RSLT -> RSLT
     insRelUsf t ns g = case insRel t ns g of

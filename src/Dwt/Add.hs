@@ -75,6 +75,13 @@ execAddXSt q@(RelX _ js as) = do
   t <- qPutDeSt $ QLeaf $ extractTplt q
   qPutDeSt $ QRel (QAt t) (map QAt ms)
 
+testExecAddXSt :: AddX -> StateT RSLT (Either DwtErr) [Node]
+testExecAddXSt q@(RelX _ js as) = do
+  ms <- mapM execAddXSt as
+  t <- qPutDeSt $ QLeaf $ extractTplt q
+  qPutDeSt $ QRel (QAt 0) (map QAt [1,2])
+  return $ [t] ++ ms
+
 execAddX :: RSLT -> AddX -> RSLT
 execAddX g a = fst $ mapac g a
 
