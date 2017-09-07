@@ -2,7 +2,7 @@
     {-# LANGUAGE ViewPatterns #-}
 
     module Dwt.Graph (
-      insRel, insRelUsf, insColl
+      insRel, insRelDe, insRelUsf, insColl
       , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecDe
       , relNodeSpec, relNodeSpecDe, relSpec, relSpecDe
       , chLeaf, chLeafDe, chRelRole
@@ -32,6 +32,19 @@
       do mapM_ (gelemM g) $ template:mbrs
          tplt <- tpltAt g template
          mbrListMatchesTpltArity mbrs tplt
+         return $ addMbrs (zip mbrs [1..tpltArity tplt]) $ addTplt g
+      where newNode = head $ newNodes 1 g
+            addMbrs []     g = g
+            addMbrs (p:ps) g = addMbrs ps $ insEdge
+              (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
+            addTplt = insEdge (newNode, template, RelEdge TpltRole)
+                      . insNode (newNode, Rel) :: RSLT -> RSLT
+
+    insRelDe :: Node -> [Node] -> RSLT -> Either DwtErr RSLT
+    insRelDe template mbrs g =
+      do mapM_ (gelemMDe g) $ template:mbrs
+         tplt <- tpltAtDe g template
+         mbrListMatchesTpltArityDe mbrs tplt
          return $ addMbrs (zip mbrs [1..tpltArity tplt]) $ addTplt g
       where newNode = head $ newNodes 1 g
             addMbrs []     g = g
@@ -193,6 +206,12 @@
       Just t@(Tplt _) -> return t
       Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
       _       -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
+
+    tpltAtDe :: (MonadError DwtErr m) => RSLT -> Node -> m Expr
+    tpltAtDe g tn = let name = "tpltAtDe." in case lab g tn of
+      Just t@(Tplt _) -> return t
+      Nothing -> throwError (FoundNo, mNode .~ Just tn $ noErrOpts, name)
+      _       -> throwError (NotTplt, mNode .~ Just tn $ noErrOpts, name)
 
     relElts :: RSLT -> Node -> [RelRole] -> Either String [Node]
     relElts g relNode roles = do

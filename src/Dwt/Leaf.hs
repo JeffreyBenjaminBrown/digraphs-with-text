@@ -3,7 +3,7 @@
 module Dwt.Leaf (
   _splitStringForTplt, mkTplt
   , subInTplt, padTpltStrings, subInTpltWithHashes
-  , tpltArity, mbrListMatchesTpltArity
+  , tpltArity, mbrListMatchesTpltArity, mbrListMatchesTpltArityDe
   , insLeaf
     , insWord, insTplt, insFl -- deprec ? insLeaf generalizes these
   , hasLEdgeM, isWord, isWordM, isTplt, isTpltM, isFl, isFlM
@@ -15,7 +15,7 @@ import Dwt.Util (hasLEdgeM)
 import Data.Graph.Inductive (Node, Graph, lab, newNodes, insNode)
 import Control.Monad.Except (MonadError, throwError, catchError)
 import Data.Text (pack, unpack, strip, splitOn)
-
+import Lens.Micro ((.~))
 
 -- == Tplt
 _splitStringForTplt :: String -> [String]
@@ -68,6 +68,13 @@ mbrListMatchesTpltArity ns e = case e of
     else throwError "mbrListMatchesTpltArity: Tplt Arity /= number of member Nodes." 
   _ -> throwError "mbrListMatchesTpltArity: Expr not a Tplt."
 
+mbrListMatchesTpltArityDe :: (MonadError DwtErr m) => [Node] -> Expr -> m ()
+mbrListMatchesTpltArityDe ns e = case e of
+  Tplt _ -> if (tpltArity e) == length ns
+    then return ()
+    else throwError (ArityMismatch, mExpr .~ Just e $ noErrOpts, funcName)
+  _ -> throwError (NotTplt, mExpr .~ Just e $ noErrOpts, funcName)
+  where funcName = "mbrListMatchesTpltArityDe."
 
 -- == Insert
 insLeaf :: Expr -> RSLT -> RSLT
