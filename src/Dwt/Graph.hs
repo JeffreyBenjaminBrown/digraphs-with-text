@@ -26,7 +26,7 @@
     import Control.Monad.Trans.State
     import Control.Monad.Trans.Class    
     import Data.Text (pack, unpack, strip, splitOn)
-    import Control.Lens  ((.~))
+    import Control.Lens hiding ((&))
 
 -- build
     insRel :: Node -> [Node] -> RSLT -> Either String RSLT
@@ -197,7 +197,6 @@
     _chLeafUsf g n newExpr = let (Just (a,b,c,d),g') = match n g
       in (a,b,newExpr,d) & g'
 
--- >>> resume here tracing MonadError|Either Strings backward
     chRelRole :: (MonadError String m) => 
       RSLT -> Node -> Node -> RelRole -> m RSLT
     chRelRole g user newMbr role = do
@@ -211,6 +210,19 @@
       let oldMbr = head candidates
       return $ delLEdge (user,oldMbr,RelEdge role)
              $ insEdge (user,newMbr,RelEdge role) g
+
+    chRelRoleDe :: RSLT -> Node -> Node -> RelRole -> Either DwtErr RSLT
+    chRelRoleDe g user newMbr role = do
+      isRelMDe g user
+      gelemMDe g newMbr
+      let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
+          err = (Invalid, mNode .~ Just user $ mRelRole .~ Just role
+                  $ noErrOpts, "chRelRoleDe.")
+      case candidates of
+        [] -> Left $ _1 .~ FoundNo $ err
+        [a] -> return $ delLEdge (user,a,RelEdge role)
+               $ insEdge (user,newMbr,RelEdge role) g
+        _ -> Left $ _1 .~ FoundMany $ err
 
 -- query
   -- more complex ("locate"?) queries
