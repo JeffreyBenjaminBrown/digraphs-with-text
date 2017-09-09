@@ -16,10 +16,13 @@ tParseInner = TestList [ TestLabel "tHash" tHash
                        ]
 
 tHash = TestCase $ do
+  assertBool "4" $ either (const True) (const False) $ parse expr "" ")("
+
   assertBool "1" $
     hash 2 (JointX "") (LeafX $ Word "hi") (LeafX $ Word "there")
     == RelX (EO True 2) [JointX ""] [(LeafX $ Word "hi")
                                     ,(LeafX $ Word "there")]
+
   assertBool "2" $
     rightConcat (JointX "") (LeafX $ Word "na")
     (RelX (EO True 3) [JointX "zaba"] [(LeafX $ Word "left")
@@ -27,6 +30,7 @@ tHash = TestCase $ do
     == RelX (EO True 3) [JointX "zaba",JointX ""] [(LeafX $ Word "left")
                                         ,(LeafX $ Word "right")
                                         ,(LeafX $ Word "na")]
+
   assertBool "3"
     $ leftConcat (JointX "new") (LeafX $ Word "new")
       (RelX (EO True 4) [JointX "j"] [(LeafX $ Word "left")
@@ -58,3 +62,5 @@ tHash = TestCase $ do
                   ,LeafX  (Word "reek super nasty")]
                 ,LeafX (Word "dogs")]
               ,Absent]]
+  -- warning: assertions added below this line sometimes fail, even though
+  -- they work above it. for instance, the one marked "4" above.
