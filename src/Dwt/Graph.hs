@@ -252,6 +252,12 @@
         "relElts: at least one member out of bounds")
       return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
+    relEltsDe :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
+    relEltsDe g relNode roles = do
+      isRelMDe g relNode
+      mapM_  (validRoleDe g relNode) roles
+      return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
+
     validRole :: RSLT -> Node -> RelRole -> Either String ()
     validRole g relNode role = do
       isRelM g relNode `catchError` (\_ -> throwError 
@@ -266,12 +272,30 @@
             else throwError $ "validRole: Arity " ++ show a ++ 
               " < MbrPos " ++ show p
 
+    validRoleDe :: RSLT -> Node -> RelRole -> Either DwtErr ()
+    validRoleDe g relNode role = isRelMDe g relNode >> case role of
+      TpltRole -> return ()
+      Mbr p -> do
+        if p >= 1 then return () else Left err
+        t <- relTpltDe g relNode
+        let a = tpltArity t
+        if p <= a then return ()
+          else Left $ _1 .~ ArityMismatch $ _2 . mExpr .~ Just t $ err
+      where err = (Invalid, mRelRole .~ Just role $ noErrOpts, "validRole.")
+
     relTplt :: RSLT -> Node -> Either String Expr -- unsafe
       -- might not be called on a template
     relTplt g relNode = do
       [n] <- relElts g relNode [TpltRole]
       return $ fromJust $ lab g n
 
+    relTpltDe :: RSLT -> Node -> Either DwtErr Expr -- unsafe
+      -- might not be called on a template
+    relTpltDe g relNode = do
+      [n] <- relEltsDe g relNode [TpltRole]
+      return $ fromJust $ lab g n
+
+-- >>> resume here: changing to DwtErr
     collPrinciple :: (MonadError String m) => RSLT -> Node -> m Expr
       -- analogous to relTplt
     collPrinciple g collNode = do
