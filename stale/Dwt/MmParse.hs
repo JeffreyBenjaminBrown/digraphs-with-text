@@ -379,3 +379,13 @@
           created = mmTimeToTime $ read $ m Map.! "CREATED"
           modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
       in MmNLab text mmId style created modified
+
+-- TODO: This could use a higher-kinded function, lke eitherToMe, for Maybes
+  -- should in that case take also a String to show if Nothing happens
+mapLookupMe :: (Ord k, Show k, Show a, MonadError String me) => -- TODO: bad?
+  k -> Map.Map k a -> me a -- Is it bad to need this function?
+mapLookupMe k m = case Map.lookup k m of
+  Just a -> return a
+  Nothing -> throwError $ "mapLookupMe: " ++
+  -- reports map; could be bad if map big
+    show k ++ " not in map " ++ show m
