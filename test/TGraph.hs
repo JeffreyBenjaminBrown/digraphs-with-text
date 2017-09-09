@@ -119,24 +119,24 @@
 
     -- >> Resume converting to Either DwtErr here
     tHasLEdgeM = TestCase $ do
-      assertBool "has it" $ hasLEdgeM g1 (5,0,RelEdge $ Mbr 1) == Right ()
-      assertBool "lacks it" $ isLeft $ hasLEdgeM g1 (5,0,RelEdge $ Mbr 2)
+      assertBool "has it" $ hasLEdgeMDe g1 (5,0,RelEdge $ Mbr 1) == Right ()
+      assertBool "lacks it" $ isLeft $ hasLEdgeMDe g1 (5,0,RelEdge $ Mbr 2)
 
     tIsTplt = TestCase $ do
-      assertBool "is template" $ isRight $ isTpltM g1 1
-      assertBool "is not template" $ isLeft $ isTpltM g1 0
-      assertBool "missing" $ isLeft $ isTpltM g1 (-1)
+      assertBool "is template" $ isRight $ isTpltMDe g1 1
+      assertBool "is not template" $ isLeft $ isTpltMDe g1 0
+      assertBool "missing" $ isLeft $ isTpltMDe g1 (-1)
 
     tTpltAt = TestCase $ do
-      assertBool "normal" $ tpltAt g1 1 == ( Right $ Tplt ["","wants",""] )
-      assertBool "notATplt" $ isLeft $ tpltAt g1 0
-      assertBool "absent" $ isLeft $ tpltAt g1 (-1)
+      assertBool "normal" $ tpltAtDe g1 1 == ( Right $ Tplt ["","wants",""] )
+      assertBool "notATplt" $ isLeft $ tpltAtDe g1 0
+      assertBool "absent" $ isLeft $ tpltAtDe g1 (-1)
 
     tTpltForRelAt = TestCase $ do
-      assertBool "normal" $ relTplt g1 5 ==
+      assertBool "normal" $ relTpltDe g1 5 ==
         ( Right $ Tplt ["","wants",""] )
-      assertBool "not a Rel" $ isLeft $ relTplt g1 1
-      assertBool "absent" $ isLeft $ relTplt g1 (-1)
+      assertBool "not a Rel" $ isLeft $ relTpltDe g1 1
+      assertBool "absent" $ isLeft $ relTpltDe g1 (-1)
 
     tTpltArity = TestCase $ do
       assertBool "arity 0" $
@@ -154,15 +154,15 @@
                          ]
 
     tUsers = TestCase $ do
-      assertBool "1" $ users g1 0 == Right [5,6,8]
-      assertBool "2" $ isLeft $ (users g1 100 :: Either String [Node])
+      assertBool "1" $ usersDe g1 0 == Right [5,6,8]
+      assertBool "2" $ isLeft $ (usersDe g1 100 :: Either DwtErr [Node])
 
     tSpecUsers = TestCase $ do
-      assertBool "with Arity" $ usersInRole g1 0 (Mbr 1) == Right [5,6,8]
+      assertBool "with Arity" $ usersInRoleDe g1 0 (Mbr 1) == Right [5,6,8]
 
     tMatchRel = TestCase $ do
-      assertBool "dog in first pos"     $ matchRel g1 tRelSpec == Right [5,6,8]
-      assertBool "nothing should match" $ matchRel g1 tRelSpecNonsense == Right []
+      assertBool "dog in first pos"     $ matchRelDe g1 tRelSpec == Right [5,6,8]
+      assertBool "nothing should match" $ matchRelDe g1 tRelSpecNonsense == Right []
 
   -- chase and helpers
     tChase = TestList [ TestLabel "tHas1Up" tHas1Dir
@@ -175,6 +175,7 @@
       assertBool "has 1 Up" $ has1Dir Up tRelSpecNonsense
       assertBool "has no Up" $ not $ has1Dir Up tRelSpec
 
+-- >>> resume converting to Either DwtErr here
     tFork1Dir = TestCase $ do -- todo, incomplete
       assertBool "searching Down, and no Up vars; should fail"
         $ isLeft $ fork1Dir g1 0 (Down, tRelSpec)

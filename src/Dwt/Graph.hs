@@ -6,8 +6,8 @@
       , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecDe
       , relNodeSpec, relNodeSpecDe, relSpec, relSpecDe
       , chLeaf, chLeafDe, chRelRole
-      , whereis, tpltAt
-      , relElts, validRole, relTplt, collPrinciple
+      , whereis, tpltAt, tpltAtDe
+      , relElts, validRole, relTplt, relTpltDe, collPrinciple
       , rels, mbrs, users, usersDe, usersInRole, usersInRoleDe
       , matchRel, matchRelDe, matchRelLab, matchRelLabDe
       , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs

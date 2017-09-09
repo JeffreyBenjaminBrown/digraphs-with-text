@@ -6,7 +6,10 @@ module Dwt.Util (
 
   -- graphs
   , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
-  , hasLEdgeM, gelemM, gelemMDe -- graphs & monads
+
+  -- graphs & monads
+  , hasLEdgeM, hasLEdgeMDe
+  , gelemM, gelemMDe
 
   , fr, fromRight, prependCaller -- monads
   ) where
