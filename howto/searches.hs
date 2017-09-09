@@ -1,10 +1,34 @@
 Table of Contents (eventually this format is Haskell)
-    view
-    dfs
-    relVarSpec
-    Find all nodes using a Tplt
-    Find all gold nodes:
-    matchRelUsf
+    pre: Find all nodes using a leaf (even a Tplt)
+    matchRelDe: find all relationships using some Tplt with certain members
+    ?? adding a directed RelSpec to a graph
+    ?? dfs, bfs
+    RelSpec v. RelVarSpec
+    Find all gold nodes (from Freeplane)
+
+-- Find all nodes using a leaf, even a Tplt
+    > labfilter (== mkTplt "_ uses font-> _") g
+      mkGraph [(24,Tplt 2 [""," uses font-> ",""])] []
+    > putStr $ view g $ pre g 24
+      [The links here to Default Style could be deleted.]
+    > putStrLn $ view g [7,8]
+    (7,"_ #can _")
+    (8,"turtles ##can swim")
+
+--  matchRelDe: find all relationships using some Tplt with certain members
+    > let s = M.fromList [(TpltRole,NodeSpec 7),(Mbr 1,VarSpec Any),(Mbr 2,VarSpec Any)]
+    >  matchRelDe g s
+    Right [8]
+
+-- adding a directed RelSpec to a graph
+    I saw this template:
+      ":15 _ #kind/ _"
+    So I made a direction:
+      *Main M> let r = M.fromList [(TpltRole,NodeSpec 15),
+        (Mbr 1,VarSpec Up),
+        (Mbr 2,VarSpec Down)]
+    And added it:
+      g <- p $ fr $ (insRelSpec r g :: Either String RSLT)
 
 -- 2016 02 13: bfs, dfs
     *Main> putStr $ view g $ 8:[45..(length $ nodes g)-1] -- show relevant portion of graph
@@ -30,19 +54,12 @@ Table of Contents (eventually this format is Haskell)
     Right [46,47,48,51]
     *Main> 
 
--- 2016 02 12
+-- RelSpec v. RelVarSpec
   putStr $ view g $ concatMap (pre g) (rels g) -- every use of every rel
   let rs = M.fromList [(TpltRole,NodeSpec 8), (Mbr 1,VarSpec Down), (Mbr 2,VarSpec Up)] :: RelSpec
   let rvs = M.fromList [(Mbr 1, Down), (Mbr 2, Up)] :: RelVarSpec
 
--- 2016 01 16
-  Find all nodes using a Tplt
-    > labfilter (== mkTplt "_ uses font-> _") g
-      mkGraph [(24,Tplt 2 [""," uses font-> ",""])] []
-    > putStr $ view g $ pre g 24
-      [The links here to Default Style could be deleted.]
-
-  Find all gold nodes:
+-- Find all gold nodes (from Freeplane)
     In Freeplane, I see the node with this text
         = already big enough to sort within
     is gold.
@@ -53,32 +70,3 @@ Table of Contents (eventually this format is Haskell)
         ..
     > let gold = 7 :: Dwt.Node
     > putStr $ view g $ pre g gold
-
--- earlier
-  -- some important nodes
-    putStr $ view g $ pre g 771 -- lets see every Rel involving the root
-    putStr $ view g $ nodes $ labfilter (== mkTplt "_ .mm/ _") g -- Node 32
-    putStr $ view g $ nodes $ labfilter (== mkTplt "_ then read-> _") g -- Node 23
-
-  -- how I found that (Nodes obsolete, method still valid)
-    length $ nodes g
-    matchRelUsf g [Just 32,Nothing,Just 400]
-    showExpr g 1583
-    matchRelUsf g [Just 32,Nothing,Just 584]
-    showExpr g 1600
-    matchRelUsf g [Just 32,Nothing,Just 274]
-    showExpr g 1753
-    -- now I know the root Node is 763
-    putStr $ view g $ pre g 763 -- lets see every Rel involving the root
-
-  -- important nodes
-    -- root: 33
-    -- git/agent: 763
-    -- .mm rels: 31
-      -- 16:23 [31: .mm rels] instance/ [:30 _ .mm/ _]
-      -- 17:23 [31: .mm rels] instance/ [:29 _ .mm~ _]
-    -- system: 32
-    -- rels: 24
-      -- problem ? does not include 29 (.mm/) and 30 (.mm~).
-
-    matchRelUsf g [j 22,n,n] -- Exprs with nonstandard font

@@ -52,8 +52,8 @@ data AddressOrVar -- might be addressed; else is Mbrship variable
 -- at the TpltRole key is always a concrete NodeSpec
 type RelVarSpec =  Map.Map RelRole Mbrship
 type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
-type RelSpec =     Map.Map RelRole AddressOrVar -- if well-formed, keys
-  -- include a single Tplt, and MbrPos k for all k in [1, Tplt arity]
+type RelSpec =     Map.Map RelRole AddressOrVar -- if well-formed, includes
+  -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
 
 
 -- == Queries
