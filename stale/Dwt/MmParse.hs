@@ -380,6 +380,8 @@
           modified = mmTimeToTime $ read $ m Map.! "MODIFIED"
       in MmNLab text mmId style created modified
 
+-- MonadError stuff
+  -- this was in Util but it's annoying to maintain or convert
 -- TODO: This could use a higher-kinded function, lke eitherToMe, for Maybes
   -- should in that case take also a String to show if Nothing happens
 mapLookupMe :: (Ord k, Show k, Show a, MonadError String me) => -- TODO: bad?
@@ -389,3 +391,8 @@ mapLookupMe k m = case Map.lookup k m of
   Nothing -> throwError $ "mapLookupMe: " ++
   -- reports map; could be bad if map big
     show k ++ " not in map " ++ show m
+
+eitherToMe :: (Show e, MonadError String me) =>
+  (a -> Either e t) -> a -> me t
+eitherToMe f x = case f x of Right y -> return y
+                             Left e -> throwError $ show e

@@ -8,7 +8,7 @@ module Dwt.Util (
   , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
   , hasLEdgeM, gelemM, gelemMDe -- graphs & monads
 
-  , eitherToMe, fr, fromRight, prependCaller -- monads
+  , fr, fromRight, prependCaller -- monads
   ) where
 
 import Data.Graph.Inductive
@@ -84,12 +84,6 @@ gelemMDe g n = if gelem n g then return ()
 
 
 -- == monads
--- >>>
-eitherToMe :: (Show e, MonadError String me) =>
-  (a -> Either e t) -> a -> me t
-eitherToMe f x = case f x of Right y -> return y
-                             Left e -> throwError $ show e
-
 fromRight, fr :: Either a b -> b  -- TODO: doesn't handle the Left case
   -- is therefore different from Data.Either.fromRight
 fr = fromRight
