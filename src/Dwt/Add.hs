@@ -54,14 +54,14 @@ prettyPrint = it 0 where
     mapM_ f $ zip js ms
   it k l = putStrLn $ space k ++ show l
 
-addExprs :: AddX -> StateT RSLT (Either DwtErr) Node
-addExprs (At n) = get >>= lift . flip gelemMDe n >> return n
-addExprs Absent = lift $ Left (Impossible
+addExpr :: AddX -> StateT RSLT (Either DwtErr) Node
+addExpr (At n) = get >>= lift . flip gelemMDe n >> return n
+addExpr Absent = lift $ Left (Impossible
   , mAddX .~ Just Absent $ noErrOpts, "execAddX.")
-addExprs (LeafX e) = qPutSt $ QLeaf e
-addExprs q@(RelX _ js as) = do
-  ms <- mapM addExprs $ filter (not . isAbsent) as
+addExpr (LeafX e) = qPutSt $ QLeaf e
+addExpr q@(RelX _ js as) = do
+  ms <- mapM addExpr $ filter (not . isAbsent) as
   t <- qPutSt $ QLeaf $ extractTplt q
   qPutSt $ QRel (QAt t) (map QAt ms)
 
--- let Right (_,g) = runStateT (mapM (addExprs . fr . parse expr "" ) ["a # b", "# c", "## d #"]) empty
+-- let Right (_,g) = runStateT (mapM (addExpr . fr . parse expr "" ) ["a # b", "# c", "## d #"]) empty

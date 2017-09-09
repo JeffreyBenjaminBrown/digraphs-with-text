@@ -8,10 +8,8 @@ import Control.Monad.Trans.State (runStateT)
 
 tAdd = TestList [ TestLabel "tExecAddSt" tExecAddSt ]
 
-mapM (addExprs . fr . parse expr "") ["a #is b", "#maybe c"]
-
 tExecAddSt = TestCase $ do
-  let g = snd . fr $ runStateT (addExprs $ fr $ parse expr "" "a #is b") empty
+  let g = snd . fr $ runStateT (addExpr $ fr $ parse expr "" "a #is b") empty
   assertBool "1" $ g == mkGraph [ (0,Word "a")
                                 , (1,Word "b")
                                 , (2,Tplt ["","is",""])

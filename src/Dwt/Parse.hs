@@ -100,7 +100,9 @@ term = LeafX <$> leaf
        <|> absent where
   absent :: Parser AddX
   absent = const Absent <$> f <?> "Intended to \"find\" nothing."
-  f = lookAhead $ const () <$> C.satisfy (`elem` ")#") <|> eof
+  f = lookAhead $ const () <$> C.satisfy (== '#') <|> eof
+    -- the Absent parser should look for #, but not ), because
+    -- parentheses get consumed in pairs in an outer (earlier) context
 
 pHashUnlabeled :: Int -> Parser ()
 pHashUnlabeled n = const () <$> f
