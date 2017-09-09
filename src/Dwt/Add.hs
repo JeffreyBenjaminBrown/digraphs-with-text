@@ -58,8 +58,8 @@ addExprs :: AddX -> StateT RSLT (Either DwtErr) Node
 addExprs (At n) = get >>= lift . flip gelemMDe n >> return n
 addExprs Absent = lift $ Left (Impossible
   , mAddX .~ Just Absent $ noErrOpts, "execAddX.")
-addExprs (LeafX e) = qPutDeSt $ QLeaf e
+addExprs (LeafX e) = qPutSt $ QLeaf e
 addExprs q@(RelX _ js as) = do
   ms <- mapM addExprs as
-  t <- qPutDeSt $ QLeaf $ extractTplt q
-  qPutDeSt $ QRel (QAt t) (map QAt ms)
+  t <- qPutSt $ QLeaf $ extractTplt q
+  qPutSt $ QRel (QAt t) (map QAt ms)
