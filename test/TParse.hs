@@ -62,6 +62,6 @@ tHash = TestCase $ do
                   ,LeafX  (Word "reek super nasty")]
                 ,LeafX (Word "dogs")]
               ,Absent]]
-  -- warning: assertions added below this line sometimes fail, even though
+  -- WARNING: assertions added below this line sometimes fail, even though
   -- they work above it. for instance, the following:
   -- assertBool "broken" $ True
