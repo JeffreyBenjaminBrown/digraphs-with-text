@@ -1,7 +1,10 @@
+module TAdd where
+
 import Dwt hiding (fromRight)
 import Data.Graph.Inductive
-import TData
 import Test.HUnit hiding (Node)
+import Text.Megaparsec (parse)
+import Control.Monad.Trans.State (runStateT)
 
 tAdd = TestList [ TestLabel "tExecAddSt" tExecAddSt ]
 

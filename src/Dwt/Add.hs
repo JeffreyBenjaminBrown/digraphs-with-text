@@ -101,10 +101,10 @@ mapac g a@(RelX _ js as) =
                           Left e -> error $ "mapac: " ++ show e
 
 mapacSt :: AddX -> State RSLT (Either DwtErr AddX)
-mapacSt a@(RelX _ js as) = get >>= \g -> do-- TODO: prependCaller "mapacSt: "..
+mapacSt a@(RelX _ js as) = get >>= \g -> do
   -- TODO: complete
   let (as1, g1) = flip runState g $ mapM mapacSt as
-  return $ Right a
+  return $  prependCaller "mapacSt: " $ Right a
 mapacSt a@(At _) = return $ Right a -- | pitfall ! assumes existence of At values
 mapacSt Absent = return $ Right Absent
 mapacSt (LeafX x) =  get >>= \g -> case qPutDe g $ QLeaf x of

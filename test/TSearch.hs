@@ -35,8 +35,6 @@ tQPutDe = TestCase $ do
   assertBool "2" $ let Right (_, n) = qPut g1 qCat in n == 14
   assertBool "3" $ let Right (_, n) = qPut g1 qDogWantsBrandy in n==5
   assertBool "4" $ let Right (g,n) = qPut empty qDogWantsBrandy in n > (-1)
---  assertBool "4" $ qPut empty qDogWantsBrandy
---    == Right (mkGraph [(0, Word "dog"), (1, word "brandy"), (2, mkTplt "_ wants _"), (3, Rel)] [], 3)
 
 tQGetDe = TestCase $ do
   assertBool "1" $ qGetDe g1 (QAt 1) == Right [1]
