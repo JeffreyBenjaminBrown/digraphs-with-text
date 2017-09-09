@@ -7,8 +7,11 @@ import Data.Graph.Inductive (empty, nodes)
 import Dwt.Types
 import Dwt.Leaf (insWord, insTplt)
 import Dwt.Show (view)
+import Dwt.Add (addExpr)
 import Dwt.Parse
+import Dwt.Util (fr)
 import Text.Megaparsec (parse)
+import Control.Monad.Trans.State (execStateT)
 
 import qualified Brick.Main as M
 import qualified Brick.Types as T
@@ -84,14 +87,14 @@ appHandleEvent st _ = M.continue st
 addToRSLT :: St -> T.EventM Name (T.Next St)
 addToRSLT st = do
     let strings = st ^. edit1 & E.getEditContents
-        addXs = map (parse expr "") strings
-        (templates,words) =
-          partition (either (const False) id . hasBlanks) strings
-          -- (const False) should work if it happens but shouldn't happen
-        f1 = edit1 %~ E.applyEdit Z.clearZipper
-        f2 = rslt %~ (\g -> foldl (flip insWord) g $ words)
-        f3 = rslt %~ (\g -> foldl (flip insTplt) g $ templates)
-    M.continue $ st & f3 . f2 . f1
+        graphUpdater = mapM (addExpr . fr . parse expr "" ) strings
+          -- TODO: nix the fr
+        g = st ^. rslt
+        e = execStateT graphUpdater g
+    let f1 = edit1 %~ E.applyEdit Z.clearZipper
+        f2 = case e of Left _ -> id -- TODO: display the error
+                       Right g' -> rslt .~ g'
+    M.continue $ st & f2 . f1
 
 initialState :: RSLT -> St
 initialState g = St g
