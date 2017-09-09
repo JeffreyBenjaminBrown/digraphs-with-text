@@ -5,9 +5,13 @@ module Dwt.Leaf (
   , subInTplt, padTpltStrings, subInTpltWithHashes
   , tpltArity, mbrListMatchesTpltArity, mbrListMatchesTpltArityDe
   , insLeaf
-    , insWord, insTplt, insFl -- deprec ? insLeaf generalizes these
-  , hasLEdgeM, isWord, isWordM, isTplt, isTpltM, isFl, isFlM
-  , isRel, isRelM, isColl, isCollM, isLeaf, areLikeExprs
+    , insWord, insTplt, insFl -- TODO ? deprec, insLeaf generalizes them
+  , hasLEdgeM
+  , isWord, isWordM, isWordMDe
+  , isTplt, isTpltM, isTpltMDe
+  , isFl, isFlM, isFlMDe
+  , isRel, isRelM, isRelMDe
+  , isColl, isCollM, isCollMDe, isLeaf, areLikeExprs
   ) where
 
 import Dwt.Types
@@ -121,11 +125,17 @@ isWord x = case x of Word _ -> True; _ -> False
 isWordM :: (MonadError String m) => RSLT -> Node -> m ()
 isWordM = _isExprMConstructor isWord
 
+isWordMDe :: RSLT -> Node -> Either DwtErr ()
+isWordMDe = _isExprMConstructorDe isWord
+
 isTplt :: Expr -> Bool
 isTplt x = case x of Tplt _ -> True; _ -> False
 
 isTpltM :: (MonadError String m) => RSLT -> Node -> m ()
 isTpltM = _isExprMConstructor isTplt
+
+isTpltMDe :: RSLT -> Node -> Either DwtErr ()
+isTpltMDe = _isExprMConstructorDe isTplt
 
 isFl :: Expr -> Bool
 isFl x = case x of Fl _ -> True; _ -> False
@@ -133,17 +143,26 @@ isFl x = case x of Fl _ -> True; _ -> False
 isFlM :: (MonadError String m) => RSLT -> Node -> m ()
 isFlM = _isExprMConstructor isFl
 
+isFlMDe :: RSLT -> Node -> Either DwtErr ()
+isFlMDe = _isExprMConstructorDe isFl
+
 isRel :: Expr -> Bool
 isRel x = case x of Rel -> True; _ -> False
 
 isRelM :: (MonadError String m) => RSLT -> Node -> m ()
 isRelM = _isExprMConstructor isRel
 
+isRelMDe :: RSLT -> Node -> Either DwtErr ()
+isRelMDe = _isExprMConstructorDe isRel
+
 isColl :: Expr -> Bool
 isColl x = case x of Coll -> True; _ -> False
 
 isCollM :: (MonadError String m) => RSLT -> Node -> m ()
 isCollM = _isExprMConstructor isColl
+
+isCollMDe :: RSLT -> Node -> Either DwtErr ()
+isCollMDe = _isExprMConstructorDe isColl
 
 isLeaf :: Expr -> Bool -- todo ? make Leaf an Expr constructor
 isLeaf (Word _) = True
