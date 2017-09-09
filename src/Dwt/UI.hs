@@ -63,14 +63,14 @@ drawUI st = [ui] where
   e2 = F.withFocusRing (st^.focusRing)
        (E.renderEditor $ str . unlines)
        (st^.edit2)
-  ui = C.center $
-       (str "Input 1 (unlimited): " <+> (hLimit 30 $ vLimit 5 e1)) <=>
-       str " " <=>
-       (str "Input 2 (limited to 2 lines): " <+> (hLimit 30 e2)) <=>
-       str " " <=>
-       (str "The RSLT: " <+> v) <=>
-       str " " <=>
-       str "Press Tab to switch between editors, Esc to quit."
+  ui = C.center
+    $ (str "Input 1: " <+> e1)
+    <=> str " "
+    <=> (str "Input 2: " <+> e2)
+    <=>  str " "
+    <=> (str "The RSLT: " <+> v)
+    <=> str " "
+    <=> str "Press Tab to switch between editors, Esc to quit."
 
 appHandleEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
 appHandleEvent st (T.VtyEvent ev) = case ev of
