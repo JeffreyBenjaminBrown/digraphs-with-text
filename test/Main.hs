@@ -8,7 +8,7 @@
     import TData
     import TParse
     import TGraph
-    import TSearch
+    -- import TSearch
     import TShow
     import TAdd
 
@@ -18,6 +18,6 @@
         TestLabel "tParse"   tParse
       , TestLabel "tAdd" tAdd
       , TestLabel "tGraph"   tGraph
-      , TestLabel "tSearch" tSearch
+      -- , TestLabel "tSearch" tSearch
       , TestLabel "tView"    tView
       ]

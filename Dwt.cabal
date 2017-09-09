@@ -69,7 +69,7 @@ test-suite new-template-test
                      , TData
                      , TGraph
                      , TShow
-                     , TSearch
+                     -- , TSearch
                      , TAdd
 
   build-depends:       Dwt

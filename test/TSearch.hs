@@ -9,8 +9,8 @@ import Control.Lens ((.~))
 
 import Data.Either
 
-tSearch = TestList [ TestLabel "tQGet" tQGet
-                   , TestLabel "tQPutDe" tQPutDe
+tSearch = TestList [ 
+                     TestLabel "tQPutDe" tQPutDe
                    , TestLabel "tQGetDe" tQGetDe
                    , TestLabel "tQPutRel" tQPutRel
                    ]
@@ -31,10 +31,12 @@ qWants = QLeaf $ mkTplt "_ wants _"
 qDogWantsBrandy =  QRel qWants [qDog, qBrandy]
 
 tQPutDe = TestCase $ do
-  assertBool "1" $ qPut empty qDog == Right (mkGraph [(0,Word "dog")] [], 0)
-  assertBool "2" $ let Right (_, n) = qPut g1 qCat in n == 14
-  assertBool "3" $ let Right (_, n) = qPut g1 qDogWantsBrandy in n==5
-  assertBool "4" $ let Right (g,n) = qPut empty qDogWantsBrandy in n > (-1)
+  assertBool "1" $ qPutDe empty qDog == Right (mkGraph [(0,Word "dog")] [], 0)
+  assertBool "2" $ let Right (_, n) = qPutDe g1 qCat in n == 14
+  assertBool "3" $ let Right (_, n) = qPutDe g1 qDogWantsBrandy in n==5
+  assertBool "4" $ let Right (g,n) = qPutDe empty qDogWantsBrandy in n > (-1)
+--  assertBool "4" $ qPut empty qDogWantsBrandy
+--    == Right (mkGraph [(0, Word "dog"), (1, word "brandy"), (2, mkTplt "_ wants _"), (3, Rel)] [], 3)
 
 tQGetDe = TestCase $ do
   assertBool "1" $ qGetDe g1 (QAt 1) == Right [1]
@@ -51,22 +53,6 @@ tQGetDe = TestCase $ do
   assertBool "5" $ qGetDe g1 dogBrandyDubious == Right [11]
   assertBool "5" $ qGetDe g1 dubiousBackwards == Right []
 
-tQGet = let
-  qDog = QLeaf $ Word "dog"
-  extraDog = insLeaf (Word "dog") g1
-  qDogNeedsWater = QRel (QLeaf $ mkTplt "_ needs _")
-    [QLeaf $ Word "dog", QLeaf $ Word "water"]
-  (g2,_) = fr $ qPut g1 qDog
-  
-  in TestCase $ do
-    assertBool "1" $ qGet g1 qDog == Right [0]
-    assertBool "2" $ (S.fromList <$> (qGet g2 qDog))
-                  == (S.fromList <$> Right [0]) -- no extra dog!
-    assertBool "3" $ (S.fromList <$> (qGet extraDog qDog))
-                  == (S.fromList <$> Right [0,14])
-    assertBool "4" $ qGet g1 qDogNeedsWater == Right [6]
-
--- qPut :: RSLT -> QNode -> Either String (RSLT, Node)
 tQPutRel = let
   qRedundant = QRel (QLeaf $ mkTplt "_ wants _")
                [QLeaf $ Word "dog", QLeaf $ Word "brandy"]
