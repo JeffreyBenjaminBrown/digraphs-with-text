@@ -60,6 +60,8 @@ addExprs Absent = lift $ Left (Impossible
   , mAddX .~ Just Absent $ noErrOpts, "execAddX.")
 addExprs (LeafX e) = qPutSt $ QLeaf e
 addExprs q@(RelX _ js as) = do
-  ms <- mapM addExprs as
+  ms <- mapM addExprs $ filter (not . isAbsent) as
   t <- qPutSt $ QLeaf $ extractTplt q
   qPutSt $ QRel (QAt t) (map QAt ms)
+
+-- let Right (_,g) = runStateT (mapM (addExprs . fr . parse expr "" ) ["a # b", "# c", "## d #"]) empty
