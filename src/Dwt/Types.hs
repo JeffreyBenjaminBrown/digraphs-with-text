@@ -6,7 +6,7 @@ module Dwt.Types (
   , Mbrship(..), AddressOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
   , QNode(..)
   , AddX(..), Level, JointX(..), EO(..)
-  , DwtErr(..), mExpr, mNode, mQNode, mAddX
+  , DwtErr(..), mExpr, mNode, mQNode, mRelRole, mRelSpec, mAddX
   , errBase, errOpts, errString
   , ErrOpts(..), noErrOpts, ErrBase(..)
   ) where
@@ -90,9 +90,10 @@ instance Ord EO where -- Open > closed. If those are equal, ## > #, etc.
 
 -- == Errors
 data ErrBase = Legacy -- | for when the String has all the info
-             | FoundNo | FoundMany
+             | FoundNo | FoundMany | FoundWrongKind
              | ArityMismatch | ConstructorMistmatch
              | NotRelSpecExpr | NotTplt | NotColl | NotLeaf
+             | Invalid -- | (MbrPos 0), for instance, is ill-formed
              | Impossible
   deriving (Show, Eq)
 
@@ -107,10 +108,12 @@ errString = _3
 data ErrOpts = ErrOpts { _mNode :: Maybe Node
                        , _mExpr :: Maybe Expr
                        , _mAddX :: Maybe AddX
+                       , _mRelRole :: Maybe RelRole
+                       , _mRelSpec :: Maybe RelSpec
                        , _mQNode :: Maybe QNode } deriving (Show, Eq)
 -- | adjust it like "noErrOpts L.& mNode L..~ (Just 2)"
 
 makeLenses ''ErrOpts
 
 noErrOpts :: ErrOpts
-noErrOpts = ErrOpts Nothing Nothing Nothing Nothing
+noErrOpts = ErrOpts n n n n n n where n = Nothing

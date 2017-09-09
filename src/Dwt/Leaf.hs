@@ -15,7 +15,7 @@ import Dwt.Util (hasLEdgeM)
 import Data.Graph.Inductive (Node, Graph, lab, newNodes, insNode)
 import Control.Monad.Except (MonadError, throwError, catchError)
 import Data.Text (pack, unpack, strip, splitOn)
-import Lens.Micro ((.~))
+import Control.Lens
 
 -- == Tplt
 _splitStringForTplt :: String -> [String]
@@ -103,6 +103,17 @@ _isExprMConstructor pred g n = case mExpr of
     Just expr ->  case pred expr of True -> return ()
                                     False -> throwError $ "is not"
   where mExpr = lab g n
+
+
+_isExprMConstructorDe -- constructs an is_M function (_ is a variable)
+  :: (Graph gr) => (a -> Bool) -> gr a b -> Node -> Either DwtErr ()
+  -- todo ? catch these erorrs, append strings
+    -- otherwise the distinction bewteen absence and inequality is lost
+_isExprMConstructorDe pred g n = case lab g n of 
+  Just expr -> case pred expr of True -> return ()
+                                 False -> Left $ _1 .~ FoundWrongKind $ err
+  Nothing -> Left err
+  where err = (FoundNo, mNode .~ Just n $ noErrOpts, "_isExprMConstructorDe.")
 
 isWord :: Expr -> Bool
 isWord x = case x of Word _ -> True; _ -> False

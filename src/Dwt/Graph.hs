@@ -197,6 +197,7 @@
     _chLeafUsf g n newExpr = let (Just (a,b,c,d),g') = match n g
       in (a,b,newExpr,d) & g'
 
+-- >>> resume here tracing MonadError|Either Strings backward
     chRelRole :: (MonadError String m) => 
       RSLT -> Node -> Node -> RelRole -> m RSLT
     chRelRole g user newMbr role = do
