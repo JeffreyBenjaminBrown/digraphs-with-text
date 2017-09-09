@@ -69,6 +69,11 @@ hasLEdgeM :: (MonadError String m, Graph gr, Eq b, Show b) =>
 hasLEdgeM g le = if hasLEdge g le then return ()
   else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
 
+hasLEdgeMDe :: RSLT -> LEdge RSLTEdge -> Either DwtErr ()
+hasLEdgeMDe g le@(a,b,lab) = if hasLEdge g le then return ()
+  else Left (FoundNo, x, "hasLEdgeMDe.")
+  where x = mEdge .~ Just (a,b) $ mEdgeLab .~ Just lab $ noErrOpts
+
 gelemM :: (MonadError String m, Graph gr) => gr a b -> Node -> m ()
 gelemM g n = if gelem n g then return () 
   else throwError $ "gelemM: Node " ++ show n ++ " absent."

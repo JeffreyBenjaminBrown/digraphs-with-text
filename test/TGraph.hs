@@ -39,16 +39,20 @@
       assertBool "mkTplt (and thereby splitStringForTplt), insRelUsf, insWord, insTplt" $ g1 == g1Alt
 
     tInsRelM = TestCase $ do
-      assertBool "1" $ (insRel 2 [0,0] g1 :: Either String RSLT)
+      assertBool "1" $ (insRelDe 2 [0,0] g1 :: Either DwtErr RSLT)
             == (Right $ insRelUsf  2 [0,0] g1)
-      assertBool "2" $ (insRel 15 [0,0] g1 :: Either String RSLT)
-            == Left "gelemM: Node 15 absent."
-      assertBool "3" $ (insRel 2 [100,0] g1 :: Either String RSLT)
-            == Left "gelemM: Node 100 absent."
-      assertBool "4" $ (insRel 2 [1,1,1] g1 :: Either String RSLT)
-            == Left "mbrListMatchesTpltArity: Tplt Arity /= number of member Nodes."
-      assertBool "5" $ (insRel 0 [1,1,1] g1 :: Either String RSLT)
-            == Left "tpltAt: LNode 0 not a Tplt."
+      assertBool "2" $
+        let Left (a,_,_) = (insRelDe 15 [0,0] g1 :: Either DwtErr RSLT)
+        in a == FoundNo
+      assertBool "3" $
+        let Left (a,_,_) = (insRelDe 2 [100,0] g1 :: Either DwtErr RSLT)
+        in a == FoundNo
+      assertBool "4" $
+        let Left (a,_,_) = (insRelDe 2 [1,1,1] g1 :: Either DwtErr RSLT)
+        in a == ArityMismatch
+      assertBool "5" $
+        let Left (a,_,_) = (insRelDe 0 [1,1,1] g1 :: Either DwtErr RSLT)
+        in a == NotTplt
 
 --    tInsColl = TestCase $ do
 --      let gg = fromRight $ insColl (Just 10) [0,3,4] g1 :: RSLT
@@ -73,9 +77,9 @@
 
     tInsRelSpec = TestCase $ do
       let (vs,ns) = partitionRelSpec tRelSpec
-          Right g2 = insRelSpec tRelSpec g1
+          Right g2 = insRelSpecDe tRelSpec g1
           [newNode] = newNodes 1 g1
-      assertBool "node" $ (fromJust $ lab g2 newNode) == RelSpecExpr vs
+      assertBool "node" $ lab g2 newNode == Just (RelSpecExpr vs)
       assertBool "only 1 more edge" $ 
         (length $ edges g1) + 1 == (length $ edges g2)
       assertBool "the edge" $ hasLEdge g2 (newNode, 0, RelEdge $ Mbr 1)
@@ -110,9 +114,10 @@
                          , TestLabel "tTpltArity" tTpltArity ]
 
     tGelemM = TestCase $ do
-      assertBool "1" $ gelemM g1 0 == Right ()
-      assertBool "2" $ gelemM g1 100 == Left "gelemM: Node 100 absent."
+      assertBool "1" $ gelemMDe g1 0 == Right ()
+      assertBool "2" $ let Left (a,_,_) = gelemMDe g1 100 in a == FoundNo
 
+    -- >> Resume converting to Either DwtErr here
     tHasLEdgeM = TestCase $ do
       assertBool "has it" $ hasLEdgeM g1 (5,0,RelEdge $ Mbr 1) == Right ()
       assertBool "lacks it" $ isLeft $ hasLEdgeM g1 (5,0,RelEdge $ Mbr 2)

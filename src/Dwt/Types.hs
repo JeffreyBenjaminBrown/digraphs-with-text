@@ -6,7 +6,8 @@ module Dwt.Types (
   , Mbrship(..), AddressOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
   , QNode(..)
   , AddX(..), Level, JointX(..), EO(..)
-  , DwtErr(..), mExpr, mNode, mQNode, mRelRole, mRelSpec, mAddX
+  , DwtErr(..), mExpr, mNode, mEdge, mEdgeLab
+    , mQNode, mRelRole, mRelSpec, mAddX
   , errBase, errOpts, errString
   , ErrOpts(..), noErrOpts, ErrBase(..)
   ) where
@@ -32,11 +33,12 @@ data Expr = Word String | Fl Float -- these two are similarly atomic
 
 data RSLTEdge = RelEdge RelRole | CollEdge CollRole
               deriving(Show,Read,Eq,Ord)
-  -- only Rels and Colls emit edges, have subexpressions
+  -- | only Rels and Colls emit edges, have subexpressions
+  -- "RSLTEdgeLabel" would be a more accurate name.
 data RelRole = TpltRole | Mbr MbrPos deriving(Show,Read,Eq,Ord)
-  -- a k-ary Rel emits one TpltRole and k RelMbrs
+  -- | a k-ary Rel emits one TpltRole and k RelMbrs
 data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
-  -- a Col emits one CollPrinciple, any number of CollMbrs
+  -- | a Col emits one CollPrinciple, any number of CollMbrs
 -- TODO: A CollPrinciple currently can point to anything. It would be
   -- cleaner, and closer to truth, to pointonly to transitive Tplts.
   -- Exceptions: "some of," "no more than," "exactly" would use unary Tplts.
@@ -105,7 +107,10 @@ errOpts = _2
 errString :: Lens' DwtErr String
 errString = _3
 
+-- | TODO ? Use a list of a sum type, to avoid lots of Nothing
 data ErrOpts = ErrOpts { _mNode :: Maybe Node
+                       , _mEdge :: Maybe Edge
+                       , _mEdgeLab :: Maybe RSLTEdge
                        , _mExpr :: Maybe Expr
                        , _mAddX :: Maybe AddX
                        , _mRelRole :: Maybe RelRole
@@ -116,4 +121,4 @@ data ErrOpts = ErrOpts { _mNode :: Maybe Node
 makeLenses ''ErrOpts
 
 noErrOpts :: ErrOpts
-noErrOpts = ErrOpts n n n n n n where n = Nothing
+noErrOpts = ErrOpts n n n n n n n n where n = Nothing
