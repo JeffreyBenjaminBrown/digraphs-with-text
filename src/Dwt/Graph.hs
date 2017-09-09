@@ -7,7 +7,8 @@
       , relNodeSpec, relNodeSpecDe, relSpec, relSpecDe
       , chLeaf, chLeafDe, chRelRole
       , whereis, tpltAt, tpltAtDe
-      , relElts, validRole, relTplt, relTpltDe, collPrinciple
+      , relElts, relEltsDe, validRole, validRoleDe, relTplt, relTpltDe
+      , collPrinciple
       , rels, mbrs, users, usersDe, usersInRole, usersInRoleDe
       , matchRel, matchRelDe, matchRelLab, matchRelLabDe
       , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
@@ -295,7 +296,7 @@
       [n] <- relEltsDe g relNode [TpltRole]
       return $ fromJust $ lab g n
 
--- >>> resume here: changing to DwtErr
+    -- todo : change to DwtErr
     collPrinciple :: (MonadError String m) => RSLT -> Node -> m Expr
       -- analogous to relTplt
     collPrinciple g collNode = do

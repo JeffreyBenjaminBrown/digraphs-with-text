@@ -175,7 +175,7 @@
       assertBool "has 1 Up" $ has1Dir Up tRelSpecNonsense
       assertBool "has no Up" $ not $ has1Dir Up tRelSpec
 
--- >>> resume converting to Either DwtErr here
+-- >>> the last remaining function in this file to convert to Either DwtErr
     tFork1Dir = TestCase $ do -- todo, incomplete
       assertBool "searching Down, and no Up vars; should fail"
         $ isLeft $ fork1Dir g1 0 (Down, tRelSpec)
@@ -183,12 +183,12 @@
         $ fork1Dir g1 0 (Down, tRelSpec2) == Right [4]
 
     tValidRole = TestCase $ do
-      assertBool "Tplt: valid role" $ isRight $ validRole g1 5 TpltRole
-      assertBool "Mbr 0: not valid role" $ isLeft $  validRole g1 5 (Mbr 0)
-      assertBool "Mbr 1: valid role" $ isRight $ validRole g1 5 (Mbr 1)
-      assertBool "Mbr 3: too big, invalid role" $ isLeft $  validRole g1 5 (Mbr 3)
+      assertBool "Tplt: valid role" $ isRight $ validRoleDe g1 5 TpltRole
+      assertBool "Mbr 0: not valid role" $ isLeft $  validRoleDe g1 5 (Mbr 0)
+      assertBool "Mbr 1: valid role" $ isRight $ validRoleDe g1 5 (Mbr 1)
+      assertBool "Mbr 3: too big, invalid role" $ isLeft $ validRoleDe g1 5 (Mbr 3)
 
     tRelElts = TestCase $ do
-      assertBool "dog wants water -> dog" $ relElts g1 5 [Mbr 1] == Right [0]
-      assertBool "dog wants water -> dog" $ relElts g1 5 [TpltRole] == Right [1]
-      assertBool "dog wants water -> dog" $ isLeft $ relElts g1 5 [Mbr 3]
+      assertBool "dog wants water -> dog" $ relEltsDe g1 5 [Mbr 1] == Right [0]
+      assertBool "dog wants water -> dog" $ relEltsDe g1 5 [TpltRole] == Right [1]
+      assertBool "dog wants water -> dog" $ isLeft $ relEltsDe g1 5 [Mbr 3]
