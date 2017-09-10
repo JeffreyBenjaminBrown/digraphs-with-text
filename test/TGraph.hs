@@ -158,7 +158,7 @@
       assertBool "2" $ isLeft $ (users g1 100 :: Either DwtErr [Node])
 
     tSpecUsers = TestCase $ do
-      assertBool "with Arity" $ usersInRoleDe g1 0 (Mbr 1) == Right [5,6,8]
+      assertBool "with Arity" $ usersInRole g1 0 (Mbr 1) == Right [5,6,8]
 
     tMatchRel = TestCase $ do
       assertBool "dog in first pos"     $ matchRelDe g1 tRelSpec == Right [5,6,8]
