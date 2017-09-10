@@ -3,7 +3,7 @@
 
 module Dwt.Graph (
   insRelUsf
-  , insRel, insRelDeSt, insColl
+  , insRel, insRelSt, insColl
   , mkRelSpec, partitionRelSpec, insRelSpec
   , relNodeSpec, relSpec
   , chLeaf, chRelRole
@@ -51,8 +51,8 @@ insRel template mbrs g =
         addTplt = insEdge (newNode, template, RelEdge TpltRole)
                   . insNode (newNode, Rel) :: RSLT -> RSLT
 
-insRelDeSt :: Node -> [Node] -> StateT RSLT (Either DwtErr) Node
-insRelDeSt template mbrs =
+insRelSt :: Node -> [Node] -> StateT RSLT (Either DwtErr) Node
+insRelSt template mbrs =
   do g <- get
      let newNode = head $ newNodes 1 g
          addMbrs []     g = g

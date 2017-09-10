@@ -68,7 +68,7 @@ qPutSt (QRel qt qms) = do
   ms <- mapM qPutSt qms
   g <- get
   let matches = matchRel g $ mkRelSpec t ms
-  insRelDeSt t ms
+  insRelSt t ms
 qPutSt (QAt n) = lift $ Right n
 qPutSt q@(QLeaf x) = get >>= \g -> case qGet1 g q of
   Right n -> lift $ Right n
