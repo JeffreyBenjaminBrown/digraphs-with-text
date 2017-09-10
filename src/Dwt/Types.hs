@@ -125,6 +125,6 @@ noErrOpts = ErrOpts n n n n n n n n where n = Nothing
 
 -- | TODO: Convert all the ErrOpts to this
 type DwtErrSum = (ErrBase, [ErrOptSum], String)
-data ErrOptsSum = ErrNode Node | ErrEdge Edge -- | New error style: sum type
-                | ErrExpr Expr | ErrEdgeLab RSLTEdge | ErrRelRole RelRole
-                | ErrAddX AddX | ErrRelSpec RelSpec | ErrQNode QNode
+data ErrOptSum = ErrNode Node | ErrEdge Edge -- | New error style: sum type
+               | ErrExpr Expr | ErrEdgeLab RSLTEdge | ErrRelRole RelRole
+               | ErrAddX AddX | ErrRelSpec RelSpec | ErrQNode QNode

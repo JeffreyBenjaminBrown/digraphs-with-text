@@ -2,7 +2,8 @@
     {-# LANGUAGE ViewPatterns #-}
 
     module Dwt.Graph (
-      insRel, insRelDe, insRelDeSt, insRelUsf, insColl
+      insRel, insRelUsf
+      , insRelDe, insRelDeSt, insColl
       , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecDe
       , relNodeSpec, relNodeSpecDe, relSpec, relSpecDe
       , chLeaf, chLeafDe, chRelRole
@@ -72,9 +73,10 @@
          g' <- get
          return $ maxNode g'
 
+    -- | Deprecated
     insRelUsf :: Node -> [Node] -> RSLT -> RSLT
-    insRelUsf t ns g = case insRel t ns g of
-      Left s -> error s
+    insRelUsf t ns g = case insRelDe t ns g of
+      Left s -> error $ show s
       Right r -> r
 
     insColl :: (MonadError String m)
