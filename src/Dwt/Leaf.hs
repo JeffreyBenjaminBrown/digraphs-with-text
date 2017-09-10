@@ -3,7 +3,7 @@
 module Dwt.Leaf (
   _splitStringForTplt, mkTplt
   , subInTplt, padTpltStrings, subInTpltWithHashes
-  , tpltArity, mbrListMatchesTpltArity
+  , tpltArity, mbrListMatchesTpltArity, mbrListMatchesTpltAritySum
   , insLeaf
     , insWord, insTplt, insFl -- TODO ? deprec, insLeaf generalizes them
   
@@ -70,7 +70,15 @@ mbrListMatchesTpltArity ns e = case e of
   Tplt _ -> if (tpltArity e) == length ns
     then return ()
     else throwError (ArityMismatch, mExpr .~ Just e $ noErrOpts, funcName)
-  _ -> throwError (NotTplt, mExpr .~ Just e $ noErrOpts, funcName)
+  _ -> throwError (NotTplt,         mExpr .~ Just e $ noErrOpts, funcName)
+  where funcName = "mbrListMatchesTpltArity."
+
+mbrListMatchesTpltAritySum :: (MonadError DwtErrSum m) => [Node] -> Expr -> m ()
+mbrListMatchesTpltAritySum ns e = case e of
+  Tplt _ -> if (tpltArity e) == length ns
+    then return ()
+    else throwError (ArityMismatch, [ErrExpr e], funcName)
+  _ -> throwError (NotTplt,         [ErrExpr e], funcName)
   where funcName = "mbrListMatchesTpltArity."
 
 -- == Insert
