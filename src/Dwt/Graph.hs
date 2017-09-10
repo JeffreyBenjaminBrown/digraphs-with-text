@@ -5,7 +5,7 @@
       insRelStrErr, insRelUsf
       , insRel, insRelDeSt, insColl
       , mkRelSpec, partitionRelSpec, insRelSpecStrErr, insRelSpec
-      , relNodeSpecStrErr, relNodeSpec, relSpec, relSpecDe
+      , relNodeSpecStrErr, relNodeSpec, relSpecStrErr, relSpecDe
       , chLeaf, chLeafDe, chRelRole
       , whereis, tpltAt, tpltAtDe
       , relElts, relEltsDe, validRole, validRoleDe, relTplt, relTpltDe
@@ -149,9 +149,9 @@
           (NotRelSpecExpr, mNode .~ Just n $ noErrOpts, "")
         Nothing -> Left (FoundNo, mNode .~ Just n $ noErrOpts, "")
 
-    relSpec :: RSLT -> Node -> Either String RelSpec
+    relSpecStrErr :: RSLT -> Node -> Either String RelSpec
       -- name ? getRelSpec
-    relSpec g n = do -- nearly inverse to partitionRelSpec
+    relSpecStrErr g n = do -- nearly inverse to partitionRelSpec
       gelemM g n
       case (fromJust $ lab g n) of
         RelSpecExpr rvs -> do
@@ -161,10 +161,10 @@
               rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
           return $ Map.fromList $ rvsl' ++ rnsl'
 
-    relSpecDe :: RSLT -> Node -> Either DwtErr RelSpec
+    relSpec :: RSLT -> Node -> Either DwtErr RelSpec
       -- name ? getRelSpecDe
       -- is nearly inverse to partitionRelSpec
-    relSpecDe g n = prependCaller "relSpecDe: " $ do
+    relSpec g n = prependCaller "relSpec: " $ do
       gelemMDe g n
       case (fromJust $ lab g n) of
         RelSpecExpr rvs -> do

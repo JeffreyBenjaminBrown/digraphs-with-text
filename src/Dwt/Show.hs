@@ -74,7 +74,7 @@
                      [m | (m,CollEdge CollMbr) <- lsuc g n] )
 
           Just (RelSpecExpr rvs) ->
-            let rs = fromRight $ relSpec g n
+            let rs = fromRight $ relSpecStrErr g n
                 rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
                   -- e.g. rsl = [(Mbr 1,VarSpec Down),(Mbr 2,NodeSpec 3)]
                 tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup TpltRole rs
