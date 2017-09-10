@@ -3,19 +3,19 @@
 module Dwt.Leaf (
   _splitStringForTplt, mkTplt
   , subInTplt, padTpltStrings, subInTpltWithHashes
-  , tpltArity, mbrListMatchesTpltArity, mbrListMatchesTpltArityDe
+  , tpltArity, mbrListMatchesTpltArityStrErr, mbrListMatchesTpltArity
   , insLeaf
     , insWord, insTplt, insFl -- TODO ? deprec, insLeaf generalizes them
-  , hasLEdgeM
-  , isWord, isWordM, isWordMDe
-  , isTplt, isTpltM, isTpltMDe
-  , isFl, isFlM, isFlMDe
-  , isRel, isRelM, isRelMDe
-  , isColl, isCollM, isCollMDe, isLeaf, areLikeExprs
+  , hasLEdgeMStrErr
+  , isWord, isWordMStrErr, isWordM
+  , isTplt, isTpltMStrErr, isTpltM
+  , isFl, isFlMStrErr, isFlM
+  , isRel, isRelMStrErr, isRelM
+  , isColl, isCollMStrErr, isCollM, isLeaf, areLikeExprs
   ) where
 
 import Dwt.Types
-import Dwt.Util (hasLEdgeM)
+import Dwt.Util (hasLEdgeMStrErr)
 import Data.Graph.Inductive (Node, Graph, lab, newNodes, insNode)
 import Control.Monad.Except (MonadError, throwError, catchError)
 import Data.Text (pack, unpack, strip, splitOn)
@@ -65,20 +65,20 @@ tpltArity :: Expr -> Arity
 tpltArity e = case e of Tplt ss -> length ss - 1
                         _       -> error "tpltArity: Expr not a Tplt."
 
-mbrListMatchesTpltArity :: (MonadError String m) => [Node] -> Expr -> m ()
-mbrListMatchesTpltArity ns e = case e of
+mbrListMatchesTpltArityStrErr :: (MonadError String m) => [Node] -> Expr -> m ()
+mbrListMatchesTpltArityStrErr ns e = case e of
   Tplt _ -> if (tpltArity e) == length ns
     then return ()
-    else throwError "mbrListMatchesTpltArity: Tplt Arity /= number of member Nodes." 
-  _ -> throwError "mbrListMatchesTpltArity: Expr not a Tplt."
+    else throwError "mbrListMatchesTpltArityStrErr: Tplt Arity /= number of member Nodes." 
+  _ -> throwError "mbrListMatchesTpltArityStrErr: Expr not a Tplt."
 
-mbrListMatchesTpltArityDe :: (MonadError DwtErr m) => [Node] -> Expr -> m ()
-mbrListMatchesTpltArityDe ns e = case e of
+mbrListMatchesTpltArity :: (MonadError DwtErr m) => [Node] -> Expr -> m ()
+mbrListMatchesTpltArity ns e = case e of
   Tplt _ -> if (tpltArity e) == length ns
     then return ()
     else throwError (ArityMismatch, mExpr .~ Just e $ noErrOpts, funcName)
   _ -> throwError (NotTplt, mExpr .~ Just e $ noErrOpts, funcName)
-  where funcName = "mbrListMatchesTpltArityDe."
+  where funcName = "mbrListMatchesTpltArity."
 
 -- == Insert
 insLeaf :: Expr -> RSLT -> RSLT
@@ -98,71 +98,71 @@ insFl f = insLeaf $ Fl f
 
 
 -- == Expr tests
-_isExprMConstructor :: (MonadError String m, Graph gr) => (a -> Bool) ->
+_isExprMConstructorStrErr :: (MonadError String m, Graph gr) => (a -> Bool) ->
   gr a b -> Node -> m () -- constructs an isExprM function (Expr a variable)
   -- todo ? catch these erorrs, append strings
     -- otherwise the distinction bewteen absence and inequality is lost
-_isExprMConstructor pred g n = case mExpr of 
+_isExprMConstructorStrErr pred g n = case mExpr of 
     Nothing -> throwError $ "Node " ++ show n ++ " absent."
     Just expr ->  case pred expr of True -> return ()
                                     False -> throwError $ "is not"
   where mExpr = lab g n
 
 
-_isExprMConstructorDe -- constructs an is_M function (_ is a variable)
+_isExprMConstructor -- constructs an is_M function (_ is a variable)
   :: (Graph gr) => (a -> Bool) -> gr a b -> Node -> Either DwtErr ()
   -- todo ? catch these erorrs, append strings
     -- otherwise the distinction bewteen absence and inequality is lost
-_isExprMConstructorDe pred g n = case lab g n of 
+_isExprMConstructor pred g n = case lab g n of 
   Just expr -> case pred expr of True -> return ()
                                  False -> Left $ _1 .~ FoundWrongKind $ err
   Nothing -> Left err
-  where err = (FoundNo, mNode .~ Just n $ noErrOpts, "_isExprMConstructorDe.")
+  where err = (FoundNo, mNode .~ Just n $ noErrOpts, "_isExprMConstructor.")
 
 isWord :: Expr -> Bool
 isWord x = case x of Word _ -> True; _ -> False
 
-isWordM :: (MonadError String m) => RSLT -> Node -> m ()
-isWordM = _isExprMConstructor isWord
+isWordMStrErr :: (MonadError String m) => RSLT -> Node -> m ()
+isWordMStrErr = _isExprMConstructorStrErr isWord
 
-isWordMDe :: RSLT -> Node -> Either DwtErr ()
-isWordMDe = _isExprMConstructorDe isWord
+isWordM :: RSLT -> Node -> Either DwtErr ()
+isWordM = _isExprMConstructor isWord
 
 isTplt :: Expr -> Bool
 isTplt x = case x of Tplt _ -> True; _ -> False
 
-isTpltM :: (MonadError String m) => RSLT -> Node -> m ()
-isTpltM = _isExprMConstructor isTplt
+isTpltMStrErr :: (MonadError String m) => RSLT -> Node -> m ()
+isTpltMStrErr = _isExprMConstructorStrErr isTplt
 
-isTpltMDe :: RSLT -> Node -> Either DwtErr ()
-isTpltMDe = _isExprMConstructorDe isTplt
+isTpltM :: RSLT -> Node -> Either DwtErr ()
+isTpltM = _isExprMConstructor isTplt
 
 isFl :: Expr -> Bool
 isFl x = case x of Fl _ -> True; _ -> False
 
-isFlM :: (MonadError String m) => RSLT -> Node -> m ()
-isFlM = _isExprMConstructor isFl
+isFlMStrErr :: (MonadError String m) => RSLT -> Node -> m ()
+isFlMStrErr = _isExprMConstructorStrErr isFl
 
-isFlMDe :: RSLT -> Node -> Either DwtErr ()
-isFlMDe = _isExprMConstructorDe isFl
+isFlM :: RSLT -> Node -> Either DwtErr ()
+isFlM = _isExprMConstructor isFl
 
 isRel :: Expr -> Bool
 isRel x = case x of Rel -> True; _ -> False
 
-isRelM :: (MonadError String m) => RSLT -> Node -> m ()
-isRelM = _isExprMConstructor isRel
+isRelMStrErr :: (MonadError String m) => RSLT -> Node -> m ()
+isRelMStrErr = _isExprMConstructorStrErr isRel
 
-isRelMDe :: RSLT -> Node -> Either DwtErr ()
-isRelMDe = _isExprMConstructorDe isRel
+isRelM :: RSLT -> Node -> Either DwtErr ()
+isRelM = _isExprMConstructor isRel
 
 isColl :: Expr -> Bool
 isColl x = case x of Coll -> True; _ -> False
 
-isCollM :: (MonadError String m) => RSLT -> Node -> m ()
-isCollM = _isExprMConstructor isColl
+isCollMStrErr :: (MonadError String m) => RSLT -> Node -> m ()
+isCollMStrErr = _isExprMConstructorStrErr isColl
 
-isCollMDe :: RSLT -> Node -> Either DwtErr ()
-isCollMDe = _isExprMConstructorDe isColl
+isCollM :: RSLT -> Node -> Either DwtErr ()
+isCollM = _isExprMConstructor isColl
 
 isLeaf :: Expr -> Bool -- todo ? make Leaf an Expr constructor
 isLeaf (Word _) = True

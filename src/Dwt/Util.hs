@@ -8,8 +8,8 @@ module Dwt.Util (
   , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
 
   -- graphs & monads
-  , hasLEdgeM, hasLEdgeMDe
-  , gelemM, gelemMDe
+  , hasLEdgeMStrErr, hasLEdgeM
+  , gelemMStrErr, gelemM
 
   , fr, fromRight, prependCaller -- monads
   ) where
@@ -67,23 +67,23 @@ joinGraphs g h =
             (shiftAdj ins, n+shift, nlab, shiftAdj outs)) h
   in mkGraph (labNodes g ++ labNodes h') (labEdges g ++ labEdges h')
 
-hasLEdgeM :: (MonadError String m, Graph gr, Eq b, Show b) => 
+hasLEdgeMStrErr :: (MonadError String m, Graph gr, Eq b, Show b) => 
   gr a b -> LEdge b -> m ()
-hasLEdgeM g le = if hasLEdge g le then return ()
-  else throwError $ "hasLEdgeM: LEdge " ++ show le ++ " absent."
+hasLEdgeMStrErr g le = if hasLEdge g le then return ()
+  else throwError $ "hasLEdgeMStrErr: LEdge " ++ show le ++ " absent."
 
-hasLEdgeMDe :: RSLT -> LEdge RSLTEdge -> Either DwtErr ()
-hasLEdgeMDe g le@(a,b,lab) = if hasLEdge g le then return ()
-  else Left (FoundNo, x, "hasLEdgeMDe.")
+hasLEdgeM :: RSLT -> LEdge RSLTEdge -> Either DwtErr ()
+hasLEdgeM g le@(a,b,lab) = if hasLEdge g le then return ()
+  else Left (FoundNo, x, "hasLEdgeM.")
   where x = mEdge .~ Just (a,b) $ mEdgeLab .~ Just lab $ noErrOpts
 
-gelemM :: (MonadError String m, Graph gr) => gr a b -> Node -> m ()
-gelemM g n = if gelem n g then return () 
-  else throwError $ "gelemM: Node " ++ show n ++ " absent."
+gelemMStrErr :: (MonadError String m, Graph gr) => gr a b -> Node -> m ()
+gelemMStrErr g n = if gelem n g then return () 
+  else throwError $ "gelemMStrErr: Node " ++ show n ++ " absent."
 
-gelemMDe :: Graph gr => gr a b -> Node -> Either DwtErr ()
-gelemMDe g n = if gelem n g then return () 
-  else Left (FoundNo, mNode .~ Just n $ noErrOpts, "gelemMDe")
+gelemM :: Graph gr => gr a b -> Node -> Either DwtErr ()
+gelemM g n = if gelem n g then return () 
+  else Left (FoundNo, mNode .~ Just n $ noErrOpts, "gelemM")
 
 
 -- == monads

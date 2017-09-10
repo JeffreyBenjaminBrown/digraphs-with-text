@@ -14,8 +14,8 @@
       ] [ (4,1,AsTplt), (4,0, AsPos 1), (4,2,AsPos 2), (4,3,AsPos 3)
       ]
 
-    gelemM :: (Monad m) => MyGraph -> Node -> m ()
-    gelemM g n = if gelem n g then return () 
+    gelemMStrErr :: (Monad m) => MyGraph -> Node -> m ()
+    gelemMStrErr g n = if gelem n g then return () 
                               else fail "Node not in Graph"
 
     chStringAt :: MyGraph -> Node -> String -> MyGraph
@@ -24,5 +24,5 @@
 
     chStringAt' :: (Monad m) => MyGraph -> Node -> String -> m MyGraph
     chStringAt' g n s = do
-      gelemM g n
+      gelemMStrErr g n
       return $ chStringAt g n s

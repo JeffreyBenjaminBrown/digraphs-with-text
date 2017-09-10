@@ -99,8 +99,8 @@
 --        isLeft $ chLeaf g1 4  $ mkTplt "_ is _" -- LNode 4 is a Word
 
 --    tChMbr = TestCase $ do
---      let gDogDog = fromRight $ chRelRole g1 5 0 (Mbr 2)
---      let gImpossible         = chRelRole g1 5 0 (Mbr 99) -- 99 is too high
+--      let gDogDog = fromRight $ chRelRoleStrErr g1 5 0 (Mbr 2)
+--      let gImpossible         = chRelRoleStrErr g1 5 0 (Mbr 99) -- 99 is too high
 --      assertBool "1" $ showExpr gDogDog 5
 --                       == "5:1 0: dog ##wants 0: dog"
 --      assertBool "MbrPos out of range" $ isLeft gImpossible
@@ -114,18 +114,18 @@
                          , TestLabel "tTpltArity" tTpltArity ]
 
     tGelemM = TestCase $ do
-      assertBool "1" $ gelemMDe g1 0 == Right ()
-      assertBool "2" $ let Left (a,_,_) = gelemMDe g1 100 in a == FoundNo
+      assertBool "1" $ gelemM g1 0 == Right ()
+      assertBool "2" $ let Left (a,_,_) = gelemM g1 100 in a == FoundNo
 
     -- >> Resume converting to Either DwtErr here
     tHasLEdgeM = TestCase $ do
-      assertBool "has it" $ hasLEdgeMDe g1 (5,0,RelEdge $ Mbr 1) == Right ()
-      assertBool "lacks it" $ isLeft $ hasLEdgeMDe g1 (5,0,RelEdge $ Mbr 2)
+      assertBool "has it" $ hasLEdgeM g1 (5,0,RelEdge $ Mbr 1) == Right ()
+      assertBool "lacks it" $ isLeft $ hasLEdgeM g1 (5,0,RelEdge $ Mbr 2)
 
     tIsTplt = TestCase $ do
-      assertBool "is template" $ isRight $ isTpltMDe g1 1
-      assertBool "is not template" $ isLeft $ isTpltMDe g1 0
-      assertBool "missing" $ isLeft $ isTpltMDe g1 (-1)
+      assertBool "is template" $ isRight $ isTpltM g1 1
+      assertBool "is not template" $ isLeft $ isTpltM g1 0
+      assertBool "missing" $ isLeft $ isTpltM g1 (-1)
 
     tTpltAt = TestCase $ do
       assertBool "normal" $ tpltAt g1 1 == ( Right $ Tplt ["","wants",""] )

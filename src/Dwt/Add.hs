@@ -4,7 +4,7 @@ import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Types
 import Dwt.Graph
 import Dwt.Search
-import Dwt.Util (fr, maxNode, prependCaller, gelemMDe)
+import Dwt.Util (fr, maxNode, prependCaller, gelemM)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)
 import Data.List (mapAccumL)
@@ -55,7 +55,7 @@ prettyPrint = it 0 where
   it k l = putStrLn $ space k ++ show l
 
 addExpr :: AddX -> StateT RSLT (Either DwtErr) Node
-addExpr (At n) = get >>= lift . flip gelemMDe n >> return n
+addExpr (At n) = get >>= lift . flip gelemM n >> return n
 addExpr Absent = lift $ Left (Impossible
   , mAddX .~ Just Absent $ noErrOpts, "execAddX.")
 addExpr (LeafX e) = qPutSt $ QLeaf e

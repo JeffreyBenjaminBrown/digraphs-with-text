@@ -6,7 +6,7 @@ module Dwt.Graph (
   , insRel, insRelSt, insColl
   , mkRelSpec, partitionRelSpec, insRelSpec
   , relNodeSpec, relSpec
-  , chLeaf, chRelRole
+  , chLeaf, chRelRoleStrErr
   , whereis, tpltAt
   , relElts, validRole, relTplt
   , collPrinciple
@@ -40,9 +40,9 @@ import Control.Lens hiding ((&))
 -- ======== build
 insRel :: Node -> [Node] -> RSLT -> Either DwtErr RSLT
 insRel template mbrs g =
-  do mapM_ (gelemMDe g) $ template:mbrs
+  do mapM_ (gelemM g) $ template:mbrs
      tplt <- tpltAt g template
-     mbrListMatchesTpltArityDe mbrs tplt
+     mbrListMatchesTpltArity mbrs tplt
      return $ addMbrs (zip mbrs [1..tpltArity tplt]) $ addTplt g
   where newNode = head $ newNodes 1 g
         addMbrs []     g = g
@@ -60,9 +60,9 @@ insRelSt template mbrs =
            (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
          addTplt = insEdge (newNode, template, RelEdge TpltRole)
            . insNode (newNode, Rel) :: RSLT -> RSLT
-     lift $ mapM_ (gelemMDe g) $ template:mbrs
+     lift $ mapM_ (gelemM g) $ template:mbrs
      tplt <- tpltAt g template
-     mbrListMatchesTpltArityDe mbrs tplt
+     mbrListMatchesTpltArity mbrs tplt
      modify $ addMbrs (zip mbrs [1..tpltArity tplt]) . addTplt
      g' <- get
      return $ maxNode g'
@@ -77,7 +77,7 @@ insColl :: (MonadError String m)
         => (Maybe Node) -- title|principle, e.g. "alternatives"
         -> [Node] -> RSLT -> m RSLT
 insColl mt ns g = do
-  mapM_ (gelemM g) ns
+  mapM_ (gelemMStrErr g) ns
   let newNode = head $ newNodes 1 g
       nameEdges = case mt of
         Nothing -> []
@@ -106,7 +106,7 @@ insRelSpec rSpec g = do
       newAddr = head $ newNodes 1 g
       newLNode = (newAddr, RelSpecExpr varMap)
         -- this node specifies the variable nodes
-  mapM_ (gelemMDe g) $ Map.elems nodeMap
+  mapM_ (gelemM g) $ Map.elems nodeMap
   let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
                 $ Map.toList nodeMap
         -- these edges specify the addressed nodes
@@ -114,7 +114,7 @@ insRelSpec rSpec g = do
 
 relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
 relNodeSpec g n = prependCaller "relNodeSpec: " $ do
-  gelemMDe g n
+  gelemM g n
   case lab g n of
     Just (RelSpecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
       where f (node,RelEdge r) = (r,node)
@@ -126,7 +126,7 @@ relSpec :: RSLT -> Node -> Either DwtErr RelSpec
   -- name ? getRelSpecDe
   -- is nearly inverse to partitionRelSpec
 relSpec g n = prependCaller "relSpec: " $ do
-  gelemMDe g n
+  gelemM g n
   case (fromJust $ lab g n) of
     RelSpecExpr rvs -> do
       let rnsl = Map.toList $ fromRight $ relNodeSpecStrErr g n
@@ -150,27 +150,27 @@ _chLeafUsf :: RSLT -> Node -> Expr -> RSLT
 _chLeafUsf g n newExpr = let (Just (a,b,c,d),g') = match n g
   in (a,b,newExpr,d) & g'
 
-chRelRole :: (MonadError String m) =>
+chRelRoleStrErr :: (MonadError String m) =>
   RSLT -> Node -> Node -> RelRole -> m RSLT
-chRelRole g user newMbr role = do
-  isRelM g user `catchError` (\_ -> throwError $
-    "chRelRole: Node " ++ show user ++ " absent or not a Rel.")
-  gelemM g newMbr
+chRelRoleStrErr g user newMbr role = do
+  isRelMStrErr g user `catchError` (\_ -> throwError $
+    "chRelRoleStrErr: Node " ++ show user ++ " absent or not a Rel.")
+  gelemMStrErr g newMbr
   let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
   if length candidates /= 1
-    then throwError "chRelRole: invalid graph state, or MbrPos out of range"
+    then throwError "chRelRoleStrErr: invalid graph state, or MbrPos out of range"
     else return ()
   let oldMbr = head candidates
   return $ delLEdge (user,oldMbr,RelEdge role)
          $ insEdge (user,newMbr,RelEdge role) g
 
-chRelRoleDe :: RSLT -> Node -> Node -> RelRole -> Either DwtErr RSLT
-chRelRoleDe g user newMbr role = do
-  isRelMDe g user
-  gelemMDe g newMbr
+chRelRole :: RSLT -> Node -> Node -> RelRole -> Either DwtErr RSLT
+chRelRole g user newMbr role = do
+  isRelM g user
+  gelemM g newMbr
   let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
       err = (Invalid, mNode .~ Just user $ mRelRole .~ Just role
-              $ noErrOpts, "chRelRoleDe.")
+              $ noErrOpts, "chRelRole.")
   case candidates of
     [] -> Left $ _1 .~ FoundNo $ err
     [a] -> return $ delLEdge (user,a,RelEdge role)
@@ -193,12 +193,12 @@ tpltAt g tn = let name = "tpltAt." in case lab g tn of
 
 relElts :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
 relElts g relNode roles = do
-  isRelMDe g relNode
+  isRelM g relNode
   mapM_  (validRole g relNode) roles
   return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
 validRole :: RSLT -> Node -> RelRole -> Either DwtErr ()
-validRole g relNode role = isRelMDe g relNode >> case role of
+validRole g relNode role = isRelM g relNode >> case role of
   TpltRole -> return ()
   Mbr p -> do
     if p >= 1 then return () else Left err
@@ -218,7 +218,7 @@ relTplt g relNode = do
 collPrinciple :: (MonadError String m) => RSLT -> Node -> m Expr
   -- analogous to relTplt
 collPrinciple g collNode = do
-  isCollM g collNode `catchError` (\_ -> throwError $
+  isCollMStrErr g collNode `catchError` (\_ -> throwError $
     "collPrinciple: Node " ++ show collNode ++ " absent or not a Coll.")
   return $ fromJust $ lab g $ head
     [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
@@ -235,13 +235,13 @@ mbrs g n = [addr | (addr,elab) <- lsuc g n, isMbrEdge elab]
 
 -- Words and Tplts are used, but are not users. (Rels and Colls use them.)
 users :: Graph gr => gr a b -> Node -> Either DwtErr [Node]
-users g n = do gelemMDe g n
+users g n = do gelemM g n
                return [m | (m,label@_) <- lpre g n]
 
 -- | Rels using Node n in RelRole r
 usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
 usersInRole g n r = prependCaller "usersInRole: " $
-  do gelemMDe g n -- makes f safe
+  do gelemM g n -- makes f safe
      return $ f g n r
   where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
         f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
@@ -319,7 +319,7 @@ _dwtDfs g dir pending@(n:ns) acc = do
 
 dwtDfs :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either String [Node]
 dwtDfs g dir starts = do
-  mapM_ (gelemM g) $ starts
+  mapM_ (gelemMStrErr g) $ starts
   (nub . reverse) <$> _dwtDfs g dir starts []
 
 _dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] ->
@@ -331,7 +331,7 @@ _dwtBfs g dir pending@(n:ns) acc = do
 
 dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either String [Node]
 dwtBfs g dir starts = do
-  mapM_ (gelemM g) $ starts
+  mapM_ (gelemMStrErr g) $ starts
   (nub . reverse) <$> _dwtBfs g dir starts []
 
 -- chase :: Var -> RSLT -> [RelSpec] -> [Node] -> Either String [Node]
@@ -339,9 +339,9 @@ dwtBfs g dir starts = do
 -- ======== duplicative, deprecated
 insRelStrErr :: Node -> [Node] -> RSLT -> Either String RSLT
 insRelStrErr template mbrs g =
-  do mapM_ (gelemM g) $ template:mbrs
+  do mapM_ (gelemMStrErr g) $ template:mbrs
      tplt <- tpltAtStrErr g template
-     mbrListMatchesTpltArity mbrs tplt
+     mbrListMatchesTpltArityStrErr mbrs tplt
      return $ addMbrs (zip mbrs [1..tpltArity tplt]) $ addTplt g
   where newNode = head $ newNodes 1 g
         addMbrs []     g = g
@@ -356,7 +356,7 @@ insRelSpecStrErr rSpec g = do
       newAddr = head $ newNodes 1 g
       newLNode = (newAddr, RelSpecExpr varMap)
         -- this node specifies the variable nodes
-  mapM_ (gelemM g) $ Map.elems nodeMap
+  mapM_ (gelemMStrErr g) $ Map.elems nodeMap
   let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
                 $ Map.toList nodeMap
         -- these edges specify the addressed nodes
@@ -365,7 +365,7 @@ insRelSpecStrErr rSpec g = do
 relNodeSpecStrErr :: (MonadError String m) -- name ? getRelNodeSpec
   => RSLT -> Node -> m RelNodeSpec
 relNodeSpecStrErr g n = do
-  gelemM g n
+  gelemMStrErr g n
   case (fromJust $ lab g n) of
     RelSpecExpr _ -> return $ Map.fromList $ map f $ lsuc g n
       where f (node,RelEdge r) = (r,node)
@@ -374,7 +374,7 @@ relNodeSpecStrErr g n = do
 relSpecStrErr :: RSLT -> Node -> Either String RelSpec
   -- name ? getRelSpec
 relSpecStrErr g n = do -- nearly inverse to partitionRelSpec
-  gelemM g n
+  gelemMStrErr g n
   case (fromJust $ lab g n) of
     RelSpecExpr rvs -> do
       let rnsl = Map.toList $ fromRight $ relNodeSpecStrErr g n
@@ -402,7 +402,7 @@ tpltAtStrErr g tn = case lab g tn of
 
 relEltsStrErr :: RSLT -> Node -> [RelRole] -> Either String [Node]
 relEltsStrErr g relNode roles = do
-  isRelM g relNode `catchError` (\_ -> throwError $
+  isRelMStrErr g relNode `catchError` (\_ -> throwError $
     "relEltsStrErr: Node " ++ show relNode ++ " absent or not a Rel.")
   mapM_  (validRoleStrErr g relNode) roles `catchError` (\_ -> throwError $
     "relEltsStrErr: at least one member out of bounds")
@@ -410,7 +410,7 @@ relEltsStrErr g relNode roles = do
 
 validRoleStrErr :: RSLT -> Node -> RelRole -> Either String ()
 validRoleStrErr g relNode role = do
-  isRelM g relNode `catchError` (\_ -> throwError
+  isRelMStrErr g relNode `catchError` (\_ -> throwError
     $ "validRoleStrErr: Node " ++ show relNode ++ " absent or not a Rel.")
   case role of
     TpltRole -> return ()
@@ -429,12 +429,12 @@ relTpltStrErr g relNode = do
   return $ fromJust $ lab g n
 
 usersStrErr :: (MonadError String m, Graph gr) => gr a b -> Node -> m [Node]
-usersStrErr g n = do gelemM g n
+usersStrErr g n = do gelemMStrErr g n
                      return [m | (m,label@_) <- lpre g n]
 
 usersInRoleStrErr :: (MonadError String m) -- | Rels using Node n in RelRole r
             => RSLT -> Node -> RelRole -> m [Node]
-usersInRoleStrErr g n r = do gelemM g n -- makes f safe
+usersInRoleStrErr g n r = do gelemMStrErr g n -- makes f safe
                              return $ f g n r
   where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
         f g n r = [m | (m,r') <- lpre g n, r'==RelEdge r]
