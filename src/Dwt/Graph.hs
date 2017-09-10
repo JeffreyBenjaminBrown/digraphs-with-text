@@ -263,12 +263,21 @@ tpltAtSum g tn = let name = "tpltAt." in case lab g tn of
   Nothing -> throwError (FoundNo, [ErrNode tn], name)
   _       -> throwError (NotTplt, [ErrNode tn], name)
 
+-- TODO: add prependCaller
 relElts :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
 relElts g relNode roles = do
   isRelM g relNode
   mapM_  (validRole g relNode) roles
   return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
+-- TODO: add prependCaller
+relEltsSum :: RSLT -> Node -> [RelRole] -> Either DwtErrSum [Node]
+relEltsSum g relNode roles = do
+  isRelMSum g relNode
+  mapM_  (validRoleSum g relNode) roles
+  return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
+
+-- TODO: add prependCaller
 validRole :: RSLT -> Node -> RelRole -> Either DwtErr ()
 validRole g relNode role = isRelM g relNode >> case role of
   TpltRole -> return ()
@@ -280,10 +289,28 @@ validRole g relNode role = isRelM g relNode >> case role of
       else Left $ _1 .~ ArityMismatch $ _2 . mExpr .~ Just t $ err
   where err = (Invalid, mRelRole .~ Just role $ noErrOpts, "validRoleStrErr.")
 
+validRoleSum :: RSLT -> Node -> RelRole -> Either DwtErrSum ()
+validRoleSum g relNode role = isRelMSum g relNode >> case role of
+  TpltRole -> return ()
+  Mbr p -> do
+    if p >= 1 then return () else Left err
+    t <- relTpltSum g relNode
+    let a = tpltArity t
+    if p <= a then return ()
+      else Left $ _1 .~ ArityMismatch $ _2 %~ (ErrExpr t:) $ err
+  where err = (Invalid, [ErrRelRole role], "validRoleStrErr.")
+
+-- TODO: add prependCaller
 relTplt :: RSLT -> Node -> Either DwtErr Expr -- unsafe
   -- might not be called on a template
 relTplt g relNode = do
   [n] <- relElts g relNode [TpltRole]
+  return $ fromJust $ lab g n
+
+relTpltSum :: RSLT -> Node -> Either DwtErrSum Expr -- unsafe
+  -- might not be called on a template
+relTpltSum g relNode = do
+  [n] <- relEltsSum g relNode [TpltRole]
   return $ fromJust $ lab g n
 
 -- todo : change to DwtErr
