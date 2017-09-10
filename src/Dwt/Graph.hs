@@ -6,7 +6,7 @@ module Dwt.Graph (
   , insRel, insRelSt, insColl
   , mkRelSpec, partitionRelSpec, insRelSpec
   , relNodeSpec, relSpec
-  , chLeaf, chRelRoleStrErr
+  , chLeaf, chRelRole
   , whereis, tpltAt
   , relElts, validRole, relTplt
   , collPrinciple
@@ -16,7 +16,8 @@ module Dwt.Graph (
 
   -- duplicative, deprecated
   , insRelStrErr, insRelSpecStrErr, relNodeSpecStrErr, relSpecStrErr
-  , chLeafStrErr, tpltAtStrErr, relEltsStrErr, validRoleStrErr
+  , chLeafStrErr, chRelRoleStrErr, tpltAtStrErr, relEltsStrErr
+  , validRoleStrErr
   , relTpltStrErr, usersStrErr, usersInRoleStrErr, matchRelStrErr
   , matchRelLabStrErr
 
@@ -149,20 +150,6 @@ chLeaf g n e' = prependCaller "chLeaf: " $ do
 _chLeafUsf :: RSLT -> Node -> Expr -> RSLT
 _chLeafUsf g n newExpr = let (Just (a,b,c,d),g') = match n g
   in (a,b,newExpr,d) & g'
-
-chRelRoleStrErr :: (MonadError String m) =>
-  RSLT -> Node -> Node -> RelRole -> m RSLT
-chRelRoleStrErr g user newMbr role = do
-  isRelMStrErr g user `catchError` (\_ -> throwError $
-    "chRelRoleStrErr: Node " ++ show user ++ " absent or not a Rel.")
-  gelemMStrErr g newMbr
-  let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
-  if length candidates /= 1
-    then throwError "chRelRoleStrErr: invalid graph state, or MbrPos out of range"
-    else return ()
-  let oldMbr = head candidates
-  return $ delLEdge (user,oldMbr,RelEdge role)
-         $ insEdge (user,newMbr,RelEdge role) g
 
 chRelRole :: RSLT -> Node -> Node -> RelRole -> Either DwtErr RSLT
 chRelRole g user newMbr role = do
@@ -393,6 +380,20 @@ chLeafStrErr g n e' = do
     Nothing -> throwError $ "chLeafStrErr: Node " ++ show n ++ " absent."
     _       -> throwError $ "chLeafStrErr: Node " ++ show n ++ " is a user."
   return $ _chLeafUsf g n e'
+
+chRelRoleStrErr :: (MonadError String m) =>
+  RSLT -> Node -> Node -> RelRole -> m RSLT
+chRelRoleStrErr g user newMbr role = do
+  isRelMStrErr g user `catchError` (\_ -> throwError $
+    "chRelRoleStrErr: Node " ++ show user ++ " absent or not a Rel.")
+  gelemMStrErr g newMbr
+  let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
+  if length candidates /= 1
+    then throwError "chRelRoleStrErr: invalid graph state, or MbrPos out of range"
+    else return ()
+  let oldMbr = head candidates
+  return $ delLEdge (user,oldMbr,RelEdge role)
+         $ insEdge (user,newMbr,RelEdge role) g
 
 tpltAtStrErr :: (MonadError String m) => RSLT -> Node -> m Expr
 tpltAtStrErr g tn = case lab g tn of
