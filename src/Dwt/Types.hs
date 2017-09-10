@@ -10,7 +10,7 @@ module Dwt.Types (
     , mQNode, mRelRole, mRelSpec, mAddX
   , errBase, errOpts, errString
   , ErrOpt(..), noErrOpts, ErrBase(..)
-  , DwtErrSum(..), ErrOptSum
+  , DwtErrSum(..), ErrOptSum(..)
   , errBaseSum, errOptsSum, errStringSum
   ) where
 

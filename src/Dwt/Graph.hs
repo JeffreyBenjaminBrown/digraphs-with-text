@@ -7,7 +7,7 @@ module Dwt.Graph (
   , mkRelSpec, partitionRelSpec, insRelSpec
   , relNodeSpec, relSpec
   , chLeaf, chRelRole
-  , whereis, tpltAt
+  , whereis, tpltAt, tpltAtSum
   , relElts, validRole, relTplt
   , collPrinciple
   , rels, mbrs, users, usersInRole
@@ -169,6 +169,12 @@ tpltAt g tn = let name = "tpltAt." in case lab g tn of
   Just t@(Tplt _) -> return t
   Nothing -> throwError (FoundNo, mNode .~ Just tn $ noErrOpts, name)
   _       -> throwError (NotTplt, mNode .~ Just tn $ noErrOpts, name)
+
+tpltAtSum :: (MonadError DwtErrSum m) => RSLT -> Node -> m Expr
+tpltAtSum g tn = let name = "tpltAt." in case lab g tn of
+  Just t@(Tplt _) -> return t
+  Nothing -> throwError (FoundNo, [ErrNode tn], name)
+  _       -> throwError (NotTplt, [ErrNode tn], name)
 
 relElts :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
 relElts g relNode roles = do
