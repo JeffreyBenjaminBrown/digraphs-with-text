@@ -10,9 +10,9 @@ module Dwt.Graph (
   , chLeaf, chLeafSum, chRelRole, chRelRoleSum
   , whereis, tpltAt, tpltAtSum
   , relElts, validRole, relTplt
-  , collPrinciple
-  , rels, mbrs, users, usersInRole
-  , matchRel, matchRelLab
+  , collPrinciple, collPrincipleSum
+  , rels, mbrs, users, usersSum, usersInRole, usersInRoleSum
+  , matchRel, matchRelSum, matchRelLab, matchRelLabSum
   , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
   ) where
 
@@ -263,21 +263,21 @@ tpltAtSum g tn = let name = "tpltAt." in case lab g tn of
   Nothing -> throwError (FoundNo, [ErrNode tn], name)
   _       -> throwError (NotTplt, [ErrNode tn], name)
 
--- TODO: add prependCaller
+-- todo: add prependCaller
 relElts :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
 relElts g relNode roles = do
   isRelM g relNode
   mapM_  (validRole g relNode) roles
   return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
--- TODO: add prependCaller
+-- todo: add prependCaller
 relEltsSum :: RSLT -> Node -> [RelRole] -> Either DwtErrSum [Node]
 relEltsSum g relNode roles = do
   isRelMSum g relNode
   mapM_  (validRoleSum g relNode) roles
   return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
--- TODO: add prependCaller
+-- todo: add prependCaller
 validRole :: RSLT -> Node -> RelRole -> Either DwtErr ()
 validRole g relNode role = isRelM g relNode >> case role of
   TpltRole -> return ()
@@ -300,7 +300,7 @@ validRoleSum g relNode role = isRelMSum g relNode >> case role of
       else Left $ _1 .~ ArityMismatch $ _2 %~ (ErrExpr t:) $ err
   where err = (Invalid, [ErrRelRole role], "validRoleStrErr.")
 
--- TODO: add prependCaller
+-- todo: add prependCaller
 relTplt :: RSLT -> Node -> Either DwtErr Expr -- unsafe
   -- might not be called on a template
 relTplt g relNode = do
@@ -321,6 +321,13 @@ collPrinciple g collNode = do
   return $ fromJust $ lab g $ head
     [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
 
+collPrincipleSum :: RSLT -> Node -> Either DwtErrSum Expr
+  -- analogous to relTplt
+collPrincipleSum g collNode = do
+  prependCallerSum "collPrincipleDe: " $ isCollMSum g collNode
+  return $ fromJust $ lab g $ head
+    [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
+
 -- ==== .. -> [Node]
 rels :: Gr Expr b -> [Node]
 rels = nodes . labfilter (\n -> case n of Tplt _ -> True; _ -> False)
@@ -336,10 +343,21 @@ users :: Graph gr => gr a b -> Node -> Either DwtErr [Node]
 users g n = do gelemM g n
                return [m | (m,label@_) <- lpre g n]
 
+usersSum :: Graph gr => gr a b -> Node -> Either DwtErrSum [Node]
+usersSum g n = do gelemMSum g n
+                  return [m | (m,label@_) <- lpre g n]
+
 -- | Rels using Node n in RelRole r
 usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
 usersInRole g n r = prependCaller "usersInRole: " $
   do gelemM g n -- makes f safe
+     return $ f g n r
+  where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
+        f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
+
+usersInRoleSum :: RSLT -> Node -> RelRole -> Either DwtErrSum [Node]
+usersInRoleSum g n r = prependCallerSum "usersInRole: " $
+  do gelemMSum g n -- makes f safe
      return $ f g n r
   where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
         f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
@@ -352,12 +370,27 @@ matchRel g spec = prependCaller "matchRel: " $ do
   nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
   return $ listIntersect nodeListList
 
+matchRelSum :: RSLT -> RelSpec -> Either DwtErrSum [Node]
+matchRelSum g spec = prependCallerSum "matchRel: " $ do
+  let specList = Map.toList
+        $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
+        $ spec :: [(RelRole,AddressOrVar)]
+  nodeListList <- mapM (\(r,NodeSpec n) -> usersInRoleSum g n r) specList
+  return $ listIntersect nodeListList
+
 matchRelLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
 matchRelLab g spec = prependCaller "matchRelLab: " $ do
   ns <- matchRel g spec
   return $ zip ns $ map (fromJust . lab g) ns
     -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
 
+matchRelLabSum :: RSLT -> RelSpec -> Either DwtErrSum [LNode Expr]
+matchRelLabSum g spec = prependCallerSum "matchRelLab: " $ do
+  ns <- matchRelSum g spec
+  return $ zip ns $ map (fromJust . lab g) ns
+    -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
+
+-- >>>
 -- ======== using directions (RelSpecs)
 -- todo ? 1Dir because it should have one such direction. I forget why.
   -- clarif: if I want a generation in the Down direction of the rel "has/",
