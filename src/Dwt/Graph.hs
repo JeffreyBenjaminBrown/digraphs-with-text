@@ -2,17 +2,24 @@
     {-# LANGUAGE ViewPatterns #-}
 
     module Dwt.Graph (
-      insRelStrErr, insRelUsf
+      insRelUsf
       , insRel, insRelDeSt, insColl
-      , mkRelSpec, partitionRelSpec, insRelSpecStrErr, insRelSpec
-      , relNodeSpecStrErr, relNodeSpec, relSpecStrErr, relSpec
-      , chLeafStrErr, chLeaf, chRelRole
-      , whereis, tpltAtStrErr, tpltAt
-      , relEltsStrErr, relElts, validRoleStrErr, validRole, relTpltStrErr, relTplt
+      , mkRelSpec, partitionRelSpec, insRelSpec
+      , relNodeSpec, relSpec
+      , chLeaf, chRelRole
+      , whereis, tpltAt
+      , relElts, validRole, relTplt
       , collPrinciple
-      , rels, mbrs, usersStrErr, users, usersInRoleStrErr, usersInRole
-      , matchRelStrErr, matchRel, matchRelLabStrErr, matchRelLab
+      , rels, mbrs, users, usersInRole
+      , matchRel, matchRelLab
       , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
+
+      -- duplicative, deprecated
+      , insRelStrErr, insRelSpecStrErr, relNodeSpecStrErr, relSpecStrErr
+      , chLeafStrErr, tpltAtStrErr, relEltsStrErr, validRoleStrErr
+      , relTpltStrErr, usersStrErr, usersInRoleStrErr, matchRelStrErr
+      , matchRelLabStrErr
+
       ) where
 
     import Dwt.Types
@@ -31,18 +38,6 @@
     import Control.Lens hiding ((&))
 
 -- build
-    insRelStrErr :: Node -> [Node] -> RSLT -> Either String RSLT
-    insRelStrErr template mbrs g =
-      do mapM_ (gelemM g) $ template:mbrs
-         tplt <- tpltAtStrErr g template
-         mbrListMatchesTpltArity mbrs tplt
-         return $ addMbrs (zip mbrs [1..tpltArity tplt]) $ addTplt g
-      where newNode = head $ newNodes 1 g
-            addMbrs []     g = g
-            addMbrs (p:ps) g = addMbrs ps $ insEdge
-              (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
-            addTplt = insEdge (newNode, template, RelEdge TpltRole)
-                      . insNode (newNode, Rel) :: RSLT -> RSLT
 
     insRel :: Node -> [Node] -> RSLT -> Either DwtErr RSLT
     insRel template mbrs g =
@@ -106,18 +101,6 @@
       in ( Map.map  (\(VarSpec  v) -> v)  vs
          , Map.map  (\(NodeSpec n) -> n)  ns )
 
-    insRelSpecStrErr :: (MonadError String m) => RelSpec -> RSLT -> m RSLT
-    insRelSpecStrErr rSpec g = do
-      let (varMap, nodeMap) = partitionRelSpec rSpec
-          newAddr = head $ newNodes 1 g
-          newLNode = (newAddr, RelSpecExpr varMap)
-            -- this node specifies the variable nodes
-      mapM_ (gelemM g) $ Map.elems nodeMap
-      let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
-                    $ Map.toList nodeMap
-            -- these edges specify the addressed nodes
-      return $ insEdges newLEdges $ insNode newLNode g
-
     insRelSpec :: RelSpec -> RSLT -> Either DwtErr RSLT
     insRelSpec rSpec g = do
       let (varMap, nodeMap) = partitionRelSpec rSpec
@@ -130,15 +113,6 @@
             -- these edges specify the addressed nodes
       return $ insEdges newLEdges $ insNode newLNode g
 
-    relNodeSpecStrErr :: (MonadError String m) => RSLT -> Node -> m RelNodeSpec
-      -- name ? getRelNodeSpec
-    relNodeSpecStrErr g n = do
-      gelemM g n
-      case (fromJust $ lab g n) of
-        RelSpecExpr _ -> return $ Map.fromList $ map f $ lsuc g n
-          where f (node,RelEdge r) = (r,node)
-        _ -> throwError $ "Node " ++ show n ++ " not a RelSpecExpr."
-
     relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
     relNodeSpec g n = prependCaller "relNodeSpec: " $ do
       gelemMDe g n
@@ -148,18 +122,6 @@
         Just _ -> Left
           (NotRelSpecExpr, mNode .~ Just n $ noErrOpts, "")
         Nothing -> Left (FoundNo, mNode .~ Just n $ noErrOpts, "")
-
-    relSpecStrErr :: RSLT -> Node -> Either String RelSpec
-      -- name ? getRelSpec
-    relSpecStrErr g n = do -- nearly inverse to partitionRelSpec
-      gelemM g n
-      case (fromJust $ lab g n) of
-        RelSpecExpr rvs -> do
-          let rnsl = Map.toList $ fromRight $ relNodeSpecStrErr g n
-              rvsl = Map.toList rvs
-              rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
-              rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
-          return $ Map.fromList $ rvsl' ++ rnsl'
 
     relSpec :: RSLT -> Node -> Either DwtErr RelSpec
       -- name ? getRelSpecDe
@@ -175,17 +137,6 @@
           return $ Map.fromList $ rvsl' ++ rnsl'
 
   -- edit (but not insert)
-    chLeafStrErr :: (MonadError String m) => RSLT -> Node -> Expr -> m RSLT
-    chLeafStrErr g n e' = do
-      let me = lab g n
-          mismatch = throwError $ "chLeafStrErr: constructor mismatch"
-      case me of
-        Just e@(Word _)  -> if areLikeExprs e e' then return () else mismatch
-        Just e@(Tplt _) -> if areLikeExprs e e' then return () else mismatch
-        Nothing -> throwError $ "chLeafStrErr: Node " ++ show n ++ " absent."
-        _       -> throwError $ "chLeafStrErr: Node " ++ show n ++ " is a user."
-      return $ _chLeafUsf g n e'
-
     chLeaf :: RSLT -> Node -> Expr -> Either DwtErr RSLT
     chLeaf g n e' = prependCaller "chLeaf: " $ do
       let me = lab g n
@@ -235,11 +186,6 @@
       -- name ? exprOf
     whereis g x = nodes $ labfilter (== x) g
 
-    tpltAtStrErr :: (MonadError String m) => RSLT -> Node -> m Expr
-    tpltAtStrErr g tn = case lab g tn of
-      Just t@(Tplt _) -> return t
-      Nothing -> throwError $ "tpltAtStrErr: Node " ++ show tn ++ " absent."
-      _       -> throwError $ "tpltAtStrErr: LNode " ++ show tn ++ " not a Tplt."
 
     tpltAt :: (MonadError DwtErr m) => RSLT -> Node -> m Expr
     tpltAt g tn = let name = "tpltAt." in case lab g tn of
@@ -247,33 +193,11 @@
       Nothing -> throwError (FoundNo, mNode .~ Just tn $ noErrOpts, name)
       _       -> throwError (NotTplt, mNode .~ Just tn $ noErrOpts, name)
 
-    relEltsStrErr :: RSLT -> Node -> [RelRole] -> Either String [Node]
-    relEltsStrErr g relNode roles = do
-      isRelM g relNode `catchError` (\_ -> throwError $
-        "relEltsStrErr: Node " ++ show relNode ++ " absent or not a Rel.")
-      mapM_  (validRoleStrErr g relNode) roles `catchError` (\_ -> throwError $
-        "relEltsStrErr: at least one member out of bounds")
-      return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
-
     relElts :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
     relElts g relNode roles = do
       isRelMDe g relNode
       mapM_  (validRole g relNode) roles
       return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
-
-    validRoleStrErr :: RSLT -> Node -> RelRole -> Either String ()
-    validRoleStrErr g relNode role = do
-      isRelM g relNode `catchError` (\_ -> throwError 
-        $ "validRoleStrErr: Node " ++ show relNode ++ " absent or not a Rel.")
-      case role of
-        TpltRole -> return ()
-        Mbr p -> do
-          if p < 1 then throwError $ "validRoleStrErr: MbrPos < 1" else return ()
-          t <- relTpltStrErr g relNode
-          let a = tpltArity t
-          if p <= a then return ()
-            else throwError $ "validRoleStrErr: Arity " ++ show a ++ 
-              " < MbrPos " ++ show p
 
     validRole :: RSLT -> Node -> RelRole -> Either DwtErr ()
     validRole g relNode role = isRelMDe g relNode >> case role of
@@ -285,12 +209,6 @@
         if p <= a then return ()
           else Left $ _1 .~ ArityMismatch $ _2 . mExpr .~ Just t $ err
       where err = (Invalid, mRelRole .~ Just role $ noErrOpts, "validRoleStrErr.")
-
-    relTpltStrErr :: RSLT -> Node -> Either String Expr -- unsafe
-      -- might not be called on a template
-    relTpltStrErr g relNode = do
-      [n] <- relEltsStrErr g relNode [TpltRole]
-      return $ fromJust $ lab g n
 
     relTplt :: RSLT -> Node -> Either DwtErr Expr -- unsafe
       -- might not be called on a template
@@ -318,20 +236,9 @@
       where isMbrEdge e = case e of (RelEdge (Mbr _)) -> True; _ -> False
 
     -- Words and Tplts are used, but are not users. (Rels and Colls use them.)
-    usersStrErr :: (MonadError String m, Graph gr) => gr a b -> Node -> m [Node]
-    usersStrErr g n = do gelemM g n
-                         return [m | (m,label@_) <- lpre g n]
-
     users :: Graph gr => gr a b -> Node -> Either DwtErr [Node]
     users g n = do gelemMDe g n
                    return [m | (m,label@_) <- lpre g n]
-
-    usersInRoleStrErr :: (MonadError String m) -- | Rels using Node n in RelRole r
-                => RSLT -> Node -> RelRole -> m [Node]
-    usersInRoleStrErr g n r = do gelemM g n -- makes f safe
-                                 return $ f g n r
-      where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
-            f g n r = [m | (m,r') <- lpre g n, r'==RelEdge r]
 
     -- | Rels using Node n in RelRole r
     usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
@@ -341,14 +248,6 @@
       where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
             f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
 
-    matchRelStrErr :: RSLT -> RelSpec -> Either String [Node]
-    matchRelStrErr g spec = do
-      let specList = Map.toList
-            $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
-            $ spec :: [(RelRole,AddressOrVar)]
-      nodeListList <- mapM (\(r,NodeSpec n) -> usersInRoleStrErr g n r) specList
-      return $ listIntersect nodeListList
-
     matchRel :: RSLT -> RelSpec -> Either DwtErr [Node]
     matchRel g spec = prependCaller "matchRel: " $ do
       let specList = Map.toList
@@ -356,12 +255,6 @@
             $ spec :: [(RelRole,AddressOrVar)]
       nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
       return $ listIntersect nodeListList
-
-    matchRelLabStrErr :: RSLT -> RelSpec -> Either String [LNode Expr]
-    matchRelLabStrErr g spec = case matchRelStrErr g spec of
-      Left s -> Left $ "matchRelLabStrErr: " ++ s
-      Right ns -> Right $ zip ns $ map (fromJust . lab g) ns
-        -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
 
     matchRelLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
     matchRelLab g spec = prependCaller "matchRelLab: " $ do
@@ -444,3 +337,121 @@
       (nub . reverse) <$> _dwtBfs g dir starts []
 
     -- chase :: Var -> RSLT -> [RelSpec] -> [Node] -> Either String [Node]
+
+-- duplicative, deprecated
+    insRelStrErr :: Node -> [Node] -> RSLT -> Either String RSLT
+    insRelStrErr template mbrs g =
+      do mapM_ (gelemM g) $ template:mbrs
+         tplt <- tpltAtStrErr g template
+         mbrListMatchesTpltArity mbrs tplt
+         return $ addMbrs (zip mbrs [1..tpltArity tplt]) $ addTplt g
+      where newNode = head $ newNodes 1 g
+            addMbrs []     g = g
+            addMbrs (p:ps) g = addMbrs ps $ insEdge
+              (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
+            addTplt = insEdge (newNode, template, RelEdge TpltRole)
+                      . insNode (newNode, Rel) :: RSLT -> RSLT
+
+    insRelSpecStrErr :: (MonadError String m) => RelSpec -> RSLT -> m RSLT
+    insRelSpecStrErr rSpec g = do
+      let (varMap, nodeMap) = partitionRelSpec rSpec
+          newAddr = head $ newNodes 1 g
+          newLNode = (newAddr, RelSpecExpr varMap)
+            -- this node specifies the variable nodes
+      mapM_ (gelemM g) $ Map.elems nodeMap
+      let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
+                    $ Map.toList nodeMap
+            -- these edges specify the addressed nodes
+      return $ insEdges newLEdges $ insNode newLNode g
+
+    relNodeSpecStrErr :: (MonadError String m) -- name ? getRelNodeSpec
+      => RSLT -> Node -> m RelNodeSpec
+    relNodeSpecStrErr g n = do
+      gelemM g n
+      case (fromJust $ lab g n) of
+        RelSpecExpr _ -> return $ Map.fromList $ map f $ lsuc g n
+          where f (node,RelEdge r) = (r,node)
+        _ -> throwError $ "Node " ++ show n ++ " not a RelSpecExpr."
+
+    relSpecStrErr :: RSLT -> Node -> Either String RelSpec
+      -- name ? getRelSpec
+    relSpecStrErr g n = do -- nearly inverse to partitionRelSpec
+      gelemM g n
+      case (fromJust $ lab g n) of
+        RelSpecExpr rvs -> do
+          let rnsl = Map.toList $ fromRight $ relNodeSpecStrErr g n
+              rvsl = Map.toList rvs
+              rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
+              rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
+          return $ Map.fromList $ rvsl' ++ rnsl'
+
+    chLeafStrErr :: (MonadError String m) => RSLT -> Node -> Expr -> m RSLT
+    chLeafStrErr g n e' = do
+      let me = lab g n
+          mismatch = throwError $ "chLeafStrErr: constructor mismatch"
+      case me of
+        Just e@(Word _)  -> if areLikeExprs e e' then return () else mismatch
+        Just e@(Tplt _) -> if areLikeExprs e e' then return () else mismatch
+        Nothing -> throwError $ "chLeafStrErr: Node " ++ show n ++ " absent."
+        _       -> throwError $ "chLeafStrErr: Node " ++ show n ++ " is a user."
+      return $ _chLeafUsf g n e'
+
+    tpltAtStrErr :: (MonadError String m) => RSLT -> Node -> m Expr
+    tpltAtStrErr g tn = case lab g tn of
+      Just t@(Tplt _) -> return t
+      Nothing -> throwError $ "tpltAtStrErr: Node " ++ show tn ++ " absent."
+      _       -> throwError $ "tpltAtStrErr: LNode " ++ show tn ++ " not a Tplt."
+
+    relEltsStrErr :: RSLT -> Node -> [RelRole] -> Either String [Node]
+    relEltsStrErr g relNode roles = do
+      isRelM g relNode `catchError` (\_ -> throwError $
+        "relEltsStrErr: Node " ++ show relNode ++ " absent or not a Rel.")
+      mapM_  (validRoleStrErr g relNode) roles `catchError` (\_ -> throwError $
+        "relEltsStrErr: at least one member out of bounds")
+      return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
+
+    validRoleStrErr :: RSLT -> Node -> RelRole -> Either String ()
+    validRoleStrErr g relNode role = do
+      isRelM g relNode `catchError` (\_ -> throwError 
+        $ "validRoleStrErr: Node " ++ show relNode ++ " absent or not a Rel.")
+      case role of
+        TpltRole -> return ()
+        Mbr p -> do
+          if p < 1 then throwError $ "validRoleStrErr: MbrPos < 1" else return ()
+          t <- relTpltStrErr g relNode
+          let a = tpltArity t
+          if p <= a then return ()
+            else throwError $ "validRoleStrErr: Arity " ++ show a ++ 
+              " < MbrPos " ++ show p
+
+    relTpltStrErr :: RSLT -> Node -> Either String Expr -- unsafe
+      -- might not be called on a template
+    relTpltStrErr g relNode = do
+      [n] <- relEltsStrErr g relNode [TpltRole]
+      return $ fromJust $ lab g n
+
+    usersStrErr :: (MonadError String m, Graph gr) => gr a b -> Node -> m [Node]
+    usersStrErr g n = do gelemM g n
+                         return [m | (m,label@_) <- lpre g n]
+
+    usersInRoleStrErr :: (MonadError String m) -- | Rels using Node n in RelRole r
+                => RSLT -> Node -> RelRole -> m [Node]
+    usersInRoleStrErr g n r = do gelemM g n -- makes f safe
+                                 return $ f g n r
+      where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
+            f g n r = [m | (m,r') <- lpre g n, r'==RelEdge r]
+
+    matchRelStrErr :: RSLT -> RelSpec -> Either String [Node]
+    matchRelStrErr g spec = do
+      let specList = Map.toList
+            $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
+            $ spec :: [(RelRole,AddressOrVar)]
+      nodeListList <- mapM (\(r,NodeSpec n) -> usersInRoleStrErr g n r) specList
+      return $ listIntersect nodeListList
+
+    matchRelLabStrErr :: RSLT -> RelSpec -> Either String [LNode Expr]
+    matchRelLabStrErr g spec = case matchRelStrErr g spec of
+      Left s -> Left $ "matchRelLabStrErr: " ++ s
+      Right ns -> Right $ zip ns $ map (fromJust . lab g) ns
+        -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
+    
