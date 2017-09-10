@@ -34,7 +34,7 @@ _qGet :: -- x herein is either Node or LNode Expr
   -- Can safely be unsafe, because the QAt's contents are surely present.
   -> (RSLT -> [x])       -- | nodes or labNodes; used for QLeaf
   -> (RSLT -> RelSpec -> Either DwtErr [x])
-    -- | matchRel or matchRelLabDe; used for QRel
+    -- | matchRel or matchRelLab; used for QRel
   -> RSLT -> QNode -> Either DwtErr [x]
 _qGet f _ _ g (QAt n) = return $ if gelem n g then [f g n] else []
 _qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
@@ -48,7 +48,7 @@ qGet :: RSLT -> QNode -> Either DwtErr [Node]
 qGet = _qGet (\_ n -> n) nodes matchRel
 
 qGetLab :: RSLT -> QNode -> Either DwtErr [LNode Expr]
-qGetLab = _qGet f labNodes matchRelLabDe where
+qGetLab = _qGet f labNodes matchRelLab where
   f g n = (n, Mb.fromJust $ lab g n)
 
 qGet1 :: RSLT -> QNode -> Either DwtErr Node

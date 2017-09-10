@@ -11,7 +11,7 @@
       , relEltsStrErr, relElts, validRoleStrErr, validRole, relTpltStrErr, relTplt
       , collPrinciple
       , rels, mbrs, usersStrErr, users, usersInRoleStrErr, usersInRole
-      , matchRelStrErr, matchRel, matchRelLab, matchRelLabDe
+      , matchRelStrErr, matchRel, matchRelLabStrErr, matchRelLab
       , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
       ) where
 
@@ -357,14 +357,14 @@
       nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
       return $ listIntersect nodeListList
 
-    matchRelLab :: RSLT -> RelSpec -> Either String [LNode Expr]
-    matchRelLab g spec = case matchRelStrErr g spec of
-      Left s -> Left $ "matchRelLab: " ++ s
+    matchRelLabStrErr :: RSLT -> RelSpec -> Either String [LNode Expr]
+    matchRelLabStrErr g spec = case matchRelStrErr g spec of
+      Left s -> Left $ "matchRelLabStrErr: " ++ s
       Right ns -> Right $ zip ns $ map (fromJust . lab g) ns
         -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
 
-    matchRelLabDe :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
-    matchRelLabDe g spec = prependCaller "matchRelLabDe: " $ do
+    matchRelLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
+    matchRelLab g spec = prependCaller "matchRelLab: " $ do
       ns <- matchRel g spec
       return $ zip ns $ map (fromJust . lab g) ns
         -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
