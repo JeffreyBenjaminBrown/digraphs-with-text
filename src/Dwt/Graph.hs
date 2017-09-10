@@ -5,9 +5,9 @@
       insRelStrErr, insRelUsf
       , insRel, insRelDeSt, insColl
       , mkRelSpec, partitionRelSpec, insRelSpecStrErr, insRelSpec
-      , relNodeSpecStrErr, relNodeSpec, relSpecStrErr, relSpecDe
+      , relNodeSpecStrErr, relNodeSpec, relSpecStrErr, relSpec
       , chLeafStrErr, chLeaf, chRelRole
-      , whereis, tpltAt, tpltAtDe
+      , whereis, tpltAtStrErr, tpltAt
       , relElts, relEltsDe, validRole, validRoleDe, relTplt, relTpltDe
       , collPrinciple
       , rels, mbrs, users, usersDe, usersInRole, usersInRoleDe
@@ -34,7 +34,7 @@
     insRelStrErr :: Node -> [Node] -> RSLT -> Either String RSLT
     insRelStrErr template mbrs g =
       do mapM_ (gelemM g) $ template:mbrs
-         tplt <- tpltAt g template
+         tplt <- tpltAtStrErr g template
          mbrListMatchesTpltArity mbrs tplt
          return $ addMbrs (zip mbrs [1..tpltArity tplt]) $ addTplt g
       where newNode = head $ newNodes 1 g
@@ -47,7 +47,7 @@
     insRel :: Node -> [Node] -> RSLT -> Either DwtErr RSLT
     insRel template mbrs g =
       do mapM_ (gelemMDe g) $ template:mbrs
-         tplt <- tpltAtDe g template
+         tplt <- tpltAt g template
          mbrListMatchesTpltArityDe mbrs tplt
          return $ addMbrs (zip mbrs [1..tpltArity tplt]) $ addTplt g
       where newNode = head $ newNodes 1 g
@@ -67,7 +67,7 @@
              addTplt = insEdge (newNode, template, RelEdge TpltRole)
                . insNode (newNode, Rel) :: RSLT -> RSLT
          lift $ mapM_ (gelemMDe g) $ template:mbrs
-         tplt <- tpltAtDe g template
+         tplt <- tpltAt g template
          mbrListMatchesTpltArityDe mbrs tplt
          modify $ addMbrs (zip mbrs [1..tpltArity tplt]) . addTplt
          g' <- get
@@ -235,14 +235,14 @@
       -- name ? exprOf
     whereis g x = nodes $ labfilter (== x) g
 
-    tpltAt :: (MonadError String m) => RSLT -> Node -> m Expr
-    tpltAt g tn = case lab g tn of
+    tpltAtStrErr :: (MonadError String m) => RSLT -> Node -> m Expr
+    tpltAtStrErr g tn = case lab g tn of
       Just t@(Tplt _) -> return t
-      Nothing -> throwError $ "tpltAt: Node " ++ show tn ++ " absent."
-      _       -> throwError $ "tpltAt: LNode " ++ show tn ++ " not a Tplt."
+      Nothing -> throwError $ "tpltAtStrErr: Node " ++ show tn ++ " absent."
+      _       -> throwError $ "tpltAtStrErr: LNode " ++ show tn ++ " not a Tplt."
 
-    tpltAtDe :: (MonadError DwtErr m) => RSLT -> Node -> m Expr
-    tpltAtDe g tn = let name = "tpltAtDe." in case lab g tn of
+    tpltAt :: (MonadError DwtErr m) => RSLT -> Node -> m Expr
+    tpltAt g tn = let name = "tpltAt." in case lab g tn of
       Just t@(Tplt _) -> return t
       Nothing -> throwError (FoundNo, mNode .~ Just tn $ noErrOpts, name)
       _       -> throwError (NotTplt, mNode .~ Just tn $ noErrOpts, name)

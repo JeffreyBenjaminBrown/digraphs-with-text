@@ -128,9 +128,9 @@
       assertBool "missing" $ isLeft $ isTpltMDe g1 (-1)
 
     tTpltAt = TestCase $ do
-      assertBool "normal" $ tpltAtDe g1 1 == ( Right $ Tplt ["","wants",""] )
-      assertBool "notATplt" $ isLeft $ tpltAtDe g1 0
-      assertBool "absent" $ isLeft $ tpltAtDe g1 (-1)
+      assertBool "normal" $ tpltAt g1 1 == ( Right $ Tplt ["","wants",""] )
+      assertBool "notATplt" $ isLeft $ tpltAt g1 0
+      assertBool "absent" $ isLeft $ tpltAt g1 (-1)
 
     tTpltForRelAt = TestCase $ do
       assertBool "normal" $ relTpltDe g1 5 ==
