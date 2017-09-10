@@ -3,7 +3,7 @@
 
 module Dwt.Graph (
   insRelUsf
-  , insRel, insRelSt, insColl
+  , insRel, insRelSum, insRelSt, insColl
   , mkRelSpec, partitionRelSpec, insRelSpec
   , relNodeSpec, relSpec
   , chLeaf, chRelRole
@@ -36,6 +36,19 @@ insRel template mbrs g =
   do mapM_ (gelemM g) $ template:mbrs
      tplt <- tpltAt g template
      mbrListMatchesTpltArity mbrs tplt
+     return $ addMbrs (zip mbrs [1..tpltArity tplt]) $ addTplt g
+  where newNode = head $ newNodes 1 g
+        addMbrs []     g = g
+        addMbrs (p:ps) g = addMbrs ps $ insEdge
+          (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
+        addTplt = insEdge (newNode, template, RelEdge TpltRole)
+                  . insNode (newNode, Rel) :: RSLT -> RSLT
+
+insRelSum :: Node -> [Node] -> RSLT -> Either DwtErrSum RSLT
+insRelSum template mbrs g =
+  do mapM_ (gelemMSum g) $ template:mbrs
+     tplt <- tpltAtSum g template
+     mbrListMatchesTpltAritySum mbrs tplt
      return $ addMbrs (zip mbrs [1..tpltArity tplt]) $ addTplt g
   where newNode = head $ newNodes 1 g
         addMbrs []     g = g
