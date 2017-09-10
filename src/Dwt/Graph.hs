@@ -8,7 +8,7 @@
       , relNodeSpecStrErr, relNodeSpec, relSpecStrErr, relSpec
       , chLeafStrErr, chLeaf, chRelRole
       , whereis, tpltAtStrErr, tpltAt
-      , relEltsStrErr, relElts, validRoleStrErr, validRole, relTplt, relTpltDe
+      , relEltsStrErr, relElts, validRoleStrErr, validRole, relTpltStrErr, relTplt
       , collPrinciple
       , rels, mbrs, users, usersDe, usersInRole, usersInRoleDe
       , matchRel, matchRelDe, matchRelLab, matchRelLabDe
@@ -269,7 +269,7 @@
         TpltRole -> return ()
         Mbr p -> do
           if p < 1 then throwError $ "validRoleStrErr: MbrPos < 1" else return ()
-          t <- relTplt g relNode
+          t <- relTpltStrErr g relNode
           let a = tpltArity t
           if p <= a then return ()
             else throwError $ "validRoleStrErr: Arity " ++ show a ++ 
@@ -280,21 +280,21 @@
       TpltRole -> return ()
       Mbr p -> do
         if p >= 1 then return () else Left err
-        t <- relTpltDe g relNode
+        t <- relTplt g relNode
         let a = tpltArity t
         if p <= a then return ()
           else Left $ _1 .~ ArityMismatch $ _2 . mExpr .~ Just t $ err
       where err = (Invalid, mRelRole .~ Just role $ noErrOpts, "validRoleStrErr.")
 
-    relTplt :: RSLT -> Node -> Either String Expr -- unsafe
+    relTpltStrErr :: RSLT -> Node -> Either String Expr -- unsafe
       -- might not be called on a template
-    relTplt g relNode = do
+    relTpltStrErr g relNode = do
       [n] <- relEltsStrErr g relNode [TpltRole]
       return $ fromJust $ lab g n
 
-    relTpltDe :: RSLT -> Node -> Either DwtErr Expr -- unsafe
+    relTplt :: RSLT -> Node -> Either DwtErr Expr -- unsafe
       -- might not be called on a template
-    relTpltDe g relNode = do
+    relTplt g relNode = do
       [n] <- relElts g relNode [TpltRole]
       return $ fromJust $ lab g n
 
