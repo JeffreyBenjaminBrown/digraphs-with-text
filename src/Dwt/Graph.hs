@@ -3,7 +3,7 @@
 
     module Dwt.Graph (
       insRelStrErr, insRelUsf
-      , insRelDe, insRelDeSt, insColl
+      , insRel, insRelDeSt, insColl
       , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecDe
       , relNodeSpec, relNodeSpecDe, relSpec, relSpecDe
       , chLeaf, chLeafDe, chRelRole
@@ -44,8 +44,8 @@
             addTplt = insEdge (newNode, template, RelEdge TpltRole)
                       . insNode (newNode, Rel) :: RSLT -> RSLT
 
-    insRelDe :: Node -> [Node] -> RSLT -> Either DwtErr RSLT
-    insRelDe template mbrs g =
+    insRel :: Node -> [Node] -> RSLT -> Either DwtErr RSLT
+    insRel template mbrs g =
       do mapM_ (gelemMDe g) $ template:mbrs
          tplt <- tpltAtDe g template
          mbrListMatchesTpltArityDe mbrs tplt
@@ -75,7 +75,7 @@
 
     -- | Deprecated
     insRelUsf :: Node -> [Node] -> RSLT -> RSLT
-    insRelUsf t ns g = case insRelDe t ns g of
+    insRelUsf t ns g = case insRel t ns g of
       Left s -> error $ show s
       Right r -> r
 

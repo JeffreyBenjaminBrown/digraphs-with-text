@@ -39,19 +39,19 @@
       assertBool "mkTplt (and thereby splitStringForTplt), insRelUsf, insWord, insTplt" $ g1 == g1Alt
 
     tInsRelM = TestCase $ do
-      assertBool "1" $ (insRelDe 2 [0,0] g1 :: Either DwtErr RSLT)
+      assertBool "1" $ (insRel 2 [0,0] g1 :: Either DwtErr RSLT)
             == (Right $ insRelUsf  2 [0,0] g1)
       assertBool "2" $
-        let Left (a,_,_) = (insRelDe 15 [0,0] g1 :: Either DwtErr RSLT)
+        let Left (a,_,_) = (insRel 15 [0,0] g1 :: Either DwtErr RSLT)
         in a == FoundNo
       assertBool "3" $
-        let Left (a,_,_) = (insRelDe 2 [100,0] g1 :: Either DwtErr RSLT)
+        let Left (a,_,_) = (insRel 2 [100,0] g1 :: Either DwtErr RSLT)
         in a == FoundNo
       assertBool "4" $
-        let Left (a,_,_) = (insRelDe 2 [1,1,1] g1 :: Either DwtErr RSLT)
+        let Left (a,_,_) = (insRel 2 [1,1,1] g1 :: Either DwtErr RSLT)
         in a == ArityMismatch
       assertBool "5" $
-        let Left (a,_,_) = (insRelDe 0 [1,1,1] g1 :: Either DwtErr RSLT)
+        let Left (a,_,_) = (insRel 0 [1,1,1] g1 :: Either DwtErr RSLT)
         in a == NotTplt
 
 --    tInsColl = TestCase $ do
