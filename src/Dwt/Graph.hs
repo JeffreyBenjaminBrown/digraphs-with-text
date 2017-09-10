@@ -299,33 +299,26 @@ subNodeForVars n v r = Map.map -- change each VarSpec v to NodeSpec n
 
 -- ==== dfs and bfs
   -- algorithmically, the difference is only newNodes++ns v. ns++newNodes
-_dwtDfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] ->
-           Either String [Node]
-_dwtDfs _ _   []             acc = return acc
-_dwtDfs g dir pending@(n:ns) acc = do
-  newNodes <- fork1DirStrErr g n dir
-    -- ifdo speed: redundant, calls has1Dir a lot
-  _dwtDfs g dir (nub $ newNodes++ns) (n:acc)
-    -- ifdo speed: discard visited nodes from graph (bfs too)
+_bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
+  -> RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> Either String [Node]
+_bfsOrDfs _ _ _ [] acc = return acc
+_bfsOrDfs collector g dir pending@(n:ns) acc = do
+  newNodes <- fork1DirStrErr g n dir -- ifdo speed: calls has1Dir redundantly
+  _bfsOrDfs collector g dir (nub $ collector newNodes ns) (n:acc)
+    -- ifdo speed: discard visited nodes from graph
+
+_dwtBfs = _bfsOrDfs (\new old -> old ++ new)
+_dwtDfs = _bfsOrDfs (\new old -> new ++ old)
 
 dwtDfs :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either String [Node]
-dwtDfs g dir starts = do
-  mapM_ (gelemMStrErr g) $ starts
-  (nub . reverse) <$> _dwtDfs g dir starts []
-
-_dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] ->
-           Either String [Node]
-_dwtBfs _ _   []             acc = return acc
-_dwtBfs g dir pending@(n:ns) acc = do
-  newNodes <- fork1DirStrErr g n dir
-  _dwtBfs g dir (nub $ ns++newNodes) (n:acc)
+dwtDfs g dir starts = do mapM_ (gelemMStrErr g) $ starts
+                         (nub . reverse) <$> _dwtDfs g dir starts []
 
 dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either String [Node]
-dwtBfs g dir starts = do
-  mapM_ (gelemMStrErr g) $ starts
-  (nub . reverse) <$> _dwtBfs g dir starts []
+dwtBfs g dir starts = do mapM_ (gelemMStrErr g) $ starts
+                         (nub . reverse) <$> _dwtBfs g dir starts []
 
--- chase :: Var -> RSLT -> [RelSpec] -> [Node] -> Either String [Node]
+-- TODO ? chase :: Var -> RSLT -> [RelSpec] -> [Node] -> Either String [Node]
 
 -- ======== duplicative, deprecated
 insRelStrErr :: Node -> [Node] -> RSLT -> Either String RSLT
