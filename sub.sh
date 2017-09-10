@@ -7,9 +7,9 @@
   # X to XStrErr
   # XDe to X
 
-find . -name "*.hs" -print0 -o -name "*.txt" -print0 -o -name "*.md" -print0 | xargs -0 sed -i -r "s/([^a-zA-Z0-9\d]|^)$1([^a-zA-Z\d]|$)/\1$1StrErr\2/g"
+find . -name "*.hs" -print0 -o -name "*.txt" -print0 -o -name "*.md" -print0 | xargs -0 sed -i -r "s/([^a-zA-Z0-9\d]|^)$1([^a-zA-Z0-9\d]|$)/\1$1StrErr\2/g"
 
-find . -name "*.hs" -print0 -o -name "*.txt" -print0 -o -name "*.md" -print0 | xargs -0 sed -i -r "s/([^a-zA-Z0-9\d]|^)$1De([^a-zA-Z\d]|$)/\1$1\2/g"
+find . -name "*.hs" -print0 -o -name "*.txt" -print0 -o -name "*.md" -print0 | xargs -0 sed -i -r "s/([^a-zA-Z0-9\d]|^)$1De([^a-zA-Z0-9\d]|$)/\1$1\2/g"
 
 echo "Here's a handy commit message:"
 echo "change names: $1De -> $1 -> $1StrErr"

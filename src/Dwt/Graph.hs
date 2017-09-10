@@ -185,7 +185,6 @@ whereis :: RSLT -> Expr -> [Node]
   -- name ? exprOf
 whereis g x = nodes $ labfilter (== x) g
 
-
 tpltAt :: (MonadError DwtErr m) => RSLT -> Node -> m Expr
 tpltAt g tn = let name = "tpltAt." in case lab g tn of
   Just t@(Tplt _) -> return t
