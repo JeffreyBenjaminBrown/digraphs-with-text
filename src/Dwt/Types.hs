@@ -9,7 +9,8 @@ module Dwt.Types (
   , DwtErr(..), mExpr, mNode, mEdge, mEdgeLab
     , mQNode, mRelRole, mRelSpec, mAddX
   , errBase, errOpts, errString
-  , ErrOpts(..), noErrOpts, ErrBase(..)
+  , ErrOpt(..), noErrOpts, ErrBase(..)
+  , DwtErrSum(..), ErrOptSum
   ) where
 
 import Data.Graph.Inductive
@@ -99,16 +100,16 @@ data ErrBase = Legacy -- | for when the String has all the info
              | Impossible
   deriving (Show, Eq)
 
-type DwtErr = (ErrBase, ErrOpts, String)
+type DwtErr = (ErrBase, ErrOpt, String)
 errBase :: Lens' DwtErr ErrBase
 errBase = _1
-errOpts :: Lens' DwtErr ErrOpts
+errOpts :: Lens' DwtErr ErrOpt
 errOpts = _2
 errString :: Lens' DwtErr String
 errString = _3
 
 -- | TODO ? Use a list of a sum type, to avoid lots of Nothing
-data ErrOpts = ErrOpts { _mNode :: Maybe Node
+data ErrOpt = ErrOpt { _mNode :: Maybe Node
                        , _mEdge :: Maybe Edge
                        , _mEdgeLab :: Maybe RSLTEdge
                        , _mExpr :: Maybe Expr
@@ -118,12 +119,12 @@ data ErrOpts = ErrOpts { _mNode :: Maybe Node
                        , _mQNode :: Maybe QNode } deriving (Show, Eq)
 -- | adjust it like "noErrOpts L.& mNode L..~ (Just 2)"
 
-makeLenses ''ErrOpts
+makeLenses ''ErrOpt
 
-noErrOpts :: ErrOpts
-noErrOpts = ErrOpts n n n n n n n n where n = Nothing
+noErrOpts :: ErrOpt
+noErrOpts = ErrOpt n n n n n n n n where n = Nothing
 
--- | TODO: Convert all the ErrOpts to this
+-- | TODO: Convert all the ErrOpt to this
 type DwtErrSum = (ErrBase, [ErrOptSum], String)
 data ErrOptSum = ErrNode Node | ErrEdge Edge -- | New error style: sum type
                | ErrExpr Expr | ErrEdgeLab RSLTEdge | ErrRelRole RelRole
