@@ -427,8 +427,23 @@ fork1Dir g n (dir,r) = do -- returns one generation, neighbors
     -- TODO: this line is unnecessary. just return the rels, not their elts.
     -- EXCEPT: that might hurt the dfs, bfs functions below
 
+fork1DirSum:: RSLT -> Node -> (Mbrship,RelSpec) -> Either DwtErrSum [Node]
+fork1DirSum g n (dir,r) = do -- returns one generation, neighbors
+  if has1Dir (otherDir dir) r then return ()
+     else Left (Invalid,  [ErrRelSpec r]
+               , "fork1DirSum: should have only one " ++ show (otherDir dir))
+  let r' = subNodeForVars n (otherDir dir) r
+      dirRoles = Map.keys $ Map.filter (== VarSpec dir) r
+  rels <- matchRelSum g r'
+  concat <$> mapM (\rel -> relEltsSum g rel dirRoles) rels
+    -- TODO: this line is unnecessary. just return the rels, not their elts.
+    -- EXCEPT: that might hurt the dfs, bfs functions below
+
 fork1Dirs :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
 fork1Dirs g n rs = concat <$> mapM (fork1Dir g n) rs
+
+fork1DirsSum :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErrSum [Node]
+fork1DirsSum g n rs = concat <$> mapM (fork1DirSum g n) rs
 
 subNodeForVars :: Node -> Mbrship -> RelSpec  -> RelSpec
 subNodeForVars n v r = Map.map -- change each VarSpec v to NodeSpec n
@@ -446,8 +461,19 @@ _bfsOrDfs collector g dir pending@(n:ns) acc = do
   _bfsOrDfs collector g dir (nub $ collector newNodes ns) (n:acc)
     -- ifdo speed: discard visited nodes from graph
 
+_bfsOrDfsSum :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
+  -> RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> Either DwtErrSum [Node]
+_bfsOrDfsSum _ _ _ [] acc = return acc
+_bfsOrDfsSum collector g dir pending@(n:ns) acc = do
+  newNodes <- fork1DirSum g n dir -- ifdo speed: calls has1Dir redundantly
+  _bfsOrDfsSum collector g dir (nub $ collector newNodes ns) (n:acc)
+    -- ifdo speed: discard visited nodes from graph
+
 _dwtBfs = _bfsOrDfs (\new old -> old ++ new)
 _dwtDfs = _bfsOrDfs (\new old -> new ++ old)
+
+_dwtBfsSum = _bfsOrDfsSum (\new old -> old ++ new)
+_dwtDfsSum = _bfsOrDfsSum (\new old -> new ++ old)
 
 dwtDfs :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErr [Node]
 dwtDfs g dir starts = do mapM_ (gelemM g) $ starts
@@ -456,4 +482,12 @@ dwtDfs g dir starts = do mapM_ (gelemM g) $ starts
 dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either DwtErr [Node]
 dwtBfs g dir starts = do mapM_ (gelemM g) $ starts
                          (nub . reverse) <$> _dwtBfs g dir starts []
+
+dwtDfsSum :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErrSum [Node]
+dwtDfsSum g dir starts = do mapM_ (gelemMSum g) $ starts
+                            (nub . reverse) <$> _dwtDfsSum g dir starts []
+
+dwtBfsSum :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either DwtErrSum [Node]
+dwtBfsSum g dir starts = do mapM_ (gelemMSum g) $ starts
+                            (nub . reverse) <$> _dwtBfsSum g dir starts []
 
