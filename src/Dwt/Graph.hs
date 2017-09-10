@@ -2,7 +2,7 @@
     {-# LANGUAGE ViewPatterns #-}
 
     module Dwt.Graph (
-      insRel, insRelUsf
+      insRelStrErr, insRelUsf
       , insRelDe, insRelDeSt, insColl
       , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecDe
       , relNodeSpec, relNodeSpecDe, relSpec, relSpecDe
@@ -31,8 +31,8 @@
     import Control.Lens hiding ((&))
 
 -- build
-    insRel :: Node -> [Node] -> RSLT -> Either String RSLT
-    insRel template mbrs g =
+    insRelStrErr :: Node -> [Node] -> RSLT -> Either String RSLT
+    insRelStrErr template mbrs g =
       do mapM_ (gelemM g) $ template:mbrs
          tplt <- tpltAt g template
          mbrListMatchesTpltArity mbrs tplt

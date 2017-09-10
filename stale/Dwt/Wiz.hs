@@ -108,7 +108,7 @@
       let mbExpr = lab g tn
       case mbExpr of Nothing -> error "By getTpltAddrWiz, this is impossible."
                      Just tplt -> if tpltArity tplt == length ns
-                                  then case insRel tn ns g of
+                                  then case insRelStrErr tn ns g of
                                          Right h -> return h
                                          _ -> error "Impossible, by wizzes."
                                   else do putStrLn "Arity mismatch!"; insRelWiz g

@@ -23,9 +23,9 @@ v g $ nodes g
   -- The template has been inserted at node 3. Its address is preceded by a : to indicate that it is a template, as opposed to the string "_ is a quality of _". (That will seem more natural in the context of how relationships are displayed.)
 -- Now we'll use the template at 3 to insert two relationships among the other nodes:
 -- We could have added them in a single stage:
-g <- pure $ fromRight $ insRel 3 [2,0] g >>= insRel 3 [1,0]
-  -- insRel 3 [1,0] inserts "moist is a quality of frog".
-  -- insRel 3 [2,0] inserts "springy is a quality of frog".
+g <- pure $ fromRight $ insRelStrErr 3 [2,0] g >>= insRelStrErr 3 [1,0]
+  -- insRelStrErr 3 [1,0] inserts "moist is a quality of frog".
+  -- insRelStrErr 3 [2,0] inserts "springy is a quality of frog".
   -- Both relationships use the template at node 3, and in both the second member is frog, at node 0.
   -- Since the template at 3 relates 2 expressions, each list has length two. Templates can have any arity -- for instance, "_ does _ to _" has arity 3.
   -- I used the monadic bind operator (>>=) because that way I only need to escape one Either monad (using fromRight) rather than two of them, one containing the other.
@@ -42,10 +42,10 @@ g <- pure $ insWord "rubber bands" g
 g <- pure $ insTplt "_ uses/ _" g
 v g $ nodes g
 -- Now we can encode the subexpression that frog uses rubber bands.
-g <- pure $ fr $ insRel 8 [0,7] g
+g <- pure $ fr $ insRelStrErr 8 [0,7] g
 v g $ nodes g
 -- From those elements, we can encode that maybe frogs are springy because they use rubber bands.
-g <- pure $ fr $ insRel 6 [4,9] g
+g <- pure $ fr $ insRelStrErr 6 [4,9] g
 v g $ nodes g
   -- At last I can explain the # symbols: They indicate how fast an expression binds. In the last, at node 10, the highest-level|slowest-binding relationship is "maybe _ because _". In the first _ of the maybe-because relationship is another relationship, one that binds faster and hence has fewer # symbols, between springy and frog. The strings "springy", "frog" and "rubber bands" can be thought of as atomic, "binding" even before the first-level relationships bind.
   -- This illustrates one of DWT's advantages over graphs. In a graph, an edge cannot be a member of another edge. By contrast, in DWT a relationship can involve other relationships.

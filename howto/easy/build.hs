@@ -5,10 +5,10 @@ g <- pure $ foldl (flip insWord) g ["the cat","water","living organism"]
 putStr $ view g $ nodes g
 g <- pure $ foldl (flip insTplt) g ["_ needs _", "_ is a _","_ because _"]
 putStr $ view g $ nodes g
-g <- pure $ fromRight $ insRel 3 [0,1] g
-g <- pure $ fromRight $ insRel 4 [0,2] g
+g <- pure $ fromRight $ insRelStrErr 3 [0,1] g
+g <- pure $ fromRight $ insRelStrErr 4 [0,2] g
 putStr $ view g $ nodes g
-g <- pure $ fromRight $ insRel 5 [6,7] g
+g <- pure $ fromRight $ insRelStrErr 5 [6,7] g
 putStr $ view g $ nodes g
 
  
@@ -33,8 +33,8 @@ putStr $ view g $ nodes g
 (5,"_ #because _")
 
 -- use the relationship templates to create two relationships
-> g <- pure $ fromRight $ insRel 3 [0,1] g
-> g <- pure $ fromRight $ insRel 4 [0,2] g
+> g <- pure $ fromRight $ insRelStrErr 3 [0,1] g
+> g <- pure $ fromRight $ insRelStrErr 4 [0,2] g
 
 > putStr $ view g $ nodes g
 (0,"the cat")
@@ -47,7 +47,7 @@ putStr $ view g $ nodes g
 (7,"the cat ##(is a) living organism")
 
 -- nesting! create a "because" relationship between relationships 6 and 7
-> g <- pure $ fromRight $ insRel 5 [6,7] g
+> g <- pure $ fromRight $ insRelStrErr 5 [6,7] g
 
 > putStr $ view g $ nodes g
 (0,"the cat")
