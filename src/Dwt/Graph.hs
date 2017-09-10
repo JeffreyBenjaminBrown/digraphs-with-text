@@ -4,7 +4,7 @@
     module Dwt.Graph (
       insRelStrErr, insRelUsf
       , insRel, insRelDeSt, insColl
-      , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecDe
+      , mkRelSpec, partitionRelSpec, insRelSpecStrErr, insRelSpecDe
       , relNodeSpec, relNodeSpecDe, relSpec, relSpecDe
       , chLeaf, chLeafDe, chRelRole
       , whereis, tpltAt, tpltAtDe
@@ -106,8 +106,8 @@
       in ( Map.map  (\(VarSpec  v) -> v)  vs
          , Map.map  (\(NodeSpec n) -> n)  ns )
 
-    insRelSpec :: (MonadError String m) => RelSpec -> RSLT -> m RSLT
-    insRelSpec rSpec g = do
+    insRelSpecStrErr :: (MonadError String m) => RelSpec -> RSLT -> m RSLT
+    insRelSpecStrErr rSpec g = do
       let (varMap, nodeMap) = partitionRelSpec rSpec
           newAddr = head $ newNodes 1 g
           newLNode = (newAddr, RelSpecExpr varMap)
@@ -118,8 +118,8 @@
             -- these edges specify the addressed nodes
       return $ insEdges newLEdges $ insNode newLNode g
 
-    insRelSpecDe :: RelSpec -> RSLT -> Either DwtErr RSLT
-    insRelSpecDe rSpec g = do
+    insRelSpec :: RelSpec -> RSLT -> Either DwtErr RSLT
+    insRelSpec rSpec g = do
       let (varMap, nodeMap) = partitionRelSpec rSpec
           newAddr = head $ newNodes 1 g
           newLNode = (newAddr, RelSpecExpr varMap)

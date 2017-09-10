@@ -307,7 +307,7 @@
             f a b = conn [head $ node frameNodes a, head $ node frameNodes b]
 
     frameSansStyles :: RSLT -- put a direction on the .mm/ relation
-    frameSansStyles = fromRight $ insRelSpec r frameSansStylesOrDirections
+    frameSansStyles = fromRight $ insRelSpecStrErr r frameSansStylesOrDirections
       where r = Map.fromList 
                  [(TpltRole, NodeSpec $ head $ node frameNodes $ mkTplt "_ .mm/ _")
                  ,(Mbr 1, VarSpec Up)

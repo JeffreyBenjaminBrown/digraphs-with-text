@@ -77,7 +77,7 @@
 
     tInsRelSpec = TestCase $ do
       let (vs,ns) = partitionRelSpec tRelSpec
-          Right g2 = insRelSpecDe tRelSpec g1
+          Right g2 = insRelSpec tRelSpec g1
           [newNode] = newNodes 1 g1
       assertBool "node" $ lab g2 newNode == Just (RelSpecExpr vs)
       assertBool "only 1 more edge" $ 

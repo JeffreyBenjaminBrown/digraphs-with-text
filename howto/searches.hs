@@ -28,7 +28,7 @@ Table of Contents (eventually this format is Haskell)
         (Mbr 1,VarSpec Up),
         (Mbr 2,VarSpec Down)]
     And added it:
-      g <- p $ fr $ (insRelSpec r g :: Either String RSLT)
+      g <- p $ fr $ (insRelSpecStrErr r g :: Either String RSLT)
 
 -- 2016 02 13: bfs, dfs
     *Main> putStr $ view g $ 8:[45..(length $ nodes g)-1] -- show relevant portion of graph
