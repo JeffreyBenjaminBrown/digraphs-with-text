@@ -6,7 +6,7 @@ module Dwt.Graph (
   , insRel, insRelSum, insRelSt, insRelStSum
   , insColl
   , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecSum
-  , relNodeSpec, relSpec
+  , relNodeSpec, relNodeSpecSum, relSpec
   , chLeaf, chRelRole
   , whereis, tpltAt, tpltAtSum
   , relElts, validRole, relTplt
@@ -156,6 +156,16 @@ relNodeSpec g n = prependCaller "relNodeSpec: " $ do
     Just _ -> Left
       (NotRelSpecExpr, mNode .~ Just n $ noErrOpts, "")
     Nothing -> Left (FoundNo, mNode .~ Just n $ noErrOpts, "")
+
+relNodeSpecSum :: RSLT -> Node -> Either DwtErrSum RelNodeSpec
+relNodeSpecSum g n = prependCallerSum "relNodeSpec: " $ do
+  gelemMSum g n
+  case lab g n of
+    Just (RelSpecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
+      where f (node,RelEdge r) = (r,node)
+    Just _ -> Left
+      (NotRelSpecExpr, [ErrNode n], "")
+    Nothing -> Left (FoundNo, [ErrNode n], "")
 
 relSpec :: RSLT -> Node -> Either DwtErr RelSpec
   -- name ? getRelSpecDe
