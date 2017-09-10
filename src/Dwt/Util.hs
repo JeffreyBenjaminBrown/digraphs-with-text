@@ -9,7 +9,7 @@ module Dwt.Util (
 
   -- graphs & monads
   , hasLEdgeM
-  , gelemMStrErr, gelemM
+  , gelemMStrErr, gelemM, gelemMSum
 
   , fr, fromRight, prependCaller, prependCallerSum -- monads
   ) where
@@ -74,8 +74,11 @@ gelemMStrErr g n = if gelem n g then return ()
 
 gelemM :: Graph gr => gr a b -> Node -> Either DwtErr ()
 gelemM g n = if gelem n g then return () 
-  else Left (FoundNo, mNode .~ Just n $ noErrOpts, "gelemM")
+  else Left (FoundNo, mNode .~ Just n $ noErrOpts, "gelemM.")
 
+gelemMSum :: Graph gr => gr a b -> Node -> Either DwtErrSum ()
+gelemMSum g n = if gelem n g then return () 
+  else Left (FoundNo, [ErrNode n], "gelemM.")
 
 -- == monads
 fromRight, fr :: Either a b -> b  -- TODO: doesn't handle the Left case
