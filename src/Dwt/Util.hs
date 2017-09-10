@@ -2,7 +2,7 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Util (
-  listIntersect, lengthOne -- lists
+  listIntersect -- lists
 
   -- graphs
   , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
@@ -24,11 +24,6 @@ import Control.Lens  ((.~), (%~))
 -- == lists
 listIntersect [] = []
 listIntersect (x:xs) = foldl intersect x xs
-
-lengthOne :: [a] -> Either String [a]
-lengthOne ns = if length ns == 0 then Left "zero matches"
-  else if length ns > 1 then Left "multiple matches"
-  else return ns
 
 -- == graphs
 maxNode :: Gr a b -> Node

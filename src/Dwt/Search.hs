@@ -14,7 +14,7 @@ import Text.Regex
 import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Graph
-import Dwt.Util (fr, maxNode, lengthOne, dropEdges, fromRight, prependCaller)
+import Dwt.Util (fr, maxNode, dropEdges, fromRight, prependCaller)
 import Dwt.Leaf (insLeaf)
 
 import Control.Monad (liftM)
