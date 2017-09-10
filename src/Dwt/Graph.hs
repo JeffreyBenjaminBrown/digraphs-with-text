@@ -6,7 +6,7 @@ module Dwt.Graph (
   , insRel, insRelSum, insRelSt, insRelStSum
   , insColl
   , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecSum
-  , relNodeSpec, relNodeSpecSum, relSpec
+  , relNodeSpec, relNodeSpecSum, relSpec, relSpecSum
   , chLeaf, chRelRole
   , whereis, tpltAt, tpltAtSum
   , relElts, validRole, relTplt
@@ -172,6 +172,19 @@ relSpec :: RSLT -> Node -> Either DwtErr RelSpec
   -- is nearly inverse to partitionRelSpec
 relSpec g n = prependCaller "relSpec: " $ do
   gelemM g n
+  case (fromJust $ lab g n) of
+    RelSpecExpr rvs -> do
+      let rnsl = Map.toList $ fromRight $ relNodeSpec g n
+          rvsl = Map.toList rvs
+          rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
+          rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
+      return $ Map.fromList $ rvsl' ++ rnsl'
+
+relSpecSum :: RSLT -> Node -> Either DwtErrSum RelSpec
+  -- name ? getRelSpecDe
+  -- is nearly inverse to partitionRelSpec
+relSpecSum g n = prependCallerSum "relSpec: " $ do
+  gelemMSum g n
   case (fromJust $ lab g n) of
     RelSpecExpr rvs -> do
       let rnsl = Map.toList $ fromRight $ relNodeSpec g n
