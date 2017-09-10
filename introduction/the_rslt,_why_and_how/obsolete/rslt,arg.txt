@@ -105,7 +105,7 @@ Other data structures max out at some order
 ...........................................
 The most popular data structures include sets, maps (or dictionaries), lists (or trees), and grids (of which tables are a special case). Each of them is perfect for something. None of them is as expressive as a graph.
 
-So let's consider the graph -- the current state of the art in general-purpose knowledge representation. Google uses a graph to generate search results. Facebook uses a graph to reason about things like users and advertisers. Graphs are wonderful.
+So let's consider the graph -- the current state of the art in general-purpose knowledge representation. Google uses a graph to generate search results. Facebook uses a graph to reason about things like usersStrErr and advertisers. Graphs are wonderful.
 
 A graph is a set of "nodes", which can be anything, and "edges", which are lines or arrows connecting the nodes. Edges represent relationships between nodes. Edges can (and typically should) have names, like "_ needs _" or "_ saw _". Nodes in a graph represent first-order expressions like "Bob" or "$60,000", and edges in a graph represent second-order expressions like "Bob spent $60,000".
 

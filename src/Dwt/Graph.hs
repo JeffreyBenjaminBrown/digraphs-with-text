@@ -10,7 +10,7 @@
       , whereis, tpltAtStrErr, tpltAt
       , relEltsStrErr, relElts, validRoleStrErr, validRole, relTpltStrErr, relTplt
       , collPrinciple
-      , rels, mbrs, users, usersDe, usersInRole, usersInRoleDe
+      , rels, mbrs, usersStrErr, users, usersInRole, usersInRoleDe
       , matchRel, matchRelDe, matchRelLab, matchRelLabDe
       , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
       ) where
@@ -318,13 +318,13 @@
       where isMbrEdge e = case e of (RelEdge (Mbr _)) -> True; _ -> False
 
     -- Words and Tplts are used, but are not users. (Rels and Colls use them.)
-    users :: (MonadError String m, Graph gr) => gr a b -> Node -> m [Node]
-    users g n = do gelemM g n
-                   return [m | (m,label@_) <- lpre g n]
+    usersStrErr :: (MonadError String m, Graph gr) => gr a b -> Node -> m [Node]
+    usersStrErr g n = do gelemM g n
+                         return [m | (m,label@_) <- lpre g n]
 
-    usersDe :: Graph gr => gr a b -> Node -> Either DwtErr [Node]
-    usersDe g n = do gelemMDe g n
-                     return [m | (m,label@_) <- lpre g n]
+    users :: Graph gr => gr a b -> Node -> Either DwtErr [Node]
+    users g n = do gelemMDe g n
+                   return [m | (m,label@_) <- lpre g n]
 
     usersInRole :: (MonadError String m) -- | Rels using Node n in RelRole r
                 => RSLT -> Node -> RelRole -> m [Node]

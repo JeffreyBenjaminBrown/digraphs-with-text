@@ -140,7 +140,7 @@
 
     v :: RSLT -> [Node] -> IO ()
     v g ns = mapM_ putStrLn $ map f ns
-      where f n = show $ (fromRight $ length <$> users g n -- emul: counts users
+      where f n = show $ (fromRight $ length <$> usersStrErr g n -- emul: counts users
                          , showExpr g n)
 
     view :: RSLT -> [Node] -> String -- terse: no inner addresses, no neighborhoods

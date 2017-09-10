@@ -154,8 +154,8 @@
                          ]
 
     tUsers = TestCase $ do
-      assertBool "1" $ usersDe g1 0 == Right [5,6,8]
-      assertBool "2" $ isLeft $ (usersDe g1 100 :: Either DwtErr [Node])
+      assertBool "1" $ users g1 0 == Right [5,6,8]
+      assertBool "2" $ isLeft $ (users g1 100 :: Either DwtErr [Node])
 
     tSpecUsers = TestCase $ do
       assertBool "with Arity" $ usersInRoleDe g1 0 (Mbr 1) == Right [5,6,8]
