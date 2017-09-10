@@ -3,19 +3,18 @@
 module Dwt.Leaf (
   _splitStringForTplt, mkTplt
   , subInTplt, padTpltStrings, subInTpltWithHashes
-  , tpltArity, mbrListMatchesTpltArityStrErr, mbrListMatchesTpltArity
+  , tpltArity, mbrListMatchesTpltArity
   , insLeaf
     , insWord, insTplt, insFl -- TODO ? deprec, insLeaf generalizes them
-  , hasLEdgeMStrErr
-  , isWord, isWordMStrErr, isWordM
-  , isTplt, isTpltMStrErr, isTpltM
-  , isFl, isFlMStrErr, isFlM
-  , isRel, isRelMStrErr, isRelM
-  , isColl, isCollMStrErr, isCollM, isLeaf, areLikeExprs
+  
+  , isWord, isWordM
+  , isTplt, isTpltM
+  , isFl, isFlM
+  , isRel, isRelM
+  , isColl, isCollM, isLeaf, areLikeExprs
   ) where
 
 import Dwt.Types
-import Dwt.Util (hasLEdgeMStrErr)
 import Data.Graph.Inductive (Node, Graph, lab, newNodes, insNode)
 import Control.Monad.Except (MonadError, throwError, catchError)
 import Data.Text (pack, unpack, strip, splitOn)
@@ -65,13 +64,6 @@ tpltArity :: Expr -> Arity
 tpltArity e = case e of Tplt ss -> length ss - 1
                         _       -> error "tpltArity: Expr not a Tplt."
 
-mbrListMatchesTpltArityStrErr :: (MonadError String m) => [Node] -> Expr -> m ()
-mbrListMatchesTpltArityStrErr ns e = case e of
-  Tplt _ -> if (tpltArity e) == length ns
-    then return ()
-    else throwError "mbrListMatchesTpltArityStrErr: Tplt Arity /= number of member Nodes." 
-  _ -> throwError "mbrListMatchesTpltArityStrErr: Expr not a Tplt."
-
 mbrListMatchesTpltArity :: (MonadError DwtErr m) => [Node] -> Expr -> m ()
 mbrListMatchesTpltArity ns e = case e of
   Tplt _ -> if (tpltArity e) == length ns
@@ -96,7 +88,6 @@ insTplt s = insLeaf $ mkTplt s
 insFl :: Float -> RSLT -> RSLT
 insFl f = insLeaf $ Fl f
 
-
 -- == Expr tests
 _isExprMConstructorStrErr :: (MonadError String m, Graph gr) => (a -> Bool) ->
   gr a b -> Node -> m () -- constructs an isExprM function (Expr a variable)
@@ -107,7 +98,6 @@ _isExprMConstructorStrErr pred g n = case mExpr of
     Just expr ->  case pred expr of True -> return ()
                                     False -> throwError $ "is not"
   where mExpr = lab g n
-
 
 _isExprMConstructor -- constructs an is_M function (_ is a variable)
   :: (Graph gr) => (a -> Bool) -> gr a b -> Node -> Either DwtErr ()
@@ -122,17 +112,11 @@ _isExprMConstructor pred g n = case lab g n of
 isWord :: Expr -> Bool
 isWord x = case x of Word _ -> True; _ -> False
 
-isWordMStrErr :: (MonadError String m) => RSLT -> Node -> m ()
-isWordMStrErr = _isExprMConstructorStrErr isWord
-
 isWordM :: RSLT -> Node -> Either DwtErr ()
 isWordM = _isExprMConstructor isWord
 
 isTplt :: Expr -> Bool
 isTplt x = case x of Tplt _ -> True; _ -> False
-
-isTpltMStrErr :: (MonadError String m) => RSLT -> Node -> m ()
-isTpltMStrErr = _isExprMConstructorStrErr isTplt
 
 isTpltM :: RSLT -> Node -> Either DwtErr ()
 isTpltM = _isExprMConstructor isTplt
@@ -140,26 +124,17 @@ isTpltM = _isExprMConstructor isTplt
 isFl :: Expr -> Bool
 isFl x = case x of Fl _ -> True; _ -> False
 
-isFlMStrErr :: (MonadError String m) => RSLT -> Node -> m ()
-isFlMStrErr = _isExprMConstructorStrErr isFl
-
 isFlM :: RSLT -> Node -> Either DwtErr ()
 isFlM = _isExprMConstructor isFl
 
 isRel :: Expr -> Bool
 isRel x = case x of Rel -> True; _ -> False
 
-isRelMStrErr :: (MonadError String m) => RSLT -> Node -> m ()
-isRelMStrErr = _isExprMConstructorStrErr isRel
-
 isRelM :: RSLT -> Node -> Either DwtErr ()
 isRelM = _isExprMConstructor isRel
 
 isColl :: Expr -> Bool
 isColl x = case x of Coll -> True; _ -> False
-
-isCollMStrErr :: (MonadError String m) => RSLT -> Node -> m ()
-isCollMStrErr = _isExprMConstructorStrErr isColl
 
 isCollM :: RSLT -> Node -> Either DwtErr ()
 isCollM = _isExprMConstructor isColl
