@@ -8,7 +8,7 @@
       , relNodeSpecStrErr, relNodeSpec, relSpecStrErr, relSpec
       , chLeafStrErr, chLeaf, chRelRole
       , whereis, tpltAtStrErr, tpltAt
-      , relEltsStrErr, relElts, validRole, validRoleDe, relTplt, relTpltDe
+      , relEltsStrErr, relElts, validRoleStrErr, validRole, relTplt, relTpltDe
       , collPrinciple
       , rels, mbrs, users, usersDe, usersInRole, usersInRoleDe
       , matchRel, matchRelDe, matchRelLab, matchRelLabDe
@@ -251,32 +251,32 @@
     relEltsStrErr g relNode roles = do
       isRelM g relNode `catchError` (\_ -> throwError $
         "relEltsStrErr: Node " ++ show relNode ++ " absent or not a Rel.")
-      mapM_  (validRole g relNode) roles `catchError` (\_ -> throwError $
+      mapM_  (validRoleStrErr g relNode) roles `catchError` (\_ -> throwError $
         "relEltsStrErr: at least one member out of bounds")
       return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
     relElts :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
     relElts g relNode roles = do
       isRelMDe g relNode
-      mapM_  (validRoleDe g relNode) roles
+      mapM_  (validRole g relNode) roles
       return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
-    validRole :: RSLT -> Node -> RelRole -> Either String ()
-    validRole g relNode role = do
+    validRoleStrErr :: RSLT -> Node -> RelRole -> Either String ()
+    validRoleStrErr g relNode role = do
       isRelM g relNode `catchError` (\_ -> throwError 
-        $ "validRole: Node " ++ show relNode ++ " absent or not a Rel.")
+        $ "validRoleStrErr: Node " ++ show relNode ++ " absent or not a Rel.")
       case role of
         TpltRole -> return ()
         Mbr p -> do
-          if p < 1 then throwError $ "validRole: MbrPos < 1" else return ()
+          if p < 1 then throwError $ "validRoleStrErr: MbrPos < 1" else return ()
           t <- relTplt g relNode
           let a = tpltArity t
           if p <= a then return ()
-            else throwError $ "validRole: Arity " ++ show a ++ 
+            else throwError $ "validRoleStrErr: Arity " ++ show a ++ 
               " < MbrPos " ++ show p
 
-    validRoleDe :: RSLT -> Node -> RelRole -> Either DwtErr ()
-    validRoleDe g relNode role = isRelMDe g relNode >> case role of
+    validRole :: RSLT -> Node -> RelRole -> Either DwtErr ()
+    validRole g relNode role = isRelMDe g relNode >> case role of
       TpltRole -> return ()
       Mbr p -> do
         if p >= 1 then return () else Left err
@@ -284,7 +284,7 @@
         let a = tpltArity t
         if p <= a then return ()
           else Left $ _1 .~ ArityMismatch $ _2 . mExpr .~ Just t $ err
-      where err = (Invalid, mRelRole .~ Just role $ noErrOpts, "validRole.")
+      where err = (Invalid, mRelRole .~ Just role $ noErrOpts, "validRoleStrErr.")
 
     relTplt :: RSLT -> Node -> Either String Expr -- unsafe
       -- might not be called on a template
