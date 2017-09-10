@@ -11,7 +11,7 @@
       , relEltsStrErr, relElts, validRoleStrErr, validRole, relTpltStrErr, relTplt
       , collPrinciple
       , rels, mbrs, usersStrErr, users, usersInRoleStrErr, usersInRole
-      , matchRel, matchRelDe, matchRelLab, matchRelLabDe
+      , matchRelStrErr, matchRel, matchRelLab, matchRelLabDe
       , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
       ) where
 
@@ -341,16 +341,16 @@
       where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
             f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
 
-    matchRel :: RSLT -> RelSpec -> Either String [Node]
-    matchRel g spec = do
+    matchRelStrErr :: RSLT -> RelSpec -> Either String [Node]
+    matchRelStrErr g spec = do
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
             $ spec :: [(RelRole,AddressOrVar)]
       nodeListList <- mapM (\(r,NodeSpec n) -> usersInRoleStrErr g n r) specList
       return $ listIntersect nodeListList
 
-    matchRelDe :: RSLT -> RelSpec -> Either DwtErr [Node]
-    matchRelDe g spec = prependCaller "matchRelDe: " $ do
+    matchRel :: RSLT -> RelSpec -> Either DwtErr [Node]
+    matchRel g spec = prependCaller "matchRel: " $ do
       let specList = Map.toList
             $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False) 
             $ spec :: [(RelRole,AddressOrVar)]
@@ -358,16 +358,16 @@
       return $ listIntersect nodeListList
 
     matchRelLab :: RSLT -> RelSpec -> Either String [LNode Expr]
-    matchRelLab g spec = case matchRel g spec of
+    matchRelLab g spec = case matchRelStrErr g spec of
       Left s -> Left $ "matchRelLab: " ++ s
       Right ns -> Right $ zip ns $ map (fromJust . lab g) ns
-        -- fromJust is safe here, because matchRel only returns Nodes in g
+        -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
 
     matchRelLabDe :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
     matchRelLabDe g spec = prependCaller "matchRelLabDe: " $ do
-      ns <- matchRelDe g spec
+      ns <- matchRel g spec
       return $ zip ns $ map (fromJust . lab g) ns
-        -- fromJust is safe here, because matchRel only returns Nodes in g
+        -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
 
 -- using directions (RelSpecs)
     -- todo ? 1Dir because it should have one such direction. I forget why.
@@ -400,7 +400,7 @@
                          ++ " variables other than 1."
       let r' = subNodeForVars n (otherDir dir) r
           dirRoles = Map.keys $ Map.filter (== VarSpec dir) r
-      rels <- matchRel g r'
+      rels <- matchRelStrErr g r'
       concat <$> mapM (\rel -> relEltsStrErr g rel dirRoles) rels
         -- TODO: this line is unnecessary. just return the rels, not their elts.
         -- EXCEPT: that might hurt the dfs, bfs functions below

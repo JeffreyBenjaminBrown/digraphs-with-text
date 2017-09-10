@@ -1,6 +1,6 @@
 Table of Contents (eventually this format is Haskell)
     pre: Find all nodes using a leaf (even a Tplt)
-    matchRelDe: find all relationships using some Tplt with certain members
+    matchRel: find all relationships using some Tplt with certain members
     ?? adding a directed RelSpec to a graph
     ?? dfs, bfs
     RelSpec v. RelVarSpec
@@ -15,9 +15,9 @@ Table of Contents (eventually this format is Haskell)
     (7,"_ #can _")
     (8,"turtles ##can swim")
 
---  matchRelDe: find all relationships using some Tplt with certain members
+--  matchRel: find all relationships using some Tplt with certain members
     > let s = M.fromList [(TpltRole,NodeSpec 7),(Mbr 1,VarSpec Any),(Mbr 2,VarSpec Any)]
-    >  matchRelDe g s
+    >  matchRel g s
     Right [8]
 
 -- adding a directed RelSpec to a graph
