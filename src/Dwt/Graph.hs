@@ -4,8 +4,8 @@
     module Dwt.Graph (
       insRelStrErr, insRelUsf
       , insRel, insRelDeSt, insColl
-      , mkRelSpec, partitionRelSpec, insRelSpecStrErr, insRelSpecDe
-      , relNodeSpec, relNodeSpecDe, relSpec, relSpecDe
+      , mkRelSpec, partitionRelSpec, insRelSpecStrErr, insRelSpec
+      , relNodeSpecStrErr, relNodeSpec, relSpec, relSpecDe
       , chLeaf, chLeafDe, chRelRole
       , whereis, tpltAt, tpltAtDe
       , relElts, relEltsDe, validRole, validRoleDe, relTplt, relTpltDe
@@ -130,17 +130,17 @@
             -- these edges specify the addressed nodes
       return $ insEdges newLEdges $ insNode newLNode g
 
-    relNodeSpec :: (MonadError String m) => RSLT -> Node -> m RelNodeSpec
+    relNodeSpecStrErr :: (MonadError String m) => RSLT -> Node -> m RelNodeSpec
       -- name ? getRelNodeSpec
-    relNodeSpec g n = do
+    relNodeSpecStrErr g n = do
       gelemM g n
       case (fromJust $ lab g n) of
         RelSpecExpr _ -> return $ Map.fromList $ map f $ lsuc g n
           where f (node,RelEdge r) = (r,node)
         _ -> throwError $ "Node " ++ show n ++ " not a RelSpecExpr."
 
-    relNodeSpecDe :: RSLT -> Node -> Either DwtErr RelNodeSpec
-    relNodeSpecDe g n = prependCaller "relNodeSpecDe: " $ do
+    relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
+    relNodeSpec g n = prependCaller "relNodeSpec: " $ do
       gelemMDe g n
       case lab g n of
         Just (RelSpecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
@@ -155,7 +155,7 @@
       gelemM g n
       case (fromJust $ lab g n) of
         RelSpecExpr rvs -> do
-          let rnsl = Map.toList $ fromRight $ relNodeSpec g n
+          let rnsl = Map.toList $ fromRight $ relNodeSpecStrErr g n
               rvsl = Map.toList rvs
               rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
               rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
@@ -168,7 +168,7 @@
       gelemMDe g n
       case (fromJust $ lab g n) of
         RelSpecExpr rvs -> do
-          let rnsl = Map.toList $ fromRight $ relNodeSpec g n
+          let rnsl = Map.toList $ fromRight $ relNodeSpecStrErr g n
               rvsl = Map.toList rvs
               rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
               rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
