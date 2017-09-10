@@ -6,7 +6,7 @@
       , insRel, insRelDeSt, insColl
       , mkRelSpec, partitionRelSpec, insRelSpecStrErr, insRelSpec
       , relNodeSpecStrErr, relNodeSpec, relSpecStrErr, relSpecDe
-      , chLeaf, chLeafDe, chRelRole
+      , chLeafStrErr, chLeaf, chRelRole
       , whereis, tpltAt, tpltAtDe
       , relElts, relEltsDe, validRole, validRoleDe, relTplt, relTpltDe
       , collPrinciple
@@ -175,19 +175,19 @@
           return $ Map.fromList $ rvsl' ++ rnsl'
 
   -- edit (but not insert)
-    chLeaf :: (MonadError String m) => RSLT -> Node -> Expr -> m RSLT
-    chLeaf g n e' = do
+    chLeafStrErr :: (MonadError String m) => RSLT -> Node -> Expr -> m RSLT
+    chLeafStrErr g n e' = do
       let me = lab g n
-          mismatch = throwError $ "chLeaf: constructor mismatch"
+          mismatch = throwError $ "chLeafStrErr: constructor mismatch"
       case me of
         Just e@(Word _)  -> if areLikeExprs e e' then return () else mismatch
         Just e@(Tplt _) -> if areLikeExprs e e' then return () else mismatch
-        Nothing -> throwError $ "chLeaf: Node " ++ show n ++ " absent."
-        _       -> throwError $ "chLeaf: Node " ++ show n ++ " is a user."
+        Nothing -> throwError $ "chLeafStrErr: Node " ++ show n ++ " absent."
+        _       -> throwError $ "chLeafStrErr: Node " ++ show n ++ " is a user."
       return $ _chLeafUsf g n e'
 
-    chLeafDe :: RSLT -> Node -> Expr -> Either DwtErr RSLT
-    chLeafDe g n e' = prependCaller "chLeafDe: " $ do
+    chLeaf :: RSLT -> Node -> Expr -> Either DwtErr RSLT
+    chLeaf g n e' = prependCaller "chLeaf: " $ do
       let me = lab g n
       case me of
         Just e@(isLeaf -> True) -> if areLikeExprs e e' then return ()
