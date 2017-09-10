@@ -13,14 +13,6 @@ module Dwt.Graph (
   , rels, mbrs, users, usersInRole
   , matchRel, matchRelLab
   , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
-
-  -- duplicative, deprecated
-  , insRelStrErr, insRelSpecStrErr, relNodeSpecStrErr, relSpecStrErr
-  , chLeafStrErr, chRelRoleStrErr, tpltAtStrErr, relEltsStrErr
-  , validRoleStrErr
-  , relTpltStrErr, usersStrErr, usersInRoleStrErr, matchRelStrErr
-  , matchRelLabStrErr
-
   ) where
 
 import Dwt.Types
@@ -130,7 +122,7 @@ relSpec g n = prependCaller "relSpec: " $ do
   gelemM g n
   case (fromJust $ lab g n) of
     RelSpecExpr rvs -> do
-      let rnsl = Map.toList $ fromRight $ relNodeSpecStrErr g n
+      let rnsl = Map.toList $ fromRight $ relNodeSpec g n
           rvsl = Map.toList rvs
           rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
           rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
@@ -271,10 +263,22 @@ otherDir :: Mbrship -> Mbrship -- incomplete; non-invertible cases will err
 otherDir Up = Down
 otherDir Down = Up
 
-fork1Dir:: RSLT -> Node -> (Mbrship,RelSpec) -> Either String [Node]
+fork1Dir:: RSLT -> Node -> (Mbrship,RelSpec) -> Either DwtErr [Node]
 fork1Dir g n (dir,r) = do -- returns one generation, neighbors
   if has1Dir (otherDir dir) r then return ()
-     else throwError $ "fork1Dir: RelSpec " ++ show r
+     else Left (Invalid,  mRelSpec .~ Just r $ noErrOpts
+               ,  "should have only one " ++ show (otherDir dir))
+  let r' = subNodeForVars n (otherDir dir) r
+      dirRoles = Map.keys $ Map.filter (== VarSpec dir) r
+  rels <- matchRel g r'
+  concat <$> mapM (\rel -> relElts g rel dirRoles) rels
+    -- TODO: this line is unnecessary. just return the rels, not their elts.
+    -- EXCEPT: that might hurt the dfs, bfs functions below
+
+fork1DirStrErr:: RSLT -> Node -> (Mbrship,RelSpec) -> Either String [Node]
+fork1DirStrErr g n (dir,r) = do -- returns one generation, neighbors
+  if has1Dir (otherDir dir) r then return ()
+     else throwError $ "fork1DirStrErr: RelSpec " ++ show r
                      ++ " has a number of " ++ show (otherDir dir)
                      ++ " variables other than 1."
   let r' = subNodeForVars n (otherDir dir) r
@@ -284,7 +288,7 @@ fork1Dir g n (dir,r) = do -- returns one generation, neighbors
     -- TODO: this line is unnecessary. just return the rels, not their elts.
     -- EXCEPT: that might hurt the dfs, bfs functions below
 
-fork1Dirs :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either String [Node]
+fork1Dirs :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
 fork1Dirs g n rs = concat <$> mapM (fork1Dir g n) rs
 
 subNodeForVars :: Node -> Mbrship -> RelSpec  -> RelSpec
@@ -299,7 +303,7 @@ _dwtDfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] ->
            Either String [Node]
 _dwtDfs _ _   []             acc = return acc
 _dwtDfs g dir pending@(n:ns) acc = do
-  newNodes <- fork1Dir g n dir
+  newNodes <- fork1DirStrErr g n dir
     -- ifdo speed: redundant, calls has1Dir a lot
   _dwtDfs g dir (nub $ newNodes++ns) (n:acc)
     -- ifdo speed: discard visited nodes from graph (bfs too)
@@ -313,7 +317,7 @@ _dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] ->
            Either String [Node]
 _dwtBfs _ _   []             acc = return acc
 _dwtBfs g dir pending@(n:ns) acc = do
-  newNodes <- fork1Dir g n dir
+  newNodes <- fork1DirStrErr g n dir
   _dwtBfs g dir (nub $ ns++newNodes) (n:acc)
 
 dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either String [Node]
