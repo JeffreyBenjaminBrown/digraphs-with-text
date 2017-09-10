@@ -5,7 +5,7 @@ module Dwt.Graph (
   insRelUsf
   , insRel, insRelSum, insRelSt, insRelStSum
   , insColl
-  , mkRelSpec, partitionRelSpec, insRelSpec
+  , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecSum
   , relNodeSpec, relSpec
   , chLeaf, chRelRole
   , whereis, tpltAt, tpltAtSum
@@ -130,6 +130,18 @@ insRelSpec rSpec g = do
       newLNode = (newAddr, RelSpecExpr varMap)
         -- this node specifies the variable nodes
   mapM_ (gelemM g) $ Map.elems nodeMap
+  let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
+                $ Map.toList nodeMap
+        -- these edges specify the addressed nodes
+  return $ insEdges newLEdges $ insNode newLNode g
+
+insRelSpecSum :: RelSpec -> RSLT -> Either DwtErrSum RSLT
+insRelSpecSum rSpec g = do
+  let (varMap, nodeMap) = partitionRelSpec rSpec
+      newAddr = head $ newNodes 1 g
+      newLNode = (newAddr, RelSpecExpr varMap)
+        -- this node specifies the variable nodes
+  mapM_ (gelemMSum g) $ Map.elems nodeMap
   let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
                 $ Map.toList nodeMap
         -- these edges specify the addressed nodes
