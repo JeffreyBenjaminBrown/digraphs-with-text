@@ -7,7 +7,7 @@ module Dwt.Graph (
   , insColl
   , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecSum
   , relNodeSpec, relNodeSpecSum, relSpec, relSpecSum
-  , chLeaf, chRelRole
+  , chLeaf, chLeafSum, chRelRole
   , whereis, tpltAt, tpltAtSum
   , relElts, validRole, relTplt
   , collPrinciple
@@ -202,6 +202,16 @@ chLeaf g n e' = prependCaller "chLeaf: " $ do
       else Left (ConstructorMistmatch, noErrOpts, ".")
     Nothing -> Left (FoundNo, mNode .~ Just n $ noErrOpts, ".")
     _       -> Left (NotLeaf, mNode .~ Just n $ noErrOpts, ".")
+  return $ _chLeafUsf g n e'
+
+chLeafSum :: RSLT -> Node -> Expr -> Either DwtErrSum RSLT
+chLeafSum g n e' = prependCallerSum "chLeaf: " $ do
+  let me = lab g n
+  case me of
+    Just e@(isLeaf -> True) -> if areLikeExprs e e' then return ()
+      else Left (ConstructorMistmatch, [], ".")
+    Nothing -> Left (FoundNo, [ErrNode n], ".")
+    _       -> Left (NotLeaf, [ErrNode n], ".")
   return $ _chLeafUsf g n e'
 
 _chLeafUsf :: RSLT -> Node -> Expr -> RSLT
