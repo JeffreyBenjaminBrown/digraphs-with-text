@@ -7,7 +7,7 @@ module Dwt.Graph (
   , insColl
   , mkRelSpec, partitionRelSpec, insRelSpec, insRelSpecSum
   , relNodeSpec, relNodeSpecSum, relSpec, relSpecSum
-  , chLeaf, chLeafSum, chRelRole
+  , chLeaf, chLeafSum, chRelRole, chRelRoleSum
   , whereis, tpltAt, tpltAtSum
   , relElts, validRole, relTplt
   , collPrinciple
@@ -225,6 +225,18 @@ chRelRole g user newMbr role = do
   let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
       err = (Invalid, mNode .~ Just user $ mRelRole .~ Just role
               $ noErrOpts, "chRelRole.")
+  case candidates of
+    [] -> Left $ _1 .~ FoundNo $ err
+    [a] -> return $ delLEdge (user,a,RelEdge role)
+           $ insEdge (user,newMbr,RelEdge role) g
+    _ -> Left $ _1 .~ FoundMany $ err
+
+chRelRoleSum :: RSLT -> Node -> Node -> RelRole -> Either DwtErrSum RSLT
+chRelRoleSum g user newMbr role = do
+  isRelMSum g user
+  gelemMSum g newMbr
+  let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
+      err = (Invalid, [ErrNode user, ErrRelRole role], "chRelRole.")
   case candidates of
     [] -> Left $ _1 .~ FoundNo $ err
     [a] -> return $ delLEdge (user,a,RelEdge role)
