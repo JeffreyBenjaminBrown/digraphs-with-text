@@ -275,19 +275,6 @@ fork1Dir g n (dir,r) = do -- returns one generation, neighbors
     -- TODO: this line is unnecessary. just return the rels, not their elts.
     -- EXCEPT: that might hurt the dfs, bfs functions below
 
-fork1DirStrErr:: RSLT -> Node -> (Mbrship,RelSpec) -> Either String [Node]
-fork1DirStrErr g n (dir,r) = do -- returns one generation, neighbors
-  if has1Dir (otherDir dir) r then return ()
-     else throwError $ "fork1DirStrErr: RelSpec " ++ show r
-                     ++ " has a number of " ++ show (otherDir dir)
-                     ++ " variables other than 1."
-  let r' = subNodeForVars n (otherDir dir) r
-      dirRoles = Map.keys $ Map.filter (== VarSpec dir) r
-  rels <- matchRelStrErr g r'
-  concat <$> mapM (\rel -> relEltsStrErr g rel dirRoles) rels
-    -- TODO: this line is unnecessary. just return the rels, not their elts.
-    -- EXCEPT: that might hurt the dfs, bfs functions below
-
 fork1Dirs :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
 fork1Dirs g n rs = concat <$> mapM (fork1Dir g n) rs
 
@@ -300,22 +287,22 @@ subNodeForVars n v r = Map.map -- change each VarSpec v to NodeSpec n
 -- ==== dfs and bfs
   -- algorithmically, the difference is only newNodes++ns v. ns++newNodes
 _bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
-  -> RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> Either String [Node]
+  -> RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> Either DwtErr [Node]
 _bfsOrDfs _ _ _ [] acc = return acc
 _bfsOrDfs collector g dir pending@(n:ns) acc = do
-  newNodes <- fork1DirStrErr g n dir -- ifdo speed: calls has1Dir redundantly
+  newNodes <- fork1Dir g n dir -- ifdo speed: calls has1Dir redundantly
   _bfsOrDfs collector g dir (nub $ collector newNodes ns) (n:acc)
     -- ifdo speed: discard visited nodes from graph
 
 _dwtBfs = _bfsOrDfs (\new old -> old ++ new)
 _dwtDfs = _bfsOrDfs (\new old -> new ++ old)
 
-dwtDfs :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either String [Node]
-dwtDfs g dir starts = do mapM_ (gelemMStrErr g) $ starts
+dwtDfs :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErr [Node]
+dwtDfs g dir starts = do mapM_ (gelemM g) $ starts
                          (nub . reverse) <$> _dwtDfs g dir starts []
 
-dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either String [Node]
-dwtBfs g dir starts = do mapM_ (gelemMStrErr g) $ starts
+dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either DwtErr [Node]
+dwtBfs g dir starts = do mapM_ (gelemM g) $ starts
                          (nub . reverse) <$> _dwtBfs g dir starts []
 
 -- TODO ? chase :: Var -> RSLT -> [RelSpec] -> [Node] -> Either String [Node]
