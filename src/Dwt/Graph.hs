@@ -3,7 +3,8 @@
 
 module Dwt.Graph (
   insRelUsf
-  , insRel, insRelSum, insRelSt, insColl
+  , insRel, insRelSum, insRelSt, insRelStSum
+  , insColl
   , mkRelSpec, partitionRelSpec, insRelSpec
   , relNodeSpec, relSpec
   , chLeaf, chRelRole
@@ -69,6 +70,22 @@ insRelSt template mbrs =
      lift $ mapM_ (gelemM g) $ template:mbrs
      tplt <- tpltAt g template
      mbrListMatchesTpltArity mbrs tplt
+     modify $ addMbrs (zip mbrs [1..tpltArity tplt]) . addTplt
+     g' <- get
+     return $ maxNode g'
+
+insRelStSum :: Node -> [Node] -> StateT RSLT (Either DwtErrSum) Node
+insRelStSum template mbrs =
+  do g <- get
+     let newNode = head $ newNodes 1 g
+         addMbrs []     g = g
+         addMbrs (p:ps) g = addMbrs ps $ insEdge
+           (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
+         addTplt = insEdge (newNode, template, RelEdge TpltRole)
+           . insNode (newNode, Rel) :: RSLT -> RSLT
+     lift $ mapM_ (gelemMSum g) $ template:mbrs
+     tplt <- tpltAtSum g template
+     mbrListMatchesTpltAritySum mbrs tplt
      modify $ addMbrs (zip mbrs [1..tpltArity tplt]) . addTplt
      g' <- get
      return $ maxNode g'
