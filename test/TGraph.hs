@@ -189,6 +189,6 @@
       assertBool "Mbr 3: too big, invalid role" $ isLeft $ validRoleDe g1 5 (Mbr 3)
 
     tRelElts = TestCase $ do
-      assertBool "dog wants water -> dog" $ relEltsDe g1 5 [Mbr 1] == Right [0]
-      assertBool "dog wants water -> dog" $ relEltsDe g1 5 [TpltRole] == Right [1]
-      assertBool "dog wants water -> dog" $ isLeft $ relEltsDe g1 5 [Mbr 3]
+      assertBool "dog wants water -> dog" $ relElts g1 5 [Mbr 1] == Right [0]
+      assertBool "dog wants water -> dog" $ relElts g1 5 [TpltRole] == Right [1]
+      assertBool "dog wants water -> dog" $ isLeft $ relElts g1 5 [Mbr 3]

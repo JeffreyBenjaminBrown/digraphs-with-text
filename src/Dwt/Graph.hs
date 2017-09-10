@@ -8,7 +8,7 @@
       , relNodeSpecStrErr, relNodeSpec, relSpecStrErr, relSpec
       , chLeafStrErr, chLeaf, chRelRole
       , whereis, tpltAtStrErr, tpltAt
-      , relElts, relEltsDe, validRole, validRoleDe, relTplt, relTpltDe
+      , relEltsStrErr, relElts, validRole, validRoleDe, relTplt, relTpltDe
       , collPrinciple
       , rels, mbrs, users, usersDe, usersInRole, usersInRoleDe
       , matchRel, matchRelDe, matchRelLab, matchRelLabDe
@@ -247,16 +247,16 @@
       Nothing -> throwError (FoundNo, mNode .~ Just tn $ noErrOpts, name)
       _       -> throwError (NotTplt, mNode .~ Just tn $ noErrOpts, name)
 
-    relElts :: RSLT -> Node -> [RelRole] -> Either String [Node]
-    relElts g relNode roles = do
+    relEltsStrErr :: RSLT -> Node -> [RelRole] -> Either String [Node]
+    relEltsStrErr g relNode roles = do
       isRelM g relNode `catchError` (\_ -> throwError $
-        "relElts: Node " ++ show relNode ++ " absent or not a Rel.")
+        "relEltsStrErr: Node " ++ show relNode ++ " absent or not a Rel.")
       mapM_  (validRole g relNode) roles `catchError` (\_ -> throwError $
-        "relElts: at least one member out of bounds")
+        "relEltsStrErr: at least one member out of bounds")
       return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
-    relEltsDe :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
-    relEltsDe g relNode roles = do
+    relElts :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
+    relElts g relNode roles = do
       isRelMDe g relNode
       mapM_  (validRoleDe g relNode) roles
       return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
@@ -289,13 +289,13 @@
     relTplt :: RSLT -> Node -> Either String Expr -- unsafe
       -- might not be called on a template
     relTplt g relNode = do
-      [n] <- relElts g relNode [TpltRole]
+      [n] <- relEltsStrErr g relNode [TpltRole]
       return $ fromJust $ lab g n
 
     relTpltDe :: RSLT -> Node -> Either DwtErr Expr -- unsafe
       -- might not be called on a template
     relTpltDe g relNode = do
-      [n] <- relEltsDe g relNode [TpltRole]
+      [n] <- relElts g relNode [TpltRole]
       return $ fromJust $ lab g n
 
     -- todo : change to DwtErr
@@ -401,7 +401,7 @@
       let r' = subNodeForVars n (otherDir dir) r
           dirRoles = Map.keys $ Map.filter (== VarSpec dir) r
       rels <- matchRel g r'
-      concat <$> mapM (\rel -> relElts g rel dirRoles) rels
+      concat <$> mapM (\rel -> relEltsStrErr g rel dirRoles) rels
         -- TODO: this line is unnecessary. just return the rels, not their elts.
         -- EXCEPT: that might hurt the dfs, bfs functions below
 
