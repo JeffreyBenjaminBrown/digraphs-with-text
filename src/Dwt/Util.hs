@@ -8,10 +8,10 @@ module Dwt.Util (
   , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
 
   -- graphs & monads
-  , hasLEdgeMStrErr, hasLEdgeM
+  , hasLEdgeM
   , gelemMStrErr, gelemM
 
-  , fr, fromRight, prependCaller -- monads
+  , fr, fromRight, prependCaller, prependCallerSum -- monads
   ) where
 
 import Data.Graph.Inductive
@@ -62,16 +62,12 @@ joinGraphs g h =
             (shiftAdj ins, n+shift, nlab, shiftAdj outs)) h
   in mkGraph (labNodes g ++ labNodes h') (labEdges g ++ labEdges h')
 
-hasLEdgeMStrErr :: (MonadError String m, Graph gr, Eq b, Show b) => 
-  gr a b -> LEdge b -> m ()
-hasLEdgeMStrErr g le = if hasLEdge g le then return ()
-  else throwError $ "hasLEdgeMStrErr: LEdge " ++ show le ++ " absent."
-
 hasLEdgeM :: RSLT -> LEdge RSLTEdge -> Either DwtErr ()
 hasLEdgeM g le@(a,b,lab) = if hasLEdge g le then return ()
   else Left (FoundNo, x, "hasLEdgeM.")
   where x = mEdge .~ Just (a,b) $ mEdgeLab .~ Just lab $ noErrOpts
 
+-- | deprecated, but used for Coll constructor
 gelemMStrErr :: (MonadError String m, Graph gr) => gr a b -> Node -> m ()
 gelemMStrErr g n = if gelem n g then return () 
   else throwError $ "gelemMStrErr: Node " ++ show n ++ " absent."
@@ -91,5 +87,9 @@ fromRight _ = error "fromRight applied to Left"
 prependCaller :: String -> Either DwtErr a -> Either DwtErr a
 prependCaller name e@(Right _) = e
 prependCaller name (Left e) = Left $ errString %~ (name++) $ e
+
+prependCallerSum :: String -> Either DwtErrSum a -> Either DwtErrSum a
+prependCallerSum name e@(Right _) = e
+prependCallerSum name (Left e) = Left $ errStringSum %~ (name++) $ e
 
 

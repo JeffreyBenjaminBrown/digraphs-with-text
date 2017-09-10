@@ -11,6 +11,7 @@ module Dwt.Types (
   , errBase, errOpts, errString
   , ErrOpt(..), noErrOpts, ErrBase(..)
   , DwtErrSum(..), ErrOptSum
+  , errBaseSum, errOptsSum, errStringSum
   ) where
 
 import Data.Graph.Inductive
@@ -126,6 +127,13 @@ noErrOpts = ErrOpt n n n n n n n n where n = Nothing
 
 -- | TODO: Convert all the ErrOpt to this
 type DwtErrSum = (ErrBase, [ErrOptSum], String)
+errBaseSum :: Lens' DwtErrSum ErrBase
+errBaseSum = _1
+errOptsSum :: Lens' DwtErrSum [ErrOptSum]
+errOptsSum = _2
+errStringSum :: Lens' DwtErrSum String
+errStringSum = _3
+
 data ErrOptSum = ErrNode Node | ErrEdge Edge -- | New error style: sum type
                | ErrExpr Expr | ErrEdgeLab RSLTEdge | ErrRelRole RelRole
                | ErrAddX AddX | ErrRelSpec RelSpec | ErrQNode QNode
