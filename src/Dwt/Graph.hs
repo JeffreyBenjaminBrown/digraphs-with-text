@@ -21,7 +21,7 @@ module Dwt.Graph (
   , rels, mbrs
   , users
   , usersInRole
-  , matchRel
+  , matchRelSpecNodes
   , matchRelLab
   , has1Dir, otherDir
   , fork1Dir
@@ -231,8 +231,8 @@ usersInRole g n r = prependCaller "usersInRole: " $
   where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
         f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
 
-matchRel :: RSLT -> RelSpec -> Either DwtErr [Node]
-matchRel g spec = prependCaller "matchRel: " $ do
+matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
+matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
   let nodeSpecs = Map.toList
         $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,NodeOrVar)]
@@ -241,7 +241,7 @@ matchRel g spec = prependCaller "matchRel: " $ do
 
 matchRelLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
 matchRelLab g spec = prependCaller "matchRelLab: " $ do
-  ns <- matchRel g spec
+  ns <- matchRelSpecNodes g spec
   return $ zip ns $ map (fromJust . lab g) ns
     -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
 
@@ -276,7 +276,7 @@ fork1Dir g n (dir,r) = do -- returns one generation, neighbors
                , "fork1DirSum: should have only one " ++ show (otherDir dir))
   let r' = subNodeForVars n (otherDir dir) r
       dirRoles = Map.keys $ Map.filter (== VarSpec dir) r
-  rels <- matchRel g r'
+  rels <- matchRelSpecNodes g r'
   concat <$> mapM (\rel -> relElts g rel dirRoles) rels
     -- TODO: this line is unnecessary. just return the rels, not their elts.
     -- EXCEPT: that might hurt the dfs, bfs functions below
