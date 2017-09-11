@@ -14,7 +14,7 @@ import Text.Regex
 import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Graph
-import Dwt.Util (fr, maxNode, dropEdges, fromRight, prependCallerLongErr, prependCaller)
+import Dwt.Util (fr, maxNode, dropEdges, fromRight, prependCaller)
 import Dwt.Leaf (insLeaf)
 
 import Control.Monad (liftM)
@@ -61,7 +61,7 @@ qGet1 g q = prependCaller "qGet1: " $ case qGet g q of
 qPutSt :: QNode -> StateT RSLT (Either DwtErr) Node
 qPutSt (QRel qt qms) = do
   -- TODO ? would be more efficient to return even the half-completed state
-  let tag = prependCaller "qPutStLongErr: " -- TODO: use
+  let tag = prependCaller "qPutSt: " -- TODO: use
   t <- qPutSt qt
   ms <- mapM qPutSt qms
   g <- get
@@ -72,7 +72,7 @@ qPutSt q@(QLeaf x) = get >>= \g -> case qGet1 g q of
   Right n -> lift $ Right n
   Left (FoundNo,_,_) -> let g' = insLeaf x g
     in put g' >> lift (Right $ maxNode g')
-  Left e -> lift $ prependCaller "qPutStLongErr: " $ Left e
+  Left e -> lift $ prependCaller "qPutSt: " $ Left e
 
 -- == Regex
 qRegexWord :: RSLT -> String -> [Node]

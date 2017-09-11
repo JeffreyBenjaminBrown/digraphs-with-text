@@ -34,7 +34,7 @@
                              , vpShowFiats :: ShowFiats
                              }
 
--- things _showExpr uses, maybe useful elsewhere -- TODO ? export|promote x-file
+    -- things _showExpr uses, maybe useful elsewhere -- TODO ? export|promote x-file
     exprDepth :: RSLT -> Node -> Depth -- TODO ? Use the [Node]
     exprDepth g n = fst $ _exprDepth g (0,[n]) (1,[]) []
 
@@ -51,7 +51,7 @@
     _exprDepth g (d,n:ns) (d',ns')  acc = let newNodes = mbrs g n in
       _exprDepth (delNode n g) (d,ns) (d', newNodes ++ ns') (n:acc)
 
--- _showExpr and things only it uses
+    -- ==== _showExpr and things only it uses
     _showExpr :: ViewProg -> RSLT -> Depth -> Maybe Node -> String
     _showExpr vp g d Nothing = "#absent_node#"
     _showExpr vp g d (Just n) = 
@@ -116,7 +116,7 @@
           es = map (RelEdge . Mbr) [1..arity] -- RelEdge $ Mbr 1 :: DwtEDge
       in Map.fromList $ zip es mns
 
--- things using _showExpr
+    -- ==== things using _showExpr
     prefixerDefault = Prefixer { _str = colWordFunc
                         , _tplt = \n -> ":" ++ show n ++ " "
                         , _rel = \n tn -> show n ++ ":" ++ show tn ++ " "
@@ -140,14 +140,14 @@
 
     v :: RSLT -> [Node] -> IO ()
     v g ns = mapM_ putStrLn $ map f ns
-      where f n = show $ (fromRight $ length <$> users g n -- emul: counts usersLongErr
+      where f n = show $ (fromRight $ length <$> users g n -- emul: counts users
                          , showExpr g n)
 
     view :: RSLT -> [Node] -> String -- terse: no inner addresses, no neighborhoods
     view g ns = unlines $ map f ns
       where f n = show (n, showExprT g n)
 
--- mostly unused
+    -- ==== mostly unused
     bracket :: String -> String -- unused, but a useful pair of characters
     bracket s = "\171" ++ s ++ "\187" -- = «s»
 

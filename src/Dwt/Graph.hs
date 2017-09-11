@@ -173,12 +173,12 @@ whereis :: RSLT -> Expr -> [Node]
 whereis g x = nodes $ labfilter (== x) g
 
 tpltAt :: (MonadError DwtErr m) => RSLT -> Node -> m Expr
-tpltAt g tn = let name = "tpltAtLongErr." in case lab g tn of
+tpltAt g tn = let name = "tpltAt." in case lab g tn of
   Just t@(Tplt _) -> return t
   Nothing -> throwError (FoundNo, [ErrNode tn], name)
   _       -> throwError (NotTplt, [ErrNode tn], name)
 
--- todo: add prependCallerLongErr
+-- todo: add prependCaller
 relElts :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
 relElts g relNode roles = do
   isRelM g relNode
@@ -203,7 +203,7 @@ relTplt g relNode = do
   return $ fromJust $ lab g n
 
 collPrinciple :: RSLT -> Node -> Either DwtErr Expr
-  -- analogous to relTpltLongErr
+  -- analogous to relTplt
 collPrinciple g collNode = do
   prependCaller "collPrincipleDe: " $ isCollM g collNode
   return $ fromJust $ lab g $ head
@@ -213,27 +213,27 @@ collPrinciple g collNode = do
 rels :: Gr Expr b -> [Node]
 rels = nodes . labfilter (\n -> case n of Tplt _ -> True; _ -> False)
 
--- opposites: mbrs, usersLongErr
+-- opposites: mbrs, users
   -- though they would not be if Tplts pointed to|had members of their own
 mbrs :: RSLT -> Node -> [Node]
 mbrs g n = [addr | (addr,elab) <- lsuc g n, isMbrEdge elab]
   where isMbrEdge e = case e of (RelEdge (Mbr _)) -> True; _ -> False
 
--- Words and Tplts are used, but are not usersLongErr. (Rels and Colls use them.)
+-- Words and Tplts are used, but are not users. (Rels and Colls use them.)
 users :: Graph gr => gr a b -> Node -> Either DwtErr [Node]
 users g n = do gelemM g n
                return [m | (m,label@_) <- lpre g n]
 
 -- | Rels using Node n in RelRole r
 usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
-usersInRole g n r = prependCaller "usersInRoleLongErr: " $
+usersInRole g n r = prependCaller "usersInRole: " $
   do gelemM g n -- makes f safe
      return $ f g n r
   where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
         f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
 
 matchRel :: RSLT -> RelSpec -> Either DwtErr [Node]
-matchRel g spec = prependCaller "matchRelLongErr: " $ do
+matchRel g spec = prependCaller "matchRel: " $ do
   let specList = Map.toList
         $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,AddressOrVar)]
@@ -241,7 +241,7 @@ matchRel g spec = prependCaller "matchRelLongErr: " $ do
   return $ listIntersect nodeListList
 
 matchRelLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
-matchRelLab g spec = prependCaller "matchRelLabLongErr: " $ do
+matchRelLab g spec = prependCaller "matchRelLab: " $ do
   ns <- matchRel g spec
   return $ zip ns $ map (fromJust . lab g) ns
     -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
