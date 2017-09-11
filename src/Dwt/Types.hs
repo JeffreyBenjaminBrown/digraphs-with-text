@@ -135,5 +135,6 @@ errString :: Lens' DwtErr String
 errString = _3
 
 data ErrOpt = ErrNode Node | ErrEdge Edge -- | New error style: sum type
-               | ErrExpr Expr | ErrEdgeLab RSLTEdge | ErrRelRole RelRole
-               | ErrAddX AddX | ErrRelSpec RelSpec | ErrQNode QNode
+  | ErrExpr Expr | ErrEdgeLab RSLTEdge | ErrRelRole RelRole
+  | ErrAddX AddX | ErrRelSpec RelSpec | ErrQNode QNode
+  deriving (Show, Eq)

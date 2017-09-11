@@ -54,15 +54,15 @@ prettyPrint = it 0 where
     mapM_ f $ zip js ms
   it k l = putStrLn $ space k ++ show l
 
-addExprLongErr :: AddX -> StateT RSLT (Either DwtErrLongErr) Node
-addExprLongErr (At n) = get >>= lift . flip gelemMLongErr n >> return n
-addExprLongErr Absent = lift $ Left (Impossible
-  , mAddX .~ Just Absent $ noErrOpts, "execAddX.")
-addExprLongErr (LeafX e) = qPutStLongErr $ QLeaf e
-addExprLongErr q@(RelX _ js as) = do
-  ms <- mapM addExprLongErr $ filter (not . isAbsent) as
-  t <- qPutStLongErr $ QLeaf $ extractTplt q
-  qPutStLongErr $ QRel (QAt t) (map QAt ms)
+--addExprLongErr :: AddX -> StateT RSLT (Either DwtErrLongErr) Node
+--addExprLongErr (At n) = get >>= lift . flip gelemMLongErr n >> return n
+--addExprLongErr Absent = lift $ Left (Impossible
+--  , mAddX .~ Just Absent $ noErrOpts, "execAddX.")
+--addExprLongErr (LeafX e) = qPutStLongErr $ QLeaf e
+--addExprLongErr q@(RelX _ js as) = do
+--  ms <- mapM addExprLongErr $ filter (not . isAbsent) as
+--  t <- qPutStLongErr $ QLeaf $ extractTplt q
+--  qPutStLongErr $ QRel (QAt t) (map QAt ms)
 
 addExpr :: AddX -> StateT RSLT (Either DwtErr) Node
 addExpr (At n) = get >>= lift . flip gelemM n >> return n

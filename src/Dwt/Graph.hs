@@ -3,17 +3,41 @@
 
 module Dwt.Graph (
   insRelUsf
-  , insRelLongErr, insRel, insRelStLongErr, insRelSt
+  , insRelLongErr
+  , insRel
+  , insRelStLongErr
+  , insRelSt
   , insColl
-  , mkRelSpec, partitionRelSpec, insRelSpecLongErr, insRelSpec
-  , relNodeSpecLongErr, relNodeSpec, relSpecLongErr, relSpec
-  , chLeafLongErr, chLeaf, chRelRoleLongErr, chRelRole
+  , mkRelSpec, partitionRelSpec
+  , insRelSpecLongErr
+  , insRelSpec
+  , relNodeSpecLongErr
+  , relNodeSpec
+  , relSpecLongErr, relSpec
+  , chLeafLongErr
+  , chLeaf
+  , chRelRoleLongErr
+  , chRelRole
   , whereis, tpltAtLongErr, tpltAt
-  , relEltsLongErr, validRoleLongErr, relTpltLongErr
-  , collPrincipleLongErr, collPrinciple
-  , rels, mbrs, usersLongErr, users, usersInRoleLongErr, usersInRole
-  , matchRelLongErr, matchRel, matchRelLabLongErr, matchRelLab
-  , has1Dir, otherDir, fork1DirLongErr, subNodeForVars, dwtDfsLongErr, dwtBfsLongErr
+  , relElts
+  , relEltsLongErr
+  , validRole
+  , validRoleLongErr
+  , relTplt
+  , relTpltLongErr
+  , collPrincipleLongErr
+  , collPrinciple
+  , rels, mbrs
+  , usersLongErr, users
+  , usersInRoleLongErr, usersInRole
+--  , matchRelLongErr
+  , matchRel
+--  , matchRelLabLongErr
+  , matchRelLab
+  , has1Dir, otherDir
+  , fork1Dir
+  , subNodeForVars
+  , dwtDfs, dwtBfs
   ) where
 
 import Dwt.Types
@@ -427,11 +451,11 @@ fork1DirLongErr g n (dir,r) = do -- returns one generation, neighbors
     -- TODO: this line is unnecessary. just return the rels, not their elts.
     -- EXCEPT: that might hurt the dfs, bfs functions below
 
-fork1DirSumLongErr:: RSLT -> Node -> (Mbrship,RelSpec) -> Either DwtErr [Node]
-fork1DirSumLongErr g n (dir,r) = do -- returns one generation, neighbors
+fork1Dir :: RSLT -> Node -> (Mbrship,RelSpec) -> Either DwtErr [Node]
+fork1Dir g n (dir,r) = do -- returns one generation, neighbors
   if has1Dir (otherDir dir) r then return ()
      else Left (Invalid,  [ErrRelSpec r]
-               , "fork1DirSumLongErr: should have only one " ++ show (otherDir dir))
+               , "fork1DirSum: should have only one " ++ show (otherDir dir))
   let r' = subNodeForVars n (otherDir dir) r
       dirRoles = Map.keys $ Map.filter (== VarSpec dir) r
   rels <- matchRel g r'
@@ -442,8 +466,8 @@ fork1DirSumLongErr g n (dir,r) = do -- returns one generation, neighbors
 fork1DirsLongErr :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErrLongErr [Node]
 fork1DirsLongErr g n rs = concat <$> mapM (fork1DirLongErr g n) rs
 
-fork1DirsSumLongErr :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
-fork1DirsSumLongErr g n rs = concat <$> mapM (fork1DirSumLongErr g n) rs
+fork1Dirs :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
+fork1Dirs g n rs = concat <$> mapM (fork1Dir g n) rs
 
 subNodeForVars :: Node -> Mbrship -> RelSpec  -> RelSpec
 subNodeForVars n v r = Map.map -- change each VarSpec v to NodeSpec n
@@ -461,19 +485,19 @@ _bfsOrDfsLongErr collector g dir pending@(n:ns) acc = do
   _bfsOrDfsLongErr collector g dir (nub $ collector newNodes ns) (n:acc)
     -- ifdo speed: discard visited nodes from graph
 
-_bfsOrDfsSumLongErr :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
+_bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
   -> RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> Either DwtErr [Node]
-_bfsOrDfsSumLongErr _ _ _ [] acc = return acc
-_bfsOrDfsSumLongErr collector g dir pending@(n:ns) acc = do
-  newNodes <- fork1DirSumLongErr g n dir -- ifdo speed: calls has1Dir redundantly
-  _bfsOrDfsSumLongErr collector g dir (nub $ collector newNodes ns) (n:acc)
+_bfsOrDfs _ _ _ [] acc = return acc
+_bfsOrDfs collector g dir pending@(n:ns) acc = do
+  newNodes <- fork1Dir g n dir -- ifdo speed: calls has1Dir redundantly
+  _bfsOrDfs collector g dir (nub $ collector newNodes ns) (n:acc)
     -- ifdo speed: discard visited nodes from graph
 
 _dwtBfsLongErr = _bfsOrDfsLongErr (\new old -> old ++ new)
 _dwtDfsLongErr = _bfsOrDfsLongErr (\new old -> new ++ old)
 
-_dwtBfsSumLongErr = _bfsOrDfsSumLongErr (\new old -> old ++ new)
-_dwtDfsSumLongErr = _bfsOrDfsSumLongErr (\new old -> new ++ old)
+_dwtBfs = _bfsOrDfs (\new old -> old ++ new)
+_dwtDfs = _bfsOrDfs (\new old -> new ++ old)
 
 dwtDfsLongErr :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErrLongErr [Node]
 dwtDfsLongErr g dir starts = do mapM_ (gelemMLongErr g) $ starts
@@ -483,11 +507,11 @@ dwtBfsLongErr :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either DwtErrLongErr [N
 dwtBfsLongErr g dir starts = do mapM_ (gelemMLongErr g) $ starts
                                 (nub . reverse) <$> _dwtBfsLongErr g dir starts []
 
-dwtDfsSumLongErr :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErr [Node]
-dwtDfsSumLongErr g dir starts = do mapM_ (gelemM g) $ starts
-                                   (nub . reverse) <$> _dwtDfsSumLongErr g dir starts []
+dwtDfs :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErr [Node]
+dwtDfs g dir starts = do mapM_ (gelemM g) $ starts
+                         (nub . reverse) <$> _dwtDfs g dir starts []
 
-dwtBfsSumLongErr :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either DwtErr [Node]
-dwtBfsSumLongErr g dir starts = do mapM_ (gelemM g) $ starts
-                                   (nub . reverse) <$> _dwtBfsSumLongErr g dir starts []
+dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either DwtErr [Node]
+dwtBfs g dir starts = do mapM_ (gelemM g) $ starts
+                         (nub . reverse) <$> _dwtBfs g dir starts []
 
