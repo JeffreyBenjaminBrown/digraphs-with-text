@@ -74,7 +74,7 @@
                      [m | (m,CollEdge CollMbr) <- lsuc g n] )
 
           Just (RelSpecExpr rvs) ->
-            let rs = fromRight $ relSpecLongErr g n
+            let rs = fromRight $ relSpec g n
                 rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
                   -- e.g. rsl = [(Mbr 1,VarSpec Down),(Mbr 2,NodeSpec 3)]
                 tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup TpltRole rs
@@ -140,7 +140,7 @@
 
     v :: RSLT -> [Node] -> IO ()
     v g ns = mapM_ putStrLn $ map f ns
-      where f n = show $ (fromRight $ length <$> usersLongErr g n -- emul: counts usersLongErr
+      where f n = show $ (fromRight $ length <$> users g n -- emul: counts usersLongErr
                          , showExpr g n)
 
     view :: RSLT -> [Node] -> String -- terse: no inner addresses, no neighborhoods
