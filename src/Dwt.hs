@@ -6,7 +6,8 @@
       , module Dwt.Graph
       , module Dwt.Leaf
       , module Dwt.Parse 
-      , module Dwt.Search
+      , module Dwt.Search.Local
+      , module Dwt.Search.Recursive
       , module Dwt.Show
       , module Dwt.Types
       , module Dwt.UI
@@ -19,7 +20,8 @@
     import Dwt.Graph
     import Dwt.Leaf
     import Dwt.Parse
-    import Dwt.Search
+    import Dwt.Search.Local
+    import Dwt.Search.Recursive
     import Dwt.Show
     import Dwt.Types
     import Dwt.UI

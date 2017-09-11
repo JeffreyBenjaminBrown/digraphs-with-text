@@ -20,7 +20,8 @@ library
                      , Dwt.Leaf
                      , Dwt.Graph
                      , Dwt.Parse
-                     , Dwt.Search
+                     , Dwt.Search.Local
+                     , Dwt.Search.Recursive                    
                      , Dwt.Show
                      , Dwt.Types
                      , Dwt.UI
