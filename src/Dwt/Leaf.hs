@@ -3,15 +3,15 @@
 module Dwt.Leaf (
   _splitStringForTplt, mkTplt
   , subInTplt, padTpltStrings, subInTpltWithHashes
-  , tpltArity, mbrListMatchesTpltArityLongErr, mbrListMatchesTpltAritySum
+  , tpltArity, mbrListMatchesTpltArityLongErr, mbrListMatchesTpltArity
   , insLeaf
     , insWord, insTplt, insFl -- TODO ? deprec, insLeaf generalizes them
   
-  , isWord, isWordMLongErr, isWordMSum
-  , isTplt, isTpltMLongErr, isTpltMSum
-  , isFl, isFlMLongErr, isFlMSum
-  , isRel, isRelMLongErr, isRelMSum
-  , isColl, isCollMLongErr, isCollMSum
+  , isWord, isWordMLongErr, isWordM
+  , isTplt, isTpltMLongErr, isTpltM
+  , isFl, isFlMLongErr, isFlM
+  , isRel, isRelMLongErr, isRelM
+  , isColl, isCollMLongErr, isCollM
   , isLeaf, areLikeExprs
   ) where
 
@@ -73,8 +73,8 @@ mbrListMatchesTpltArityLongErr ns e = case e of
   _ -> throwError (NotTplt,         mExpr .~ Just e $ noErrOpts, funcName)
   where funcName = "mbrListMatchesTpltArityLongErr."
 
-mbrListMatchesTpltAritySum :: (MonadError DwtErrSum m) => [Node] -> Expr -> m ()
-mbrListMatchesTpltAritySum ns e = case e of
+mbrListMatchesTpltArity :: (MonadError DwtErr m) => [Node] -> Expr -> m ()
+mbrListMatchesTpltArity ns e = case e of
   Tplt _ -> if (tpltArity e) == length ns
     then return ()
     else throwError (ArityMismatch, [ErrExpr e], funcName)
@@ -118,11 +118,11 @@ _isExprMConstructorLongErr pred g n = case lab g n of
   Nothing -> Left err
   where err = (FoundNo, mNode .~ Just n $ noErrOpts, "_isExprMConstructorLongErr.")
 
-_isExprMConstructorSum -- constructs an is_M function (_ is a variable)
-  :: (Graph gr) => (a -> Bool) -> gr a b -> Node -> Either DwtErrSum ()
+_isExprMConstructor -- constructs an is_M function (_ is a variable)
+  :: (Graph gr) => (a -> Bool) -> gr a b -> Node -> Either DwtErr ()
   -- todo ? catch these erorrs, append strings
     -- otherwise the distinction bewteen absence and inequality is lost
-_isExprMConstructorSum pred g n = case lab g n of 
+_isExprMConstructor pred g n = case lab g n of 
   Just expr -> case pred expr of True -> return ()
                                  False -> Left $ _1 .~ FoundWrongKind $ err
   Nothing -> Left err
@@ -134,8 +134,8 @@ isWord x = case x of Word _ -> True; _ -> False
 isWordMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
 isWordMLongErr = _isExprMConstructorLongErr isWord
 
-isWordMSum :: RSLT -> Node -> Either DwtErrSum ()
-isWordMSum = _isExprMConstructorSum isWord
+isWordM :: RSLT -> Node -> Either DwtErr ()
+isWordM = _isExprMConstructor isWord
 
 isTplt :: Expr -> Bool
 isTplt x = case x of Tplt _ -> True; _ -> False
@@ -143,8 +143,8 @@ isTplt x = case x of Tplt _ -> True; _ -> False
 isTpltMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
 isTpltMLongErr = _isExprMConstructorLongErr isTplt
 
-isTpltMSum :: RSLT -> Node -> Either DwtErrSum ()
-isTpltMSum = _isExprMConstructorSum isTplt
+isTpltM :: RSLT -> Node -> Either DwtErr ()
+isTpltM = _isExprMConstructor isTplt
 
 isFl :: Expr -> Bool
 isFl x = case x of Fl _ -> True; _ -> False
@@ -152,8 +152,8 @@ isFl x = case x of Fl _ -> True; _ -> False
 isFlMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
 isFlMLongErr = _isExprMConstructorLongErr isFl
 
-isFlMSum :: RSLT -> Node -> Either DwtErrSum ()
-isFlMSum = _isExprMConstructorSum isFl
+isFlM :: RSLT -> Node -> Either DwtErr ()
+isFlM = _isExprMConstructor isFl
 
 isRel :: Expr -> Bool
 isRel x = case x of Rel -> True; _ -> False
@@ -161,8 +161,8 @@ isRel x = case x of Rel -> True; _ -> False
 isRelMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
 isRelMLongErr = _isExprMConstructorLongErr isRel
 
-isRelMSum :: RSLT -> Node -> Either DwtErrSum ()
-isRelMSum = _isExprMConstructorSum isRel
+isRelM :: RSLT -> Node -> Either DwtErr ()
+isRelM = _isExprMConstructor isRel
 
 isColl :: Expr -> Bool
 isColl x = case x of Coll -> True; _ -> False
@@ -170,8 +170,8 @@ isColl x = case x of Coll -> True; _ -> False
 isCollMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
 isCollMLongErr = _isExprMConstructorLongErr isColl
 
-isCollMSum :: RSLT -> Node -> Either DwtErrSum ()
-isCollMSum = _isExprMConstructorSum isColl
+isCollM :: RSLT -> Node -> Either DwtErr ()
+isCollM = _isExprMConstructor isColl
 
 isLeaf :: Expr -> Bool -- todo ? make Leaf an Expr constructor
 isLeaf (Word _) = True

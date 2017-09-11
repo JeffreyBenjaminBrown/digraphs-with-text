@@ -10,8 +10,8 @@ module Dwt.Types (
     , mQNode, mRelRole, mRelSpec, mAddX
   , errBaseLongErr, errOptsLongErr, errStringLongErr
   , ErrOptLongErr(..), noErrOpts, ErrBase(..)
-  , DwtErrSum(..), ErrOptSum(..)
-  , errBaseSum, errOptsSum, errStringSum
+  , DwtErr(..), ErrOpt(..)
+  , errBase, errOpts, errString
   ) where
 
 import Data.Graph.Inductive
@@ -126,14 +126,14 @@ noErrOpts :: ErrOptLongErr
 noErrOpts = ErrOptLongErr n n n n n n n n where n = Nothing
 
 -- | TODO: Convert all the ErrOptLongErr to this
-type DwtErrSum = (ErrBase, [ErrOptSum], String)
-errBaseSum :: Lens' DwtErrSum ErrBase
-errBaseSum = _1
-errOptsSum :: Lens' DwtErrSum [ErrOptSum]
-errOptsSum = _2
-errStringSum :: Lens' DwtErrSum String
-errStringSum = _3
+type DwtErr = (ErrBase, [ErrOpt], String)
+errBase :: Lens' DwtErr ErrBase
+errBase = _1
+errOpts :: Lens' DwtErr [ErrOpt]
+errOpts = _2
+errString :: Lens' DwtErr String
+errString = _3
 
-data ErrOptSum = ErrNode Node | ErrEdge Edge -- | New error style: sum type
+data ErrOpt = ErrNode Node | ErrEdge Edge -- | New error style: sum type
                | ErrExpr Expr | ErrEdgeLab RSLTEdge | ErrRelRole RelRole
                | ErrAddX AddX | ErrRelSpec RelSpec | ErrQNode QNode

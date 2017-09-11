@@ -8,7 +8,7 @@ import Control.Monad.Trans.State (runStateT, execStateT)
 
 tAdd = TestCase $ do
   let Right g = execStateT f empty
-      f = mapM (addExpr . fr . parse expr "" ) exprs
+      f = mapM (addExprLongErr . fr . parse expr "" ) exprs
       exprs = ["a #", "# a", "a # b", "## b #"]
         -- TODO: (a #) and (# a) are indistinguishable
       qa = QLeaf $ Word "a"
@@ -16,6 +16,6 @@ tAdd = TestCase $ do
       qab = QRel (QLeaf $ mkTplt "_ # _") [qa,qb]
   -- v g $ nodes g -- visual test
   assertBool "1" $ either (const False) (const True)
-    $ qGet1 g (QLeaf $ Word "a")
+    $ qGet1LongErr g (QLeaf $ Word "a")
   assertBool "1" $ do
-    either (const False) (const True) $ qGet1 g (QLeaf $ Word "a")
+    either (const False) (const True) $ qGet1LongErr g (QLeaf $ Word "a")

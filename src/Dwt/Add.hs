@@ -4,7 +4,7 @@ import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Types
 import Dwt.Graph
 import Dwt.Search
-import Dwt.Util (fr, maxNode, prependCallerLongErr, gelemMLongErr, gelemMSum)
+import Dwt.Util (fr, maxNode, prependCallerLongErr, gelemMLongErr, gelemM)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)
 import Data.List (mapAccumL)
@@ -64,14 +64,14 @@ addExprLongErr q@(RelX _ js as) = do
   t <- qPutStLongErr $ QLeaf $ extractTplt q
   qPutStLongErr $ QRel (QAt t) (map QAt ms)
 
-addExprSum :: AddX -> StateT RSLT (Either DwtErrSum) Node
-addExprSum (At n) = get >>= lift . flip gelemMSum n >> return n
-addExprSum Absent = lift $ Left (Impossible
+addExpr :: AddX -> StateT RSLT (Either DwtErr) Node
+addExpr (At n) = get >>= lift . flip gelemM n >> return n
+addExpr Absent = lift $ Left (Impossible
   , [ErrAddX Absent], "execAddX.")
-addExprSum (LeafX e) = qPutStSum $ QLeaf e
-addExprSum q@(RelX _ js as) = do
-  ms <- mapM addExprSum $ filter (not . isAbsent) as
-  t <- qPutStSum $ QLeaf $ extractTplt q
-  qPutStSum $ QRel (QAt t) (map QAt ms)
+addExpr (LeafX e) = qPutSt $ QLeaf e
+addExpr q@(RelX _ js as) = do
+  ms <- mapM addExpr $ filter (not . isAbsent) as
+  t <- qPutSt $ QLeaf $ extractTplt q
+  qPutSt $ QRel (QAt t) (map QAt ms)
 
 -- let Right (_,g) = runStateT (mapM (addExprLongErr . fr . parse expr "" ) ["a # b", "# c", "## d #"]) empty

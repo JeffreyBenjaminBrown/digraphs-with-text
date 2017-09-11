@@ -39,19 +39,19 @@
       assertBool "mkTplt (and thereby splitStringForTplt), insRelUsf, insWord, insTplt" $ g1 == g1Alt
 
     tInsRelM = TestCase $ do
-      assertBool "1" $ (insRel 2 [0,0] g1 :: Either DwtErr RSLT)
+      assertBool "1" $ (insRelLongErr 2 [0,0] g1 :: Either DwtErrLongErr RSLT)
             == (Right $ insRelUsf  2 [0,0] g1)
       assertBool "2" $
-        let Left (a,_,_) = (insRel 15 [0,0] g1 :: Either DwtErr RSLT)
+        let Left (a,_,_) = (insRelLongErr 15 [0,0] g1 :: Either DwtErrLongErr RSLT)
         in a == FoundNo
       assertBool "3" $
-        let Left (a,_,_) = (insRel 2 [100,0] g1 :: Either DwtErr RSLT)
+        let Left (a,_,_) = (insRelLongErr 2 [100,0] g1 :: Either DwtErrLongErr RSLT)
         in a == FoundNo
       assertBool "4" $
-        let Left (a,_,_) = (insRel 2 [1,1,1] g1 :: Either DwtErr RSLT)
+        let Left (a,_,_) = (insRelLongErr 2 [1,1,1] g1 :: Either DwtErrLongErr RSLT)
         in a == ArityMismatch
       assertBool "5" $
-        let Left (a,_,_) = (insRel 0 [1,1,1] g1 :: Either DwtErr RSLT)
+        let Left (a,_,_) = (insRelLongErr 0 [1,1,1] g1 :: Either DwtErrLongErr RSLT)
         in a == NotTplt
 
 --    tInsColl = TestCase $ do
@@ -77,7 +77,7 @@
 
     tInsRelSpec = TestCase $ do
       let (vs,ns) = partitionRelSpec tRelSpec
-          Right g2 = insRelSpec tRelSpec g1
+          Right g2 = insRelSpecLongErr tRelSpec g1
           [newNode] = newNodes 1 g1
       assertBool "node" $ lab g2 newNode == Just (RelSpecExpr vs)
       assertBool "only 1 more edge" $ 
@@ -85,22 +85,22 @@
       assertBool "the edge" $ hasLEdge g2 (newNode, 0, RelEdge $ Mbr 1)
 
 --    tChNonRelAt = TestCase $ do
---      let gCat = fromRight $ chLeaf g1 0 $ Word "cat"
---      let gUses = fromRight $ chLeaf g1 1 $ mkTplt "_ uses _"
+--      let gCat = fromRight $ chLeafLongErr g1 0 $ Word "cat"
+--      let gUses = fromRight $ chLeafLongErr g1 1 $ mkTplt "_ uses _"
 --      assertBool "change Word" $ 
 --        Word "cat" == (lab' $ fromJust $ fst $ match 0 $ gCat)
 --      assertBool "change Tplt" $ 
 --        mkTplt "_ uses _" == (lab' $ fromJust $ fst $ match 1 $ gUses)
 --      assertBool "not in graph" $
---        isLeft $ chLeaf g1 15  $ mkTplt "_ uses _"
+--        isLeft $ chLeafLongErr g1 15  $ mkTplt "_ uses _"
 --      assertBool "change Rel" $
---        isLeft $ chLeaf g1 11  $ Coll
+--        isLeft $ chLeafLongErr g1 11  $ Coll
 --      assertBool "constructor mismatch" $
---        isLeft $ chLeaf g1 4  $ mkTplt "_ is _" -- LNode 4 is a Word
+--        isLeft $ chLeafLongErr g1 4  $ mkTplt "_ is _" -- LNode 4 is a Word
 
 --    tChMbr = TestCase $ do
---      let gDogDog = fromRight $ chRelRole g1 5 0 (Mbr 2)
---      let gImpossible         = chRelRole g1 5 0 (Mbr 99) -- 99 is too high
+--      let gDogDog = fromRight $ chRelRoleLongErr g1 5 0 (Mbr 2)
+--      let gImpossible         = chRelRoleLongErr g1 5 0 (Mbr 99) -- 99 is too high
 --      assertBool "1" $ showExpr gDogDog 5
 --                       == "5:1 0: dog ##wants 0: dog"
 --      assertBool "MbrPos out of range" $ isLeft gImpossible
@@ -114,29 +114,29 @@
                          , TestLabel "tTpltArity" tTpltArity ]
 
     tGelemM = TestCase $ do
-      assertBool "1" $ gelemM g1 0 == Right ()
-      assertBool "2" $ let Left (a,_,_) = gelemM g1 100 in a == FoundNo
+      assertBool "1" $ gelemMLongErr g1 0 == Right ()
+      assertBool "2" $ let Left (a,_,_) = gelemMLongErr g1 100 in a == FoundNo
 
-    -- >> Resume converting to Either DwtErr here
+    -- >> Resume converting to Either DwtErrLongErr here
     tHasLEdgeM = TestCase $ do
       assertBool "has it" $ hasLEdgeM g1 (5,0,RelEdge $ Mbr 1) == Right ()
       assertBool "lacks it" $ isLeft $ hasLEdgeM g1 (5,0,RelEdge $ Mbr 2)
 
     tIsTplt = TestCase $ do
-      assertBool "is template" $ isRight $ isTpltM g1 1
-      assertBool "is not template" $ isLeft $ isTpltM g1 0
-      assertBool "missing" $ isLeft $ isTpltM g1 (-1)
+      assertBool "is template" $ isRight $ isTpltMLongErr g1 1
+      assertBool "is not template" $ isLeft $ isTpltMLongErr g1 0
+      assertBool "missing" $ isLeft $ isTpltMLongErr g1 (-1)
 
     tTpltAt = TestCase $ do
-      assertBool "normal" $ tpltAt g1 1 == ( Right $ Tplt ["","wants",""] )
-      assertBool "notATplt" $ isLeft $ tpltAt g1 0
-      assertBool "absent" $ isLeft $ tpltAt g1 (-1)
+      assertBool "normal" $ tpltAtLongErr g1 1 == ( Right $ Tplt ["","wants",""] )
+      assertBool "notATplt" $ isLeft $ tpltAtLongErr g1 0
+      assertBool "absent" $ isLeft $ tpltAtLongErr g1 (-1)
 
     tTpltForRelAt = TestCase $ do
-      assertBool "normal" $ relTplt g1 5 ==
+      assertBool "normal" $ relTpltLongErr g1 5 ==
         ( Right $ Tplt ["","wants",""] )
-      assertBool "not a Rel" $ isLeft $ relTplt g1 1
-      assertBool "absent" $ isLeft $ relTplt g1 (-1)
+      assertBool "not a Rel" $ isLeft $ relTpltLongErr g1 1
+      assertBool "absent" $ isLeft $ relTpltLongErr g1 (-1)
 
     tTpltArity = TestCase $ do
       assertBool "arity 0" $
@@ -154,15 +154,15 @@
                          ]
 
     tUsers = TestCase $ do
-      assertBool "1" $ users g1 0 == Right [5,6,8]
-      assertBool "2" $ isLeft $ (users g1 100 :: Either DwtErr [Node])
+      assertBool "1" $ usersLongErr g1 0 == Right [5,6,8]
+      assertBool "2" $ isLeft $ (usersLongErr g1 100 :: Either DwtErrLongErr [Node])
 
     tSpecUsers = TestCase $ do
-      assertBool "with Arity" $ usersInRole g1 0 (Mbr 1) == Right [5,6,8]
+      assertBool "with Arity" $ usersInRoleLongErr g1 0 (Mbr 1) == Right [5,6,8]
 
     tMatchRel = TestCase $ do
-      assertBool "dog in first pos"     $ matchRel g1 tRelSpec == Right [5,6,8]
-      assertBool "nothing should match" $ matchRel g1 tRelSpecNonsense == Right []
+      assertBool "dog in first pos"     $ matchRelLongErr g1 tRelSpec == Right [5,6,8]
+      assertBool "nothing should match" $ matchRelLongErr g1 tRelSpecNonsense == Right []
 
   -- chase and helpers
     tChase = TestList [ TestLabel "tHas1Up" tHas1Dir
@@ -175,20 +175,20 @@
       assertBool "has 1 Up" $ has1Dir Up tRelSpecNonsense
       assertBool "has no Up" $ not $ has1Dir Up tRelSpec
 
--- >>> the last remaining function in this file to convert to Either DwtErr
+-- >>> the last remaining function in this file to convert to Either DwtErrLongErr
     tFork1Dir = TestCase $ do -- todo, incomplete
       assertBool "searching Down, and no Up vars; should fail"
-        $ isLeft $ fork1Dir g1 0 (Down, tRelSpec)
+        $ isLeft $ fork1DirLongErr g1 0 (Down, tRelSpec)
       assertBool "dog(ana) wants brandy(kata)" 
-        $ fork1Dir g1 0 (Down, tRelSpec2) == Right [4]
+        $ fork1DirLongErr g1 0 (Down, tRelSpec2) == Right [4]
 
     tValidRole = TestCase $ do
-      assertBool "Tplt: valid role" $ isRight $ validRole g1 5 TpltRole
-      assertBool "Mbr 0: not valid role" $ isLeft $  validRole g1 5 (Mbr 0)
-      assertBool "Mbr 1: valid role" $ isRight $ validRole g1 5 (Mbr 1)
-      assertBool "Mbr 3: too big, invalid role" $ isLeft $ validRole g1 5 (Mbr 3)
+      assertBool "Tplt: valid role" $ isRight $ validRoleLongErr g1 5 TpltRole
+      assertBool "Mbr 0: not valid role" $ isLeft $  validRoleLongErr g1 5 (Mbr 0)
+      assertBool "Mbr 1: valid role" $ isRight $ validRoleLongErr g1 5 (Mbr 1)
+      assertBool "Mbr 3: too big, invalid role" $ isLeft $ validRoleLongErr g1 5 (Mbr 3)
 
     tRelElts = TestCase $ do
-      assertBool "dog wants water -> dog" $ relElts g1 5 [Mbr 1] == Right [0]
-      assertBool "dog wants water -> dog" $ relElts g1 5 [TpltRole] == Right [1]
-      assertBool "dog wants water -> dog" $ isLeft $ relElts g1 5 [Mbr 3]
+      assertBool "dog wants water -> dog" $ relEltsLongErr g1 5 [Mbr 1] == Right [0]
+      assertBool "dog wants water -> dog" $ relEltsLongErr g1 5 [TpltRole] == Right [1]
+      assertBool "dog wants water -> dog" $ isLeft $ relEltsLongErr g1 5 [Mbr 3]

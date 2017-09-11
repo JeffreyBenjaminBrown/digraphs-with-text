@@ -9,9 +9,9 @@ module Dwt.Util (
 
   -- graphs & monads
   , hasLEdgeM
-  , gelemMStrErr, gelemMLongErr, gelemMSum
+  , gelemMStrErr, gelemMLongErr, gelemM
 
-  , fr, fromRight, prependCallerLongErr, prependCallerSum -- monads
+  , fr, fromRight, prependCallerLongErr, prependCaller -- monads
   ) where
 
 import Data.Graph.Inductive
@@ -76,8 +76,8 @@ gelemMLongErr :: Graph gr => gr a b -> Node -> Either DwtErrLongErr ()
 gelemMLongErr g n = if gelem n g then return () 
   else Left (FoundNo, mNode .~ Just n $ noErrOpts, "gelemMLongErr.")
 
-gelemMSum :: Graph gr => gr a b -> Node -> Either DwtErrSum ()
-gelemMSum g n = if gelem n g then return () 
+gelemM :: Graph gr => gr a b -> Node -> Either DwtErr ()
+gelemM g n = if gelem n g then return () 
   else Left (FoundNo, [ErrNode n], "gelemMLongErr.")
 
 -- == monads
@@ -91,8 +91,8 @@ prependCallerLongErr :: String -> Either DwtErrLongErr a -> Either DwtErrLongErr
 prependCallerLongErr name e@(Right _) = e
 prependCallerLongErr name (Left e) = Left $ errStringLongErr %~ (name++) $ e
 
-prependCallerSum :: String -> Either DwtErrSum a -> Either DwtErrSum a
-prependCallerSum name e@(Right _) = e
-prependCallerSum name (Left e) = Left $ errStringSum %~ (name++) $ e
+prependCaller :: String -> Either DwtErr a -> Either DwtErr a
+prependCaller name e@(Right _) = e
+prependCaller name (Left e) = Left $ errString %~ (name++) $ e
 
 

@@ -1,4 +1,4 @@
-dwtDfs :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either String [Node]
+dwtDfsLongErr :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either String [Node]
 insRelSpecLongErr :: RelSpec -> RSLT -> Either DwtErrLongErr RSLT
 type RelSpec = Map.Map RelRole AddressOrVar
   -- the others are flexible, but the TpltRole must map to a NodeSpec

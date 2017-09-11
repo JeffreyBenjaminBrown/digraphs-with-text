@@ -3,17 +3,17 @@
 
 module Dwt.Graph (
   insRelUsf
-  , insRelLongErr, insRelSum, insRelStLongErr, insRelStSum
+  , insRelLongErr, insRel, insRelStLongErr, insRelSt
   , insColl
-  , mkRelSpec, partitionRelSpec, insRelSpecLongErr, insRelSpecSum
-  , relNodeSpecLongErr, relNodeSpecSum, relSpecLongErr, relSpecSum
-  , chLeafLongErr, chLeafSum, chRelRoleLongErr, chRelRoleSum
-  , whereis, tpltAtLongErr, tpltAtSum
+  , mkRelSpec, partitionRelSpec, insRelSpecLongErr, insRelSpec
+  , relNodeSpecLongErr, relNodeSpec, relSpecLongErr, relSpec
+  , chLeafLongErr, chLeaf, chRelRoleLongErr, chRelRole
+  , whereis, tpltAtLongErr, tpltAt
   , relEltsLongErr, validRoleLongErr, relTpltLongErr
-  , collPrincipleLongErr, collPrincipleSum
-  , rels, mbrs, usersLongErr, usersSum, usersInRoleLongErr, usersInRoleSum
-  , matchRelLongErr, matchRelSum, matchRelLabLongErr, matchRelLabSum
-  , has1Dir, otherDir, fork1Dir, subNodeForVars, dwtDfs, dwtBfs
+  , collPrincipleLongErr, collPrinciple
+  , rels, mbrs, usersLongErr, users, usersInRoleLongErr, usersInRole
+  , matchRelLongErr, matchRel, matchRelLabLongErr, matchRelLab
+  , has1Dir, otherDir, fork1DirLongErr, subNodeForVars, dwtDfsLongErr, dwtBfsLongErr
   ) where
 
 import Dwt.Types
@@ -45,11 +45,11 @@ insRelLongErr template mbrs g =
         addTplt = insEdge (newNode, template, RelEdge TpltRole)
                   . insNode (newNode, Rel) :: RSLT -> RSLT
 
-insRelSum :: Node -> [Node] -> RSLT -> Either DwtErrSum RSLT
-insRelSum template mbrs g =
-  do mapM_ (gelemMSum g) $ template:mbrs
-     tplt <- tpltAtSum g template
-     mbrListMatchesTpltAritySum mbrs tplt
+insRel :: Node -> [Node] -> RSLT -> Either DwtErr RSLT
+insRel template mbrs g =
+  do mapM_ (gelemM g) $ template:mbrs
+     tplt <- tpltAt g template
+     mbrListMatchesTpltArity mbrs tplt
      return $ addMbrs (zip mbrs [1..tpltArity tplt]) $ addTplt g
   where newNode = head $ newNodes 1 g
         addMbrs []     g = g
@@ -74,8 +74,8 @@ insRelStLongErr template mbrs =
      g' <- get
      return $ maxNode g'
 
-insRelStSum :: Node -> [Node] -> StateT RSLT (Either DwtErrSum) Node
-insRelStSum template mbrs =
+insRelSt :: Node -> [Node] -> StateT RSLT (Either DwtErr) Node
+insRelSt template mbrs =
   do g <- get
      let newNode = head $ newNodes 1 g
          addMbrs []     g = g
@@ -83,9 +83,9 @@ insRelStSum template mbrs =
            (newNode, fst p, RelEdge $ Mbr $ snd p) g :: RSLT
          addTplt = insEdge (newNode, template, RelEdge TpltRole)
            . insNode (newNode, Rel) :: RSLT -> RSLT
-     lift $ mapM_ (gelemMSum g) $ template:mbrs
-     tplt <- tpltAtSum g template
-     mbrListMatchesTpltAritySum mbrs tplt
+     lift $ mapM_ (gelemM g) $ template:mbrs
+     tplt <- tpltAt g template
+     mbrListMatchesTpltArity mbrs tplt
      modify $ addMbrs (zip mbrs [1..tpltArity tplt]) . addTplt
      g' <- get
      return $ maxNode g'
@@ -135,13 +135,13 @@ insRelSpecLongErr rSpec g = do
         -- these edges specify the addressed nodes
   return $ insEdges newLEdges $ insNode newLNode g
 
-insRelSpecSum :: RelSpec -> RSLT -> Either DwtErrSum RSLT
-insRelSpecSum rSpec g = do
+insRelSpec :: RelSpec -> RSLT -> Either DwtErr RSLT
+insRelSpec rSpec g = do
   let (varMap, nodeMap) = partitionRelSpec rSpec
       newAddr = head $ newNodes 1 g
       newLNode = (newAddr, RelSpecExpr varMap)
         -- this node specifies the variable nodes
-  mapM_ (gelemMSum g) $ Map.elems nodeMap
+  mapM_ (gelemM g) $ Map.elems nodeMap
   let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
                 $ Map.toList nodeMap
         -- these edges specify the addressed nodes
@@ -157,9 +157,9 @@ relNodeSpecLongErr g n = prependCallerLongErr "relNodeSpecLongErr: " $ do
       (NotRelSpecExpr, mNode .~ Just n $ noErrOpts, "")
     Nothing -> Left (FoundNo, mNode .~ Just n $ noErrOpts, "")
 
-relNodeSpecSum :: RSLT -> Node -> Either DwtErrSum RelNodeSpec
-relNodeSpecSum g n = prependCallerSum "relNodeSpecLongErr: " $ do
-  gelemMSum g n
+relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
+relNodeSpec g n = prependCaller "relNodeSpecLongErr: " $ do
+  gelemM g n
   case lab g n of
     Just (RelSpecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
       where f (node,RelEdge r) = (r,node)
@@ -180,11 +180,11 @@ relSpecLongErr g n = prependCallerLongErr "relSpecLongErr: " $ do
           rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
       return $ Map.fromList $ rvsl' ++ rnsl'
 
-relSpecSum :: RSLT -> Node -> Either DwtErrSum RelSpec
+relSpec :: RSLT -> Node -> Either DwtErr RelSpec
   -- name ? getRelSpecDe
   -- is nearly inverse to partitionRelSpec
-relSpecSum g n = prependCallerSum "relSpecLongErr: " $ do
-  gelemMSum g n
+relSpec g n = prependCaller "relSpecLongErr: " $ do
+  gelemM g n
   case (fromJust $ lab g n) of
     RelSpecExpr rvs -> do
       let rnsl = Map.toList $ fromRight $ relNodeSpecLongErr g n
@@ -204,8 +204,8 @@ chLeafLongErr g n e' = prependCallerLongErr "chLeafLongErr: " $ do
     _       -> Left (NotLeaf, mNode .~ Just n $ noErrOpts, ".")
   return $ _chLeafUsf g n e'
 
-chLeafSum :: RSLT -> Node -> Expr -> Either DwtErrSum RSLT
-chLeafSum g n e' = prependCallerSum "chLeafLongErr: " $ do
+chLeaf :: RSLT -> Node -> Expr -> Either DwtErr RSLT
+chLeaf g n e' = prependCaller "chLeafLongErr: " $ do
   let me = lab g n
   case me of
     Just e@(isLeaf -> True) -> if areLikeExprs e e' then return ()
@@ -231,10 +231,10 @@ chRelRoleLongErr g user newMbr role = do
            $ insEdge (user,newMbr,RelEdge role) g
     _ -> Left $ _1 .~ FoundMany $ err
 
-chRelRoleSum :: RSLT -> Node -> Node -> RelRole -> Either DwtErrSum RSLT
-chRelRoleSum g user newMbr role = do
-  isRelMSum g user
-  gelemMSum g newMbr
+chRelRole :: RSLT -> Node -> Node -> RelRole -> Either DwtErr RSLT
+chRelRole g user newMbr role = do
+  isRelM g user
+  gelemM g newMbr
   let candidates = [n | (n,lab) <- lsuc g user, lab == RelEdge role]
       err = (Invalid, [ErrNode user, ErrRelRole role], "chRelRoleLongErr.")
   case candidates of
@@ -257,8 +257,8 @@ tpltAtLongErr g tn = let name = "tpltAtLongErr." in case lab g tn of
   Nothing -> throwError (FoundNo, mNode .~ Just tn $ noErrOpts, name)
   _       -> throwError (NotTplt, mNode .~ Just tn $ noErrOpts, name)
 
-tpltAtSum :: (MonadError DwtErrSum m) => RSLT -> Node -> m Expr
-tpltAtSum g tn = let name = "tpltAtLongErr." in case lab g tn of
+tpltAt :: (MonadError DwtErr m) => RSLT -> Node -> m Expr
+tpltAt g tn = let name = "tpltAtLongErr." in case lab g tn of
   Just t@(Tplt _) -> return t
   Nothing -> throwError (FoundNo, [ErrNode tn], name)
   _       -> throwError (NotTplt, [ErrNode tn], name)
@@ -271,10 +271,10 @@ relEltsLongErr g relNode roles = do
   return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
 -- todo: add prependCallerLongErr
-relEltsSum :: RSLT -> Node -> [RelRole] -> Either DwtErrSum [Node]
-relEltsSum g relNode roles = do
-  isRelMSum g relNode
-  mapM_  (validRoleSum g relNode) roles
+relElts :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
+relElts g relNode roles = do
+  isRelM g relNode
+  mapM_  (validRole g relNode) roles
   return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
 -- todo: add prependCallerLongErr
@@ -289,12 +289,12 @@ validRoleLongErr g relNode role = isRelMLongErr g relNode >> case role of
       else Left $ _1 .~ ArityMismatch $ _2 . mExpr .~ Just t $ err
   where err = (Invalid, mRelRole .~ Just role $ noErrOpts, "validRoleStrErr.")
 
-validRoleSum :: RSLT -> Node -> RelRole -> Either DwtErrSum ()
-validRoleSum g relNode role = isRelMSum g relNode >> case role of
+validRole :: RSLT -> Node -> RelRole -> Either DwtErr ()
+validRole g relNode role = isRelM g relNode >> case role of
   TpltRole -> return ()
   Mbr p -> do
     if p >= 1 then return () else Left err
-    t <- relTpltSum g relNode
+    t <- relTplt g relNode
     let a = tpltArity t
     if p <= a then return ()
       else Left $ _1 .~ ArityMismatch $ _2 %~ (ErrExpr t:) $ err
@@ -307,10 +307,10 @@ relTpltLongErr g relNode = do
   [n] <- relEltsLongErr g relNode [TpltRole]
   return $ fromJust $ lab g n
 
-relTpltSum :: RSLT -> Node -> Either DwtErrSum Expr -- unsafe
+relTplt :: RSLT -> Node -> Either DwtErr Expr -- unsafe
   -- might not be called on a template
-relTpltSum g relNode = do
-  [n] <- relEltsSum g relNode [TpltRole]
+relTplt g relNode = do
+  [n] <- relElts g relNode [TpltRole]
   return $ fromJust $ lab g n
 
 -- todo : change to DwtErrLongErr
@@ -321,10 +321,10 @@ collPrincipleLongErr g collNode = do
   return $ fromJust $ lab g $ head
     [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
 
-collPrincipleSum :: RSLT -> Node -> Either DwtErrSum Expr
+collPrinciple :: RSLT -> Node -> Either DwtErr Expr
   -- analogous to relTpltLongErr
-collPrincipleSum g collNode = do
-  prependCallerSum "collPrincipleDe: " $ isCollMSum g collNode
+collPrinciple g collNode = do
+  prependCaller "collPrincipleDe: " $ isCollM g collNode
   return $ fromJust $ lab g $ head
     [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
 
@@ -343,9 +343,9 @@ usersLongErr :: Graph gr => gr a b -> Node -> Either DwtErrLongErr [Node]
 usersLongErr g n = do gelemMLongErr g n
                       return [m | (m,label@_) <- lpre g n]
 
-usersSum :: Graph gr => gr a b -> Node -> Either DwtErrSum [Node]
-usersSum g n = do gelemMSum g n
-                  return [m | (m,label@_) <- lpre g n]
+users :: Graph gr => gr a b -> Node -> Either DwtErr [Node]
+users g n = do gelemM g n
+               return [m | (m,label@_) <- lpre g n]
 
 -- | Rels using Node n in RelRole r
 usersInRoleLongErr :: RSLT -> Node -> RelRole -> Either DwtErrLongErr [Node]
@@ -355,9 +355,9 @@ usersInRoleLongErr g n r = prependCallerLongErr "usersInRoleLongErr: " $
   where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
         f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
 
-usersInRoleSum :: RSLT -> Node -> RelRole -> Either DwtErrSum [Node]
-usersInRoleSum g n r = prependCallerSum "usersInRoleLongErr: " $
-  do gelemMSum g n -- makes f safe
+usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
+usersInRole g n r = prependCaller "usersInRoleLongErr: " $
+  do gelemM g n -- makes f safe
      return $ f g n r
   where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
         f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
@@ -370,12 +370,12 @@ matchRelLongErr g spec = prependCallerLongErr "matchRelLongErr: " $ do
   nodeListList <- mapM (\(r,NodeSpec n) -> usersInRoleLongErr g n r) specList
   return $ listIntersect nodeListList
 
-matchRelSum :: RSLT -> RelSpec -> Either DwtErrSum [Node]
-matchRelSum g spec = prependCallerSum "matchRelLongErr: " $ do
+matchRel :: RSLT -> RelSpec -> Either DwtErr [Node]
+matchRel g spec = prependCaller "matchRelLongErr: " $ do
   let specList = Map.toList
         $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,AddressOrVar)]
-  nodeListList <- mapM (\(r,NodeSpec n) -> usersInRoleSum g n r) specList
+  nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
   return $ listIntersect nodeListList
 
 matchRelLabLongErr :: RSLT -> RelSpec -> Either DwtErrLongErr [LNode Expr]
@@ -384,9 +384,9 @@ matchRelLabLongErr g spec = prependCallerLongErr "matchRelLabLongErr: " $ do
   return $ zip ns $ map (fromJust . lab g) ns
     -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
 
-matchRelLabSum :: RSLT -> RelSpec -> Either DwtErrSum [LNode Expr]
-matchRelLabSum g spec = prependCallerSum "matchRelLabLongErr: " $ do
-  ns <- matchRelSum g spec
+matchRelLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
+matchRelLab g spec = prependCaller "matchRelLabLongErr: " $ do
+  ns <- matchRel g spec
   return $ zip ns $ map (fromJust . lab g) ns
     -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
 
@@ -415,8 +415,8 @@ otherDir :: Mbrship -> Mbrship -- incomplete; non-invertible cases will err
 otherDir Up = Down
 otherDir Down = Up
 
-fork1Dir:: RSLT -> Node -> (Mbrship,RelSpec) -> Either DwtErrLongErr [Node]
-fork1Dir g n (dir,r) = do -- returns one generation, neighbors
+fork1DirLongErr:: RSLT -> Node -> (Mbrship,RelSpec) -> Either DwtErrLongErr [Node]
+fork1DirLongErr g n (dir,r) = do -- returns one generation, neighbors
   if has1Dir (otherDir dir) r then return ()
      else Left (Invalid,  mRelSpec .~ Just r $ noErrOpts
                ,  "should have only one " ++ show (otherDir dir))
@@ -427,22 +427,22 @@ fork1Dir g n (dir,r) = do -- returns one generation, neighbors
     -- TODO: this line is unnecessary. just return the rels, not their elts.
     -- EXCEPT: that might hurt the dfs, bfs functions below
 
-fork1DirSumLongErr:: RSLT -> Node -> (Mbrship,RelSpec) -> Either DwtErrSum [Node]
+fork1DirSumLongErr:: RSLT -> Node -> (Mbrship,RelSpec) -> Either DwtErr [Node]
 fork1DirSumLongErr g n (dir,r) = do -- returns one generation, neighbors
   if has1Dir (otherDir dir) r then return ()
      else Left (Invalid,  [ErrRelSpec r]
                , "fork1DirSumLongErr: should have only one " ++ show (otherDir dir))
   let r' = subNodeForVars n (otherDir dir) r
       dirRoles = Map.keys $ Map.filter (== VarSpec dir) r
-  rels <- matchRelSum g r'
-  concat <$> mapM (\rel -> relEltsSum g rel dirRoles) rels
+  rels <- matchRel g r'
+  concat <$> mapM (\rel -> relElts g rel dirRoles) rels
     -- TODO: this line is unnecessary. just return the rels, not their elts.
     -- EXCEPT: that might hurt the dfs, bfs functions below
 
-fork1Dirs :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErrLongErr [Node]
-fork1Dirs g n rs = concat <$> mapM (fork1Dir g n) rs
+fork1DirsLongErr :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErrLongErr [Node]
+fork1DirsLongErr g n rs = concat <$> mapM (fork1DirLongErr g n) rs
 
-fork1DirsSumLongErr :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErrSum [Node]
+fork1DirsSumLongErr :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
 fork1DirsSumLongErr g n rs = concat <$> mapM (fork1DirSumLongErr g n) rs
 
 subNodeForVars :: Node -> Mbrship -> RelSpec  -> RelSpec
@@ -453,41 +453,41 @@ subNodeForVars n v r = Map.map -- change each VarSpec v to NodeSpec n
 
 -- ==== dfs and bfs
   -- algorithmically, the difference is only newNodes++ns v. ns++newNodes
-_bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
+_bfsOrDfsLongErr :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
   -> RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> Either DwtErrLongErr [Node]
-_bfsOrDfs _ _ _ [] acc = return acc
-_bfsOrDfs collector g dir pending@(n:ns) acc = do
-  newNodes <- fork1Dir g n dir -- ifdo speed: calls has1Dir redundantly
-  _bfsOrDfs collector g dir (nub $ collector newNodes ns) (n:acc)
+_bfsOrDfsLongErr _ _ _ [] acc = return acc
+_bfsOrDfsLongErr collector g dir pending@(n:ns) acc = do
+  newNodes <- fork1DirLongErr g n dir -- ifdo speed: calls has1Dir redundantly
+  _bfsOrDfsLongErr collector g dir (nub $ collector newNodes ns) (n:acc)
     -- ifdo speed: discard visited nodes from graph
 
 _bfsOrDfsSumLongErr :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
-  -> RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> Either DwtErrSum [Node]
+  -> RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> Either DwtErr [Node]
 _bfsOrDfsSumLongErr _ _ _ [] acc = return acc
 _bfsOrDfsSumLongErr collector g dir pending@(n:ns) acc = do
   newNodes <- fork1DirSumLongErr g n dir -- ifdo speed: calls has1Dir redundantly
   _bfsOrDfsSumLongErr collector g dir (nub $ collector newNodes ns) (n:acc)
     -- ifdo speed: discard visited nodes from graph
 
-_dwtBfs = _bfsOrDfs (\new old -> old ++ new)
-_dwtDfs = _bfsOrDfs (\new old -> new ++ old)
+_dwtBfsLongErr = _bfsOrDfsLongErr (\new old -> old ++ new)
+_dwtDfsLongErr = _bfsOrDfsLongErr (\new old -> new ++ old)
 
 _dwtBfsSumLongErr = _bfsOrDfsSumLongErr (\new old -> old ++ new)
 _dwtDfsSumLongErr = _bfsOrDfsSumLongErr (\new old -> new ++ old)
 
-dwtDfs :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErrLongErr [Node]
-dwtDfs g dir starts = do mapM_ (gelemMLongErr g) $ starts
-                         (nub . reverse) <$> _dwtDfs g dir starts []
+dwtDfsLongErr :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErrLongErr [Node]
+dwtDfsLongErr g dir starts = do mapM_ (gelemMLongErr g) $ starts
+                                (nub . reverse) <$> _dwtDfsLongErr g dir starts []
 
-dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either DwtErrLongErr [Node]
-dwtBfs g dir starts = do mapM_ (gelemMLongErr g) $ starts
-                         (nub . reverse) <$> _dwtBfs g dir starts []
+dwtBfsLongErr :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either DwtErrLongErr [Node]
+dwtBfsLongErr g dir starts = do mapM_ (gelemMLongErr g) $ starts
+                                (nub . reverse) <$> _dwtBfsLongErr g dir starts []
 
-dwtDfsSumLongErr :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErrSum [Node]
-dwtDfsSumLongErr g dir starts = do mapM_ (gelemMSum g) $ starts
+dwtDfsSumLongErr :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErr [Node]
+dwtDfsSumLongErr g dir starts = do mapM_ (gelemM g) $ starts
                                    (nub . reverse) <$> _dwtDfsSumLongErr g dir starts []
 
-dwtBfsSumLongErr :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either DwtErrSum [Node]
-dwtBfsSumLongErr g dir starts = do mapM_ (gelemMSum g) $ starts
+dwtBfsSumLongErr :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either DwtErr [Node]
+dwtBfsSumLongErr g dir starts = do mapM_ (gelemM g) $ starts
                                    (nub . reverse) <$> _dwtBfsSumLongErr g dir starts []
 
