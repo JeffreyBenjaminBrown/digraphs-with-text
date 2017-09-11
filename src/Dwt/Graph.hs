@@ -239,14 +239,6 @@ matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
   nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) nodeSpecs
   return $ listIntersect nodeListList
 
--- matchRelSpecNodesQ :: RSLT -> RelSpecQ -> Either DwtErr [Node]
--- matchRelSpecNodesQ g spec = prependCaller "matchRelSpecNodes: " $ do
---   let qNodeSpecs = Map.toList
---         $ Map.filter (\ns -> case ns of NodeSpecQ _ -> True; _ -> False)
---         $ spec :: [(RelRole,NodeOrVarQ)]
---   nodeListList <- mapM (\(r,NodeSpecQ n) -> usersInRoleQ g n r) qNodeSpecs
---   return $ listIntersect nodeListList
-
 -- ifdo speed: this searches for nodes, then searches again for labels
 matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
 matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
