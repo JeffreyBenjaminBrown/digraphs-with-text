@@ -20,7 +20,6 @@ library
                      , Dwt.Leaf
                      , Dwt.Graph
                      , Dwt.Parse
-                     , Dwt.ParsecUtils
                      , Dwt.Search
                      , Dwt.Show
                      , Dwt.Types
