@@ -3,15 +3,15 @@
 module Dwt.Leaf (
   _splitStringForTplt, mkTplt
   , subInTplt, padTpltStrings, subInTpltWithHashes
-  , tpltArity, mbrListMatchesTpltArityLongErr, mbrListMatchesTpltArity
+  , tpltArity, mbrListMatchesTpltArity
   , insLeaf
     , insWord, insTplt, insFl -- TODO ? deprec, insLeaf generalizes them
   
-  , isWord, isWordMLongErr, isWordM
-  , isTplt, isTpltMLongErr, isTpltM
-  , isFl, isFlMLongErr, isFlM
-  , isRel, isRelMLongErr, isRelM
-  , isColl, isCollMLongErr, isCollM
+  , isWord, isWordM
+  , isTplt, isTpltM
+  , isFl, isFlM
+  , isRel, isRelM
+  , isColl, isCollM
   , isLeaf, areLikeExprs
   ) where
 
@@ -65,21 +65,13 @@ tpltArity :: Expr -> Arity
 tpltArity e = case e of Tplt ss -> length ss - 1
                         _       -> error "tpltArity: Expr not a Tplt."
 
-mbrListMatchesTpltArityLongErr :: (MonadError DwtErrLongErr m) => [Node] -> Expr -> m ()
-mbrListMatchesTpltArityLongErr ns e = case e of
-  Tplt _ -> if (tpltArity e) == length ns
-    then return ()
-    else throwError (ArityMismatch, mExpr .~ Just e $ noErrOpts, funcName)
-  _ -> throwError (NotTplt,         mExpr .~ Just e $ noErrOpts, funcName)
-  where funcName = "mbrListMatchesTpltArityLongErr."
-
 mbrListMatchesTpltArity :: (MonadError DwtErr m) => [Node] -> Expr -> m ()
 mbrListMatchesTpltArity ns e = case e of
   Tplt _ -> if (tpltArity e) == length ns
     then return ()
     else throwError (ArityMismatch, [ErrExpr e], funcName)
   _ -> throwError (NotTplt,         [ErrExpr e], funcName)
-  where funcName = "mbrListMatchesTpltArityLongErr."
+  where funcName = "mbrListMatchesTpltArity."
 
 -- == Insert
 insLeaf :: Expr -> RSLT -> RSLT
@@ -108,16 +100,6 @@ _isExprMConstructorStrErr pred g n = case mExpr of
                                     False -> throwError $ "is not"
   where mExpr = lab g n
 
-_isExprMConstructorLongErr -- constructs an is_M function (_ is a variable)
-  :: (Graph gr) => (a -> Bool) -> gr a b -> Node -> Either DwtErrLongErr ()
-  -- todo ? catch these erorrs, append strings
-    -- otherwise the distinction bewteen absence and inequality is lost
-_isExprMConstructorLongErr pred g n = case lab g n of 
-  Just expr -> case pred expr of True -> return ()
-                                 False -> Left $ _1 .~ FoundWrongKind $ err
-  Nothing -> Left err
-  where err = (FoundNo, mNode .~ Just n $ noErrOpts, "_isExprMConstructorLongErr.")
-
 _isExprMConstructor -- constructs an is_M function (_ is a variable)
   :: (Graph gr) => (a -> Bool) -> gr a b -> Node -> Either DwtErr ()
   -- todo ? catch these erorrs, append strings
@@ -126,13 +108,10 @@ _isExprMConstructor pred g n = case lab g n of
   Just expr -> case pred expr of True -> return ()
                                  False -> Left $ _1 .~ FoundWrongKind $ err
   Nothing -> Left err
-  where err = (FoundNo, [], "_isExprMConstructorLongErr.")
+  where err = (FoundNo, [], "_isExprMConstructor.")
 
 isWord :: Expr -> Bool
 isWord x = case x of Word _ -> True; _ -> False
-
-isWordMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
-isWordMLongErr = _isExprMConstructorLongErr isWord
 
 isWordM :: RSLT -> Node -> Either DwtErr ()
 isWordM = _isExprMConstructor isWord
@@ -140,17 +119,11 @@ isWordM = _isExprMConstructor isWord
 isTplt :: Expr -> Bool
 isTplt x = case x of Tplt _ -> True; _ -> False
 
-isTpltMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
-isTpltMLongErr = _isExprMConstructorLongErr isTplt
-
 isTpltM :: RSLT -> Node -> Either DwtErr ()
 isTpltM = _isExprMConstructor isTplt
 
 isFl :: Expr -> Bool
 isFl x = case x of Fl _ -> True; _ -> False
-
-isFlMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
-isFlMLongErr = _isExprMConstructorLongErr isFl
 
 isFlM :: RSLT -> Node -> Either DwtErr ()
 isFlM = _isExprMConstructor isFl
@@ -158,17 +131,11 @@ isFlM = _isExprMConstructor isFl
 isRel :: Expr -> Bool
 isRel x = case x of Rel -> True; _ -> False
 
-isRelMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
-isRelMLongErr = _isExprMConstructorLongErr isRel
-
 isRelM :: RSLT -> Node -> Either DwtErr ()
 isRelM = _isExprMConstructor isRel
 
 isColl :: Expr -> Bool
 isColl x = case x of Coll -> True; _ -> False
-
-isCollMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
-isCollMLongErr = _isExprMConstructorLongErr isColl
 
 isCollM :: RSLT -> Node -> Either DwtErr ()
 isCollM = _isExprMConstructor isColl

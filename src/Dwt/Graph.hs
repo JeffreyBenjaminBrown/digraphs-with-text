@@ -75,11 +75,10 @@ insRelSt template mbrs =
      return $ maxNode g'
 
 -- | Deprecated
-insColl :: (MonadError String m)
-        => (Maybe Node) -- title|principle, e.g. "alternatives"
-        -> [Node] -> RSLT -> m RSLT
+insColl :: (Maybe Node) -- title|principle, e.g. "alternatives"
+        -> [Node] -> RSLT -> Either DwtErr RSLT
 insColl mt ns g = do
-  mapM_ (gelemMStrErr g) ns
+  mapM_ (gelemM g) ns
   let newNode = head $ newNodes 1 g
       nameEdges = case mt of
         Nothing -> []

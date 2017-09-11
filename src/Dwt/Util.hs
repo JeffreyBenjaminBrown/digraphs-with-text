@@ -9,9 +9,11 @@ module Dwt.Util (
 
   -- graphs & monads
   , hasLEdgeM
-  , gelemMStrErr, gelemMLongErr, gelemM
+  , gelemM
 
-  , fr, fromRight, prependCallerLongErr, prependCaller -- monads
+   -- monads
+  , fr, fromRight
+  , prependCaller
   ) where
 
 import Data.Graph.Inductive
@@ -62,23 +64,14 @@ joinGraphs g h =
             (shiftAdj ins, n+shift, nlab, shiftAdj outs)) h
   in mkGraph (labNodes g ++ labNodes h') (labEdges g ++ labEdges h')
 
-hasLEdgeM :: RSLT -> LEdge RSLTEdge -> Either DwtErrLongErr ()
+hasLEdgeM :: RSLT -> LEdge RSLTEdge -> Either DwtErr ()
 hasLEdgeM g le@(a,b,lab) = if hasLEdge g le then return ()
-  else Left (FoundNo, x, "hasLEdgeM.")
-  where x = mEdge .~ Just (a,b) $ mEdgeLab .~ Just lab $ noErrOpts
-
--- | deprecated, but used for Coll constructor
-gelemMStrErr :: (MonadError String m, Graph gr) => gr a b -> Node -> m ()
-gelemMStrErr g n = if gelem n g then return () 
-  else throwError $ "gelemMStrErr: Node " ++ show n ++ " absent."
-
-gelemMLongErr :: Graph gr => gr a b -> Node -> Either DwtErrLongErr ()
-gelemMLongErr g n = if gelem n g then return () 
-  else Left (FoundNo, mNode .~ Just n $ noErrOpts, "gelemMLongErr.")
+                           else Left (FoundNo, x, "hasLEdgeM.")
+  where x = [ErrEdge (a,b), ErrEdgeLab lab]
 
 gelemM :: Graph gr => gr a b -> Node -> Either DwtErr ()
 gelemM g n = if gelem n g then return () 
-  else Left (FoundNo, [ErrNode n], "gelemMLongErr.")
+  else Left (FoundNo, [ErrNode n], "gelemM.")
 
 -- == monads
 fromRight, fr :: Either a b -> b  -- TODO: doesn't handle the Left case
@@ -86,10 +79,6 @@ fromRight, fr :: Either a b -> b  -- TODO: doesn't handle the Left case
 fr = fromRight
 fromRight (Right r) = r
 fromRight _ = error "fromRight applied to Left"
-
-prependCallerLongErr :: String -> Either DwtErrLongErr a -> Either DwtErrLongErr a
-prependCallerLongErr name e@(Right _) = e
-prependCallerLongErr name (Left e) = Left $ errStringLongErr %~ (name++) $ e
 
 prependCaller :: String -> Either DwtErr a -> Either DwtErr a
 prependCaller name e@(Right _) = e

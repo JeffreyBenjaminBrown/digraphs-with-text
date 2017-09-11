@@ -1,6 +1,6 @@
 Table of Contents (eventually this format is Haskell)
     pre: Find all nodes using a leaf (even a Tplt)
-    matchRelLongErr: find all relationships using some Tplt with certain members
+    matchRel: find all relationships using some Tplt with certain members
     Find all gold nodes (from Freeplane)
 
 -- Find all nodes using a leaf, even a Tplt
@@ -12,9 +12,9 @@ Table of Contents (eventually this format is Haskell)
     (7,"_ #can _")
     (8,"turtles ##can swim")
 
---  matchRelLongErr: find all relationships using some Tplt with certain members
+--  matchRel: find all relationships using some Tplt with certain members
     > let s = M.fromList [(TpltRole,NodeSpec 7),(Mbr 1,VarSpec Any),(Mbr 2,VarSpec Any)]
-    >  matchRelLongErr g s
+    >  matchRel g s
     Right [8]
 
 -- Find all gold nodes (from Freeplane)

@@ -6,11 +6,7 @@ module Dwt.Types (
   , Mbrship(..), AddressOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
   , QNode(..)
   , AddX(..), Level, JointX(..), EO(..)
-  , DwtErrLongErr(..), mExpr, mNode, mEdge, mEdgeLab
-    , mQNode, mRelRole, mRelSpec, mAddX
-  , errBaseLongErr, errOptsLongErr, errStringLongErr
-  , ErrOptLongErr(..), noErrOpts, ErrBase(..)
-  , DwtErr(..), ErrOpt(..)
+  , DwtErr(..), ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString
   ) where
 
@@ -93,6 +89,15 @@ instance Ord EO where -- Open > closed. If those are equal, ## > #, etc.
 
 
 -- == Errors
+type DwtErr = (ErrBase, [ErrOpt], String)
+
+errBase :: Lens' DwtErr ErrBase
+errBase = _1
+errOpts :: Lens' DwtErr [ErrOpt]
+errOpts = _2
+errString :: Lens' DwtErr String
+errString = _3
+
 data ErrBase = Legacy -- | for when the String has all the info
              | FoundNo | FoundMany | FoundWrongKind
              | ArityMismatch | ConstructorMistmatch
@@ -100,39 +105,6 @@ data ErrBase = Legacy -- | for when the String has all the info
              | Invalid -- | (MbrPos 0), for instance, is ill-formed
              | Impossible
   deriving (Show, Eq)
-
-type DwtErrLongErr = (ErrBase, ErrOptLongErr, String)
-errBaseLongErr :: Lens' DwtErrLongErr ErrBase
-errBaseLongErr = _1
-errOptsLongErr :: Lens' DwtErrLongErr ErrOptLongErr
-errOptsLongErr = _2
-errStringLongErr :: Lens' DwtErrLongErr String
-errStringLongErr = _3
-
--- | TODO ? Use a list of a sum type, to avoid lots of Nothing
-data ErrOptLongErr = ErrOptLongErr { _mNode :: Maybe Node
-                       , _mEdge :: Maybe Edge
-                       , _mEdgeLab :: Maybe RSLTEdge
-                       , _mExpr :: Maybe Expr
-                       , _mAddX :: Maybe AddX
-                       , _mRelRole :: Maybe RelRole
-                       , _mRelSpec :: Maybe RelSpec
-                       , _mQNode :: Maybe QNode } deriving (Show, Eq)
--- | adjust it like "noErrOpts L.& mNode L..~ (Just 2)"
-
-makeLenses ''ErrOptLongErr
-
-noErrOpts :: ErrOptLongErr
-noErrOpts = ErrOptLongErr n n n n n n n n where n = Nothing
-
--- | TODO: Convert all the ErrOptLongErr to this
-type DwtErr = (ErrBase, [ErrOpt], String)
-errBase :: Lens' DwtErr ErrBase
-errBase = _1
-errOpts :: Lens' DwtErr [ErrOpt]
-errOpts = _2
-errString :: Lens' DwtErr String
-errString = _3
 
 data ErrOpt = ErrNode Node | ErrEdge Edge -- | New error style: sum type
   | ErrExpr Expr | ErrEdgeLab RSLTEdge | ErrRelRole RelRole
