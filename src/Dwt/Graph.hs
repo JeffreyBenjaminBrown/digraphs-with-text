@@ -231,10 +231,6 @@ usersInRole g n r = prependCaller "usersInRole: " $
   where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
         f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
 
--- usersInRoleQ :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
--- usersInRoleQ g (QAt n) r = prependCaller "usersInRole: " $ usersInRole g n r
--- usersInRoleQ g q r = qGet1 g q >>= \n -> usersInRole g n r
-
 matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
 matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
   let nodeSpecs = Map.toList
