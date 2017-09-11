@@ -3,7 +3,6 @@
     module Dwt
       ( module Dwt
       , module Dwt.Add
-      , module Dwt.FileIO
       , module Dwt.Graph
       , module Dwt.Leaf
       , module Dwt.Parse 
@@ -17,7 +16,6 @@
     import Data.Graph.Inductive
 
     import Dwt.Add
-    import Dwt.FileIO
     import Dwt.Graph
     import Dwt.Leaf
     import Dwt.Parse

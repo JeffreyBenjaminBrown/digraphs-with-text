@@ -8,7 +8,6 @@ import Dwt.Graph
 import Dwt.Leaf (tpltArity, subInTpltWithHashes, subInTplt)
 import Dwt.Types
 import Dwt.Util
-import Dwt.FileIO (graphToText)
 
 import Data.Graph.Inductive
 
@@ -150,6 +149,3 @@ view g ns = unlines $ map f ns
 -- ==== mostly unused
 bracket :: String -> String -- unused, but a useful pair of characters
 bracket s = "\171" ++ s ++ "\187" -- = «s»
-
-showRaw :: RSLT -> IO ()
-showRaw g = putStr $ graphToText g

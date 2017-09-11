@@ -1,5 +1,6 @@
-    module Dwt.FileIO
+    module Dwt.ShowExtras
       ( graphToText
+      , showRaw
       ) where
 
     import Data.Graph.Inductive
@@ -17,6 +18,7 @@
         -- it assumes that elts with the same first coord are contiguous
         -- in a more general func, that could be forced by sorting first (1 way)
       -- "take the first coord" could be a function argument (the 2nd way)
+
     _groupEdges :: [LEdge b] -> -- "decumulator?", what's left of the input
                    [[LEdge b]] -> -- accumulator, recursive
                    [[LEdge b]]
@@ -27,6 +29,7 @@
       then _groupEdges es $   ((a,b,c):(aa,bb,cc):es'):els'
       else _groupEdges es $ [(a,b,c)]:((aa,bb,cc):es'):els'
 
+    -- | group edges with like labels
     groupEdges :: Ord b => [LEdge b] -> [[LEdge b]]
     groupEdges es = map (sortOn (\(_,_,c)->c))
       $ _groupEdges es []
@@ -41,3 +44,6 @@
 
     graphToText g = "mkGraph [\n" ++ showNodes g ++ "\n][\n"
                                   ++ showEdges g ++ "\n]\n"
+
+    showRaw :: RSLT -> IO ()
+    showRaw g = putStr $ graphToText g
