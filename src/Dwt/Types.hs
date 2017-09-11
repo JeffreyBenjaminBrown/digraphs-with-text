@@ -3,7 +3,7 @@
 module Dwt.Types (
   MbrPos, Arity
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
-  , Mbrship(..), AddressOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
+  , Mbrship(..), NodeOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
   , QNode(..)
   , AddX(..), Level, JointX(..), EO(..)
   , DwtErr(..), ErrBase(..), ErrOpt(..)
@@ -41,13 +41,12 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
 
 -- == Specifying kinds of relationships
 data Mbrship = It | Any | Up | Down deriving (Show,Read,Eq,Ord)
-data AddressOrVar -- might be addressed; else is Mbrship variable
-  = VarSpec Mbrship | NodeSpec Node deriving(Show,Read,Eq,Ord)
+data NodeOrVar = NodeSpec Node | VarSpec Mbrship deriving (Show,Read,Eq,Ord)
 
 -- at the TpltRole key is always a concrete NodeSpec
 type RelVarSpec =  Map.Map RelRole Mbrship
 type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
-type RelSpec =     Map.Map RelRole AddressOrVar -- if well-formed, includes
+type RelSpec =     Map.Map RelRole NodeOrVar -- if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
 
 -- == Queries

@@ -235,7 +235,7 @@ matchRel :: RSLT -> RelSpec -> Either DwtErr [Node]
 matchRel g spec = prependCaller "matchRel: " $ do
   let nodeSpecs = Map.toList
         $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
-        $ spec :: [(RelRole,AddressOrVar)]
+        $ spec :: [(RelRole,NodeOrVar)]
   nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) nodeSpecs
   return $ listIntersect nodeListList
 
