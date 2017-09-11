@@ -1,0 +1,6 @@
+matchRelSpecNodes -> matchRelSpecNodesQ
+usersInRole -> usersInRoleQ
+NodeOrVar -> NodeOrVarQ
+RelSpec -> RelSpecQ
+NodeSpec -> NodeSpecQ
+VarSpec -> VarSpecQ
