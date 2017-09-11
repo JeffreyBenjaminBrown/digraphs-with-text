@@ -4,7 +4,7 @@ module Dwt.Types (
   MbrPos, Arity
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , Mbrship(..), NodeOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
-  , QNodeOrVar(..)
+  , NodeOrVarQ(..), RelSpecQ
   , QNode(..)
   , AddX(..), Level, JointX(..), EO(..)
   , DwtErr(..), ErrBase(..), ErrOpt(..)
@@ -42,14 +42,14 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
 
 -- == Specifying kinds of relationships
 data Mbrship = It | Any | Up | Down deriving (Show,Read,Eq,Ord)
-data NodeOrVar = NodeSpec Node | VarSpec Mbrship deriving (Show,Read,Eq,Ord)
-data QNodeOrVar = QNodeSpec Node |QVarSpec Mbrship deriving (Show,Read,Eq,Ord)
+data NodeOrVar = NodeSpec Node | VarSpec Mbrship deriving (Show,Read,Eq)
+data NodeOrVarQ = NodeSpecQ QNode |VarSpecQ Mbrship deriving (Show,Eq)
 
 -- at the TpltRole key is always a concrete NodeSpec
 type RelVarSpec =  Map.Map RelRole Mbrship
 type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
 type RelSpec =     Map.Map RelRole NodeOrVar -- if well-formed, includes
-type QRelSpec =     Map.Map RelRole QNodeOrVar -- if well-formed, includes
+type RelSpecQ =    Map.Map RelRole NodeOrVarQ -- if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
 
 -- == Queries
