@@ -244,7 +244,7 @@ matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
 matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
   ns <- matchRelSpecNodes g spec
   return $ zip ns $ map (fromJust . lab g) ns
-    -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
+    -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
 
 -- ======== using directions (RelSpecs)
 -- todo ? 1Dir because it should have one such direction. I forget why.
