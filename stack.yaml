@@ -59,3 +59,4 @@ extra-deps:
 - cabal-doctest-1.0.2
 - case-insensitive-1.2.0.10
 - parser-combinators-0.2.0
+

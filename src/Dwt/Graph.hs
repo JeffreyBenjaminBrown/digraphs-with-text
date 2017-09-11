@@ -233,10 +233,10 @@ usersInRole g n r = prependCaller "usersInRole: " $
 
 matchRel :: RSLT -> RelSpec -> Either DwtErr [Node]
 matchRel g spec = prependCaller "matchRel: " $ do
-  let specList = Map.toList
+  let nodeSpecs = Map.toList
         $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,AddressOrVar)]
-  nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) specList
+  nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) nodeSpecs
   return $ listIntersect nodeListList
 
 matchRelLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
@@ -245,7 +245,6 @@ matchRelLab g spec = prependCaller "matchRelLab: " $ do
   return $ zip ns $ map (fromJust . lab g) ns
     -- fromJust is safe here, because matchRelStrErr only returns Nodes in g
 
--- >>>
 -- ======== using directions (RelSpecs)
 -- todo ? 1Dir because it should have one such direction. I forget why.
   -- clarif: if I want a generation in the Down direction of the rel "has/",
