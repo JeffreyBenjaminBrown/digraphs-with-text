@@ -253,13 +253,6 @@ matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
 -- TODO ? check: Up|Down good, Any|It bad
   -- fork1Up uses otherDir, so it will catch those errors, but obscurely
 
---    has1Up :: RelSpec -> Bool
---    has1Up rc = length as == 1
---      where as = Map.toList
---               $ Map.filter (\x -> case x of
---                              VarSpec Up -> True; _ -> False)
---               rc
-
 has1Dir :: Mbrship -> RelSpec -> Bool
 has1Dir mv rc = length as == 1
   where as = Map.toList
