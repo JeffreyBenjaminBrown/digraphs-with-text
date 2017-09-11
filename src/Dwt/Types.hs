@@ -21,16 +21,15 @@ type MbrPos = Int -- k members of k-ary Rel, MbrPos values [1..k]
 
 type RSLT = Gr Expr RSLTEdge -- reflective set of labeled tuples
 data Expr = Word String | Fl Float -- these two are similarly atomic
-          | Rel
-          | Tplt [String]
-          | Coll -- each uses a CollPrinciple like "and" or "or"
-          | RelSpecExpr RelVarSpec
+  | Rel
+  | Tplt [String]
+  | Coll -- each uses a CollPrinciple like "and" or "or"
+  | RelSpecExpr RelVarSpec
             -- The RelVarSpec specifies the variable members.
             -- Edges specify the concrete (addressed) members.
-          deriving(Show,Read,Eq,Ord)
+  deriving(Show,Read,Eq,Ord)
 
-data RSLTEdge = RelEdge RelRole | CollEdge CollRole
-              deriving(Show,Read,Eq,Ord)
+data RSLTEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
   -- | only Rels and Colls emit edges, have subexpressions
   -- "RSLTEdgeLabel" would be a more accurate name.
 data RelRole = TpltRole | Mbr MbrPos deriving(Show,Read,Eq,Ord)
@@ -42,10 +41,8 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
   -- Exceptions: "some of," "no more than," "exactly" would use unary Tplts.
     -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
 
-
 -- == Specifying kinds of relationships
-data Mbrship = It | Any | Up | Down
-  deriving (Show,Read,Eq,Ord)
+data Mbrship = It | Any | Up | Down deriving (Show,Read,Eq,Ord)
 data AddressOrVar -- might be addressed; else is Mbrship variable
   = VarSpec Mbrship | NodeSpec Node deriving(Show,Read,Eq,Ord)
 
@@ -55,19 +52,14 @@ type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
 type RelSpec =     Map.Map RelRole AddressOrVar -- if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
 
-
 -- == Queries
 data QNode = QAt Node -- when you already know the Node
-           | QLeaf Expr -- when you don't but you know its contents
-           | QRel QNode [QNode]
-  deriving (Show, Eq)
-
+  | QLeaf Expr -- when you don't but you know its contents
+  | QRel QNode [QNode] deriving (Show, Eq)
 
 -- == Parsing Hash expressions
 data AddX = At Node -- for when you know the expression's node. TODO: parse
-          | Absent
-          | LeafX Expr
-          | RelX EO [JointX] [AddX]
+  | Absent | LeafX Expr | RelX EO [JointX] [AddX]
   -- Every rel has at least one jointX, and potentially members on either side
   -- If there are more, the list of pairs stores them.
           deriving (Show, Eq)
@@ -87,16 +79,8 @@ instance Show EO where
 instance Ord EO where -- Open > closed. If those are equal, ## > #, etc.
   EO a b <= EO c d = a <= c && b <= d
 
-
 -- == Errors
 type DwtErr = (ErrBase, [ErrOpt], String)
-
-errBase :: Lens' DwtErr ErrBase
-errBase = _1
-errOpts :: Lens' DwtErr [ErrOpt]
-errOpts = _2
-errString :: Lens' DwtErr String
-errString = _3
 
 data ErrBase = Legacy -- | for when the String has all the info
              | FoundNo | FoundMany | FoundWrongKind
@@ -110,3 +94,10 @@ data ErrOpt = ErrNode Node | ErrEdge Edge -- | New error style: sum type
   | ErrExpr Expr | ErrEdgeLab RSLTEdge | ErrRelRole RelRole
   | ErrAddX AddX | ErrRelSpec RelSpec | ErrQNode QNode
   deriving (Show, Eq)
+
+errBase :: Lens' DwtErr ErrBase
+errBase = _1
+errOpts :: Lens' DwtErr [ErrOpt]
+errOpts = _2
+errString :: Lens' DwtErr String
+errString = _3
