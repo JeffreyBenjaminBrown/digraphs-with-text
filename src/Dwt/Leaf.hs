@@ -3,15 +3,15 @@
 module Dwt.Leaf (
   _splitStringForTplt, mkTplt
   , subInTplt, padTpltStrings, subInTpltWithHashes
-  , tpltArity, mbrListMatchesTpltArityDeprecatoryName, mbrListMatchesTpltAritySum
+  , tpltArity, mbrListMatchesTpltArityLongErr, mbrListMatchesTpltAritySum
   , insLeaf
     , insWord, insTplt, insFl -- TODO ? deprec, insLeaf generalizes them
   
-  , isWord, isWordMDeprecatoryName, isWordMSum
-  , isTplt, isTpltMDeprecatoryName, isTpltMSum
-  , isFl, isFlMDeprecatoryName, isFlMSum
-  , isRel, isRelMDeprecatoryName, isRelMSum
-  , isColl, isCollMDeprecatoryName, isCollMSum
+  , isWord, isWordMLongErr, isWordMSum
+  , isTplt, isTpltMLongErr, isTpltMSum
+  , isFl, isFlMLongErr, isFlMSum
+  , isRel, isRelMLongErr, isRelMSum
+  , isColl, isCollMLongErr, isCollMSum
   , isLeaf, areLikeExprs
   ) where
 
@@ -65,13 +65,13 @@ tpltArity :: Expr -> Arity
 tpltArity e = case e of Tplt ss -> length ss - 1
                         _       -> error "tpltArity: Expr not a Tplt."
 
-mbrListMatchesTpltArityDeprecatoryName :: (MonadError DwtErrDeprecatoryName m) => [Node] -> Expr -> m ()
-mbrListMatchesTpltArityDeprecatoryName ns e = case e of
+mbrListMatchesTpltArityLongErr :: (MonadError DwtErrLongErr m) => [Node] -> Expr -> m ()
+mbrListMatchesTpltArityLongErr ns e = case e of
   Tplt _ -> if (tpltArity e) == length ns
     then return ()
     else throwError (ArityMismatch, mExpr .~ Just e $ noErrOpts, funcName)
   _ -> throwError (NotTplt,         mExpr .~ Just e $ noErrOpts, funcName)
-  where funcName = "mbrListMatchesTpltArityDeprecatoryName."
+  where funcName = "mbrListMatchesTpltArityLongErr."
 
 mbrListMatchesTpltAritySum :: (MonadError DwtErrSum m) => [Node] -> Expr -> m ()
 mbrListMatchesTpltAritySum ns e = case e of
@@ -79,7 +79,7 @@ mbrListMatchesTpltAritySum ns e = case e of
     then return ()
     else throwError (ArityMismatch, [ErrExpr e], funcName)
   _ -> throwError (NotTplt,         [ErrExpr e], funcName)
-  where funcName = "mbrListMatchesTpltArityDeprecatoryName."
+  where funcName = "mbrListMatchesTpltArityLongErr."
 
 -- == Insert
 insLeaf :: Expr -> RSLT -> RSLT
@@ -108,15 +108,15 @@ _isExprMConstructorStrErr pred g n = case mExpr of
                                     False -> throwError $ "is not"
   where mExpr = lab g n
 
-_isExprMConstructorDeprecatoryName -- constructs an is_M function (_ is a variable)
-  :: (Graph gr) => (a -> Bool) -> gr a b -> Node -> Either DwtErrDeprecatoryName ()
+_isExprMConstructorLongErr -- constructs an is_M function (_ is a variable)
+  :: (Graph gr) => (a -> Bool) -> gr a b -> Node -> Either DwtErrLongErr ()
   -- todo ? catch these erorrs, append strings
     -- otherwise the distinction bewteen absence and inequality is lost
-_isExprMConstructorDeprecatoryName pred g n = case lab g n of 
+_isExprMConstructorLongErr pred g n = case lab g n of 
   Just expr -> case pred expr of True -> return ()
                                  False -> Left $ _1 .~ FoundWrongKind $ err
   Nothing -> Left err
-  where err = (FoundNo, mNode .~ Just n $ noErrOpts, "_isExprMConstructorDeprecatoryName.")
+  where err = (FoundNo, mNode .~ Just n $ noErrOpts, "_isExprMConstructorLongErr.")
 
 _isExprMConstructorSum -- constructs an is_M function (_ is a variable)
   :: (Graph gr) => (a -> Bool) -> gr a b -> Node -> Either DwtErrSum ()
@@ -126,13 +126,13 @@ _isExprMConstructorSum pred g n = case lab g n of
   Just expr -> case pred expr of True -> return ()
                                  False -> Left $ _1 .~ FoundWrongKind $ err
   Nothing -> Left err
-  where err = (FoundNo, [], "_isExprMConstructorDeprecatoryName.")
+  where err = (FoundNo, [], "_isExprMConstructorLongErr.")
 
 isWord :: Expr -> Bool
 isWord x = case x of Word _ -> True; _ -> False
 
-isWordMDeprecatoryName :: RSLT -> Node -> Either DwtErrDeprecatoryName ()
-isWordMDeprecatoryName = _isExprMConstructorDeprecatoryName isWord
+isWordMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
+isWordMLongErr = _isExprMConstructorLongErr isWord
 
 isWordMSum :: RSLT -> Node -> Either DwtErrSum ()
 isWordMSum = _isExprMConstructorSum isWord
@@ -140,8 +140,8 @@ isWordMSum = _isExprMConstructorSum isWord
 isTplt :: Expr -> Bool
 isTplt x = case x of Tplt _ -> True; _ -> False
 
-isTpltMDeprecatoryName :: RSLT -> Node -> Either DwtErrDeprecatoryName ()
-isTpltMDeprecatoryName = _isExprMConstructorDeprecatoryName isTplt
+isTpltMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
+isTpltMLongErr = _isExprMConstructorLongErr isTplt
 
 isTpltMSum :: RSLT -> Node -> Either DwtErrSum ()
 isTpltMSum = _isExprMConstructorSum isTplt
@@ -149,8 +149,8 @@ isTpltMSum = _isExprMConstructorSum isTplt
 isFl :: Expr -> Bool
 isFl x = case x of Fl _ -> True; _ -> False
 
-isFlMDeprecatoryName :: RSLT -> Node -> Either DwtErrDeprecatoryName ()
-isFlMDeprecatoryName = _isExprMConstructorDeprecatoryName isFl
+isFlMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
+isFlMLongErr = _isExprMConstructorLongErr isFl
 
 isFlMSum :: RSLT -> Node -> Either DwtErrSum ()
 isFlMSum = _isExprMConstructorSum isFl
@@ -158,8 +158,8 @@ isFlMSum = _isExprMConstructorSum isFl
 isRel :: Expr -> Bool
 isRel x = case x of Rel -> True; _ -> False
 
-isRelMDeprecatoryName :: RSLT -> Node -> Either DwtErrDeprecatoryName ()
-isRelMDeprecatoryName = _isExprMConstructorDeprecatoryName isRel
+isRelMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
+isRelMLongErr = _isExprMConstructorLongErr isRel
 
 isRelMSum :: RSLT -> Node -> Either DwtErrSum ()
 isRelMSum = _isExprMConstructorSum isRel
@@ -167,8 +167,8 @@ isRelMSum = _isExprMConstructorSum isRel
 isColl :: Expr -> Bool
 isColl x = case x of Coll -> True; _ -> False
 
-isCollMDeprecatoryName :: RSLT -> Node -> Either DwtErrDeprecatoryName ()
-isCollMDeprecatoryName = _isExprMConstructorDeprecatoryName isColl
+isCollMLongErr :: RSLT -> Node -> Either DwtErrLongErr ()
+isCollMLongErr = _isExprMConstructorLongErr isColl
 
 isCollMSum :: RSLT -> Node -> Either DwtErrSum ()
 isCollMSum = _isExprMConstructorSum isColl

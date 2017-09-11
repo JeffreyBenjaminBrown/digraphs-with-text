@@ -3,9 +3,9 @@
 
 module Dwt.Search (
     qGet
-  , qGetLabDeprecatoryName, qGetLabSum
-  , qGet1DeprecatoryName, qGet1Sum 
-  , qPutStDeprecatoryName, qPutStSum
+  , qGetLabLongErr, qGetLabSum
+  , qGet1LongErr, qGet1Sum 
+  , qPutStLongErr, qPutStSum
   , qRegexWord
 ) where
 
@@ -14,7 +14,7 @@ import Text.Regex
 import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Graph
-import Dwt.Util (fr, maxNode, dropEdges, fromRight, prependCallerDeprecatoryName, prependCallerSum)
+import Dwt.Util (fr, maxNode, dropEdges, fromRight, prependCallerLongErr, prependCallerSum)
 import Dwt.Leaf (insLeaf)
 
 import Control.Monad (liftM)
@@ -28,32 +28,32 @@ import Control.Monad (foldM)
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1
 
--- ==== The old verbose DwtErrDeprecatoryName way
+-- ==== The old verbose DwtErrLongErr way
 -- == Get
 _qGet :: -- x herein is either Node or LNode Expr
      (RSLT -> Node -> x) -- | gets what's there; used for QAt.
   -- Can safely be unsafe, because the QAt's contents are surely present.
   -> (RSLT -> [x])       -- | nodes or labNodes; used for QLeaf
-  -> (RSLT -> RelSpec -> Either DwtErrDeprecatoryName [x])
-    -- | matchRelDeprecatoryName or matchRelLabDeprecatoryName; used for QRel
-  -> RSLT -> QNode -> Either DwtErrDeprecatoryName [x]
+  -> (RSLT -> RelSpec -> Either DwtErrLongErr [x])
+    -- | matchRelLongErr or matchRelLabLongErr; used for QRel
+  -> RSLT -> QNode -> Either DwtErrLongErr [x]
 _qGet f _ _ g (QAt n) = return $ if gelem n g then [f g n] else []
 _qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
-_qGet _ _ f g (QRel qt qms) = prependCallerDeprecatoryName "_qGet: " $ do
-  t <- qGet1DeprecatoryName g qt   -- TODO ? case of multiple qt, qms matches
-  ms <- mapM (qGet1DeprecatoryName g) qms
+_qGet _ _ f g (QRel qt qms) = prependCallerLongErr "_qGet: " $ do
+  t <- qGet1LongErr g qt   -- TODO ? case of multiple qt, qms matches
+  ms <- mapM (qGet1LongErr g) qms
   let relspec = mkRelSpec t ms
   f g relspec
 
-qGet :: RSLT -> QNode -> Either DwtErrDeprecatoryName [Node]
-qGet = _qGet (\_ n -> n) nodes matchRelDeprecatoryName
+qGet :: RSLT -> QNode -> Either DwtErrLongErr [Node]
+qGet = _qGet (\_ n -> n) nodes matchRelLongErr
 
-qGetLabDeprecatoryName :: RSLT -> QNode -> Either DwtErrDeprecatoryName [LNode Expr]
-qGetLabDeprecatoryName = _qGet f labNodes matchRelLabDeprecatoryName where
+qGetLabLongErr :: RSLT -> QNode -> Either DwtErrLongErr [LNode Expr]
+qGetLabLongErr = _qGet f labNodes matchRelLabLongErr where
   f g n = (n, Mb.fromJust $ lab g n)
 
-qGet1DeprecatoryName :: RSLT -> QNode -> Either DwtErrDeprecatoryName Node
-qGet1DeprecatoryName g q = prependCallerDeprecatoryName "qGet1DeprecatoryName: " $ case qGet g q of
+qGet1LongErr :: RSLT -> QNode -> Either DwtErrLongErr Node
+qGet1LongErr g q = prependCallerLongErr "qGet1LongErr: " $ case qGet g q of
     Right [] -> Left (FoundNo, queryError, ".")
     Right [a] -> Right a
     Right as -> Left (FoundMany, queryError, ".")
@@ -61,21 +61,21 @@ qGet1DeprecatoryName g q = prependCallerDeprecatoryName "qGet1DeprecatoryName: "
   where queryError = mQNode .~ Just q $ noErrOpts 
 
 ---- == Put
-qPutStDeprecatoryName :: QNode -> StateT RSLT (Either DwtErrDeprecatoryName) Node
-qPutStDeprecatoryName (QRel qt qms) = do
+qPutStLongErr :: QNode -> StateT RSLT (Either DwtErrLongErr) Node
+qPutStLongErr (QRel qt qms) = do
   -- TODO ? would be more efficient to return even the half-completed state
-  let tag = prependCallerDeprecatoryName "qPutStDeprecatoryName: " -- TODO: use
-  t <- qPutStDeprecatoryName qt
-  ms <- mapM qPutStDeprecatoryName qms
+  let tag = prependCallerLongErr "qPutStLongErr: " -- TODO: use
+  t <- qPutStLongErr qt
+  ms <- mapM qPutStLongErr qms
   g <- get
-  let matches = matchRelDeprecatoryName g $ mkRelSpec t ms
-  insRelStDeprecatoryName t ms
-qPutStDeprecatoryName (QAt n) = lift $ Right n
-qPutStDeprecatoryName q@(QLeaf x) = get >>= \g -> case qGet1DeprecatoryName g q of
+  let matches = matchRelLongErr g $ mkRelSpec t ms
+  insRelStLongErr t ms
+qPutStLongErr (QAt n) = lift $ Right n
+qPutStLongErr q@(QLeaf x) = get >>= \g -> case qGet1LongErr g q of
   Right n -> lift $ Right n
   Left (FoundNo,_,_) -> let g' = insLeaf x g
     in put g' >> lift (Right $ maxNode g')
-  Left e -> lift $ prependCallerDeprecatoryName "qPutStDeprecatoryName: " $ Left e
+  Left e -> lift $ prependCallerLongErr "qPutStLongErr: " $ Left e
 
 -- ==== The new terse DwtErrSum way
 _qGetSum :: -- x herein is either Node or LNode Expr
@@ -111,7 +111,7 @@ qGet1Sum g q = prependCallerSum "qGet1Sum: " $ case qGetSum g q of
 qPutStSum :: QNode -> StateT RSLT (Either DwtErrSum) Node
 qPutStSum (QRel qt qms) = do
   -- TODO ? would be more efficient to return even the half-completed state
-  let tag = prependCallerSum "qPutStDeprecatoryName: " -- TODO: use
+  let tag = prependCallerSum "qPutStLongErr: " -- TODO: use
   t <- qPutStSum qt
   ms <- mapM qPutStSum qms
   g <- get
@@ -122,7 +122,7 @@ qPutStSum q@(QLeaf x) = get >>= \g -> case qGet1Sum g q of
   Right n -> lift $ Right n
   Left (FoundNo,_,_) -> let g' = insLeaf x g
     in put g' >> lift (Right $ maxNode g')
-  Left e -> lift $ prependCallerSum "qPutStDeprecatoryName: " $ Left e
+  Left e -> lift $ prependCallerSum "qPutStLongErr: " $ Left e
 
 -- == Regex
 qRegexWord :: RSLT -> String -> [Node]

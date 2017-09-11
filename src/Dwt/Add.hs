@@ -4,14 +4,14 @@ import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Types
 import Dwt.Graph
 import Dwt.Search
-import Dwt.Util (fr, maxNode, prependCallerDeprecatoryName, gelemMDeprecatoryName, gelemMSum)
+import Dwt.Util (fr, maxNode, prependCallerLongErr, gelemMLongErr, gelemMSum)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)
 import Data.List (mapAccumL)
 import qualified Data.Sequence as S
 import Control.Lens ((.~))
 
--- | AddX was (maybe) optimized for correctness when parsing text from usersDeprecatoryName.
+-- | AddX was (maybe) optimized for correctness when parsing text from usersLongErr.
 -- AddX is optimized for ease of loading new data into the graph.
 
 -- | (At n) represents something already extant in the graph.
@@ -54,15 +54,15 @@ prettyPrint = it 0 where
     mapM_ f $ zip js ms
   it k l = putStrLn $ space k ++ show l
 
-addExprDeprecatoryName :: AddX -> StateT RSLT (Either DwtErrDeprecatoryName) Node
-addExprDeprecatoryName (At n) = get >>= lift . flip gelemMDeprecatoryName n >> return n
-addExprDeprecatoryName Absent = lift $ Left (Impossible
+addExprLongErr :: AddX -> StateT RSLT (Either DwtErrLongErr) Node
+addExprLongErr (At n) = get >>= lift . flip gelemMLongErr n >> return n
+addExprLongErr Absent = lift $ Left (Impossible
   , mAddX .~ Just Absent $ noErrOpts, "execAddX.")
-addExprDeprecatoryName (LeafX e) = qPutStDeprecatoryName $ QLeaf e
-addExprDeprecatoryName q@(RelX _ js as) = do
-  ms <- mapM addExprDeprecatoryName $ filter (not . isAbsent) as
-  t <- qPutStDeprecatoryName $ QLeaf $ extractTplt q
-  qPutStDeprecatoryName $ QRel (QAt t) (map QAt ms)
+addExprLongErr (LeafX e) = qPutStLongErr $ QLeaf e
+addExprLongErr q@(RelX _ js as) = do
+  ms <- mapM addExprLongErr $ filter (not . isAbsent) as
+  t <- qPutStLongErr $ QLeaf $ extractTplt q
+  qPutStLongErr $ QRel (QAt t) (map QAt ms)
 
 addExprSum :: AddX -> StateT RSLT (Either DwtErrSum) Node
 addExprSum (At n) = get >>= lift . flip gelemMSum n >> return n
@@ -74,4 +74,4 @@ addExprSum q@(RelX _ js as) = do
   t <- qPutStSum $ QLeaf $ extractTplt q
   qPutStSum $ QRel (QAt t) (map QAt ms)
 
--- let Right (_,g) = runStateT (mapM (addExprDeprecatoryName . fr . parse expr "" ) ["a # b", "# c", "## d #"]) empty
+-- let Right (_,g) = runStateT (mapM (addExprLongErr . fr . parse expr "" ) ["a # b", "# c", "## d #"]) empty
