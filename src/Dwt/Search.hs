@@ -77,11 +77,9 @@ qPutSt q@(QLeaf x) = get >>= \g -> case qGet1 g q of
   Left e -> lift $ prependCaller "qPutSt: " $ Left e
 
 -- == Regex
-qRegexWord :: RSLT -> String -> Either String [Node]
-qRegexWord g s = do
-  let r = mkRegex s
-  let ns = nodes $ labfilter (\lab -> case lab of
-                                 Word t -> Mb.isJust $ matchRegex r t;
-                                 _ -> False)
-                 $ dropEdges g
-  Right ns
+qRegexWord :: RSLT -> String -> [Node]
+qRegexWord g s = nodes $ labfilter f $ dropEdges g
+  where r = mkRegex s
+        f (Word t) = Mb.isJust $ matchRegex r t
+        f _ = False
+
