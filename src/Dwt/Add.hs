@@ -1,6 +1,6 @@
 -- | Sample use:
 -- Dwt.prettyPrint $ fr $ parse expr "" "a # b ##z # (d # e) # e ## f ## g # h"
--- let Right (_,g) = runStateT (mapM (addExprLongErr . fr . parse expr "" ) ["a # b", "# c", "## d #"]) empty
+-- let Right (_,g) = runStateT (mapM (addExpr . fr . parse expr "" ) ["a # b", "# c", "## d #"]) empty
 
 module Dwt.Add where
 
@@ -8,14 +8,14 @@ import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Types
 import Dwt.Graph
 import Dwt.Search
-import Dwt.Util (fr, maxNode, prependCallerLongErr, gelemMLongErr, gelemM)
+import Dwt.Util (fr, maxNode, prependCaller, gelemM)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)
 import Data.List (mapAccumL)
 import qualified Data.Sequence as S
 import Control.Lens ((.~))
 
--- | AddX was (maybe) optimized for correctness when parsing text from usersLongErr.
+-- | AddX was (maybe) optimized for correctness when parsing text from users.
 -- AddX is optimized for ease of loading new data into the graph.
 
 -- | (At n) represents something already extant in the graph.
