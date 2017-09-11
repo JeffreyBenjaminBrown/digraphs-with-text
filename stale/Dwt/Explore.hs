@@ -23,7 +23,7 @@
       where showAround num = do
               putStr "-- it --"
               v g [num]
-              putStrLn "-- its users (predecessors) --"
+              putStrLn "-- its usersDeprecatoryName (predecessors) --"
               v g $ pre g num
 
 -- a silent getChar (unused)

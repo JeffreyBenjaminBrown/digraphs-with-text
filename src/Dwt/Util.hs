@@ -9,9 +9,9 @@ module Dwt.Util (
 
   -- graphs & monads
   , hasLEdgeM
-  , gelemMStrErr, gelemM, gelemMSum
+  , gelemMStrErr, gelemMDeprecatoryName, gelemMSum
 
-  , fr, fromRight, prependCaller, prependCallerSum -- monads
+  , fr, fromRight, prependCallerDeprecatoryName, prependCallerSum -- monads
   ) where
 
 import Data.Graph.Inductive
@@ -62,7 +62,7 @@ joinGraphs g h =
             (shiftAdj ins, n+shift, nlab, shiftAdj outs)) h
   in mkGraph (labNodes g ++ labNodes h') (labEdges g ++ labEdges h')
 
-hasLEdgeM :: RSLT -> LEdge RSLTEdge -> Either DwtErr ()
+hasLEdgeM :: RSLT -> LEdge RSLTEdge -> Either DwtErrDeprecatoryName ()
 hasLEdgeM g le@(a,b,lab) = if hasLEdge g le then return ()
   else Left (FoundNo, x, "hasLEdgeM.")
   where x = mEdge .~ Just (a,b) $ mEdgeLab .~ Just lab $ noErrOpts
@@ -72,13 +72,13 @@ gelemMStrErr :: (MonadError String m, Graph gr) => gr a b -> Node -> m ()
 gelemMStrErr g n = if gelem n g then return () 
   else throwError $ "gelemMStrErr: Node " ++ show n ++ " absent."
 
-gelemM :: Graph gr => gr a b -> Node -> Either DwtErr ()
-gelemM g n = if gelem n g then return () 
-  else Left (FoundNo, mNode .~ Just n $ noErrOpts, "gelemM.")
+gelemMDeprecatoryName :: Graph gr => gr a b -> Node -> Either DwtErrDeprecatoryName ()
+gelemMDeprecatoryName g n = if gelem n g then return () 
+  else Left (FoundNo, mNode .~ Just n $ noErrOpts, "gelemMDeprecatoryName.")
 
 gelemMSum :: Graph gr => gr a b -> Node -> Either DwtErrSum ()
 gelemMSum g n = if gelem n g then return () 
-  else Left (FoundNo, [ErrNode n], "gelemM.")
+  else Left (FoundNo, [ErrNode n], "gelemMDeprecatoryName.")
 
 -- == monads
 fromRight, fr :: Either a b -> b  -- TODO: doesn't handle the Left case
@@ -87,9 +87,9 @@ fr = fromRight
 fromRight (Right r) = r
 fromRight _ = error "fromRight applied to Left"
 
-prependCaller :: String -> Either DwtErr a -> Either DwtErr a
-prependCaller name e@(Right _) = e
-prependCaller name (Left e) = Left $ errString %~ (name++) $ e
+prependCallerDeprecatoryName :: String -> Either DwtErrDeprecatoryName a -> Either DwtErrDeprecatoryName a
+prependCallerDeprecatoryName name e@(Right _) = e
+prependCallerDeprecatoryName name (Left e) = Left $ errStringDeprecatoryName %~ (name++) $ e
 
 prependCallerSum :: String -> Either DwtErrSum a -> Either DwtErrSum a
 prependCallerSum name e@(Right _) = e

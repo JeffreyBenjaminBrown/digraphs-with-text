@@ -7,7 +7,7 @@ import Data.Graph.Inductive (empty, nodes)
 import Dwt.Types
 import Dwt.Leaf (insWord, insTplt)
 import Dwt.Show (view)
-import Dwt.Add (addExpr)
+import Dwt.Add (addExprDeprecatoryName)
 import Dwt.Parse
 import Dwt.Util (fr)
 import Text.Megaparsec (parse)
@@ -87,7 +87,7 @@ appHandleEvent st _ = M.continue st
 addToRSLT :: St -> T.EventM Name (T.Next St)
 addToRSLT st = do
     let strings = st ^. edit1 & E.getEditContents
-        graphUpdater = mapM (addExpr . fr . parse expr "" ) strings
+        graphUpdater = mapM (addExprDeprecatoryName . fr . parse expr "" ) strings
           -- TODO: nix the fr
         g = st ^. rslt
         e = execStateT graphUpdater g

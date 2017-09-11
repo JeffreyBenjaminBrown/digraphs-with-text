@@ -6,10 +6,10 @@ module Dwt.Types (
   , Mbrship(..), AddressOrVar(..), RelVarSpec, RelNodeSpec, RelSpec
   , QNode(..)
   , AddX(..), Level, JointX(..), EO(..)
-  , DwtErr(..), mExpr, mNode, mEdge, mEdgeLab
+  , DwtErrDeprecatoryName(..), mExpr, mNode, mEdge, mEdgeLab
     , mQNode, mRelRole, mRelSpec, mAddX
-  , errBase, errOpts, errString
-  , ErrOpt(..), noErrOpts, ErrBase(..)
+  , errBaseDeprecatoryName, errOptsDeprecatoryName, errStringDeprecatoryName
+  , ErrOptDeprecatoryName(..), noErrOpts, ErrBase(..)
   , DwtErrSum(..), ErrOptSum(..)
   , errBaseSum, errOptsSum, errStringSum
   ) where
@@ -101,16 +101,16 @@ data ErrBase = Legacy -- | for when the String has all the info
              | Impossible
   deriving (Show, Eq)
 
-type DwtErr = (ErrBase, ErrOpt, String)
-errBase :: Lens' DwtErr ErrBase
-errBase = _1
-errOpts :: Lens' DwtErr ErrOpt
-errOpts = _2
-errString :: Lens' DwtErr String
-errString = _3
+type DwtErrDeprecatoryName = (ErrBase, ErrOptDeprecatoryName, String)
+errBaseDeprecatoryName :: Lens' DwtErrDeprecatoryName ErrBase
+errBaseDeprecatoryName = _1
+errOptsDeprecatoryName :: Lens' DwtErrDeprecatoryName ErrOptDeprecatoryName
+errOptsDeprecatoryName = _2
+errStringDeprecatoryName :: Lens' DwtErrDeprecatoryName String
+errStringDeprecatoryName = _3
 
 -- | TODO ? Use a list of a sum type, to avoid lots of Nothing
-data ErrOpt = ErrOpt { _mNode :: Maybe Node
+data ErrOptDeprecatoryName = ErrOptDeprecatoryName { _mNode :: Maybe Node
                        , _mEdge :: Maybe Edge
                        , _mEdgeLab :: Maybe RSLTEdge
                        , _mExpr :: Maybe Expr
@@ -120,12 +120,12 @@ data ErrOpt = ErrOpt { _mNode :: Maybe Node
                        , _mQNode :: Maybe QNode } deriving (Show, Eq)
 -- | adjust it like "noErrOpts L.& mNode L..~ (Just 2)"
 
-makeLenses ''ErrOpt
+makeLenses ''ErrOptDeprecatoryName
 
-noErrOpts :: ErrOpt
-noErrOpts = ErrOpt n n n n n n n n where n = Nothing
+noErrOpts :: ErrOptDeprecatoryName
+noErrOpts = ErrOptDeprecatoryName n n n n n n n n where n = Nothing
 
--- | TODO: Convert all the ErrOpt to this
+-- | TODO: Convert all the ErrOptDeprecatoryName to this
 type DwtErrSum = (ErrBase, [ErrOptSum], String)
 errBaseSum :: Lens' DwtErrSum ErrBase
 errBaseSum = _1
