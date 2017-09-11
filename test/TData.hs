@@ -3,9 +3,7 @@
       , tRelSpec, tRelSpec2, tRelSpecNonsense
     ) where
 
-    import Dwt.Types
-    import Dwt.Leaf (insLeaf, insFl, insWord, insTplt, mkTplt, tpltArity)
-    import Dwt.Graph
+    import Dwt
     import Data.Graph.Inductive
     import qualified Data.Map as Map
 
