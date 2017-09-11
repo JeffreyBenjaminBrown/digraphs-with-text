@@ -1,3 +1,7 @@
+-- | Sample use:
+-- Dwt.prettyPrint $ fr $ parse expr "" "a # b ##z # (d # e) # e ## f ## g # h"
+-- let Right (_,g) = runStateT (mapM (addExprLongErr . fr . parse expr "" ) ["a # b", "# c", "## d #"]) empty
+
 module Dwt.Add where
 
 import Data.Graph.Inductive hiding (empty, prettyPrint)
@@ -40,29 +44,18 @@ extractTplt (RelX _ js as) = Tplt $ ja ++ map (\(JointX s) -> s) js ++ jz
         f Absent = []
         f _ = [""]
 
--- Dwt.prettyPrint $ fr $ parse expr "" "a # b ##z # (d # e) # e ## f ## g # h"
 prettyPrint :: AddX -> IO ()
 prettyPrint = it 0 where
   space :: Int -> String
   space k = replicate (4*k) ' '
-  it :: Int -> AddX -> IO () -- Int = indentation level
-  it k (RelX _ js (m:ms)) = do
-    putStrLn $ space k ++ "AddX: "
-    it (k+1) m
-    let f (j,m) = do putStrLn $ (space $ k+1) ++ show j
-                     it (k+1) m
+  it :: Level -> AddX -> IO ()
+  it indent (RelX _ js (m:ms)) = do
+    putStrLn $ space indent ++ "AddX: "
+    it (indent+1) m
+    let f (j,m) = do putStrLn $ (space $ indent+1) ++ show j
+                     it (indent+1) m
     mapM_ f $ zip js ms
-  it k l = putStrLn $ space k ++ show l
-
---addExprLongErr :: AddX -> StateT RSLT (Either DwtErrLongErr) Node
---addExprLongErr (At n) = get >>= lift . flip gelemMLongErr n >> return n
---addExprLongErr Absent = lift $ Left (Impossible
---  , mAddX .~ Just Absent $ noErrOpts, "execAddX.")
---addExprLongErr (LeafX e) = qPutStLongErr $ QLeaf e
---addExprLongErr q@(RelX _ js as) = do
---  ms <- mapM addExprLongErr $ filter (not . isAbsent) as
---  t <- qPutStLongErr $ QLeaf $ extractTplt q
---  qPutStLongErr $ QRel (QAt t) (map QAt ms)
+  it indent l = putStrLn $ space indent ++ show l
 
 addExpr :: AddX -> StateT RSLT (Either DwtErr) Node
 addExpr (At n) = get >>= lift . flip gelemM n >> return n
@@ -73,5 +66,3 @@ addExpr q@(RelX _ js as) = do
   ms <- mapM addExpr $ filter (not . isAbsent) as
   t <- qPutSt $ QLeaf $ extractTplt q
   qPutSt $ QRel (QAt t) (map QAt ms)
-
--- let Right (_,g) = runStateT (mapM (addExprLongErr . fr . parse expr "" ) ["a # b", "# c", "## d #"]) empty
