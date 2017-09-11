@@ -17,17 +17,15 @@ import Data.String (IsString, fromString)
 
 -- == Fundamental
 type Arity = Int
-type MbrPos = Int -- k members of k-ary Rel, MbrPos values [1..k]
+type MbrPos = Int -- k members of k-ary Rel, MbrPos(ition) values [1..k]
 
 type RSLT = Gr Expr RSLTEdge -- reflective set of labeled tuples
 data Expr = Word String | Fl Float -- these two are similarly atomic
-  | Rel
-  | Tplt [String]
+  | Rel | Tplt [String]
   | Coll -- each uses a CollPrinciple like "and" or "or"
-  | RelSpecExpr RelVarSpec
-            -- The RelVarSpec specifies the variable members.
-            -- Edges specify the concrete (addressed) members.
-  deriving(Show,Read,Eq,Ord)
+  | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
+    -- The RelVarSpec specifies the variable members.
+    -- Edges specify the concrete (addressed) members.
 
 data RSLTEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
   -- | only Rels and Colls emit edges, have subexpressions
