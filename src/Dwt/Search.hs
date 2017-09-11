@@ -2,7 +2,7 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Search (
-    qGetStrErr
+    qGet
   , qGetLab
   , qGet1
   , qPutSt
@@ -29,30 +29,30 @@ import Control.Monad (foldM)
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1
 
 -- == Get
-_qGetStrErr :: -- x herein is either Node or LNode Expr
+_qGet :: -- x herein is either Node or LNode Expr
      (RSLT -> Node -> x) -- | gets what's there; used for QAt.
   -- Can safely be unsafe, because the QAt's contents are surely present.
   -> (RSLT -> [x])       -- | nodes or labNodes; used for QLeaf
   -> (RSLT -> RelSpec -> Either DwtErr [x])
     -- | matchRel or matchRelLab; used for QRel
   -> RSLT -> QNode -> Either DwtErr [x]
-_qGetStrErr f _ _ g (QAt n) = return $ if gelem n g then [f g n] else []
-_qGetStrErr _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
-_qGetStrErr _ _ f g (QRel qt qms) = prependCaller "_qGetStrErr: " $ do
+_qGet f _ _ g (QAt n) = return $ if gelem n g then [f g n] else []
+_qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
+_qGet _ _ f g (QRel qt qms) = prependCaller "_qGet: " $ do
   t <- qGet1 g qt   -- TODO ? case of multiple qt, qms matches
   ms <- mapM (qGet1 g) qms
   let relspec = mkRelSpec t ms
   f g relspec
 
-qGetStrErr :: RSLT -> QNode -> Either DwtErr [Node]
-qGetStrErr = _qGetStrErr (\_ n -> n) nodes matchRel
+qGet :: RSLT -> QNode -> Either DwtErr [Node]
+qGet = _qGet (\_ n -> n) nodes matchRel
 
 qGetLab :: RSLT -> QNode -> Either DwtErr [LNode Expr]
-qGetLab = _qGetStrErr f labNodes matchRelLab where
+qGetLab = _qGet f labNodes matchRelLab where
   f g n = (n, Mb.fromJust $ lab g n)
 
 qGet1 :: RSLT -> QNode -> Either DwtErr Node
-qGet1 g q = prependCaller "qGet1: " $ case qGetStrErr g q of
+qGet1 g q = prependCaller "qGet1: " $ case qGet g q of
     Right [] -> Left (FoundNo, queryError, ".")
     Right [a] -> Right a
     Right as -> Left (FoundMany, queryError, ".")

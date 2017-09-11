@@ -62,7 +62,7 @@ tQPutRel = let
            [QLeaf $ Word "dog", QLeaf $ Word "dog"]
   (g2,_) = fr $ qPutStrErr g1 qNovel
   in TestCase $ do
-  assertBool "1" $ qGetStrErr g1 qRedundant == Right [5]
-  assertBool "2" $ qGetStrErr g1 qNestedRedundant == Right [11]
-  assertBool "3" $ qGetStrErr g1 qNovel == Right []
-  assertBool "4" $ qGetStrErr g2 qNovel == Right [14]
+  assertBool "1" $ qGet g1 qRedundant == Right [5]
+  assertBool "2" $ qGet g1 qNestedRedundant == Right [11]
+  assertBool "3" $ qGet g1 qNovel == Right []
+  assertBool "4" $ qGet g2 qNovel == Right [14]
