@@ -1,3 +1,4 @@
+has1Dir -> has1DirQ
 matchRelSpecNodesLab -> matchRelSpecNodesLabQ
 matchRelSpecNodes -> matchRelSpecNodesQ
 usersInRole -> usersInRoleQ
