@@ -130,8 +130,8 @@ relSpec g n = prependCaller "relSpec: " $ do
   gelemM g n
   case (fromJust $ lab g n) of
     RelSpecExpr rvs -> do
-      let rnsl = Map.toList $ fromRight $ relNodeSpec g n
-          rvsl = Map.toList rvs
+      rnsl <- Map.toList <$> relNodeSpec g n
+      let rvsl = Map.toList rvs
           rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
           rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
       return $ Map.fromList $ rvsl' ++ rnsl'

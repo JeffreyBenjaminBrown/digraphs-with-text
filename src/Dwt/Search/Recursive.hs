@@ -44,6 +44,21 @@ relNodeSpecQ g q = prependCaller "relNodeSpec: " $ do
       (NotRelSpecExpr, [ErrNode n], "")
     Nothing -> Left (FoundNo, [ErrNode n], "")
 
+relSpecQ :: RSLT -> QNode -> Either DwtErr RelSpec
+  -- name ? getRelSpecDe
+  -- is nearly inverse to partitionRelSpec
+relSpecQ g q = prependCaller "relSpec: " $ do
+  n <- qGet1 g q
+  case (fromJust $ lab g n) of
+    RelSpecExpr rvs -> do
+      rnsl <- Map.toList <$> relNodeSpec g n
+      let rvsl = Map.toList rvs
+          rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
+          rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
+      return $ Map.fromList $ rvsl' ++ rnsl'
+    x -> Left (ConstructorMistmatch, [ErrExpr x, ErrQNode $ QAt n]
+              , "relSpecQ.")
+
 usersInRoleQ :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
 usersInRoleQ g (QAt n) r = prependCaller "usersInRole: " $ usersInRole g n r
 usersInRoleQ g q r = qGet1 g q >>= \n -> usersInRole g n r
