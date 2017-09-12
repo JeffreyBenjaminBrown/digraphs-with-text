@@ -6,7 +6,7 @@ module Dwt.Graph (
   , insRel
   , insRelSt
   , insColl
-  , mkRelSpec, partitionRelSpec
+  , mkRelSpec
   , relNodeSpec
   , chLeaf
   , chRelRole
@@ -90,14 +90,6 @@ mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
 mkRelSpecQ :: QNode -> [QNode] -> RelSpecQ
 mkRelSpecQ t ns = Map.fromList $ [(TpltRole, NodeSpecQ t)] ++ mbrSpecs
   where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpecQ ns)
-
-partitionRelSpec :: RelSpec -> (RelVarSpec, RelNodeSpec)
-partitionRelSpec rSpec =
-  let f mSpec = case mSpec of VarSpec _ -> True
-                              NodeSpec _ -> False
-      (vs,ns) = Map.partition f rSpec
-  in ( Map.map  (\(VarSpec  v) -> v)  vs
-     , Map.map  (\(NodeSpec n) -> n)  ns )
 
 -- pitfall: does not need conversion to QNode format
 relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec

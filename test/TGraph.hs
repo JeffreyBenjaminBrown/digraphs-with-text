@@ -69,7 +69,7 @@
 --          && (length $ edges g1) + 4 == (length $ edges gg)
 
     tPartitionRelSpec = TestCase $ do
-      let (vs,ns) = partitionRelSpec tRelSpec
+      let Right (vs,ns) = partitionRelSpecQ g1 tRelSpecQ
       assertBool "1" $ Set.fromList (Map.toList vs)
         == Set.fromList [ (TpltRole, It)
                         , (Mbr 2,   Any) ]
@@ -77,7 +77,7 @@
         == Set.fromList [ (Mbr 1, 0) ]
 
     tInsRelSpec = TestCase $ do
-      let (vs,ns) = partitionRelSpec tRelSpec
+      let Right (vs,ns) = partitionRelSpecQ g1 tRelSpecQ
           Right g2 = insRelSpecQ tRelSpecQ g1
           [newNode] = newNodes 1 g1
       assertBool "node" $ lab g2 newNode == Just (RelSpecExpr vs)
