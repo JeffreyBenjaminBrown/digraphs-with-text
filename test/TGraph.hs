@@ -69,7 +69,7 @@
 --          && (length $ edges g1) + 4 == (length $ edges gg)
 
     tPartitionRelSpec = TestCase $ do
-      let Right (vs,ns) = partitionRelSpec g1 tRelSpecQ
+      let Right (vs,ns) = partitionRelSpec g1 tRelSpec
       assertBool "1" $ Set.fromList (Map.toList vs)
         == Set.fromList [ (TpltRole, It)
                         , (Mbr 2,   Any) ]
@@ -77,8 +77,8 @@
         == Set.fromList [ (Mbr 1, 0) ]
 
     tInsRelSpec = TestCase $ do
-      let Right (vs,ns) = partitionRelSpec g1 tRelSpecQ
-          Right g2 = insRelSpec tRelSpecQ g1
+      let Right (vs,ns) = partitionRelSpec g1 tRelSpec
+          Right g2 = insRelSpec tRelSpec g1
           [newNode] = newNodes 1 g1
       assertBool "node" $ lab g2 newNode == Just (RelSpecExpr vs)
       assertBool "only 1 more edge" $ 
@@ -162,8 +162,8 @@
       assertBool "with Arity" $ _usersInRole g1 0 (Mbr 1) == Right [5,6,8]
 
     tMatchRel = TestCase $ do
-      assertBool "dog in first pos"     $ matchRelSpecNodes g1 tRelSpecQ == Right [5,6,8]
-      assertBool "nothing should match" $ matchRelSpecNodes g1 tRelSpecNonsenseQ == Right []
+      assertBool "dog in first pos"     $ matchRelSpecNodes g1 tRelSpec == Right [5,6,8]
+      assertBool "nothing should match" $ matchRelSpecNodes g1 tRelSpecNonsense == Right []
 
   -- chase and helpers
     tChase = TestList [ TestLabel "tHas1Up" tHas1Dir
@@ -173,14 +173,14 @@
                       ]
 
     tHas1Dir = TestCase $ do
-      assertBool "has 1 Up" $ has1Dir Up tRelSpecNonsenseQ
-      assertBool "has no Up" $ not $ has1Dir Up tRelSpecQ
+      assertBool "has 1 Up" $ has1Dir Up tRelSpecNonsense
+      assertBool "has no Up" $ not $ has1Dir Up tRelSpec
 
     tFork1Dir = TestCase $ do -- todo, incomplete
       assertBool "searching Down, and no Up vars; should fail"
-        $ isLeft $ fork1Dir g1 (QAt 0) (Down, tRelSpecQ)
+        $ isLeft $ fork1Dir g1 (QAt 0) (Down, tRelSpec)
       assertBool "dog(ana) wants brandy(kata)" 
-        $ fork1Dir g1 (QAt 0) (Down, tRelSpec2Q) == Right [4]
+        $ fork1Dir g1 (QAt 0) (Down, tRelSpec2) == Right [4]
 
     tValidRole = TestCase $ do
       assertBool "Tplt: valid role" $ isRight $ validRole g1 5 TpltRole

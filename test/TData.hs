@@ -1,6 +1,6 @@
     module TData (
       g1, g1Alt
-      , tRelSpecQ, tRelSpec2Q, tRelSpecNonsenseQ      
+      , tRelSpec, tRelSpec2, tRelSpecNonsense      
     ) where
 
     import Dwt
@@ -44,17 +44,17 @@
           $ insTplt"_ needs _"  $ insTplt"_ wants _"
           $ insWord"dog"         $ empty :: RSLT
 
-    tRelSpecQ = Map.fromList [ (TpltRole, VarSpec It)
+    tRelSpec = Map.fromList [ (TpltRole, VarSpec It)
                            , (Mbr 1,   NodeSpec $ QAt 0)
                            , (Mbr 2,   VarSpec Any)
                            ] :: RelSpec
 
-    tRelSpec2Q = Map.fromList [ (TpltRole, NodeSpec $ QAt 2)
+    tRelSpec2 = Map.fromList [ (TpltRole, NodeSpec $ QAt 2)
                            , (Mbr 1,   VarSpec Up)
                            , (Mbr 2,   VarSpec Down)
                            ] :: RelSpec
 
-    tRelSpecNonsenseQ = Map.fromList [ (TpltRole, NodeSpec $ QAt 0) -- "dog" Word, not Tplt
+    tRelSpecNonsense = Map.fromList [ (TpltRole, NodeSpec $ QAt 0) -- "dog" Word, not Tplt
                                    , (Mbr 1,   VarSpec It)
                                    , (Mbr 2,   VarSpec Up)
                                    ] :: RelSpec
