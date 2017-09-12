@@ -23,7 +23,6 @@ module Dwt.Graph (
   , usersInRole
   , matchRelSpecNodes
   , matchRelSpecNodesLab
-  , otherDir
   ) where
 
 import Dwt.Types

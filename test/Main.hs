@@ -15,9 +15,9 @@
 -- main
     main = runTestTT $ TestList
       [
-      --  TestLabel "tParse"   tParse
-      ----, TestLabel "tAdd" tAdd
-      TestLabel "tGraph"   tGraph
-      ---- , TestLabel "tSearch" tSearch
-      --, TestLabel "tView"    tView
+        TestLabel "tParse"   tParse
+      , TestLabel "tAdd" tAdd
+      , TestLabel "tGraph"   tGraph
+      -- , TestLabel "tSearch" tSearch
+      , TestLabel "tView"    tView
       ]

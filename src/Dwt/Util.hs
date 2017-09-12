@@ -93,4 +93,3 @@ fromRight _ = error "fromRight applied to Left"
 prependCaller :: String -> Either DwtErr a -> Either DwtErr a
 prependCaller name e@(Right _) = e
 prependCaller name (Left e) = Left $ errString %~ (name++) $ e
-

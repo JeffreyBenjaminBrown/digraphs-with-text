@@ -5,7 +5,7 @@ import Dwt.Types
 import Dwt.Graph
 import Dwt.Search.Local
 
-import Dwt.Util (listIntersect, prependCaller, gelemM)
+import Dwt.Util (listIntersect, prependCaller, gelemM, otherDir)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.List (nub)
