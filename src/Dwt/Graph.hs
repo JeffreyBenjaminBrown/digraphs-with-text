@@ -18,7 +18,6 @@ module Dwt.Graph (
   , collPrinciple
   , rels, mbrs
   , users
-  , usersInRole
   ) where
 
 import Dwt.Types
@@ -186,14 +185,6 @@ mbrs g n = [addr | (addr,elab) <- lsuc g n, isMbrEdge elab]
 users :: Graph gr => gr a b -> Node -> Either DwtErr [Node]
 users g n = do gelemM g n
                return [m | (m,label@_) <- lpre g n]
-
--- | Rels using Node n in RelRole r
-usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
-usersInRole g n r = prependCaller "usersInRole: " $
-  do gelemM g n -- makes f safe
-     return $ f g n r
-  where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
-        f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
 
 -- ======== using directions (RelSpecs)
 -- todo ? 1Dir because it should have one such direction. I forget why.

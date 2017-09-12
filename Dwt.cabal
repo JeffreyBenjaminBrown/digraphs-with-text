@@ -56,6 +56,13 @@ library
                      , text-zipper
 
   other-modules:     TData
+                   , Main
+                   , TGraph
+
+                   , TAdd
+                   , TParse
+                   , TShow
+
                      -- for testing in GHCI
 
   default-language:    Haskell2010

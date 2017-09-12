@@ -1,23 +1,20 @@
--- setup
-    {-# LANGUAGE FlexibleContexts #-}
-    module Main where
+{-# LANGUAGE FlexibleContexts #-}
 
-    import Test.HUnit
+module Main where
 
-    import Dwt
-    import TData
-    import TParse
-    import TGraph
-    -- import TSearch
-    import TShow
-    import TAdd
+import Test.HUnit
 
--- main
-    main = runTestTT $ TestList
-      [
-        TestLabel "tParse"   tParse
-      , TestLabel "tAdd" tAdd
-      , TestLabel "tGraph"   tGraph
-      -- , TestLabel "tSearch" tSearch
-      , TestLabel "tView"    tView
-      ]
+import Dwt
+import TData
+import TParse
+import TGraph
+import TShow
+import TAdd
+
+main = runTestTT $ TestList
+  [
+    TestLabel "tParse"   tParse
+  , TestLabel "tAdd" tAdd
+  , TestLabel "tGraph"   tGraph
+  , TestLabel "tView"    tView
+  ]

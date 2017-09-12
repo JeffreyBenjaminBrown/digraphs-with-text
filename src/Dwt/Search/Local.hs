@@ -11,6 +11,7 @@ module Dwt.Search.Local (
   -- exported for testing, but not for interface
   , _matchRelSpecNodes
   , _matchRelSpecNodesLab
+  , _usersInRole
 ) where
 
 import Text.Regex
@@ -18,7 +19,7 @@ import Text.Regex
 import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Graph
-import Dwt.Util (fr, maxNode, dropEdges, fromRight, prependCaller, listIntersect)
+import Dwt.Util (fr, maxNode, dropEdges, fromRight, prependCaller, listIntersect, gelemM)
 import Dwt.Leaf (insLeaf)
 import Data.Maybe (fromJust)
 
@@ -35,7 +36,7 @@ _matchRelSpecNodes g spec = prependCaller "_matchRelSpecNodes: " $ do
   let nodeSpecs = M.toList
         $ M.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,NodeOrVar)]
-  nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) nodeSpecs
+  nodeListList <- mapM (\(r,NodeSpec n) -> _usersInRole g n r) nodeSpecs
   return $ listIntersect nodeListList
 
 -- ifdo speed: this searches for nodes, then searches again for labels
@@ -44,6 +45,15 @@ _matchRelSpecNodesLab g spec = prependCaller "_matchRelSpecNodesLab: " $ do
   ns <- _matchRelSpecNodes g spec
   return $ zip ns $ map (fromJust . lab g) ns
     -- fromJust is safe because _matchRelSpecNodes only returns Nodes in g
+
+
+-- | Rels using Node n in RelRole r
+_usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
+_usersInRole g n r = prependCaller "usersInRole: " $
+  do gelemM g n -- makes f safe
+     return $ f g n r
+  where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
+        f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
 
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1
@@ -64,10 +74,10 @@ _qGet _ _ f g (QRel qt qms) = prependCaller "_qGet: " $ do
   f g relspec
 
 qGet :: RSLT -> QNode -> Either DwtErr [Node]
-qGet = _qGet (\_ n -> n) nodes matchRelSpecNodes
+qGet = _qGet (\_ n -> n) nodes _matchRelSpecNodes
 
 qGetLab :: RSLT -> QNode -> Either DwtErr [LNode Expr]
-qGetLab = _qGet f labNodes matchRelSpecNodesLab where
+qGetLab = _qGet f labNodes _matchRelSpecNodesLab where
   f g n = (n, Mb.fromJust $ lab g n)
 
 qGet1 :: RSLT -> QNode -> Either DwtErr Node
@@ -85,7 +95,7 @@ qPutSt (QRel qt qms) = do
   t <- qPutSt qt
   ms <- mapM qPutSt qms
   g <- get
-  let matches = matchRelSpecNodes g $ mkRelSpec t ms
+  let matches = _matchRelSpecNodes g $ mkRelSpec t ms
   insRelSt t ms
 qPutSt (QAt n) = lift $ Right n
 qPutSt q@(QLeaf x) = get >>= \g -> case qGet1 g q of

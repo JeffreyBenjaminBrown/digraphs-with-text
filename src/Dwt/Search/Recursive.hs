@@ -1,4 +1,16 @@
-module Dwt.Search.Recursive where
+module Dwt.Search.Recursive (
+  partitionRelSpecQ
+  , insRelSpecQ
+  , relSpecQ
+  , usersInRoleQ
+  , matchRelSpecNodesQ
+  , matchRelSpecNodesLabQ
+  , has1DirQ
+  , fork1DirQ
+  , subNodeForVarsQ
+  , dwtDfsQ
+  , dwtBfsQ
+) where
 
 import Data.Graph.Inductive
 import Dwt.Types
@@ -50,8 +62,8 @@ relSpecQ g q = prependCaller "relSpec: " $ do
               , "relSpecQ.")
 
 usersInRoleQ :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
-usersInRoleQ g (QAt n) r = prependCaller "usersInRole: " $ usersInRole g n r
-usersInRoleQ g q r = qGet1 g q >>= \n -> usersInRole g n r
+usersInRoleQ g (QAt n) r = prependCaller "usersInRole: " $ _usersInRole g n r
+usersInRoleQ g q r = qGet1 g q >>= \n -> _usersInRole g n r
 
 matchRelSpecNodesQ :: RSLT -> RelSpecQ -> Either DwtErr [Node]
 matchRelSpecNodesQ g spec = prependCaller "matchRelSpecNodes: " $ do
