@@ -4,7 +4,7 @@ module Dwt.Types (
   MbrPos, Arity
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , Mbrship(..), RelVarSpec, RelNodeSpec
-  , NodeOrVarQ(..), RelSpecQ
+  , NodeOrVar(..), RelSpec
   , QNode(..)
   , AddX(..), Level, JointX(..), EO(..)
   , DwtErr(..), ErrBase(..), ErrOpt(..)
@@ -42,12 +42,12 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
 
 -- == Specifying kinds of relationships
 data Mbrship = It | Any | Up | Down deriving (Show,Read,Eq,Ord)
-data NodeOrVarQ = NodeSpecQ QNode |VarSpecQ Mbrship deriving (Show,Eq)
+data NodeOrVar = NodeSpec QNode |VarSpec Mbrship deriving (Show,Eq)
 
 -- at the TpltRole key is always a concrete NodeSpec
 type RelVarSpec =  Map.Map RelRole Mbrship
 type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
-type RelSpecQ =    Map.Map RelRole NodeOrVarQ -- if well-formed, includes
+type RelSpec =    Map.Map RelRole NodeOrVar -- if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
 
 -- == Queries
@@ -91,9 +91,9 @@ data ErrBase = Legacy -- | for when the String has all the info
 data ErrOpt = ErrNode Node | ErrEdge Edge -- | New error style: sum type
   | ErrExpr Expr | ErrEdgeLab RSLTEdge | ErrRelRole RelRole
   | ErrAddX AddX
-  | ErrRelSpec RelSpecQ
+  | ErrRelSpec RelSpec
   | ErrQNode QNode
-  | ErrMbrship Mbrship | ErrRelSpecQ RelSpecQ
+  | ErrMbrship Mbrship | ErrRelSpecQ RelSpec
   deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase

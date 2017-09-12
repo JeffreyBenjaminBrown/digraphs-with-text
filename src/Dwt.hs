@@ -42,7 +42,7 @@
 
 -- shorthand (can't go in Util.hs; depends on more)
   -- mindmap things
-    ns = NodeSpecQ
+    ns = NodeSpec
 
     p :: (Applicative f) => a -> f a
     p = pure

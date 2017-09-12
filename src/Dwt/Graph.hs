@@ -6,7 +6,7 @@ module Dwt.Graph (
   , insRel
   , insRelSt
   , insColl
-  , mkRelSpecQ
+  , mkRelSpec
   , relNodeSpec
   , chLeaf
   , chRelRole
@@ -78,9 +78,9 @@ insColl mt ns g = do
         map (\n -> (newNode, n, CollEdge CollMbr)) ns
   return $ insEdges newEdges $ insNode (newNode,Coll) g
 
-mkRelSpecQ :: QNode -> [QNode] -> RelSpecQ
-mkRelSpecQ t ns = Map.fromList $ [(TpltRole, NodeSpecQ t)] ++ mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpecQ ns)
+mkRelSpec :: QNode -> [QNode] -> RelSpec
+mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
 -- pitfall: does not need conversion to QNode format
 relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec

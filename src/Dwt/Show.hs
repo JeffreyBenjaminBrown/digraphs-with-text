@@ -7,7 +7,7 @@ module Dwt.Show
 import Dwt.Graph
 import Dwt.Leaf (tpltArity, subInTpltWithHashes, subInTplt)
 import Dwt.Types
-import Dwt.Search.Recursive (relSpecQ)
+import Dwt.Search.Recursive (relSpec)
 import Dwt.Util
 
 import Data.Graph.Inductive
@@ -74,16 +74,16 @@ _showExpr vp g d (Just n) =
                  [m | (m,CollEdge CollMbr) <- lsuc g n] )
 
 -- toto : resurrect when needed
--- It was using NodeSpec, not NodeSpecQ
+-- It was using NodeSpec, not NodeSpec
 --      Just (RelSpecExpr rvs) ->
---        let rs = fromRight $ relSpecQ g (QAt n)
+--        let rs = fromRight $ relSpec g (QAt n)
 --            rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
 --              -- e.g. rsl = [(Mbr 1,VarSpec Down),(Mbr 2,NodeSpec 3)]
---            tpltNode = (\(NodeSpecQ n) -> n) $ fromJust $ Map.lookup TpltRole rs
+--            tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup TpltRole rs
 --            Just tpltLab = lab g tpltNode :: Maybe Expr
 --            showAddressOrVar ms = case ms of
---              VarSpecQ var -> show var
---              NodeSpecQ node -> show_maybe_node $ Just node
+--              VarSpec var -> show var
+--              NodeSpec node -> show_maybe_node $ Just node
 --        in ((_rel $ vpPrefixer vp) n tpltNode ++)  $  ("#RelSpec#: " ++)
 --          $ subInTplt tpltLab 
 --          $ map showAddressOrVar $ map snd rsl
