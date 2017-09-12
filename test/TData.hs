@@ -46,30 +46,30 @@
           $ insWord"dog"         $ empty :: RSLT
 
  
-    tRelSpec = Map.fromList [ (TpltRole, VarSpec It)
-                           , (Mbr 1,   NodeSpec 0)
-                           , (Mbr 2,   VarSpec Any)
-                           ] :: RelSpec
+    tRelSpec = Map.fromList [ (TpltRole, VarSpecC It)
+                           , (Mbr 1,   NodeSpecC 0)
+                           , (Mbr 2,   VarSpecC Any)
+                           ] :: RelSpecConcrete
 
     tRelSpecQ = Map.fromList [ (TpltRole, VarSpecQ It)
                            , (Mbr 1,   NodeSpecQ $ QAt 0)
                            , (Mbr 2,   VarSpecQ Any)
                            ] :: RelSpecQ
 
-    tRelSpec2 = Map.fromList [ (TpltRole, NodeSpec 2)
-                           , (Mbr 1,   VarSpec Up)
-                           , (Mbr 2,   VarSpec Down)
-                           ] :: RelSpec
+    tRelSpec2 = Map.fromList [ (TpltRole, NodeSpecC 2)
+                           , (Mbr 1,   VarSpecC Up)
+                           , (Mbr 2,   VarSpecC Down)
+                           ] :: RelSpecConcrete
 
     tRelSpec2Q = Map.fromList [ (TpltRole, NodeSpecQ $ QAt 2)
                            , (Mbr 1,   VarSpecQ Up)
                            , (Mbr 2,   VarSpecQ Down)
                            ] :: RelSpecQ
 
-    tRelSpecNonsense = Map.fromList [ (TpltRole, NodeSpec 0) -- "dog" Word, not Tplt
-                                   , (Mbr 1,   VarSpec It)
-                                   , (Mbr 2,   VarSpec Up)
-                                   ] :: RelSpec
+    tRelSpecNonsense = Map.fromList [ (TpltRole, NodeSpecC 0) -- "dog" Word, not Tplt
+                                   , (Mbr 1,   VarSpecC It)
+                                   , (Mbr 2,   VarSpecC Up)
+                                   ] :: RelSpecConcrete
 
     tRelSpecNonsenseQ = Map.fromList [ (TpltRole, NodeSpecQ $ QAt 0) -- "dog" Word, not Tplt
                                    , (Mbr 1,   VarSpecQ It)

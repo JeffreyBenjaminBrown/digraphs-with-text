@@ -73,18 +73,20 @@ _showExpr vp g d (Just n) =
            $ map (show_maybe_node . Just) 
                  [m | (m,CollEdge CollMbr) <- lsuc g n] )
 
-      Just (RelSpecExpr rvs) ->
-        let rs = fromRight $ relSpecQ g (QAt n)
-            rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
-              -- e.g. rsl = [(Mbr 1,VarSpec Down),(Mbr 2,NodeSpec 3)]
-            tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup TpltRole rs
-            Just tpltLab = lab g tpltNode :: Maybe Expr
-            showAddressOrVar ms = case ms of
-              VarSpec var -> show var
-              NodeSpec node -> show_maybe_node $ Just node
-        in ((_rel $ vpPrefixer vp) n tpltNode ++)  $  ("#RelSpec#: " ++)
-          $ subInTplt tpltLab 
-          $ map showAddressOrVar $ map snd rsl
+-- toto : resurrect when needed
+-- It was using NodeSpec, not NodeSpecQ
+--      Just (RelSpecExpr rvs) ->
+--        let rs = fromRight $ relSpecQ g (QAt n)
+--            rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
+--              -- e.g. rsl = [(Mbr 1,VarSpec Down),(Mbr 2,NodeSpec 3)]
+--            tpltNode = (\(NodeSpecQ n) -> n) $ fromJust $ Map.lookup TpltRole rs
+--            Just tpltLab = lab g tpltNode :: Maybe Expr
+--            showAddressOrVar ms = case ms of
+--              VarSpecQ var -> show var
+--              NodeSpecQ node -> show_maybe_node $ Just node
+--        in ((_rel $ vpPrefixer vp) n tpltNode ++)  $  ("#RelSpec#: " ++)
+--          $ subInTplt tpltLab 
+--          $ map showAddressOrVar $ map snd rsl
 
       Just (Rel) -> _showRel vp g d n
 

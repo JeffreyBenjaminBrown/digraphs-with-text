@@ -8,7 +8,8 @@ module Dwt.Search.Local (
   , qPutSt
   , qRegexWord
 
-  -- exported for testing, but not for interface
+  -- for internal export, not for interface
+  , NodeOrVarConcrete(..), RelSpecConcrete
   , _matchRelSpecNodes
   , _matchRelSpecNodesLab
   , _usersInRole
@@ -32,16 +33,20 @@ import qualified Data.Map as M
 import qualified Data.Maybe as Mb
 import Control.Monad (foldM)
 
-_matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
+-- | "Concrete" in the sense that it requires specific nodes, not queries
+data NodeOrVarConcrete = NodeSpecC Node | VarSpecC Mbrship deriving (Show,Read,Eq)
+type RelSpecConcrete = M.Map RelRole NodeOrVarConcrete
+
+_matchRelSpecNodes :: RSLT -> RelSpecConcrete -> Either DwtErr [Node]
 _matchRelSpecNodes g spec = prependCaller "_matchRelSpecNodes: " $ do
   let nodeSpecs = M.toList
-        $ M.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
-        $ spec :: [(RelRole,NodeOrVar)]
-  nodeListList <- mapM (\(r,NodeSpec n) -> _usersInRole g n r) nodeSpecs
+        $ M.filter (\ns -> case ns of NodeSpecC _ -> True; _ -> False)
+        $ spec :: [(RelRole,NodeOrVarConcrete)]
+  nodeListList <- mapM (\(r,NodeSpecC n) -> _usersInRole g n r) nodeSpecs
   return $ listIntersect nodeListList
 
 -- ifdo speed: this searches for nodes, then searches again for labels
-_matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
+_matchRelSpecNodesLab :: RSLT -> RelSpecConcrete -> Either DwtErr [LNode Expr]
 _matchRelSpecNodesLab g spec = prependCaller "_matchRelSpecNodesLab: " $ do
   ns <- _matchRelSpecNodes g spec
   return $ zip ns $ map (fromJust . lab g) ns
@@ -56,9 +61,9 @@ _usersInRole g n r = prependCaller "usersInRole: " $
         f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
 
 -- | Use when all the nodes the Rel involves are known.
-_mkRelSpec :: Node -> [Node] -> RelSpec
-_mkRelSpec t ns = M.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
+_mkRelSpec :: Node -> [Node] -> RelSpecConcrete
+_mkRelSpec t ns = M.fromList $ [(TpltRole, NodeSpecC t)] ++ mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpecC ns)
 
 
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
@@ -68,7 +73,7 @@ _qGet :: -- x herein is either Node or LNode Expr
      (RSLT -> Node -> x) -- | gets what's there; used for QAt.
   -- Can safely be unsafe, because the QAt's contents are surely present.
   -> (RSLT -> [x])       -- | nodes or labNodes; used for QLeaf
-  -> (RSLT -> RelSpec -> Either DwtErr [x])
+  -> (RSLT -> RelSpecConcrete -> Either DwtErr [x])
     -- | matchRelSpecNodes or matchRelSpecNodesLab; used for QRel
   -> RSLT -> QNode -> Either DwtErr [x]
 _qGet f _ _ g (QAt n) = return $ if gelem n g then [f g n] else []

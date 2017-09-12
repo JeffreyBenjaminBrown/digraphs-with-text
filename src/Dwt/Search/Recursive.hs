@@ -46,7 +46,7 @@ insRelSpecQ rSpec g = do
         -- these edges specify the addressed nodes
   return $ insEdges newLEdges $ insNode newLNode g
 
-relSpecQ :: RSLT -> QNode -> Either DwtErr RelSpec
+relSpecQ :: RSLT -> QNode -> Either DwtErr RelSpecConcrete
   -- name ? getRelSpecDe
   -- is nearly inverse to partitionRelSpec
 relSpecQ g q = prependCaller "relSpec: " $ do
@@ -55,8 +55,8 @@ relSpecQ g q = prependCaller "relSpec: " $ do
     RelSpecExpr rvs -> do
       rnsl <- Map.toList <$> relNodeSpec g n
       let rvsl = Map.toList rvs
-          rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
-          rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
+          rvsl' = map (\(role,var) ->(role,VarSpecC  var )) rvsl
+          rnsl' = map (\(role,node)->(role,NodeSpecC node)) rnsl
       return $ Map.fromList $ rvsl' ++ rnsl'
     x -> Left (ConstructorMistmatch, [ErrExpr x, ErrQNode $ QAt n]
               , "relSpecQ.")
