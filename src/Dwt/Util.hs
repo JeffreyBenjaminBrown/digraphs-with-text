@@ -6,6 +6,7 @@ module Dwt.Util (
 
   -- graphs
   , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
+  , replaceNode
 
   , otherDir -- kind of an orphan
 
@@ -51,9 +52,11 @@ otherDir mv = Left (ConstructorMistmatch, [ErrMbrship mv]
 
 -- in progress
 -- TODO ! fails silently. use Either.
-replaceNode :: LNode a -> Gr a b -> Gr a b
-replaceNode (adr,_) (match adr -> (Nothing, g)) = g
-replaceNode (adr,dat) (match adr -> (Just (a,b,c,d), g)) = (a,b,dat,d) & g
+replaceNode :: LNode a -> Gr a b -> Either DwtErr (Gr a b)
+replaceNode (adr,dat) (match adr -> (Just (a,b,c,d), g)) = Right
+  $ (a,b,dat,d) & g
+replaceNode (adr,_) (match adr -> (Nothing, g))          = Left
+  (FoundNo, [ErrNode adr], "replaceNode.")
 
 -- make the nodes the least positive integers possible
 compressGraph :: DynGraph gr => gr a b -> gr a b
