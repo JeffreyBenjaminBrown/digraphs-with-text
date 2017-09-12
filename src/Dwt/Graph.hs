@@ -44,6 +44,7 @@ import Control.Monad.Trans.Class
 import Data.Text (pack, unpack, strip, splitOn)
 import Control.Lens hiding ((&))
 
+
 -- ======== build
 insRel :: Node -> [Node] -> RSLT -> Either DwtErr RSLT
 insRel template mbrs g =
@@ -276,11 +277,6 @@ fork1Dir g from (dir,axis) = do -- returns one generation, neighbors
   concat <$> mapM (\rel -> relElts g rel dirRoles) rels
     -- TODO: this line is unnecessary. just return the rels, not their elts.
       -- EXCEPT: that might hurt the dfs, bfs functions below
-
--- TODO: should be RSLT -> [Node] -> ..., using List & Either monads
--- TODO: convert to RelSpecQ
-fork1Dirs :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
-fork1Dirs g n rs = concat <$> mapM (fork1Dir g n) rs
 
 subNodeForVars :: Node -> Mbrship -> RelSpec -> RelSpec
 subNodeForVars n v r = Map.map f r -- ^ change each VarSpec v to NodeSpec n

@@ -1,5 +1,10 @@
+_bfsOrDfs -> _bfsOrDfsQ
+_dwtDfs -> _dwtDfsQ
+_dwtBfs -> _dwtBfsQ
+dwtDfs -> dwtDfsQ
+dwtBfs -> dwtBfsQ
 fork1Dir -> fork1DirQ
-subNodeForVars -> subNodeForVars
+subNodeForVars -> subNodeForVarsQ
 has1Dir -> has1DirQ
 matchRelSpecNodesLab -> matchRelSpecNodesLabQ
 matchRelSpecNodes -> matchRelSpecNodesQ
