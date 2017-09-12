@@ -1,3 +1,5 @@
+import Data.Graph.Inductive
+
 import Control.Monad
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.State

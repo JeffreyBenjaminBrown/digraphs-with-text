@@ -2,10 +2,10 @@
 
     module Dwt
       ( module Dwt
-      , module Dwt.Add
       , module Dwt.Graph
       , module Dwt.Leaf
-      , module Dwt.Parse 
+      , module Dwt.Parse.User
+      , module Dwt.Parse.Add
       , module Dwt.Search.Local
       , module Dwt.Search.Recursive
       , module Dwt.Show
@@ -16,10 +16,10 @@
 
     import Data.Graph.Inductive
 
-    import Dwt.Add
     import Dwt.Graph
     import Dwt.Leaf
-    import Dwt.Parse
+    import Dwt.Parse.User
+    import Dwt.Parse.Add
     import Dwt.Search.Local
     import Dwt.Search.Recursive
     import Dwt.Show

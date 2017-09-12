@@ -7,8 +7,8 @@ import Data.Graph.Inductive (empty, nodes)
 import Dwt.Types
 import Dwt.Leaf (insWord, insTplt)
 import Dwt.Show (view)
-import Dwt.Add (addExpr)
-import Dwt.Parse
+import Dwt.Parse.Add (addExpr)
+import Dwt.Parse.User
 import Dwt.Util (fr)
 import Text.Megaparsec (parse)
 import Control.Monad.Trans.State (execStateT)

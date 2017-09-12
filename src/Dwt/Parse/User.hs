@@ -2,7 +2,7 @@
 -- discussion: https://www.reddit.com/r/haskell/comments/6v9b13/can_this_problem_be_approached_from_the_bottomup/
 {-# LANGUAGE ViewPatterns #-}
 
-module Dwt.Parse where
+module Dwt.Parse.User where
 
 import Data.Graph.Inductive (Node)
 import Dwt.Types
