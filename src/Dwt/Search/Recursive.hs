@@ -21,11 +21,6 @@ matchRelSpecNodesQ g spec = prependCaller "matchRelSpecNodes: " $ do
   nodeListList <- mapM (\(r,NodeSpecQ n) -> usersInRoleQ g n r) qNodeSpecs
   return $ listIntersect nodeListList
 
-has1DirQ :: Mbrship -> RelSpecQ -> Bool
-has1DirQ mv rc = 1 == length (Map.toList $ Map.filter f rc)
-  where f (VarSpecQ y) = y == mv
-        f _ = False
-
 -- ifdo speed: this searches for nodes, then searches again for labels
 matchRelSpecNodesLabQ :: RSLT -> RelSpecQ -> Either DwtErr [LNode Expr]
 matchRelSpecNodesLabQ g spec = prependCaller "matchRelSpecNodesLab: " $ do
@@ -33,16 +28,29 @@ matchRelSpecNodesLabQ g spec = prependCaller "matchRelSpecNodesLab: " $ do
   return $ zip ns $ map (fromJust . lab g) ns
     -- fromJust is safe because matchRelSpecNodesQ only returns Nodes in g
 
--- fork1Dir :: RSLT -> QNode -> (Mbrship,RelSpecQ) -> Either DwtErr [Node]
--- fork1Dir g qFrom (dir,axis) = do -- returns one generation, neighbors
---   let fromDir = otherDir dir
---   if has1Dir fromDir axis then return ()
---      else Left (Invalid,  [ErrRelSpec axis]
---                , "fork1DirSum: should have only one " ++ show fromDir)
---   n <- qGet g qFrom
---   let axis' = subNodeForVars from fromDir axis
---       dirRoles = Map.keys $ Map.filter (== VarSpec dir) axis
---   rels <- matchRelSpecNodes g axis'
---   concat <$> mapM (\rel -> relElts g rel dirRoles) rels
---     -- TODO: this line is unnecessary. just return the rels, not their elts.
---       -- EXCEPT: that might hurt the dfs, bfs functions below
+has1DirQ :: Mbrship -> RelSpecQ -> Bool
+has1DirQ mv rc = 1 == length (Map.toList $ Map.filter f rc)
+  where f (VarSpecQ y) = y == mv
+        f _ = False
+
+
+
+--fork1DirQ :: RSLT -> QNode -> (Mbrship,RelSpecQ) -> Either DwtErr [Node]
+--fork1DirQ g qFrom (dir,axis) = do -- returns one generation, neighbors
+--  fromDir <- otherDir dir
+--  if has1DirQ fromDir axis then return ()
+--     else Left (Invalid, [ErrRelSpecQ axis]
+--               , "fork1Dir: should have only one " ++ show fromDir)
+--  n <- qGet g qFrom
+--  let axis' = subNodeForVars qFrom fromDir axis
+--      dirRoles = Map.keys $ Map.filter (== VarSpec dir) axis
+--  rels <- matchRelSpecNodes g axis'
+--  concat <$> mapM (\rel -> relElts g rel dirRoles) rels
+--    -- TODO: this line is unnecessary. just return the rels, not their elts.
+--      -- EXCEPT: that might hurt the dfs, bfs functions below
+
+--subNodeForVarsQ :: Node -> Mbrship -> RelSpec  -> RelSpec
+--subNodeForVarsQ n v r = Map.map -- change each VarSpec v to NodeSpec n
+--  (\x -> case x of VarSpec v' -> if v==v' then NodeSpec n else VarSpec v'
+--                   _          -> x   -- yes, the v,v' distinction is needed
+--  ) r

@@ -268,7 +268,7 @@ fork1Dir :: RSLT -> Node -> (Mbrship,RelSpec) -> Either DwtErr [Node]
 fork1Dir g from (dir,axis) = do -- returns one generation, neighbors
   fromDir <- otherDir dir
   if has1Dir fromDir axis then return ()
-     else Left (Invalid,  [ErrRelSpec axis]
+     else Left (Invalid, [ErrRelSpec axis]
                , "fork1DirSum: should have only one " ++ show fromDir)
   let axis' = subNodeForVars from fromDir axis
       dirRoles = Map.keys $ Map.filter (== VarSpec dir) axis
