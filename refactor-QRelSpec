@@ -1,5 +1,5 @@
+insRelSpec -> insRelSpecQ
 relSpec -> relSpecQ
-relNodeSpec -> relNodeSpecQ
 insRelSpec -> insRelSpecQ
 mkRelSpec -> mkRelSpecQ
 artitionRelSpec -> artitionRelSpecQ

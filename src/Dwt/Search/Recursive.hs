@@ -34,16 +34,6 @@ insRelSpecQ rSpec g = do
         -- these edges specify the addressed nodes
   return $ insEdges newLEdges $ insNode newLNode g
 
-relNodeSpecQ :: RSLT -> QNode -> Either DwtErr RelNodeSpec
-relNodeSpecQ g q = prependCaller "relNodeSpec: " $ do
-  n <- qGet1 g q
-  case lab g n of
-    Just (RelSpecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
-      where f (node,RelEdge r) = (r,node)
-    Just _ -> Left
-      (NotRelSpecExpr, [ErrNode n], "")
-    Nothing -> Left (FoundNo, [ErrNode n], "")
-
 relSpecQ :: RSLT -> QNode -> Either DwtErr RelSpec
   -- name ? getRelSpecDe
   -- is nearly inverse to partitionRelSpec

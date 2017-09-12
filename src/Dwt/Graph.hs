@@ -7,7 +7,6 @@ module Dwt.Graph (
   , insRelSt
   , insColl
   , mkRelSpec, partitionRelSpec
-  , insRelSpec
   , relNodeSpec
   , chLeaf
   , chRelRole
@@ -100,18 +99,7 @@ partitionRelSpec rSpec =
   in ( Map.map  (\(VarSpec  v) -> v)  vs
      , Map.map  (\(NodeSpec n) -> n)  ns )
 
-insRelSpec :: RelSpec -> RSLT -> Either DwtErr RSLT
-insRelSpec rSpec g = do
-  let (varMap, nodeMap) = partitionRelSpec rSpec
-      newAddr = head $ newNodes 1 g
-      newLNode = (newAddr, RelSpecExpr varMap)
-        -- this node specifies the variable nodes
-  mapM_ (gelemM g) $ Map.elems nodeMap
-  let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
-                $ Map.toList nodeMap
-        -- these edges specify the addressed nodes
-  return $ insEdges newLEdges $ insNode newLNode g
-
+-- pitfall: does not need conversion to QNode format
 relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
 relNodeSpec g n = prependCaller "relNodeSpec: " $ do
   gelemM g n
