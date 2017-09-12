@@ -27,3 +27,17 @@ matchRelSpecNodesLabQ g spec = prependCaller "matchRelSpecNodesLab: " $ do
   ns <- matchRelSpecNodesQ g spec
   return $ zip ns $ map (fromJust . lab g) ns
     -- fromJust is safe because matchRelSpecNodesQ only returns Nodes in g
+
+-- fork1Dir :: RSLT -> QNode -> (Mbrship,RelSpecQ) -> Either DwtErr [Node]
+-- fork1Dir g qFrom (dir,axis) = do -- returns one generation, neighbors
+--   let fromDir = otherDir dir
+--   if has1Dir fromDir axis then return ()
+--      else Left (Invalid,  [ErrRelSpec axis]
+--                , "fork1DirSum: should have only one " ++ show fromDir)
+--   n <- qGet g qFrom
+--   let axis' = subNodeForVars from fromDir axis
+--       dirRoles = Map.keys $ Map.filter (== VarSpec dir) axis
+--   rels <- matchRelSpecNodes g axis'
+--   concat <$> mapM (\rel -> relElts g rel dirRoles) rels
+--     -- TODO: this line is unnecessary. just return the rels, not their elts.
+--       -- EXCEPT: that might hurt the dfs, bfs functions below

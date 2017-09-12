@@ -254,10 +254,9 @@ matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
   -- fork1Up uses otherDir, so it will catch those errors, but obscurely
 
 has1Dir :: Mbrship -> RelSpec -> Bool
-has1Dir mv rc = length as == 1
-  where as = Map.toList
-           $ Map.filter (\x -> case x of VarSpec y -> y==mv; _ -> False)
-           rc
+has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
+  where f (VarSpec y) = y == mv
+        f _ = False
 
 otherDir :: Mbrship -> Mbrship -- incomplete; non-invertible cases will err
 otherDir Up = Down
