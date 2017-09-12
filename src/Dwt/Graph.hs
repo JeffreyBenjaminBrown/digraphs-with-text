@@ -24,7 +24,6 @@ module Dwt.Graph (
   , matchRelSpecNodes
   , matchRelSpecNodesLab
   , has1Dir, otherDir
-  , subNodeForVars
   ) where
 
 import Dwt.Types
@@ -256,10 +255,10 @@ has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (VarSpec y) = y == mv
         f _ = False
 
-subNodeForVars :: Node -> Mbrship -> RelSpec -> RelSpec
-subNodeForVars n v r = Map.map f r -- ^ change each VarSpec v to NodeSpec n
-  where f (VarSpec v') = if v == v' then NodeSpec n else VarSpec v'
-        f x = x -- yes, the v,v' distinction is needed
+--subNodeForVars :: Node -> Mbrship -> RelSpec -> RelSpec
+--subNodeForVars n v r = Map.map f r -- ^ change each VarSpec v to NodeSpec n
+--  where f (VarSpec v') = if v == v' then NodeSpec n else VarSpec v'
+--        f x = x -- yes, the v,v' distinction is needed
 
 -- ========= Deprecated
 insRelUsf :: Node -> [Node] -> RSLT -> RSLT
