@@ -24,7 +24,6 @@ module Dwt.Graph (
   , matchRelSpecNodes
   , matchRelSpecNodesLab
   , has1Dir, otherDir
-  , fork1Dir
   , subNodeForVars
   ) where
 
@@ -256,19 +255,6 @@ has1Dir :: Mbrship -> RelSpec -> Bool
 has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (VarSpec y) = y == mv
         f _ = False
-
-fork1Dir :: RSLT -> Node -> (Mbrship,RelSpec) -> Either DwtErr [Node]
-fork1Dir g from (dir,axis) = do -- returns one generation, neighbors
-  fromDir <- otherDir dir
-  if has1Dir fromDir axis then return ()
-     else Left (Invalid, [ErrRelSpec axis]
-               , "fork1Dir: should have only one " ++ show fromDir)
-  let dirRoles = Map.keys $ Map.filter (== VarSpec dir) axis
-      axis' = subNodeForVars from fromDir axis
-  rels <- matchRelSpecNodes g axis'
-  concat <$> mapM (\rel -> relElts g rel dirRoles) rels
-    -- TODO: this line is unnecessary. just return the rels, not their elts.
-      -- EXCEPT: that might hurt the dfs, bfs functions below
 
 subNodeForVars :: Node -> Mbrship -> RelSpec -> RelSpec
 subNodeForVars n v r = Map.map f r -- ^ change each VarSpec v to NodeSpec n
