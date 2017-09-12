@@ -1,4 +1,5 @@
-subNodeForVarsQ -> subNodeForVars
+fork1Dir -> fork1DirQ
+subNodeForVars -> subNodeForVars
 has1Dir -> has1DirQ
 matchRelSpecNodesLab -> matchRelSpecNodesLabQ
 matchRelSpecNodes -> matchRelSpecNodesQ

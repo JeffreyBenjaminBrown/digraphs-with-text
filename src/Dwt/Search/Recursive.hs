@@ -37,19 +37,19 @@ has1DirQ mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (VarSpecQ y) = y == mv
         f _ = False
 
---fork1DirQ :: RSLT -> QNode -> (Mbrship,RelSpecQ) -> Either DwtErr [Node]
---fork1DirQ g qFrom (dir,axis) = do -- returns one generation, neighbors
---  fromDir <- otherDir dir
---  if has1DirQ fromDir axis then return ()
---     else Left (Invalid, [ErrRelSpecQ axis]
---               , "fork1Dir: should have only one " ++ show fromDir)
---  n <- qGet g qFrom
---  let axis' = subNodeForVarsQ qFrom fromDir axis
---      dirRoles = Map.keys $ Map.filter (== VarSpec dir) axis
---  rels <- matchRelSpecNodes g axis'
---  concat <$> mapM (\rel -> relElts g rel dirRoles) rels
---    -- TODO: this line is unnecessary. just return the rels, not their elts.
---      -- EXCEPT: that might hurt the dfs, bfs functions below
+fork1DirQ :: RSLT -> QNode -> (Mbrship,RelSpecQ) -> Either DwtErr [Node]
+fork1DirQ g qFrom (dir,axis) = do -- returns one generation, neighbors
+  fromDir <- otherDir dir
+  if has1DirQ fromDir axis then return ()
+     else Left (Invalid, [ErrRelSpecQ axis]
+               , "fork1Dir: should have only one " ++ show fromDir)
+  n <- qGet g qFrom
+  axis' <- runReaderT (subNodeForVarsQ qFrom fromDir axis) g
+  let dirRoles = Map.keys $ Map.filter (== VarSpecQ dir) axis
+  rels <- matchRelSpecNodesQ g axis'
+  concat <$> mapM (\rel -> relElts g rel dirRoles) rels
+    -- TODO: this line is unnecessary. just return the rels, not their elts.
+      -- EXCEPT: that might hurt the dfs, bfs functions below
 
 subNodeForVarsQ :: QNode -> Mbrship -> RelSpecQ
   -> ReaderT RSLT (Either DwtErr) RelSpecQ
