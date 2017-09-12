@@ -5,9 +5,10 @@ import Dwt.Types
 import Dwt.Graph
 import Dwt.Search.Local
 
-import Dwt.Util (listIntersect, prependCaller)
+import Dwt.Util (listIntersect, prependCaller, gelemM)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
+import Data.List (nub)
 
 import Control.Monad
 import Control.Monad.Reader
@@ -62,3 +63,23 @@ subNodeForVarsQ q v r = do -- TODO: use prependCaller
   let f (VarSpecQ v') = if v == v' then NodeSpecQ (QAt n) else VarSpecQ v'
       f x = x -- the v,v' distinction is needed; otherwise v gets masked
   lift $ Right $ Map.map f r -- ^ change each VarSpecQ v to NodeSpecQ n
+
+_bfsOrDfsQ :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
+  -> RSLT -> (Mbrship, RelSpecQ) -> [Node] -> [Node] -> Either DwtErr [Node]
+_bfsOrDfsQ _ _ _ [] acc = return acc
+_bfsOrDfsQ collector g qdir pending@(n:ns) acc = do
+  newNodes <- fork1DirQ g (QAt n) qdir
+    --ifdo speed: calls has1Dir redundantly
+  _bfsOrDfsQ collector g qdir (nub $ collector newNodes ns) (n:acc)
+    -- ifdo speed: discard visited nodes from graph
+
+_dwtBfsQ = _bfsOrDfsQ (\new old -> old ++ new)
+_dwtDfsQ = _bfsOrDfsQ (\new old -> new ++ old)
+
+dwtDfsQ :: RSLT -> (Mbrship,RelSpecQ) -> [Node] -> Either DwtErr [Node]
+dwtDfsQ g dir starts = do mapM_ (gelemM g) $ starts
+                          (nub . reverse) <$> _dwtDfsQ g dir starts []
+
+dwtBfsQ :: RSLT -> (Mbrship, RelSpecQ) -> [Node] -> Either DwtErr [Node]
+dwtBfsQ g dir starts = do mapM_ (gelemM g) $ starts
+                          (nub . reverse) <$> _dwtBfsQ g dir starts []
