@@ -9,8 +9,8 @@ module Dwt.Search.Local (
   , qRegexWord
 
   -- exported for testing, but not for interface
-  , matchRelSpecNodes
-  , matchRelSpecNodesLab
+  , _matchRelSpecNodes
+  , _matchRelSpecNodesLab
 ) where
 
 import Text.Regex
@@ -30,8 +30,8 @@ import qualified Data.Map as M
 import qualified Data.Maybe as Mb
 import Control.Monad (foldM)
 
-matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
-matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
+_matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
+_matchRelSpecNodes g spec = prependCaller "_matchRelSpecNodes: " $ do
   let nodeSpecs = M.toList
         $ M.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,NodeOrVar)]
@@ -39,11 +39,11 @@ matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
   return $ listIntersect nodeListList
 
 -- ifdo speed: this searches for nodes, then searches again for labels
-matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
-matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
-  ns <- matchRelSpecNodes g spec
+_matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
+_matchRelSpecNodesLab g spec = prependCaller "_matchRelSpecNodesLab: " $ do
+  ns <- _matchRelSpecNodes g spec
   return $ zip ns $ map (fromJust . lab g) ns
-    -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
+    -- fromJust is safe because _matchRelSpecNodes only returns Nodes in g
 
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1

@@ -11,10 +11,15 @@ dwtBfs -> dwtBfsQ
 fork1Dir -> fork1DirQ
 subNodeForVars -> subNodeForVarsQ
 has1Dir -> has1DirQ
-matchRelSpecNodesLab -> matchRelSpecNodesLabQ
 matchRelSpecNodes -> matchRelSpecNodesQ
 usersInRole -> usersInRoleQ
 NodeOrVar -> NodeOrVarQ
 RelSpec -> RelSpecQ
 NodeSpec -> NodeSpecQ
 VarSpec -> VarSpecQ
+
+special:
+  keep this change
+    matchRelSpecNodesLab -> _matchRelSpecNodesLab
+  and make this one
+    matchRelSpecNodesLabQ -> matchRelSpecNodesLab

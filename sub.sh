@@ -12,9 +12,9 @@
 DeprecatoryName=LongErr # the old way is renamed with this suffix
 IntermediateName=Sum # the new way has this suffix removed
 
-find . -name "*.hs" -print0 -o -name "*.txt" -print0 -o -name "*.md" -print0 | xargs -0 sed -i -r "s/([^a-zA-Z0-9\d]|^)$1([^a-zA-Z0-9\d]|$)/\1$1$DeprecatoryName\2/g"
+find . -name "*.hs" -print0 -o -name "*.txt" -print0 -o -name "*.md" -print0 | xargs -0 sed -i -r "s/([^_a-zA-Z0-9\d]|^)$1([^_a-zA-Z0-9\d]|$)/\1$1$DeprecatoryName\2/g"
 
-find . -name "*.hs" -print0 -o -name "*.txt" -print0 -o -name "*.md" -print0 | xargs -0 sed -i -r "s/([^a-zA-Z0-9\d]|^)$1$IntermediateName([^a-zA-Z0-9\d]|$)/\1$1\2/g"
+find . -name "*.hs" -print0 -o -name "*.txt" -print0 -o -name "*.md" -print0 | xargs -0 sed -i -r "s/([^_a-zA-Z0-9\d]|^)$1$IntermediateName([^_a-zA-Z0-9\d]|$)/\1$1\2/g"
 
 echo "Here's a handy commit message:"
 echo "change names: $1IntermediateName -> $1 -> $1DeprecatoryName"
