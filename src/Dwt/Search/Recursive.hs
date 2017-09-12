@@ -111,17 +111,17 @@ subNodeForVarsQ q v r = do -- TODO: use prependCaller
       f x = x -- the v,v' distinction is needed; otherwise v gets masked
   lift $ Right $ Map.map f r -- ^ change each VarSpecQ v to NodeSpecQ n
 
-_bfsOrDfsQ :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
+_bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
   -> RSLT -> (Mbrship, RelSpecQ) -> [Node] -> [Node] -> Either DwtErr [Node]
-_bfsOrDfsQ _ _ _ [] acc = return acc
-_bfsOrDfsQ collector g qdir pending@(n:ns) acc = do
+_bfsOrDfs _ _ _ [] acc = return acc
+_bfsOrDfs collector g qdir pending@(n:ns) acc = do
   newNodes <- fork1DirQ g (QAt n) qdir
     --ifdo speed: calls has1Dir redundantly
-  _bfsOrDfsQ collector g qdir (nub $ collector newNodes ns) (n:acc)
+  _bfsOrDfs collector g qdir (nub $ collector newNodes ns) (n:acc)
     -- ifdo speed: discard visited nodes from graph
 
-_dwtBfsQ = _bfsOrDfsQ (\new old -> old ++ new)
-_dwtDfsQ = _bfsOrDfsQ (\new old -> new ++ old)
+_dwtBfsQ = _bfsOrDfs (\new old -> old ++ new)
+_dwtDfsQ = _bfsOrDfs (\new old -> new ++ old)
 
 dwtDfsQ :: RSLT -> (Mbrship,RelSpecQ) -> [Node] -> Either DwtErr [Node]
 dwtDfsQ g dir starts = do mapM_ (gelemM g) $ starts
