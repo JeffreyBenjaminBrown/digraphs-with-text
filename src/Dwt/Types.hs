@@ -93,6 +93,7 @@ data ErrBase = Legacy -- | for when the String has all the info
 data ErrOpt = ErrNode Node | ErrEdge Edge -- | New error style: sum type
   | ErrExpr Expr | ErrEdgeLab RSLTEdge | ErrRelRole RelRole
   | ErrAddX AddX | ErrRelSpec RelSpec | ErrQNode QNode
+  | ErrMbrship Mbrship
   deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase

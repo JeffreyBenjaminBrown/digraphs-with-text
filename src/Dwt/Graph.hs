@@ -258,13 +258,15 @@ has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (VarSpec y) = y == mv
         f _ = False
 
-otherDir :: Mbrship -> Mbrship -- incomplete; non-invertible cases will err
-otherDir Up = Down
-otherDir Down = Up
+otherDir :: Mbrship -> Either DwtErr Mbrship
+otherDir Up = Right Down
+otherDir Down = Right Up
+otherDir mv = Left (ConstructorMistmatch, [ErrMbrship mv]
+                   , "otherDir: Only accepts Up or Down.")
 
 fork1Dir :: RSLT -> Node -> (Mbrship,RelSpec) -> Either DwtErr [Node]
 fork1Dir g from (dir,axis) = do -- returns one generation, neighbors
-  let fromDir = otherDir dir
+  fromDir <- otherDir dir
   if has1Dir fromDir axis then return ()
      else Left (Invalid,  [ErrRelSpec axis]
                , "fork1DirSum: should have only one " ++ show fromDir)
