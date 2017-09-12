@@ -8,8 +8,8 @@ module Dwt.Search.Recursive (
   , has1DirQ
   , fork1DirQ
   , subNodeForVarsQ
-  , dwtDfsQ
-  , dwtBfsQ
+  , dwtDfs
+  , dwtBfs
 ) where
 
 import Data.Graph.Inductive
@@ -120,13 +120,13 @@ _bfsOrDfs collector g qdir pending@(n:ns) acc = do
   _bfsOrDfs collector g qdir (nub $ collector newNodes ns) (n:acc)
     -- ifdo speed: discard visited nodes from graph
 
-_dwtBfsQ = _bfsOrDfs (\new old -> old ++ new)
-_dwtDfsQ = _bfsOrDfs (\new old -> new ++ old)
+_dwtBfs = _bfsOrDfs (\new old -> old ++ new)
+_dwtDfs = _bfsOrDfs (\new old -> new ++ old)
 
-dwtDfsQ :: RSLT -> (Mbrship,RelSpecQ) -> [Node] -> Either DwtErr [Node]
-dwtDfsQ g dir starts = do mapM_ (gelemM g) $ starts
-                          (nub . reverse) <$> _dwtDfsQ g dir starts []
+dwtDfs :: RSLT -> (Mbrship,RelSpecQ) -> [Node] -> Either DwtErr [Node]
+dwtDfs g dir starts = do mapM_ (gelemM g) $ starts
+                         (nub . reverse) <$> _dwtDfs g dir starts []
 
-dwtBfsQ :: RSLT -> (Mbrship, RelSpecQ) -> [Node] -> Either DwtErr [Node]
-dwtBfsQ g dir starts = do mapM_ (gelemM g) $ starts
-                          (nub . reverse) <$> _dwtBfsQ g dir starts []
+dwtBfs :: RSLT -> (Mbrship, RelSpecQ) -> [Node] -> Either DwtErr [Node]
+dwtBfs g dir starts = do mapM_ (gelemM g) $ starts
+                         (nub . reverse) <$> _dwtBfs g dir starts []
