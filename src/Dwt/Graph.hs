@@ -26,7 +26,6 @@ module Dwt.Graph (
   , has1Dir, otherDir
   , fork1Dir
   , subNodeForVars
-  , dwtDfs, dwtBfs
   ) where
 
 import Dwt.Types
@@ -43,7 +42,6 @@ import Control.Monad.Trans.State
 import Control.Monad.Trans.Class
 import Data.Text (pack, unpack, strip, splitOn)
 import Control.Lens hiding ((&))
-
 
 -- ======== build
 insRel :: Node -> [Node] -> RSLT -> Either DwtErr RSLT
@@ -282,27 +280,6 @@ subNodeForVars :: Node -> Mbrship -> RelSpec -> RelSpec
 subNodeForVars n v r = Map.map f r -- ^ change each VarSpec v to NodeSpec n
   where f (VarSpec v') = if v == v' then NodeSpec n else VarSpec v'
         f x = x -- yes, the v,v' distinction is needed
-
--- ==== dfs and bfs
-  -- algorithmically, the difference is only newNodes++ns v. ns++newNodes
-_bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
-  -> RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> Either DwtErr [Node]
-_bfsOrDfs _ _ _ [] acc = return acc
-_bfsOrDfs collector g dir pending@(n:ns) acc = do
-  newNodes <- fork1Dir g n dir -- ifdo speed: calls has1Dir redundantly
-  _bfsOrDfs collector g dir (nub $ collector newNodes ns) (n:acc)
-    -- ifdo speed: discard visited nodes from graph
-
-_dwtBfs = _bfsOrDfs (\new old -> old ++ new)
-_dwtDfs = _bfsOrDfs (\new old -> new ++ old)
-
-dwtDfs :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErr [Node]
-dwtDfs g dir starts = do mapM_ (gelemM g) $ starts
-                         (nub . reverse) <$> _dwtDfs g dir starts []
-
-dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either DwtErr [Node]
-dwtBfs g dir starts = do mapM_ (gelemM g) $ starts
-                         (nub . reverse) <$> _dwtBfs g dir starts []
 
 -- ========= Deprecated
 insRelUsf :: Node -> [Node] -> RSLT -> RSLT
