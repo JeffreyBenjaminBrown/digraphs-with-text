@@ -3,8 +3,8 @@ module Dwt.Search.Recursive (
   , insRelSpec
   , relSpec
   , usersInRole
-  , matchRelSpecNodesQ
-  , matchRelSpecNodesLabQ
+  , matchRelSpecNodes
+  , matchRelSpecNodesLab
   , has1Dir
   , fork1Dir
   , subNodeForVars
@@ -65,8 +65,8 @@ usersInRole :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
 usersInRole g (QAt n) r = prependCaller "usersInRole: " $ _usersInRole g n r
 usersInRole g q r = qGet1 g q >>= \n -> _usersInRole g n r
 
-matchRelSpecNodesQ :: RSLT -> RelSpec -> Either DwtErr [Node]
-matchRelSpecNodesQ g spec = prependCaller "matchRelSpecNodes: " $ do
+matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
+matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
   let qNodeSpecs = Map.toList
         $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,NodeOrVar)]
@@ -74,11 +74,11 @@ matchRelSpecNodesQ g spec = prependCaller "matchRelSpecNodes: " $ do
   return $ listIntersect nodeListList
 
 -- ifdo speed: this searches for nodes, then searches again for labels
-matchRelSpecNodesLabQ :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
-matchRelSpecNodesLabQ g spec = prependCaller "matchRelSpecNodesLab: " $ do
-  ns <- matchRelSpecNodesQ g spec
+matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
+matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
+  ns <- matchRelSpecNodes g spec
   return $ zip ns $ map (fromJust . lab g) ns
-    -- fromJust is safe because matchRelSpecNodesQ only returns Nodes in g
+    -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
 
 has1Dir :: Mbrship -> RelSpec -> Bool
 has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
@@ -93,7 +93,7 @@ fork1Dir g qFrom (dir,axis) = do -- returns one generation, neighbors
                , "fork1Dir: should have only one " ++ show fromDir)
   let dirRoles = Map.keys $ Map.filter (== VarSpec dir) axis
   axis' <- runReaderT (subNodeForVars qFrom fromDir axis) g
-  rels <- matchRelSpecNodesQ g axis'
+  rels <- matchRelSpecNodes g axis'
   concat <$> mapM (\rel -> relElts g rel dirRoles) rels
     -- TODO: this line is unnecessary. just return the rels, not their elts.
       -- EXCEPT: that might hurt the dfs, bfs functions below
