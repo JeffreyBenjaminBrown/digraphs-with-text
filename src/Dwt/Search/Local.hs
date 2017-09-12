@@ -102,11 +102,10 @@ qGet1 g q = prependCaller "qGet1: " $ case qGet g q of
 qPutSt :: QNode -> StateT RSLT (Either DwtErr) Node
 qPutSt (QRel qt qms) = do
   -- TODO ? would be more efficient to return even the half-completed state
-  let tag = prependCaller "qPutSt: " -- TODO: use
+  -- let tag = prependCaller "qPutSt: " -- TODO: use
   t <- qPutSt qt
   ms <- mapM qPutSt qms
   g <- get
-  let matches = _matchRelSpecNodes g $ _mkRelSpec t ms
   insRelSt t ms
 qPutSt (QAt n) = lift $ Right n
 qPutSt q@(QLeaf x) = get >>= \g -> case qGet1 g q of

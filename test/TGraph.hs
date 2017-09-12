@@ -77,7 +77,7 @@
         == Set.fromList [ (Mbr 1, 0) ]
 
     tInsRelSpec = TestCase $ do
-      let Right (vs,ns) = partitionRelSpec g1 tRelSpec
+      let Right (vs,_) = partitionRelSpec g1 tRelSpec
           Right g2 = insRelSpec tRelSpec g1
           [newNode] = newNodes 1 g1
       assertBool "node" $ lab g2 newNode == Just (RelSpecExpr vs)

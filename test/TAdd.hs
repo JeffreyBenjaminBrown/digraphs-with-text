@@ -15,7 +15,6 @@ tAdd = TestCase $ do
       qb = QLeaf $ Word "b"
       qab = QRel (QLeaf $ mkTplt "_ # _") [qa,qb]
   -- v g $ nodes g -- visual test
-  assertBool "1" $ either (const False) (const True)
-    $ qGet1 g (QLeaf $ Word "a")
-  assertBool "1" $ do
-    either (const False) (const True) $ qGet1 g (QLeaf $ Word "a")
+  assertBool "1" $ either (const False) (const True) $ qGet1 g qa
+  assertBool "2" $ do either (const False) (const True) $ qGet1 g qb
+  assertBool "3" $ do either (const False) (const True) $ qGet1 g qab

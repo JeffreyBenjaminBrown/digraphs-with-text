@@ -105,7 +105,7 @@ chLeaf g n e' = prependCaller "chLeaf: " $ do
   return $ _chLeafUsf g n e'
 
 _chLeafUsf :: RSLT -> Node -> Expr -> RSLT
-_chLeafUsf g n newExpr = let (Just (a,b,c,d),g') = match n g
+_chLeafUsf g n newExpr = let (Just (a,b,_,d),g') = match n g
   in (a,b,newExpr,d) & g'
 
 chRelRole :: RSLT -> Node -> Node -> RelRole -> Either DwtErr RSLT
