@@ -257,12 +257,6 @@ has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (VarSpec y) = y == mv
         f _ = False
 
-otherDir :: Mbrship -> Either DwtErr Mbrship
-otherDir Up = Right Down
-otherDir Down = Right Up
-otherDir mv = Left (ConstructorMistmatch, [ErrMbrship mv]
-                   , "otherDir: Only accepts Up or Down.")
-
 fork1Dir :: RSLT -> Node -> (Mbrship,RelSpec) -> Either DwtErr [Node]
 fork1Dir g from (dir,axis) = do -- returns one generation, neighbors
   fromDir <- otherDir dir

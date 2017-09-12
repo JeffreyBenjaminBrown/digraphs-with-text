@@ -7,6 +7,8 @@ module Dwt.Util (
   -- graphs
   , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
 
+  , otherDir -- kind of an orphan
+
   -- graphs & monads
   , hasLEdgeM
   , gelemM
@@ -38,6 +40,14 @@ dropEdges = gmap (\(_,b,c,_) -> ([], b, c, []))
 negateGraph :: Gr a b -> Gr a b
 negateGraph m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
   where negAdj = map (\(label,n) -> (label,-n))
+
+
+-- | swap Up and Down, or err
+otherDir :: Mbrship -> Either DwtErr Mbrship
+otherDir Up = Right Down
+otherDir Down = Right Up
+otherDir mv = Left (ConstructorMistmatch, [ErrMbrship mv]
+                   , "otherDir: Only accepts Up or Down.")
 
 -- in progress
 -- TODO ! fails silently. use Either.
@@ -83,5 +93,4 @@ fromRight _ = error "fromRight applied to Left"
 prependCaller :: String -> Either DwtErr a -> Either DwtErr a
 prependCaller name e@(Right _) = e
 prependCaller name (Left e) = Left $ errString %~ (name++) $ e
-
 
