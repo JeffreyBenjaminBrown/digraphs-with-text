@@ -14,7 +14,8 @@
     tGraph = TestList [ TestLabel "tBuildGraph" tBuildGraph
                       , TestLabel "tAskMinor"   tAskMinor
                       , TestLabel "tAskNodes"   tAskNodes
-                      , TestLabel "tChase"      tChase 
+                      , TestLabel "tChase"      tChase
+                      , TestLabel "tRecursiveSearch" tRecursiveSearch
                       ]
 
   -- buildGraph
@@ -175,7 +176,6 @@
       assertBool "has 1 Up" $ has1Dir Up tRelSpecNonsense
       assertBool "has no Up" $ not $ has1Dir Up tRelSpec
 
--- >>> the last remaining function in this file to convert to Either DwtErr
     tFork1Dir = TestCase $ do -- todo, incomplete
       assertBool "searching Down, and no Up vars; should fail"
         $ isLeft $ fork1Dir g1 0 (Down, tRelSpec)
@@ -192,3 +192,11 @@
       assertBool "dog wants water -> dog" $ relElts g1 5 [Mbr 1] == Right [0]
       assertBool "dog wants water -> dog" $ relElts g1 5 [TpltRole] == Right [1]
       assertBool "dog wants water -> dog" $ isLeft $ relElts g1 5 [Mbr 3]
+
+    tRecursiveSearch = TestCase $ do
+      let g = mkGraph [(0,Word "a"),(1,Word "b"),(2,Tplt ["","is",""]),(3,Rel),(4,Word "c"),(5,Tplt ["","uses",""]),(6,Rel),(7,Word "d"),(8,Rel),(9,Word "f"),(10,Rel),(11,Word "g"),(12,Rel)] [(3,0,RelEdge (Mbr 1)),(3,1,RelEdge (Mbr 2)),(3,2,RelEdge TpltRole),(6,0,RelEdge (Mbr 1)),(6,4,RelEdge (Mbr 2)),(6,5,RelEdge TpltRole),(8,1,RelEdge (Mbr 1)),(8,2,RelEdge TpltRole),(8,7,RelEdge (Mbr 2)),(10,1,RelEdge (Mbr 1)),(10,2,RelEdge TpltRole),(10,9,RelEdge (Mbr 2)),(12,2,RelEdge TpltRole),(12,7,RelEdge (Mbr 1)),(12,11,RelEdge (Mbr 2))]
+          rspec = Map.fromList [(TpltRole, NodeSpec 2),(Mbr 1, VarSpec Up), (Mbr 2, VarSpec Down)]
+      assertBool "1" $ dwtDfs g (Down, rspec) [0] == Right [0,1,7,11,9]
+      assertBool "2" $ dwtBfs g (Down, rspec) [0] == Right [0,1,7,9,11]
+
+
