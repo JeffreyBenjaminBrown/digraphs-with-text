@@ -22,6 +22,18 @@ partitionRelSpecQ g rSpec = let f (VarSpecQ _) = True
   in do ns <- mapM (\(NodeSpecQ q) -> qGet1 g q)  qs
         return (Map.map  (\(VarSpecQ  v) -> v)  vs, ns)
 
+insRelSpecQ :: RelSpecQ -> RSLT -> Either DwtErr RSLT
+insRelSpecQ rSpec g = do
+  (varMap, nodeMap) <- partitionRelSpecQ g rSpec
+  let newAddr = head $ newNodes 1 g
+      newLNode = (newAddr, RelSpecExpr varMap)
+        -- this node specifies the variable nodes
+  mapM_ (gelemM g) $ Map.elems nodeMap
+  let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
+                $ Map.toList nodeMap
+        -- these edges specify the addressed nodes
+  return $ insEdges newLEdges $ insNode newLNode g
+
 usersInRoleQ :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
 usersInRoleQ g (QAt n) r = prependCaller "usersInRole: " $ usersInRole g n r
 usersInRoleQ g q r = qGet1 g q >>= \n -> usersInRole g n r
