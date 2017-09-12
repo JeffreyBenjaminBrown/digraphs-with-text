@@ -1,3 +1,4 @@
+subNodeForVarsQ -> subNodeForVars
 has1Dir -> has1DirQ
 matchRelSpecNodesLab -> matchRelSpecNodesLabQ
 matchRelSpecNodes -> matchRelSpecNodesQ
