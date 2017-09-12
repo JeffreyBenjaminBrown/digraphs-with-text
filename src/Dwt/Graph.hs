@@ -280,11 +280,10 @@ fork1Dir g from (dir,axis) = do -- returns one generation, neighbors
 fork1Dirs :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
 fork1Dirs g n rs = concat <$> mapM (fork1Dir g n) rs
 
-subNodeForVars :: Node -> Mbrship -> RelSpec  -> RelSpec
-subNodeForVars n v r = Map.map -- change each VarSpec v to NodeSpec n
-  (\x -> case x of VarSpec v' -> if v==v' then NodeSpec n else VarSpec v'
-                   _          -> x   -- yes, the v,v' distinction is needed
-  ) r
+subNodeForVars :: Node -> Mbrship -> RelSpec -> RelSpec
+subNodeForVars n v r = Map.map f r -- ^ change each VarSpec v to NodeSpec n
+  where f (VarSpec v') = if v == v' then NodeSpec n else VarSpec v'
+        f x = x -- yes, the v,v' distinction is needed
 
 -- ==== dfs and bfs
   -- algorithmically, the difference is only newNodes++ns v. ns++newNodes
