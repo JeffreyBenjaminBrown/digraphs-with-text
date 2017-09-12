@@ -269,14 +269,15 @@ fork1Dir g from (dir,axis) = do -- returns one generation, neighbors
   fromDir <- otherDir dir
   if has1Dir fromDir axis then return ()
      else Left (Invalid, [ErrRelSpec axis]
-               , "fork1DirSum: should have only one " ++ show fromDir)
-  let axis' = subNodeForVars from fromDir axis
-      dirRoles = Map.keys $ Map.filter (== VarSpec dir) axis
+               , "fork1Dir: should have only one " ++ show fromDir)
+  let dirRoles = Map.keys $ Map.filter (== VarSpec dir) axis
+      axis' = subNodeForVars from fromDir axis
   rels <- matchRelSpecNodes g axis'
   concat <$> mapM (\rel -> relElts g rel dirRoles) rels
     -- TODO: this line is unnecessary. just return the rels, not their elts.
       -- EXCEPT: that might hurt the dfs, bfs functions below
 
+-- TODO: should be RSLT -> [Node] -> ...
 fork1Dirs :: RSLT -> Node -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
 fork1Dirs g n rs = concat <$> mapM (fork1Dir g n) rs
 
