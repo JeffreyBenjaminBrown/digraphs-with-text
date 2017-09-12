@@ -1,5 +1,5 @@
 module Dwt.Search.Recursive (
-  partitionRelSpecQ
+  partitionRelSpec
   , insRelSpec
   , relSpec
   , usersInRole
@@ -26,17 +26,17 @@ import Control.Monad
 import Control.Monad.Reader
 import Control.Monad.Trans.Class
 
-partitionRelSpecQ :: RSLT -> RelSpec
+partitionRelSpec :: RSLT -> RelSpec
   -> Either DwtErr (RelVarSpec, RelNodeSpec)
-partitionRelSpecQ g rSpec = let f (VarSpec _) = True
-                                f (NodeSpec _) = False
-                                (vs,qs) = Map.partition f rSpec
+partitionRelSpec g rSpec = let f (VarSpec _) = True
+                               f (NodeSpec _) = False
+                               (vs,qs) = Map.partition f rSpec
   in do ns <- mapM (\(NodeSpec q) -> qGet1 g q)  qs
         return (Map.map  (\(VarSpec  v) -> v)  vs, ns)
 
 insRelSpec :: RelSpec -> RSLT -> Either DwtErr RSLT
 insRelSpec rSpec g = do
-  (varMap, nodeMap) <- partitionRelSpecQ g rSpec
+  (varMap, nodeMap) <- partitionRelSpec g rSpec
   let newAddr = head $ newNodes 1 g
       newLNode = (newAddr, RelSpecExpr varMap)
         -- this node specifies the variable nodes
@@ -89,7 +89,7 @@ fork1Dir :: RSLT -> QNode -> (Mbrship,RelSpec) -> Either DwtErr [Node]
 fork1Dir g qFrom (dir,axis) = do -- returns one generation, neighbors
   fromDir <- otherDir dir
   if has1Dir fromDir axis then return ()
-     else Left (Invalid, [ErrRelSpecQ axis]
+     else Left (Invalid, [ErrRelSpec axis]
                , "fork1Dir: should have only one " ++ show fromDir)
   let dirRoles = Map.keys $ Map.filter (== VarSpec dir) axis
   axis' <- runReaderT (subNodeForVars qFrom fromDir axis) g

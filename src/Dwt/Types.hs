@@ -88,12 +88,11 @@ data ErrBase = Legacy -- | for when the String has all the info
              | Impossible
   deriving (Show, Eq)
 
-data ErrOpt = ErrNode Node | ErrEdge Edge -- | New error style: sum type
-  | ErrExpr Expr | ErrEdgeLab RSLTEdge | ErrRelRole RelRole
+data ErrOpt =  -- ^ New error style: sum type
+  ErrNode Node | ErrEdge Edge | ErrExpr Expr
+  | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrMbrship Mbrship
+  | ErrQNode QNode | ErrRelSpec RelSpec
   | ErrAddX AddX
-  | ErrRelSpec RelSpec
-  | ErrQNode QNode
-  | ErrMbrship Mbrship | ErrRelSpecQ RelSpec
   deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase
