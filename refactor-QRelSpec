@@ -1,3 +1,6 @@
+relSpec -> relSpecQ
+relNodeSpec -> relNodeSpecQ
+insRelSpec -> insRelSpecQ
 mkRelSpec -> mkRelSpecQ
 artitionRelSpec -> artitionRelSpecQ
 _bfsOrDfs -> _bfsOrDfsQ

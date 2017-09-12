@@ -7,6 +7,7 @@ module Dwt.Show
 import Dwt.Graph
 import Dwt.Leaf (tpltArity, subInTpltWithHashes, subInTplt)
 import Dwt.Types
+import Dwt.Search.Recursive (relSpecQ)
 import Dwt.Util
 
 import Data.Graph.Inductive
@@ -73,7 +74,7 @@ _showExpr vp g d (Just n) =
                  [m | (m,CollEdge CollMbr) <- lsuc g n] )
 
       Just (RelSpecExpr rvs) ->
-        let rs = fromRight $ relSpec g n
+        let rs = fromRight $ relSpecQ g (QAt n)
             rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
               -- e.g. rsl = [(Mbr 1,VarSpec Down),(Mbr 2,NodeSpec 3)]
             tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup TpltRole rs

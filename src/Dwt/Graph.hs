@@ -9,7 +9,6 @@ module Dwt.Graph (
   , mkRelSpec, partitionRelSpec
   , insRelSpec
   , relNodeSpec
-  , relSpec
   , chLeaf
   , chRelRole
   , whereis
@@ -122,19 +121,6 @@ relNodeSpec g n = prependCaller "relNodeSpec: " $ do
     Just _ -> Left
       (NotRelSpecExpr, [ErrNode n], "")
     Nothing -> Left (FoundNo, [ErrNode n], "")
-
-relSpec :: RSLT -> Node -> Either DwtErr RelSpec
-  -- name ? getRelSpecDe
-  -- is nearly inverse to partitionRelSpec
-relSpec g n = prependCaller "relSpec: " $ do
-  gelemM g n
-  case (fromJust $ lab g n) of
-    RelSpecExpr rvs -> do
-      rnsl <- Map.toList <$> relNodeSpec g n
-      let rvsl = Map.toList rvs
-          rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
-          rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
-      return $ Map.fromList $ rvsl' ++ rnsl'
 
 -- ======== edit (but not insert)
 chLeaf :: RSLT -> Node -> Expr -> Either DwtErr RSLT
