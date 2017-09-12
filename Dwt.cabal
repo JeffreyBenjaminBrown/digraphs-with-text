@@ -37,7 +37,7 @@ library
                      , mtl
                           -- only for MonadError, I think
                      , transformers
-                     -- , either
+                     , either
                          -- EitherT is in either, not transformers
                      , parsec
                      , regex-compat

@@ -42,14 +42,17 @@ fork1DirQ g qFrom (dir,axis) = do -- returns one generation, neighbors
   fromDir <- otherDir dir
   if has1DirQ fromDir axis then return ()
      else Left (Invalid, [ErrRelSpecQ axis]
-               , "fork1Dir: should have only one " ++ show fromDir)
-  n <- qGet g qFrom
-  axis' <- runReaderT (subNodeForVarsQ qFrom fromDir axis) g
+               , "fork1DirQ: should have only one " ++ show fromDir)
   let dirRoles = Map.keys $ Map.filter (== VarSpecQ dir) axis
+  axis' <- runReaderT (subNodeForVarsQ qFrom fromDir axis) g
   rels <- matchRelSpecNodesQ g axis'
   concat <$> mapM (\rel -> relElts g rel dirRoles) rels
     -- TODO: this line is unnecessary. just return the rels, not their elts.
       -- EXCEPT: that might hurt the dfs, bfs functions below
+
+--TODO: fork1DirsQ
+--fork1DirsQ :: RSLT -> QNode -> [(Mbrship,RelSpecQ)] -> Either DwtErr [Node]
+--fork1DirsQ g q rs = concat <$> mapM (fork1Dir g n) rs
 
 subNodeForVarsQ :: QNode -> Mbrship -> RelSpecQ
   -> ReaderT RSLT (Either DwtErr) RelSpecQ
