@@ -49,8 +49,7 @@ has1DirQ mv rc = 1 == length (Map.toList $ Map.filter f rc)
 --    -- TODO: this line is unnecessary. just return the rels, not their elts.
 --      -- EXCEPT: that might hurt the dfs, bfs functions below
 
---subNodeForVarsQ :: Node -> Mbrship -> RelSpec  -> RelSpec
---subNodeForVarsQ n v r = Map.map -- change each VarSpec v to NodeSpec n
---  (\x -> case x of VarSpec v' -> if v==v' then NodeSpec n else VarSpec v'
---                   _          -> x   -- yes, the v,v' distinction is needed
---  ) r
+subNodeForVarsQ :: Node -> Mbrship -> RelSpecQ -> RelSpecQ
+subNodeForVarsQ n v r = Map.map f r -- ^ change each VarSpecQ v to NodeSpecQ n
+  where f (VarSpecQ v') = if v == v' then NodeSpecQ (QAt n) else VarSpecQ v'
+        f x = x -- yes, the v,v' distinction is needed
