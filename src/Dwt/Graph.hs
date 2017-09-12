@@ -19,8 +19,6 @@ module Dwt.Graph (
   , rels, mbrs
   , users
   , usersInRole
-  , matchRelSpecNodes
-  , matchRelSpecNodesLab
   ) where
 
 import Dwt.Types
@@ -196,21 +194,6 @@ usersInRole g n r = prependCaller "usersInRole: " $
      return $ f g n r
   where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
         f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
-
-matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
-matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
-  let nodeSpecs = Map.toList
-        $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
-        $ spec :: [(RelRole,NodeOrVar)]
-  nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) nodeSpecs
-  return $ listIntersect nodeListList
-
--- ifdo speed: this searches for nodes, then searches again for labels
-matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
-matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
-  ns <- matchRelSpecNodes g spec
-  return $ zip ns $ map (fromJust . lab g) ns
-    -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
 
 -- ======== using directions (RelSpecs)
 -- todo ? 1Dir because it should have one such direction. I forget why.

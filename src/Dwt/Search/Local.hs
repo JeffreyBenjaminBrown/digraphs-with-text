@@ -7,6 +7,10 @@ module Dwt.Search.Local (
   , qGet1 
   , qPutSt
   , qRegexWord
+
+  -- exported for testing, but not for interface
+  , matchRelSpecNodes
+  , matchRelSpecNodesLab
 ) where
 
 import Text.Regex
@@ -14,8 +18,9 @@ import Text.Regex
 import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Graph
-import Dwt.Util (fr, maxNode, dropEdges, fromRight, prependCaller)
+import Dwt.Util (fr, maxNode, dropEdges, fromRight, prependCaller, listIntersect)
 import Dwt.Leaf (insLeaf)
+import Data.Maybe (fromJust)
 
 import Control.Monad (liftM)
 import Control.Monad.Trans.Class (lift)
@@ -24,6 +29,21 @@ import Control.Lens
 import qualified Data.Map as M
 import qualified Data.Maybe as Mb
 import Control.Monad (foldM)
+
+matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
+matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
+  let nodeSpecs = M.toList
+        $ M.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
+        $ spec :: [(RelRole,NodeOrVar)]
+  nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) nodeSpecs
+  return $ listIntersect nodeListList
+
+-- ifdo speed: this searches for nodes, then searches again for labels
+matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
+matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
+  ns <- matchRelSpecNodes g spec
+  return $ zip ns $ map (fromJust . lab g) ns
+    -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
 
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1
