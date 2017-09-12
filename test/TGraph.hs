@@ -173,8 +173,8 @@
                       ]
 
     tHas1Dir = TestCase $ do
-      assertBool "has 1 Up" $ has1Dir Up tRelSpecNonsense
-      assertBool "has no Up" $ not $ has1Dir Up tRelSpec
+      assertBool "has 1 Up" $ has1DirQ Up tRelSpecNonsenseQ
+      assertBool "has no Up" $ not $ has1DirQ Up tRelSpecQ
 
     tFork1Dir = TestCase $ do -- todo, incomplete
       assertBool "searching Down, and no Up vars; should fail"

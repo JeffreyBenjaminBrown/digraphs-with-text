@@ -23,7 +23,7 @@ module Dwt.Graph (
   , usersInRole
   , matchRelSpecNodes
   , matchRelSpecNodesLab
-  , has1Dir, otherDir
+  , otherDir
   ) where
 
 import Dwt.Types
@@ -249,16 +249,6 @@ matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
   -- the RelSpec has to have only one Up variable.
 -- TODO ? check: Up|Down good, Any|It bad
   -- fork1Up uses otherDir, so it will catch those errors, but obscurely
-
-has1Dir :: Mbrship -> RelSpec -> Bool
-has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
-  where f (VarSpec y) = y == mv
-        f _ = False
-
---subNodeForVars :: Node -> Mbrship -> RelSpec -> RelSpec
---subNodeForVars n v r = Map.map f r -- ^ change each VarSpec v to NodeSpec n
---  where f (VarSpec v') = if v == v' then NodeSpec n else VarSpec v'
---        f x = x -- yes, the v,v' distinction is needed
 
 -- ========= Deprecated
 insRelUsf :: Node -> [Node] -> RSLT -> RSLT
