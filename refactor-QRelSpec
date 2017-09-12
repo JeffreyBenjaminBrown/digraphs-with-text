@@ -21,6 +21,8 @@ special:
   keep these changes
     matchRelSpecNodesLab -> _matchRelSpecNodesLab
     matchRelSpecNodes -> _matchRelSpecNodes
+    mkRelSpec -> _mkRelSpec
   and make these
     matchRelSpecNodesLabQ -> matchRelSpecNodesLab
     matchRelSpecNodesQ -> matchRelSpecNodes
+    mkRelSpecQ -> mkRelSpec

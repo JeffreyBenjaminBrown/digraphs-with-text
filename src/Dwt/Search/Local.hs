@@ -12,6 +12,7 @@ module Dwt.Search.Local (
   , _matchRelSpecNodes
   , _matchRelSpecNodesLab
   , _usersInRole
+  , _mkRelSpec
 ) where
 
 import Text.Regex
@@ -46,7 +47,6 @@ _matchRelSpecNodesLab g spec = prependCaller "_matchRelSpecNodesLab: " $ do
   return $ zip ns $ map (fromJust . lab g) ns
     -- fromJust is safe because _matchRelSpecNodes only returns Nodes in g
 
-
 -- | Rels using Node n in RelRole r
 _usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
 _usersInRole g n r = prependCaller "usersInRole: " $
@@ -54,6 +54,12 @@ _usersInRole g n r = prependCaller "usersInRole: " $
      return $ f g n r
   where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
         f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
+
+-- | Use when all the nodes the Rel involves are known.
+_mkRelSpec :: Node -> [Node] -> RelSpec
+_mkRelSpec t ns = M.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
+
 
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1
@@ -70,7 +76,7 @@ _qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
 _qGet _ _ f g (QRel qt qms) = prependCaller "_qGet: " $ do
   t <- qGet1 g qt   -- TODO ? case of multiple qt, qms matches
   ms <- mapM (qGet1 g) qms
-  let relspec = mkRelSpec t ms
+  let relspec = _mkRelSpec t ms
   f g relspec
 
 qGet :: RSLT -> QNode -> Either DwtErr [Node]
@@ -95,7 +101,7 @@ qPutSt (QRel qt qms) = do
   t <- qPutSt qt
   ms <- mapM qPutSt qms
   g <- get
-  let matches = _matchRelSpecNodes g $ mkRelSpec t ms
+  let matches = _matchRelSpecNodes g $ _mkRelSpec t ms
   insRelSt t ms
 qPutSt (QAt n) = lift $ Right n
 qPutSt q@(QLeaf x) = get >>= \g -> case qGet1 g q of

@@ -6,7 +6,7 @@ module Dwt.Graph (
   , insRel
   , insRelSt
   , insColl
-  , mkRelSpec
+  , mkRelSpecQ
   , relNodeSpec
   , chLeaf
   , chRelRole
@@ -77,12 +77,6 @@ insColl mt ns g = do
       newEdges = nameEdges ++
         map (\n -> (newNode, n, CollEdge CollMbr)) ns
   return $ insEdges newEdges $ insNode (newNode,Coll) g
-
--- | Covers the case where all the nodes the Rel involves are known.
--- | For a framework involving uncertainty, see Dwt.Search.QNode
-mkRelSpec :: Node -> [Node] -> RelSpec
-mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
 mkRelSpecQ :: QNode -> [QNode] -> RelSpecQ
 mkRelSpecQ t ns = Map.fromList $ [(TpltRole, NodeSpecQ t)] ++ mbrSpecs
