@@ -34,6 +34,16 @@ insRelSpecQ rSpec g = do
         -- these edges specify the addressed nodes
   return $ insEdges newLEdges $ insNode newLNode g
 
+relNodeSpecQ :: RSLT -> QNode -> Either DwtErr RelNodeSpec
+relNodeSpecQ g q = prependCaller "relNodeSpec: " $ do
+  n <- qGet1 g q
+  case lab g n of
+    Just (RelSpecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
+      where f (node,RelEdge r) = (r,node)
+    Just _ -> Left
+      (NotRelSpecExpr, [ErrNode n], "")
+    Nothing -> Left (FoundNo, [ErrNode n], "")
+
 usersInRoleQ :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
 usersInRoleQ g (QAt n) r = prependCaller "usersInRole: " $ usersInRole g n r
 usersInRoleQ g q r = qGet1 g q >>= \n -> usersInRole g n r
