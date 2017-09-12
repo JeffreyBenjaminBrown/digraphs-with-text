@@ -1,3 +1,5 @@
+mkRelSpec -> mkRelSpecQ
+artitionRelSpec -> artitionRelSpecQ
 _bfsOrDfs -> _bfsOrDfsQ
 _dwtDfs -> _dwtDfsQ
 _dwtBfs -> _dwtBfsQ

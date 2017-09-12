@@ -89,6 +89,10 @@ mkRelSpec :: Node -> [Node] -> RelSpec
 mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
   where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
+mkRelSpecQ :: QNode -> [QNode] -> RelSpecQ
+mkRelSpecQ t ns = Map.fromList $ [(TpltRole, NodeSpecQ t)] ++ mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpecQ ns)
+
 partitionRelSpec :: RelSpec -> (RelVarSpec, RelNodeSpec)
 partitionRelSpec rSpec =
   let f mSpec = case mSpec of VarSpec _ -> True

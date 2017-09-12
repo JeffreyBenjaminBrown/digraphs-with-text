@@ -14,6 +14,14 @@ import Control.Monad
 import Control.Monad.Reader
 import Control.Monad.Trans.Class
 
+partitionRelSpecQ :: RSLT -> RelSpecQ
+  -> Either DwtErr (RelVarSpec, RelNodeSpec)
+partitionRelSpecQ g rSpec = let f (VarSpecQ _) = True
+                                f (NodeSpecQ _) = False
+                                (vs,qs) = Map.partition f rSpec
+  in do ns <- mapM (\(NodeSpecQ q) -> qGet1 g q)  qs
+        return (Map.map  (\(VarSpecQ  v) -> v)  vs, ns)
+
 usersInRoleQ :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
 usersInRoleQ g (QAt n) r = prependCaller "usersInRole: " $ usersInRole g n r
 usersInRoleQ g q r = qGet1 g q >>= \n -> usersInRole g n r
