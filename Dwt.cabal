@@ -35,6 +35,8 @@ library
                      , megaparsec
                      , mtl
                           -- only for MonadError, I think
+                     , either
+                          -- for Control.Monad.Trans.Either (for in repl)
                      , transformers
                      , parsec
                      , regex-compat
