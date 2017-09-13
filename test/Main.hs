@@ -1,11 +1,9 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Main where
+module Main (main) where
 
 import Test.HUnit
 
-import Dwt
-import TData
 import TParse
 import TGraph
 import TShow

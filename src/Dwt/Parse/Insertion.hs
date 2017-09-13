@@ -6,7 +6,6 @@ module Dwt.Parse.Insertion where
 
 import Data.Graph.Inductive (Node)
 import Dwt.Types
-import Dwt.Graph
 import Dwt.Leaf (mkTplt)
 
 import Control.Applicative (empty)
