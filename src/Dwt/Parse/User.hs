@@ -35,38 +35,38 @@ hasBlanks = parse p "not a file"
 
 
 -- == Things used when parsing Word and Rel values
--- AddX expresses how to add (nested) data to the RSLT
-isRelX :: AddX -> Bool
+-- Insertion expresses how to add (nested) data to the RSLT
+isRelX :: Insertion -> Bool
 isRelX (RelX _ _ _) = True
 isRelX _ = False
 
-startRel :: Level -> JointX -> AddX -> AddX -> AddX
+startRel :: Level -> JointX -> Insertion -> Insertion -> Insertion
 startRel l j a b = RelX (EO True l) [j] [a,b]
 
 -- | PITFALL: In "a # b # c # d", you might imagine evaluating the middle #
 -- after the others. In that case both sides would be a RelX, and you would
 -- want to modify both, rather than make one a member of the other. These
--- concat functions skip that possibility; one of the two AddX arguments is
+-- concat functions skip that possibility; one of the two Insertion arguments is
 -- always incorporated into the other. I believe that is safe, because 
 -- expressions in serial on the same level will always be parsed left to
 -- right, not outside to inside.
-rightConcat :: JointX -> AddX -> AddX -> AddX
+rightConcat :: JointX -> Insertion -> Insertion -> Insertion
   -- TODO: if|when need speed, use a two-sided list of pairs
 rightConcat j m (RelX eo joints mbrs)
   = RelX eo (joints ++ [j]) (mbrs ++ [m])
 rightConcat _ _ _ = error "can only rightConcat into a RelX"
 
-leftConcat :: JointX -> AddX -> AddX -> AddX
+leftConcat :: JointX -> Insertion -> Insertion -> Insertion
 leftConcat j m (RelX eo joints mbrs)
   = RelX eo (j : joints) (m : mbrs)
 leftConcat _ _ _ = error "can only leftConcat into a RelX"
 
-close :: AddX -> AddX
+close :: Insertion -> Insertion
 close (LeafX x) = LeafX x
 close (RelX (EO _     a) b c)
      = RelX (EO False a) b c
 
-hash :: Level -> JointX -> AddX -> AddX -> AddX
+hash :: Level -> JointX -> Insertion -> Insertion -> Insertion
 hash l j a@(isRelX -> False) b@(isRelX -> False)       = startRel l j a b
 hash l j a@(isRelX -> False) b@(RelX (EO False _) _ _) = startRel l j a b
 hash l j a@(RelX (EO False _) _ _) b@(isRelX -> False) = startRel l j a b
@@ -90,15 +90,15 @@ hash l j a@(RelX ea _ _) b@(RelX eb _ _) =
      else if e == ea then rightConcat j b a
      else error msg
 
--- == the AddX parser
-expr :: Parser AddX
+-- == the Insertion parser
+expr :: Parser Insertion
 expr = makeExprParser term [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
-term :: Parser AddX
+term :: Parser Insertion
 term = LeafX <$> leaf
        <|> close <$> parens expr
        <|> absent where
-  absent :: Parser AddX
+  absent :: Parser Insertion
   absent = const Absent <$> f <?> "Intended to \"find\" nothing."
   f = lookAhead $ const () <$> C.satisfy (== '#') <|> eof
     -- the Absent parser should look for #, but not ), because
@@ -108,7 +108,7 @@ pHashUnlabeled :: Int -> Parser ()
 pHashUnlabeled n = const () <$> f
   where f = C.string (replicate n '#') <* notFollowedBy (C.char '#')
 
-pHash :: Int -> Parser (AddX -> AddX -> AddX)
+pHash :: Int -> Parser (Insertion -> Insertion -> Insertion)
 pHash n = lexeme $ do
   pHashUnlabeled n
   label <- option "" $ anyWord <|> parens phrase

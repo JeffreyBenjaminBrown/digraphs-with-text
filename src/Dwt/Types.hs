@@ -6,7 +6,7 @@ module Dwt.Types (
   , Mbrship(..), RelVarSpec, RelNodeSpec
   , NodeOrVar(..), RelSpec
   , QNode(..)
-  , AddX(..), Level, JointX(..), EO(..)
+  , Insertion(..), Level, JointX(..), EO(..)
   , DwtErr(..), ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString
   ) where
@@ -56,8 +56,8 @@ data QNode = QAt Node -- when you already know the Node
   | QRel QNode [QNode] deriving (Show, Eq)
 
 -- == Parsing Hash expressions
-data AddX = At Node -- for when you know the expression's node. TODO: parse
-  | Absent | LeafX Expr | RelX EO [JointX] [AddX]
+data Insertion = At Node -- for when you know the expression's node. TODO: parse
+  | Absent | LeafX Expr | RelX EO [JointX] [Insertion]
   -- Every rel has at least one jointX, and potentially members on either side
   -- If there are more, the list of pairs stores them.
           deriving (Show, Eq)
@@ -92,7 +92,7 @@ data ErrOpt =  -- ^ New error style: sum type
   ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrMbrship Mbrship
   | ErrQNode QNode | ErrRelSpec RelSpec
-  | ErrAddX AddX
+  | ErrInsertion Insertion
   deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase

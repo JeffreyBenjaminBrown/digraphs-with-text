@@ -1,3 +1,5 @@
 #!/bin/bash
 
-grep "$1" -r . --include \*.hs --include \*.md --include \*.txt
+grep "$1" \\\
+     -r . --include \*.hs --include \*.md --include \*.txt
+

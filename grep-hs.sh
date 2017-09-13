@@ -1,3 +1,5 @@
 #!/bin/bash
 
-grep "$1" -r . --include \*.hs
+grep "$1" \\\
+     -r . --include \*.hs
+
