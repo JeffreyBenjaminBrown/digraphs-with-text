@@ -4,19 +4,19 @@
 
 module Dwt.Hash.Parse where
 
-import Data.Graph.Inductive (Node)
+import Text.Megaparsec
 import Dwt.Types
+import Dwt.ParseUtils (Parser, anyWord, lexeme, parens, phrase, word, sc)
+
+import Data.Graph.Inductive (Node)
 import Dwt.Leaf (mkTplt)
-import Dwt.ParseUtils
 
 import Control.Applicative (empty)
 import Data.Void (Void)
 import Data.List (intersperse)
 
-import Text.Megaparsec
-import Text.Megaparsec.Expr
+import Text.Megaparsec.Expr (makeExprParser, Operator(..))
 import Text.Megaparsec.Char (satisfy, string, char)
-import qualified Text.Megaparsec.Char.Lexer as L
 
 
 -- == Things used when parsing Tplt values
