@@ -4,7 +4,7 @@
       ( module Dwt
       , module Dwt.Graph
       , module Dwt.Leaf
-      , module Dwt.Parse.User
+      , module Dwt.Parse.Insertion
       , module Dwt.Parse.Add
       , module Dwt.Search.Local
       , module Dwt.Search.Recursive
@@ -18,7 +18,7 @@
 
     import Dwt.Graph
     import Dwt.Leaf
-    import Dwt.Parse.User
+    import Dwt.Parse.Insertion
     import Dwt.Parse.Add
     import Dwt.Search.Local
     import Dwt.Search.Recursive

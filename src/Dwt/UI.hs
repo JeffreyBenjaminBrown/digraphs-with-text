@@ -8,7 +8,7 @@ import Dwt.Types
 import Dwt.Leaf (insWord, insTplt)
 import Dwt.Show (view)
 import Dwt.Parse.Add (addExpr)
-import Dwt.Parse.User
+import Dwt.Parse.Insertion
 import Dwt.Util (fr)
 import Text.Megaparsec (parse)
 import Control.Monad.Trans.State (execStateT)
