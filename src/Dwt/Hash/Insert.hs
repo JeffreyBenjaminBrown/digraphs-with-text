@@ -2,7 +2,7 @@
 -- Dwt.prettyPrint $ fr $ parse expr "" "a # b ##z # (d # e) # e ## f ## g # h"
 -- let Right (_,g) = runStateT (mapM (addExpr . fr . parse expr "" ) ["a # b", "# c", "## d #"]) empty
 
-module Dwt.Parse.Add where
+module Dwt.Hash.Insert where
 
 import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Types

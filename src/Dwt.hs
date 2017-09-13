@@ -4,8 +4,8 @@
       ( module Dwt
       , module Dwt.Graph
       , module Dwt.Leaf
-      , module Dwt.Parse.Insertion
-      , module Dwt.Parse.Add
+      , module Dwt.Hash.Parse
+      , module Dwt.Hash.Insert
       , module Dwt.Search.Node
       , module Dwt.Search.Branch
       , module Dwt.Show
@@ -18,8 +18,8 @@
 
     import Dwt.Graph
     import Dwt.Leaf
-    import Dwt.Parse.Insertion
-    import Dwt.Parse.Add
+    import Dwt.Hash.Parse
+    import Dwt.Hash.Insert
     import Dwt.Search.Node
     import Dwt.Search.Branch
     import Dwt.Show

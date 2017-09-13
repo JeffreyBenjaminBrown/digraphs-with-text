@@ -16,8 +16,8 @@ library
   exposed-modules:     Dwt
                      , Dwt.Leaf
                      , Dwt.Graph
-                     , Dwt.Parse.Insertion
-                     , Dwt.Parse.Add 
+                     , Dwt.Hash.Parse
+                     , Dwt.Hash.Insert 
                      , Dwt.Search.Node
                      , Dwt.Search.Branch                    
                      , Dwt.Show

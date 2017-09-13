@@ -6,8 +6,8 @@ module Dwt.UI where
 import Data.Graph.Inductive (empty, nodes)
 import Dwt.Types
 import Dwt.Show (view)
-import Dwt.Parse.Add (addExpr)
-import Dwt.Parse.Insertion
+import Dwt.Hash.Insert (addExpr)
+import Dwt.Hash.Parse
 import Dwt.Util (fr)
 import Text.Megaparsec (parse)
 import Control.Monad.Trans.State (execStateT)
