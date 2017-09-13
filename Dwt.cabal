@@ -18,6 +18,7 @@ library
                      , Dwt.Graph
                      , Dwt.Hash.Parse
                      , Dwt.Hash.Insert 
+                     , Dwt.ParseUtils
                      , Dwt.Search.Node
                      , Dwt.Search.Branch                    
                      , Dwt.Show

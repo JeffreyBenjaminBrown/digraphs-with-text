@@ -1,6 +1,5 @@
     module TShow where
 
-    import Dwt.Graph
     import Dwt.Show
     import TData
 

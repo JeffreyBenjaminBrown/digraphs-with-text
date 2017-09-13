@@ -7,6 +7,7 @@ module Dwt.Hash.Parse where
 import Data.Graph.Inductive (Node)
 import Dwt.Types
 import Dwt.Leaf (mkTplt)
+import Dwt.ParseUtils
 
 import Control.Applicative (empty)
 import Data.Void (Void)
@@ -14,11 +15,8 @@ import Data.List (intersperse)
 
 import Text.Megaparsec
 import Text.Megaparsec.Expr
-import qualified Text.Megaparsec.Char as C
+import Text.Megaparsec.Char (satisfy, string, char)
 import qualified Text.Megaparsec.Char.Lexer as L
-
-
-type Parser = Parsec Void String
 
 
 -- == Things used when parsing Tplt values
@@ -99,13 +97,13 @@ term = InsLeaf <$> leaf
        <|> absent where
   absent :: Parser Insertion
   absent = const Absent <$> f <?> "Intended to \"find\" nothing."
-  f = lookAhead $ const () <$> C.satisfy (== '#') <|> eof
+  f = lookAhead $ const () <$> satisfy (== '#') <|> eof
     -- the Absent parser should look for #, but not ), because
     -- parentheses get consumed in pairs in an outer (earlier) context
 
 pHashUnlabeled :: Int -> Parser ()
 pHashUnlabeled n = const () <$> f
-  where f = C.string (replicate n '#') <* notFollowedBy (C.char '#')
+  where f = string (replicate n '#') <* notFollowedBy (char '#')
 
 pHash :: Int -> Parser (Insertion -> Insertion -> Insertion)
 pHash n = lexeme $ do
@@ -113,34 +111,8 @@ pHash n = lexeme $ do
   label <- option "" $ anyWord <|> parens phrase
   return $ hash n $ JointX label
 
-
--- == little things
-sc :: Parser ()
-sc = L.space C.space1 empty empty
-
-lexeme :: Parser a -> Parser a
-lexeme = L.lexeme sc
-
-wordChar :: Parser Char
-wordChar = C.alphaNumChar <|> C.char '_' <|> C.char '-'
-
-word :: String -> Parser String -- | could fail half-in, so requires "try"
-word w = lexeme $ C.string w <* notFollowedBy wordChar
-
-anyWord :: Parser String
-anyWord = lexeme $ some wordChar
-
-phrase :: Parser String -- | accepts the empty string, because it uses "many"
-phrase = concat . intersperse " " <$> many anyWord
-
 leaf :: Parser Expr
 leaf = do p <- some anyWord
           return $ case elem "_" p of True ->  mkTplt . f $ p
                                       False -> Word   . f $ p
   where f = concat . intersperse " " 
-
-symbol :: String -> Parser String -- | is already a lexeme
-symbol = L.symbol sc
-
-parens :: Parser a -> Parser a
-parens = between (symbol "(") (symbol ")")
