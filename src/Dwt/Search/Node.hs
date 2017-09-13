@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Dwt.Search.Local (
+module Dwt.Search.Node (
     qGet
   , qGetLab
   , qGet1 

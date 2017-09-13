@@ -18,8 +18,8 @@ library
                      , Dwt.Graph
                      , Dwt.Parse.Insertion
                      , Dwt.Parse.Add 
-                     , Dwt.Search.Local
-                     , Dwt.Search.Recursive                    
+                     , Dwt.Search.Node
+                     , Dwt.Search.Branch                    
                      , Dwt.Show
                      , Dwt.Types
                      , Dwt.UI

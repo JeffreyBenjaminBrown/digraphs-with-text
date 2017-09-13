@@ -1,4 +1,4 @@
-module Dwt.Search.Recursive (
+module Dwt.Search.Branch (
   partitionRelSpec
   , insRelSpec
   , relSpec
@@ -15,7 +15,7 @@ module Dwt.Search.Recursive (
 import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Graph
-import Dwt.Search.Local
+import Dwt.Search.Node
 
 import Dwt.Util (listIntersect, prependCaller, gelemM, otherDir)
 import qualified Data.Map as Map
