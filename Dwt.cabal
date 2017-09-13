@@ -19,8 +19,9 @@ library
                      , Dwt.Hash.Parse
                      , Dwt.Hash.Insert 
                      , Dwt.ParseUtils
+                     , Dwt.Search.Branch
                      , Dwt.Search.Node
-                     , Dwt.Search.Branch                    
+                     , Dwt.Search.Parse
                      , Dwt.Show
                      , Dwt.Types
                      , Dwt.UI
