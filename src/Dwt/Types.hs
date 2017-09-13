@@ -56,8 +56,9 @@ data QNode = QAt Node -- when you already know the Node
   | QRel QNode [QNode] deriving (Show, Eq)
 
 -- == Parsing Hash expressions
-data Insertion = At Node -- for when you know the expression's node. TODO: parse
-  | Absent | LeafX Expr | RelX EO [JointX] [Insertion]
+-- todo ? Insertion and QNode could be merged
+data Insertion = At Node -- for when you know the expression's node. bTODO: parse
+  | Absent | InsLeaf Expr | InsRel EO [JointX] [Insertion]
   -- Every rel has at least one jointX, and potentially members on either side
   -- If there are more, the list of pairs stores them.
           deriving (Show, Eq)
@@ -68,7 +69,7 @@ data JointX = JointX String deriving (Show, Eq)
 instance IsString JointX where fromString = JointX
 data EO = EO     -- EO = "expression orderer"
   { open :: Bool -- open = "more expressions can be concatentated into it"
-                 -- In b@(RelX (EO x _) _ _), x is true until
+                 -- In b@(InsRel (EO x _) _ _), x is true until
                  -- b has been surrounded by parentheses.
   , inLevel :: Level } deriving (Eq)
 

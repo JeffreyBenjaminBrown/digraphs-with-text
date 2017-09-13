@@ -36,15 +36,15 @@ hasBlanks = parse p "not a file"
 
 -- == Things used when parsing Word and Rel values
 -- Insertion expresses how to add (nested) data to the RSLT
-isRelX :: Insertion -> Bool
-isRelX (RelX _ _ _) = True
-isRelX _ = False
+isInsRel :: Insertion -> Bool
+isInsRel (InsRel _ _ _) = True
+isInsRel _ = False
 
 startRel :: Level -> JointX -> Insertion -> Insertion -> Insertion
-startRel l j a b = RelX (EO True l) [j] [a,b]
+startRel l j a b = InsRel (EO True l) [j] [a,b]
 
 -- | PITFALL: In "a # b # c # d", you might imagine evaluating the middle #
--- after the others. In that case both sides would be a RelX, and you would
+-- after the others. In that case both sides would be a InsRel, and you would
 -- want to modify both, rather than make one a member of the other. These
 -- concat functions skip that possibility; one of the two Insertion arguments is
 -- always incorporated into the other. I believe that is safe, because 
@@ -52,33 +52,33 @@ startRel l j a b = RelX (EO True l) [j] [a,b]
 -- right, not outside to inside.
 rightConcat :: JointX -> Insertion -> Insertion -> Insertion
   -- TODO: if|when need speed, use a two-sided list of pairs
-rightConcat j m (RelX eo joints mbrs)
-  = RelX eo (joints ++ [j]) (mbrs ++ [m])
-rightConcat _ _ _ = error "can only rightConcat into a RelX"
+rightConcat j m (InsRel eo joints mbrs)
+  = InsRel eo (joints ++ [j]) (mbrs ++ [m])
+rightConcat _ _ _ = error "can only rightConcat into a InsRel"
 
 leftConcat :: JointX -> Insertion -> Insertion -> Insertion
-leftConcat j m (RelX eo joints mbrs)
-  = RelX eo (j : joints) (m : mbrs)
-leftConcat _ _ _ = error "can only leftConcat into a RelX"
+leftConcat j m (InsRel eo joints mbrs)
+  = InsRel eo (j : joints) (m : mbrs)
+leftConcat _ _ _ = error "can only leftConcat into a InsRel"
 
 close :: Insertion -> Insertion
-close (LeafX x) = LeafX x
-close (RelX (EO _     a) b c)
-     = RelX (EO False a) b c
+close (InsLeaf x) = InsLeaf x
+close (InsRel (EO _     a) b c)
+     = InsRel (EO False a) b c
 
 hash :: Level -> JointX -> Insertion -> Insertion -> Insertion
-hash l j a@(isRelX -> False) b@(isRelX -> False)       = startRel l j a b
-hash l j a@(isRelX -> False) b@(RelX (EO False _) _ _) = startRel l j a b
-hash l j a@(RelX (EO False _) _ _) b@(isRelX -> False) = startRel l j a b
-hash l j a@(isRelX -> False) b@(RelX (EO True l') _ _)
+hash l j a@(isInsRel -> False) b@(isInsRel -> False)       = startRel l j a b
+hash l j a@(isInsRel -> False) b@(InsRel (EO False _) _ _) = startRel l j a b
+hash l j a@(InsRel (EO False _) _ _) b@(isInsRel -> False) = startRel l j a b
+hash l j a@(isInsRel -> False) b@(InsRel (EO True l') _ _)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = leftConcat j a b -- I suspect this won't happen either
   | l > l' = startRel l j a b
-hash l j a@(RelX (EO True l') _ _) b@(isRelX -> False)
+hash l j a@(InsRel (EO True l') _ _) b@(isInsRel -> False)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = rightConcat j b a -- but this will
   | l > l' = startRel l j a b
-hash l j a@(RelX ea _ _) b@(RelX eb _ _) =
+hash l j a@(InsRel ea _ _) b@(InsRel eb _ _) =
   let e = EO True l
       msg = unlines [ "JointX should have been evaluated earlier."
                     , "level: " ++ show l
@@ -95,7 +95,7 @@ expr :: Parser Insertion
 expr = makeExprParser term [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
 term :: Parser Insertion
-term = LeafX <$> leaf
+term = InsLeaf <$> leaf
        <|> close <$> parens expr
        <|> absent where
   absent :: Parser Insertion
