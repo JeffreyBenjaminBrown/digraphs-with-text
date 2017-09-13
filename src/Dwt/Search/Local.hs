@@ -34,7 +34,8 @@ import qualified Data.Maybe as Mb
 import Control.Monad (foldM)
 
 -- | "Concrete" in the sense that it requires specific nodes, not queries
-data NodeOrVarConcrete = NodeSpecC Node | VarSpecC Mbrship deriving (Show,Read,Eq)
+data NodeOrVarConcrete = NodeSpecC Node
+  | VarSpecC Mbrship deriving (Show,Read,Eq)
 type RelSpecConcrete = M.Map RelRole NodeOrVarConcrete
 
 _matchRelSpecNodes :: RSLT -> RelSpecConcrete -> Either DwtErr [Node]

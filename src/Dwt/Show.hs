@@ -7,7 +7,6 @@ module Dwt.Show
 import Dwt.Graph
 import Dwt.Leaf (tpltArity, subInTpltWithHashes, subInTplt)
 import Dwt.Types
-import Dwt.Search.Recursive (relSpec)
 import Dwt.Util
 
 import Data.Graph.Inductive
