@@ -79,8 +79,12 @@ insColl mt ns g = do
   return $ insEdges newEdges $ insNode (newNode,Coll) g
 
 mkRelSpec :: QNode -> [QNode] -> RelSpec
-mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
+mkRelSpec t ns = Map.fromList $ (TpltRole, NodeSpec t) : mbrSpecs
   where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
+
+mkRelSpecXX :: Insertion -> [Insertion] -> RelSpecXX
+mkRelSpecXX t ns = Map.fromList $ (TpltRole, NodeSpecXX t) : mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpecXX ns)
 
 -- pitfall: does not need conversion to QNode format
 relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
