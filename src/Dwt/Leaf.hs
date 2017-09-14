@@ -16,6 +16,7 @@ module Dwt.Leaf (
   ) where
 
 import Dwt.Types
+import Dwt.Tplt (_splitStringForTpltMB, pTplt)
 import Data.Graph.Inductive (Node, Graph, lab, newNodes, insNode)
 import Control.Monad.Except (MonadError, throwError, catchError)
 import Data.Text (pack, unpack, strip, splitOn)
