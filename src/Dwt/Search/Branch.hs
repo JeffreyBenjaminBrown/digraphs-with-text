@@ -6,10 +6,11 @@ module Dwt.Search.Branch (
   , matchRelSpecNodes, matchRelSpecNodesXX
   , matchRelSpecNodesLab, matchRelSpecNodesLabXX
   , has1Dir, has1DirXX
-  , fork1Dir, fork1DirXX
-  , subNodeForVars, subNodeForVarsXX
-  , dwtDfs, dwtDfsXX
-  , dwtBfs, dwtBfsXX
+  , fork1DirXX
+  , subNodeForVars
+  , subNodeForVarsXX
+  , dwtDfsXX
+  , dwtBfsXX
 ) where
 
 import Data.Graph.Inductive
@@ -215,17 +216,9 @@ _dwtDfs = _bfsOrDfs (\new old -> new ++ old)
 _dwtBfsXX = _bfsOrDfsXX (\new old -> old ++ new)
 _dwtDfsXX = _bfsOrDfsXX (\new old -> new ++ old)
 
-dwtDfs :: RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErr [Node]
-dwtDfs g dir starts = do mapM_ (gelemM g) $ starts
-                         (nub . reverse) <$> _dwtDfs g dir starts []
-
 dwtDfsXX :: RSLT -> (Mbrship,RelSpecXX) -> [Node] -> Either DwtErr [Node]
 dwtDfsXX g dir starts = do mapM_ (gelemM g) $ starts
                            (nub . reverse) <$> _dwtDfsXX g dir starts []
-
-dwtBfs :: RSLT -> (Mbrship, RelSpec) -> [Node] -> Either DwtErr [Node]
-dwtBfs g dir starts = do mapM_ (gelemM g) $ starts
-                         (nub . reverse) <$> _dwtBfs g dir starts []
 
 dwtBfsXX :: RSLT -> (Mbrship, RelSpecXX) -> [Node] -> Either DwtErr [Node]
 dwtBfsXX g dir starts = do mapM_ (gelemM g) $ starts
