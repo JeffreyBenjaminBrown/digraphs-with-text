@@ -95,7 +95,7 @@ data ErrBase = Legacy -- | for when the String has all the info
 data ErrOpt =  -- ^ New error style: sum type
   ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrMbrship Mbrship
-  | ErrQNode QNode | ErrRelSpec RelSpec
+  | ErrQNode QNode | ErrRelSpec RelSpec | ErrRelSpecXX RelSpecXX
   | ErrInsertion Insertion
   deriving (Show, Eq)
 
