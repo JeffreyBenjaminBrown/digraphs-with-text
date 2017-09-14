@@ -2,11 +2,6 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Search.Node (
---    qGet
---  , qGetLab
---  , qGet1 
---  , qPutSt
-
   qGetXX
   , qGetLabXX
   , qGet1XX
