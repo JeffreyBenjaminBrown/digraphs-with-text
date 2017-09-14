@@ -12,6 +12,7 @@ module Dwt
   , module Dwt.Search.Node
   , module Dwt.Search.Parse
   , module Dwt.Show
+  , module Dwt.Tplt
   , module Dwt.Types
   , module Dwt.UI
   , module Dwt.Util
@@ -28,6 +29,7 @@ import Dwt.Search.Branch
 import Dwt.Search.Node
 import Dwt.Search.Parse
 import Dwt.Show
+import Dwt.Tplt
 import Dwt.Types
 import Dwt.UI
 import Dwt.Util
