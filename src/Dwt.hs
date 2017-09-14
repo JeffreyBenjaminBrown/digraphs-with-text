@@ -1,11 +1,13 @@
     {-# LANGUAGE FlexibleContexts #-}
 
     module Dwt
-      ( module Dwt
+      ( module Data.Graph.Inductive
+      , module Dwt
       , module Dwt.Graph
       , module Dwt.Leaf
       , module Dwt.Hash.Parse
       , module Dwt.Hash.Insert
+      , module Dwt.ParseUtils
       , module Dwt.Search.Node
       , module Dwt.Search.Branch
       , module Dwt.Show
@@ -14,12 +16,13 @@
       , module Dwt.Util
       ) where
 
-    import Data.Graph.Inductive
+    import Data.Graph.Inductive (Node,Edge,LNode,LEdge,empty)
 
     import Dwt.Graph
     import Dwt.Leaf
     import Dwt.Hash.Parse
     import Dwt.Hash.Insert
+    import Dwt.ParseUtils
     import Dwt.Search.Node
     import Dwt.Search.Branch
     import Dwt.Show

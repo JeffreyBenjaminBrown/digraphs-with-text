@@ -3,6 +3,8 @@ module Dwt.ParseUtils (
   , sc, lexeme, parens -- grouping
 
   , wordChar, symbol, word, anyWord, phrase -- words
+
+  , integer
   ) where
 
 import Data.Graph.Inductive (Node)
@@ -12,7 +14,6 @@ import Data.Void (Void)
 import Data.List (intersperse)
 
 import Text.Megaparsec
-import Text.Megaparsec.Expr
 import qualified Text.Megaparsec.Char as C
 import qualified Text.Megaparsec.Char.Lexer as L
 
@@ -44,3 +45,6 @@ anyWord = lexeme $ some wordChar
 
 phrase :: Parser String -- | accepts the empty string, because it uses "many"
 phrase = concat . intersperse " " <$> many anyWord
+
+integer :: Parser Integer
+integer = lexeme L.decimal
