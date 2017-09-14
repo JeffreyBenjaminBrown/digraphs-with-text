@@ -69,7 +69,7 @@
 --          && (length $ edges g1) + 4 == (length $ edges gg)
 
     tPartitionRelSpec = TestCase $ do
-      let Right (vs,ns) = partitionRelSpec g1 tRelSpec
+      let Right (vs,ns) = partitionRelSpecXX g1 tRelSpecXX
       assertBool "1" $ Set.fromList (Map.toList vs)
         == Set.fromList [ (TpltRole, It)
                         , (Mbr 2,   Any) ]
@@ -77,8 +77,8 @@
         == Set.fromList [ (Mbr 1, 0) ]
 
     tInsRelSpec = TestCase $ do
-      let Right (vs,_) = partitionRelSpec g1 tRelSpec
-          Right g2 = insRelSpec tRelSpec g1
+      let Right (vs,_) = partitionRelSpecXX g1 tRelSpecXX
+          Right g2 = insRelSpecXX tRelSpecXX g1
           [newNode] = newNodes 1 g1
       assertBool "node" $ lab g2 newNode == Just (RelSpecExpr vs)
       assertBool "only 1 more edge" $ 
@@ -162,8 +162,8 @@
       assertBool "with Arity" $ _usersInRole g1 0 (Mbr 1) == Right [5,6,8]
 
     tMatchRel = TestCase $ do
-      assertBool "dog in first pos"     $ matchRelSpecNodes g1 tRelSpec == Right [5,6,8]
-      assertBool "nothing should match" $ matchRelSpecNodes g1 tRelSpecNonsense == Right []
+      assertBool "dog in first pos"     $ matchRelSpecNodesXX g1 tRelSpecXX == Right [5,6,8]
+      assertBool "nothing should match" $ matchRelSpecNodesXX g1 tRelSpecXXNonsense == Right []
 
   -- chase and helpers
     tChase = TestList [ TestLabel "tHas1Up" tHas1Dir
@@ -173,8 +173,8 @@
                       ]
 
     tHas1Dir = TestCase $ do
-      assertBool "has 1 Up" $ has1Dir Up tRelSpecNonsense
-      assertBool "has no Up" $ not $ has1Dir Up tRelSpec
+      assertBool "has 1 Up" $ has1DirXX Up tRelSpecXXNonsense
+      assertBool "has no Up" $ not $ has1DirXX Up tRelSpecXX
 
     tFork1Dir = TestCase $ do -- todo, incomplete
       assertBool "searching Down, and no Up vars; should fail"
