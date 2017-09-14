@@ -8,6 +8,7 @@ import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Types
 import Dwt.Search.Node
 import Dwt.Util (fr, maxNode, prependCaller, gelemM)
+import Dwt.Leaf (extractTplt)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)
 import Data.List (mapAccumL)
@@ -33,12 +34,6 @@ isValid (InsRel _ js  ms) = (not $ any isAbsent $ middle)
                            && length js + 1 == length ms
   where middle = tail . reverse . tail $ ms
 isValid _ = True
-
-extractTplt :: Insertion -> Expr
-extractTplt (InsRel _ js as) = Tplt $ ja ++ map (\(JointX s) -> s) js ++ jz
-  where (ja,jz) = (f $ head as, f $ last as)
-        f Absent = []
-        f _ = [""]
 
 prettyPrint :: Insertion -> IO ()
 prettyPrint = it 0 where

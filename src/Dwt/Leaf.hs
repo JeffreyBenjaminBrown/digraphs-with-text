@@ -1,12 +1,12 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Dwt.Leaf (
-  _splitStringForTplt, mkTplt
+  _splitStringForTplt, mkTplt, extractTplt
   , subInTplt, padTpltStrings, subInTpltWithHashes
   , tpltArity, mbrListMatchesTpltArity
   , insLeaf
     , insWord, insTplt, insFl -- TODO ? deprec, insLeaf generalizes them
-  
+
   , isWord, isWordM
   , isTplt, isTpltM
   , isFl, isFlM
@@ -29,6 +29,12 @@ mkTplt :: String -> Expr
 mkTplt = Tplt
   . map (unpack . strip . pack)
   . _splitStringForTplt
+
+extractTplt :: Insertion -> Expr
+extractTplt (InsRel _ js as) = Tplt $ ja ++ map (\(JointX s) -> s) js ++ jz
+  where (ja,jz) = (f $ head as, f $ last as)
+        f Absent = []
+        f _ = [""]
 
 subInTpltWithHashes :: Expr      -- must be a Tplt
                      -> [String] -- members for the Tplt

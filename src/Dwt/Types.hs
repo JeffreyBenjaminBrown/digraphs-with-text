@@ -57,22 +57,23 @@ data QNode = QAt Node -- when you already know the Node
 
 -- == Parsing Hash expressions
 -- todo ? Insertion and QNode could be merged
-data Insertion = At Node -- for when you know the expression's node. bTODO: parse
+data Insertion = At Node -- for when you know the expression's node
   | Absent | InsLeaf Expr | InsRel EO [JointX] [Insertion]
   -- Every rel has at least one jointX, and potentially members on either side
   -- If there are more, the list of pairs stores them.
-          deriving (Show, Eq)
+  deriving (Show, Eq)
 type Level = Int -- in "cats like you because you like them", the "because"
   -- relationship is level 2, and the "like" relationships are level 1
+
 data JointX = JointX String deriving (Show, Eq)
   -- in "you #like peaches #at noon", "like" and "at" are jointXs
 instance IsString JointX where fromString = JointX
+
 data EO = EO     -- EO = "expression orderer"
   { open :: Bool -- open = "more expressions can be concatentated into it"
                  -- In b@(InsRel (EO x _) _ _), x is true until
                  -- b has been surrounded by parentheses.
   , inLevel :: Level } deriving (Eq)
-
 instance Show EO where
   show (EO x y) = "(EO " ++ show x ++ " " ++ show y ++ ")"
 instance Ord EO where -- Open > closed. If those are equal, ## > #, etc.
