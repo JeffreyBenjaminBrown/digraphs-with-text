@@ -5,11 +5,12 @@ module Dwt
   , module Dwt
   , module Dwt.Graph
   , module Dwt.Leaf
-  , module Dwt.Hash.Parse
   , module Dwt.Hash.Insert
+  , module Dwt.Hash.Parse
   , module Dwt.ParseUtils
-  , module Dwt.Search.Node
   , module Dwt.Search.Branch
+  , module Dwt.Search.Node
+  , module Dwt.Search.Parse
   , module Dwt.Show
   , module Dwt.Types
   , module Dwt.UI
@@ -18,13 +19,14 @@ module Dwt
 
 import Data.Graph.Inductive (Node,Edge,LNode,LEdge,empty)
 
-import Dwt.Graph
 import Dwt.Leaf
-import Dwt.Hash.Parse
+import Dwt.Graph
 import Dwt.Hash.Insert
+import Dwt.Hash.Parse
 import Dwt.ParseUtils
-import Dwt.Search.Node
 import Dwt.Search.Branch
+import Dwt.Search.Node
+import Dwt.Search.Parse
 import Dwt.Show
 import Dwt.Types
 import Dwt.UI

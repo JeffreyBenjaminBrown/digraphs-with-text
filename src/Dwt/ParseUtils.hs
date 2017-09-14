@@ -46,5 +46,5 @@ anyWord = lexeme $ some wordChar
 phrase :: Parser String -- | accepts the empty string, because it uses "many"
 phrase = concat . intersperse " " <$> many anyWord
 
-integer :: Parser Integer
+integer :: Integral a => Parser a
 integer = lexeme L.decimal
