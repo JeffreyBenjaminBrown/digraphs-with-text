@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Dwt.Leaf (
-  _splitStringForTplt, mkTplt, extractTplt
+  _splitStringForTplt, mkTplt, mkJoints, extractTplt
   , subInTplt, padTpltStrings, subInTpltWithHashes
   , tpltArity, mbrListMatchesTpltArity
   , insLeaf
@@ -29,6 +29,9 @@ mkTplt :: String -> Expr
 mkTplt = Tplt
   . map (unpack . strip . pack)
   . _splitStringForTplt
+
+mkJoints :: String -> [JointX]
+mkJoints = map JointX . _splitStringForTplt
 
 extractTplt :: Insertion -> Expr
 extractTplt (InsRel _ js as) = Tplt $ ja ++ map (\(JointX s) -> s) js ++ jz

@@ -6,7 +6,7 @@ module Dwt.Graph (
   , insRel
   , insRelSt
   , insColl
-  , mkRelSpec
+  , mkRelSpecXX
   , relNodeSpec
   , chLeaf
   , chRelRole
@@ -77,10 +77,6 @@ insColl mt ns g = do
       newEdges = nameEdges ++
         map (\n -> (newNode, n, CollEdge CollMbr)) ns
   return $ insEdges newEdges $ insNode (newNode,Coll) g
-
-mkRelSpec :: QNode -> [QNode] -> RelSpec
-mkRelSpec t ns = Map.fromList $ (TpltRole, NodeSpec t) : mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
 mkRelSpecXX :: Insertion -> [Insertion] -> RelSpecXX
 mkRelSpecXX t ns = Map.fromList $ (TpltRole, NodeSpecXX t) : mbrSpecs

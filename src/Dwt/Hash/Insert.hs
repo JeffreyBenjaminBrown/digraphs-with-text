@@ -52,8 +52,7 @@ addExpr :: Insertion -> StateT RSLT (Either DwtErr) Node
 addExpr (At n) = get >>= lift . flip gelemM n >> return n
 addExpr Absent = lift $ Left (Impossible
   , [ErrInsertion Absent], "execInsertion.")
-addExpr (InsLeaf e) = qPutSt $ QLeaf e
+addExpr (InsLeaf e) = qPutStXX $ InsLeaf e
 addExpr q@(InsRel _ js as) = do
   ms <- mapM addExpr $ filter (not . isAbsent) as
-  t <- qPutSt $ QLeaf $ extractTplt q
-  qPutSt $ QRel (QAt t) (map QAt ms)
+  qPutStXX $ InsRel blankEo js (map At ms)

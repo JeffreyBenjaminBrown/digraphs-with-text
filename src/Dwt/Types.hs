@@ -6,7 +6,7 @@ module Dwt.Types (
   , Mbrship(..), RelVarSpec, RelNodeSpec
   , NodeOrVar(..), NodeOrVarXX(..), RelSpec, RelSpecXX
   , QNode(..)
-  , Insertion(..), Level, JointX(..), EO(..)
+  , Insertion(..), Level, JointX(..), EO(..), blankEo
   , DwtErr(..), ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString
   ) where
@@ -80,6 +80,7 @@ instance Show EO where
   show (EO x y) = "(EO " ++ show x ++ " " ++ show y ++ ")"
 instance Ord EO where -- Open > closed. If those are equal, ## > #, etc.
   EO a b <= EO c d = a <= c && b <= d
+blankEo = EO True 0 -- todo: retire
 
 -- == Errors
 type DwtErr = (ErrBase, [ErrOpt], String)

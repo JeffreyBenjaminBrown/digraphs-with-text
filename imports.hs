@@ -10,6 +10,7 @@ import qualified Data.Map as M
 import qualified Data.Maybe as Mb
 import qualified Text.Megaparsec as Mp
 import qualified Brick.Main as B
+import qualified Data.Text as T
 
 :set prompt ">>> "
 :show imports
