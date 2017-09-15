@@ -1,8 +1,8 @@
 module Dwt.Search.Parse where
 
-import Data.Graph.Inductive (Node)
+import Data.Graph.Inductive (Node, pre)
 import Dwt.Types
-import Dwt.ParseUtils (Parser, integer)
+import Dwt.ParseUtils (Parser, integer, symbol)
 import Text.Megaparsec.Char (satisfy, string, char)
 import Control.Monad
 import Control.Monad.Trans.Class
@@ -11,5 +11,7 @@ import Control.Monad.Trans.Reader
 pAt :: Parser Insertion
 pAt = At <$> integer
 
-pModel :: Parser (Reader RSLT Node)
-pModel = const (return 1) <$> char 'c'
+pUsers :: Parser (Reader RSLT [Node])
+pUsers = f <$> (symbol "u" *> integer) where
+  f insertion = do g <- ask
+                   return $ pre g insertion
