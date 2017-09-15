@@ -3,14 +3,16 @@
 {-# LANGUAGE RankNTypes #-}
 module Dwt.UI where
 
-import Data.Graph.Inductive (empty, nodes)
+import Data.Graph.Inductive (empty, nodes, Node)
 import Dwt.Types
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse
+import Dwt.Search.Parse
 import Dwt.Util (fr)
-import Text.Megaparsec (parse)
+import Text.Megaparsec (parse, (<|>))
 import Control.Monad.Trans.State (execStateT)
+import Control.Monad.Trans.Reader (runReader)
 
 import qualified Brick.Main as M
 import qualified Brick.Types as T
@@ -40,6 +42,7 @@ data Name = Edit1
 
 data St =
     St { _rslt :: RSLT
+       , _nodesInView :: [Node]
        ,_focusRing :: F.FocusRing Name
        , _edit1 :: E.Editor String Name
        , _edit2 :: E.Editor String Name
@@ -47,10 +50,10 @@ data St =
 
 makeLenses ''St
 
-drawUI :: St -> [T.Widget Name]
-drawUI st = [ui] where
+appDraw :: St -> [T.Widget Name]
+appDraw st = [ui] where
   g = st ^. rslt
-  v = str $ view g $ nodes g
+  v = str $ view g $ st ^. nodesInView
   e1 = F.withFocusRing
          (st^.focusRing)
          (  -- :: Bool -> a -> b
@@ -75,6 +78,7 @@ appHandleEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
 appHandleEvent st (T.VtyEvent ev) = case ev of
   V.EvKey V.KEsc [] -> M.halt st
   V.EvKey V.KIns [] -> addToRSLT st
+  V.EvKey V.KHome [] -> viewRSLT st
   V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusNext
   V.EvKey V.KBackTab [] -> M.continue $ st & focusRing %~ F.focusPrev
   _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of
@@ -82,6 +86,16 @@ appHandleEvent st (T.VtyEvent ev) = case ev of
     Just Edit2 -> T.handleEventLensed st edit2 E.handleEditorEvent ev
     Nothing -> return st
 appHandleEvent st _ = M.continue st
+
+viewRSLT :: St -> T.EventM Name (T.Next St)
+viewRSLT st = do
+    let (request:_) = st ^. edit2 & E.getEditContents
+          -- TODO: find a more elegant way to take only one string
+        theReader = fr $ parse (pUsers <|> pAll) "" request -- TODO: nix fr
+        newNodesInView = runReader theReader $ st ^. rslt
+        f1 = nodesInView .~ newNodesInView
+        f2 = edit2 %~ E.applyEdit Z.clearZipper
+    M.continue $ st & f2 . f1
 
 addToRSLT :: St -> T.EventM Name (T.Next St)
 addToRSLT st = do
@@ -96,27 +110,25 @@ addToRSLT st = do
     M.continue $ st & f2 . f1
 
 initialState :: RSLT -> St
-initialState g = St g
-                    (F.focusRing [Edit1, Edit2])
-                    (E.editor Edit1 Nothing "")
-                    (E.editor Edit2 (Just 2) "")
+initialState g = St g (nodes g) (F.focusRing [Edit1, Edit2])
+  (E.editor Edit1 Nothing "") (E.editor Edit2 (Just 2) "")
 
-theMap :: A.AttrMap
-theMap = A.attrMap V.defAttr
+appAttrMap :: A.AttrMap
+appAttrMap = A.attrMap V.defAttr
     [ (E.editAttr,                   V.white `on` V.blue)
     , (E.editFocusedAttr,            V.black `on` V.yellow)
     ]
 
-appCursor :: St -> [T.CursorLocation Name] -> Maybe (T.CursorLocation Name)
-appCursor = F.focusRingCursor (^.focusRing)
+appChooseCursor :: St -> [T.CursorLocation Name] -> Maybe (T.CursorLocation Name)
+appChooseCursor = F.focusRingCursor (^.focusRing)
 
 theApp :: M.App St e Name
 theApp =
-    M.App { M.appDraw = drawUI
-          , M.appChooseCursor = appCursor
+    M.App { M.appDraw = appDraw
+          , M.appChooseCursor = appChooseCursor
           , M.appHandleEvent = appHandleEvent
           , M.appStartEvent = return
-          , M.appAttrMap = const theMap
+          , M.appAttrMap = const appAttrMap
           }
 
 ui :: RSLT -> IO (RSLT)

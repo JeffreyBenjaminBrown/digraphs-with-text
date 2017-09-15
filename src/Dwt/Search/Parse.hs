@@ -8,13 +8,15 @@ import Control.Monad
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Reader
 
+type ReadNodes = Reader RSLT [Node]
+
 pAt :: Parser Insertion
 pAt = At <$> integer
 
-pUsers :: Parser (Reader RSLT [Node])
+pUsers :: Parser ReadNodes
 pUsers = f <$> (symbol "u" *> integer) where
   f insertion = do g <- ask
                    return $ pre g insertion
 
-pAll :: Parser (Reader RSLT [Node])
+pAll :: Parser ReadNodes
 pAll = const (asks nodes) <$> symbol "all"
