@@ -6,7 +6,7 @@ module Dwt.Graph (
   , insRel
   , insRelSt
   , insColl
-  , mkRelSpecXX
+  , mkRelSpec
   , relNodeSpec
   , chLeaf
   , chRelRole
@@ -78,9 +78,9 @@ insColl mt ns g = do
         map (\n -> (newNode, n, CollEdge CollMbr)) ns
   return $ insEdges newEdges $ insNode (newNode,Coll) g
 
-mkRelSpecXX :: Insertion -> [Insertion] -> RelSpecXX
-mkRelSpecXX t ns = Map.fromList $ (TpltRole, NodeSpecXX t) : mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpecXX ns)
+mkRelSpec :: Insertion -> [Insertion] -> RelSpec
+mkRelSpec t ns = Map.fromList $ (TpltRole, NodeSpec t) : mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
 -- pitfall: does not need conversion to QNode format
 relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
@@ -183,7 +183,7 @@ users g n = do gelemM g n
 -- ======== using directions (RelSpecs)
 -- todo ? 1Dir because it should have one such direction. I forget why.
   -- clarif: if I want a generation in the Down direction of the rel "has/",
-  -- the RelSpec has to have only one Up variable.
+  -- the RelSpecVerboseTypes has to have only one Up variable.
 -- TODO ? check: Up|Down good, Any|It bad
   -- fork1Up uses otherDir, so it will catch those errors, but obscurely
 

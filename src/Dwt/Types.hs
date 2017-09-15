@@ -4,7 +4,7 @@ module Dwt.Types (
   MbrPos, Arity
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , Mbrship(..), RelVarSpec, RelNodeSpec
-  , NodeOrVar(..), NodeOrVarXX(..), RelSpec, RelSpecXX
+  , NodeOrVarVerboseTypes(..), NodeOrVar(..), RelSpecVerboseTypes, RelSpec
   , QNode(..), isAt, isAbsent
   , Insertion(..), Level, JointX(..), EO(..), blankEo
   , DwtErr(..), ErrBase(..), ErrOpt(..)
@@ -42,14 +42,14 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
 
 -- == Specifying kinds of relationships
 data Mbrship = It | Any | Up | Down deriving (Show,Read,Eq,Ord)
-data NodeOrVar = NodeSpec QNode |VarSpec Mbrship deriving (Show,Eq)
-data NodeOrVarXX = NodeSpecXX Insertion |VarSpecXX Mbrship deriving (Show,Eq)
+data NodeOrVarVerboseTypes = NodeSpecVerboseTypes QNode |VarSpecVerboseTypes Mbrship deriving (Show,Eq)
+data NodeOrVar = NodeSpec Insertion |VarSpec Mbrship deriving (Show,Eq)
 
--- at the TpltRole key is always a concrete NodeSpec
+-- at the TpltRole key is always a concrete NodeSpecVerboseTypes
 type RelVarSpec =  Map.Map RelRole Mbrship
 type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
+type RelSpecVerboseTypes =    Map.Map RelRole NodeOrVarVerboseTypes -- if well-formed, includes
 type RelSpec =    Map.Map RelRole NodeOrVar -- if well-formed, includes
-type RelSpecXX =    Map.Map RelRole NodeOrVarXX -- if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
 
 -- == Queries
@@ -96,7 +96,7 @@ data ErrBase = Legacy -- | for when the String has all the info
 data ErrOpt =  -- ^ New error style: sum type
   ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrMbrship Mbrship
-  | ErrQNode QNode | ErrRelSpec RelSpec | ErrRelSpecXX RelSpecXX
+  | ErrQNode QNode | ErrRelSpecVerboseTypes RelSpecVerboseTypes | ErrRelSpec RelSpec
   | ErrInsertion Insertion
   deriving (Show, Eq)
 

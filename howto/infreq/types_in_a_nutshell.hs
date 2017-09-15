@@ -24,12 +24,12 @@ Here are the types:
 
     data Mbrship = It | Any | Up | Down
       deriving (Show,Read,Eq,Ord)
-    data NodeOrVar = VarSpec Mbrship | NodeOrVar Node deriving(Show,Read,Eq,Ord)
+    data NodeOrVarVerboseTypes = VarSpecVerboseTypes Mbrship | NodeOrVarVerboseTypes Node deriving(Show,Read,Eq,Ord)
 
-    type RelVarSpec = Map.Map RelRole Mbrship -- subset of RelSpec info, but
-      -- a RelVarSpec in a RSLT is transformable into a RelSpec.
+    type RelVarSpec = Map.Map RelRole Mbrship -- subset of RelSpecVerboseTypes info, but
+      -- a RelVarSpec in a RSLT is transformable into a RelSpecVerboseTypes.
       -- The rest of the info can be inferred from the edges connected to it.
-    type RelSpec = Map.Map RelRole NodeOrVar
+    type RelSpecVerboseTypes = Map.Map RelRole NodeOrVarVerboseTypes
       -- if well-formed, has a Tplt, and MbrPoss from 1 to the Tplt's Arity
 
 The following is an obsolete (uses an earlier version of Dwt) RSLT that represents the expression "dog needs water" using the subexpressions "dog" (a string), "water" (a string), and "_ wants _" (a relationship two things can have, that is a binary Rel):

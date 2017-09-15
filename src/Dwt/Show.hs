@@ -73,17 +73,17 @@ _showExpr vp g d (Just n) =
                  [m | (m,CollEdge CollMbr) <- lsuc g n] )
 
 -- toto : resurrect when needed
--- It was using NodeSpec, not NodeSpec
+-- It was using NodeSpecVerboseTypes, not NodeSpecVerboseTypes
 --      Just (RelSpecExpr rvs) ->
---        let rs = fromRight $ relSpec g (QAt n)
+--        let rs = fromRight $ relSpecVerboseTypes g (QAt n)
 --            rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
---              -- e.g. rsl = [(Mbr 1,VarSpec Down),(Mbr 2,NodeSpec 3)]
---            tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup TpltRole rs
+--              -- e.g. rsl = [(Mbr 1,VarSpecVerboseTypes Down),(Mbr 2,NodeSpecVerboseTypes 3)]
+--            tpltNode = (\(NodeSpecVerboseTypes n) -> n) $ fromJust $ Map.lookup TpltRole rs
 --            Just tpltLab = lab g tpltNode :: Maybe Expr
 --            showAddressOrVar ms = case ms of
---              VarSpec var -> show var
---              NodeSpec node -> show_maybe_node $ Just node
---        in ((_rel $ vpPrefixer vp) n tpltNode ++)  $  ("#RelSpec#: " ++)
+--              VarSpecVerboseTypes var -> show var
+--              NodeSpecVerboseTypes node -> show_maybe_node $ Just node
+--        in ((_rel $ vpPrefixer vp) n tpltNode ++)  $  ("#RelSpecVerboseTypes#: " ++)
 --          $ subInTplt tpltLab 
 --          $ map showAddressOrVar $ map snd rsl
 

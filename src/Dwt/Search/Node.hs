@@ -2,10 +2,10 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Search.Node (
-  qGetXX
-  , qGetLabXX
+  qGet
+  , qGetLab
   , qGet1XX
-  , qPutStXX
+  , qPutSt
 
   , qRegexWord
 
@@ -56,7 +56,7 @@ _matchRelSpecNodesLab g spec = prependCaller "_matchRelSpecNodesLab: " $ do
 
 -- | Rels using Node n in RelRole r
 _usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
-_usersInRole g n r = prependCaller "usersInRole: " $
+_usersInRole g n r = prependCaller "usersInRoleVerboseTypes: " $
   do gelemM g n -- makes f safe
      return $ f g n r
   where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
@@ -76,90 +76,53 @@ _qGet :: -- x herein is either Node or LNode Expr
   -- Can safely be unsafe, because the QAt's contents are surely present.
   -> (RSLT -> [x])       -- | nodes or labNodes; used for QLeaf
   -> (RSLT -> RelSpecConcrete -> Either DwtErr [x])
-    -- | matchRelSpecNodes or matchRelSpecNodesLab; used for QRel
-  -> RSLT -> QNode -> Either DwtErr [x]
-_qGet f _ _ g (QAt n) = return $ if gelem n g then [f g n] else []
-_qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
-_qGet _ _ f g (QRel qt qms) = prependCaller "_qGet: " $ do
-  t <- qGet1 g qt -- todo ? multiple qt, qms matches
-  ms <- mapM (qGet1 g) qms
-  let relspec = _mkRelSpec t ms
-  f g relspec
-
-_qGetXX :: -- x herein is either Node or LNode Expr
-     (RSLT -> Node -> x) -- | gets what's there; used for QAt.
-  -- Can safely be unsafe, because the QAt's contents are surely present.
-  -> (RSLT -> [x])       -- | nodes or labNodes; used for QLeaf
-  -> (RSLT -> RelSpecConcrete -> Either DwtErr [x])
-    -- | matchRelSpecNodes or matchRelSpecNodesLab; used for QRel
+    -- | matchRelSpecNodesVerboseTypes or matchRelSpecNodesLabVerboseTypes; used for QRel
   -> RSLT -> Insertion -> Either DwtErr [x]
-_qGetXX f _ _ g (At n) = return $ if gelem n g then [f g n] else []
-_qGetXX _ f _ g (InsLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
-_qGetXX _ _ f g i@(InsRel _ _ qms) = prependCaller "_qGet: " $ do
+_qGet f _ _ g (At n) = return $ if gelem n g then [f g n] else []
+_qGet _ f _ g (InsLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
+_qGet _ _ f g i@(InsRel _ _ qms) = prependCaller "_qGetVerboseTypes: " $ do
   t <- qGet1XX g (InsLeaf $ extractTplt i) -- todo ? multiple qt, qms matches
   ms <- mapM (qGet1XX g) qms
   let relspec = _mkRelSpec t ms
   f g relspec
 
-qGet :: RSLT -> QNode -> Either DwtErr [Node]
+qGet :: RSLT -> Insertion -> Either DwtErr [Node]
 qGet = _qGet (\_ n -> n) nodes _matchRelSpecNodes
 
-qGetXX :: RSLT -> Insertion -> Either DwtErr [Node]
-qGetXX = _qGetXX (\_ n -> n) nodes _matchRelSpecNodes
-
-qGetLab :: RSLT -> QNode -> Either DwtErr [LNode Expr]
+qGetLab :: RSLT -> Insertion -> Either DwtErr [LNode Expr]
 qGetLab = _qGet f labNodes _matchRelSpecNodesLab where
   f g n = (n, Mb.fromJust $ lab g n)
 
-qGetLabXX :: RSLT -> Insertion -> Either DwtErr [LNode Expr]
-qGetLabXX = _qGetXX f labNodes _matchRelSpecNodesLab where
-  f g n = (n, Mb.fromJust $ lab g n)
-
-qGet1 :: RSLT -> QNode -> Either DwtErr Node
+qGet1 :: RSLT -> Insertion -> Either DwtErr Node
 qGet1 g q = prependCaller "qGet1: " $ case qGet g q of
-    Right [] -> Left (FoundNo, queryError, ".")
-    Right [a] -> Right a
-    Right as -> Left (FoundMany, queryError, ".")
-    Left e -> Left e
-  where queryError = [ErrQNode q]
-
-qGet1XX :: RSLT -> Insertion -> Either DwtErr Node
-qGet1XX g q = prependCaller "qGet1: " $ case qGetXX g q of
     Right [] -> Left (FoundNo, queryError, ".")
     Right [a] -> Right a
     Right as -> Left (FoundMany, queryError, ".")
     Left e -> Left e
   where queryError = [ErrInsertion q]
 
-qPutSt :: QNode -> StateT RSLT (Either DwtErr) Node
-qPutSt (QRel qt qms) = do
-  -- TODO ? would be more efficient to return even the half-completed state
-  -- let tag = prependCaller "qPutSt: " -- TODO: use
-  t <- qPutSt qt
-  ms <- mapM qPutSt qms
-  g <- get
-  insRelSt t ms
-qPutSt (QAt n) = lift $ Right n
-qPutSt q@(QLeaf x) = get >>= \g -> case qGet1 g q of
-  Right n -> lift $ Right n
-  Left (FoundNo,_,_) -> let g' = insLeaf x g
-    in put g' >> lift (Right $ maxNode g')
-  Left e -> lift $ prependCaller "qPutSt: " $ Left e
+qGet1XX :: RSLT -> Insertion -> Either DwtErr Node
+qGet1XX g q = prependCaller "qGet1: " $ case qGet g q of
+    Right [] -> Left (FoundNo, queryError, ".")
+    Right [a] -> Right a
+    Right as -> Left (FoundMany, queryError, ".")
+    Left e -> Left e
+  where queryError = [ErrInsertion q]
 
-qPutStXX :: Insertion -> StateT RSLT (Either DwtErr) Node
-qPutStXX i@(InsRel _ _ qms) = do
+qPutSt :: Insertion -> StateT RSLT (Either DwtErr) Node
+qPutSt i@(InsRel _ _ qms) = do
   -- TODO ? would be more efficient to return even the half-completed state
-  -- let tag = prependCaller "qPutSt: " -- TODO: use
-  t <- qPutSt $ QLeaf $ extractTplt i
-  ms <- mapM qPutStXX $ filter (not . isAbsent) qms
+  -- let tag = prependCaller "qPutStVerboseTypes: " -- TODO: use
+  t <- qPutSt $ InsLeaf $ extractTplt i
+  ms <- mapM qPutSt $ filter (not . isAbsent) qms
   g <- get
   insRelSt t ms
-qPutStXX (At n) = lift $ Right n
-qPutStXX q@(InsLeaf x) = get >>= \g -> case qGet1XX g q of
+qPutSt (At n) = lift $ Right n
+qPutSt q@(InsLeaf x) = get >>= \g -> case qGet1XX g q of
   Right n -> lift $ Right n
   Left (FoundNo,_,_) -> let g' = insLeaf x g
     in put g' >> lift (Right $ maxNode g')
-  Left e -> lift $ prependCaller "qPutSt: " $ Left e
+  Left e -> lift $ prependCaller "qPutStVerboseTypes: " $ Left e
 
 -- == Regex
 qRegexWord :: RSLT -> String -> [Node]

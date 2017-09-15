@@ -39,19 +39,19 @@ tQPut = TestCase $ do
 --    == Right (mkGraph [(0, Word "dog"), (1, word "brandy"), (2, mkTplt "_ wants _"), (3, Rel)] [], 3)
 
 tQGet = TestCase $ do
-  assertBool "1" $ qGet g1 (QAt 1) == Right [1]
+  assertBool "1" $ qGetVerboseTypes g1 (QAt 1) == Right [1]
   assertBool "1.1" $ qGet1De g1 (QAt 1) == Right 1
-  assertBool "2" $ qGet g1 (QAt $ -1) == Right []
+  assertBool "2" $ qGetVerboseTypes g1 (QAt $ -1) == Right []
   assertBool "2.1" $ let q = (QAt $ -1) in qGet1De g1 q
     == Left (FoundNo, mQNode .~ Just q $ noErrOpts, "qGet1De: .")
-  assertBool "3" $ qGet g1 (QLeaf $ Word "dog") == Right [0]
-  assertBool "3.5" $ qGet gExtraDog (QLeaf $ Word "dog") == Right [0,14]
+  assertBool "3" $ qGetVerboseTypes g1 (QLeaf $ Word "dog") == Right [0]
+  assertBool "3.5" $ qGetVerboseTypes gExtraDog (QLeaf $ Word "dog") == Right [0,14]
   assertBool "3.5.1" $ let q = QLeaf $ Word "dog" in qGet1De gExtraDog q
     == Left (FoundMany, mQNode .~ Just q $ noErrOpts, "qGet1De: .")
-  assertBool "4" $ qGet g1 (QRel (QAt 1) [QAt 0, QAt 4]) == Right [5]
-  assertBool "4.5" $ qGet g1 dogWantsBrandyWords == Right [5]
-  assertBool "5" $ qGet g1 dogBrandyDubious == Right [11]
-  assertBool "5" $ qGet g1 dubiousBackwards == Right []
+  assertBool "4" $ qGetVerboseTypes g1 (QRel (QAt 1) [QAt 0, QAt 4]) == Right [5]
+  assertBool "4.5" $ qGetVerboseTypes g1 dogWantsBrandyWords == Right [5]
+  assertBool "5" $ qGetVerboseTypes g1 dogBrandyDubious == Right [11]
+  assertBool "5" $ qGetVerboseTypes g1 dubiousBackwards == Right []
 
 tQPutRel = let
   qRedundant = QRel (QLeaf $ mkTplt "_ wants _")
@@ -62,7 +62,7 @@ tQPutRel = let
            [QLeaf $ Word "dog", QLeaf $ Word "dog"]
   (g2,_) = fr $ qPutStrErr g1 qNovel
   in TestCase $ do
-  assertBool "1" $ qGet g1 qRedundant == Right [5]
-  assertBool "2" $ qGet g1 qNestedRedundant == Right [11]
-  assertBool "3" $ qGet g1 qNovel == Right []
-  assertBool "4" $ qGet g2 qNovel == Right [14]
+  assertBool "1" $ qGetVerboseTypes g1 qRedundant == Right [5]
+  assertBool "2" $ qGetVerboseTypes g1 qNestedRedundant == Right [11]
+  assertBool "3" $ qGetVerboseTypes g1 qNovel == Right []
+  assertBool "4" $ qGetVerboseTypes g2 qNovel == Right [14]
