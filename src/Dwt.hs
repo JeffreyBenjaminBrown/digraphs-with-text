@@ -49,7 +49,7 @@ import qualified Brick.Main as B
 
 -- ==== shorthand (can't go in Util.hs; depends on more)
 -- mindmap things
-ns = NodeSpecVerboseTypes
+ns = NodeSpec
 
 p :: (Applicative f) => a -> f a
 p = pure

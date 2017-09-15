@@ -163,7 +163,7 @@
 
     tMatchRel = TestCase $ do
       assertBool "dog in first pos"     $ matchRelSpecNodes g1 tRelSpec == Right [5,6,8]
-      assertBool "nothing should match" $ matchRelSpecNodes g1 tRelSpecXXNonsense == Right []
+      assertBool "nothing should match" $ matchRelSpecNodes g1 tRelSpecNonsense == Right []
 
   -- chase and helpers
     tChase = TestList [ TestLabel "tHas1Up" tHas1Dir

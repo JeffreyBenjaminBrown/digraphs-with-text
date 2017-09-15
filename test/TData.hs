@@ -1,7 +1,7 @@
     module TData (
       g1, g1Alt
-      , tRelSpecVerboseTypes, tRelSpec2, tRelSpecNonsense
-      , tRelSpec, tRelSpecXX2, tRelSpecXXNonsense
+      , tRelSpec, tRelSpec2, tRelSpecNonsense
+      , tRelSpecXX2, tRelSpecXXNonsense
     ) where
 
     import Dwt
@@ -45,25 +45,20 @@
           $ insTplt"_ needs _"  $ insTplt"_ wants _"
           $ insWord"dog"         $ empty :: RSLT
 
-    tRelSpecVerboseTypes = Map.fromList [ (TpltRole, VarSpecVerboseTypes It)
-                           , (Mbr 1,   NodeSpecVerboseTypes $ QAt 0)
-                           , (Mbr 2,   VarSpecVerboseTypes Any)
-                           ] :: RelSpecVerboseTypes
-
-    tRelSpec2 = Map.fromList [ (TpltRole, NodeSpecVerboseTypes $ QAt 2)
-                           , (Mbr 1,   VarSpecVerboseTypes Up)
-                           , (Mbr 2,   VarSpecVerboseTypes Down)
-                           ] :: RelSpecVerboseTypes
-
-    tRelSpecNonsense = Map.fromList [ (TpltRole, NodeSpecVerboseTypes $ QAt 0) -- "dog" Word, not Tplt
-                                   , (Mbr 1,   VarSpecVerboseTypes It)
-                                   , (Mbr 2,   VarSpecVerboseTypes Up)
-                                   ] :: RelSpecVerboseTypes
-
     tRelSpec = Map.fromList [ (TpltRole, VarSpec It)
                            , (Mbr 1,   NodeSpec $ At 0)
                            , (Mbr 2,   VarSpec Any)
                            ] :: RelSpec
+
+    tRelSpec2 = Map.fromList [ (TpltRole, NodeSpec $ At 2)
+                           , (Mbr 1,   VarSpec Up)
+                           , (Mbr 2,   VarSpec Down)
+                           ] :: RelSpec
+
+    tRelSpecNonsense = Map.fromList [ (TpltRole, NodeSpec $ At 0) -- "dog" Word, not Tplt
+                                   , (Mbr 1,   VarSpec It)
+                                   , (Mbr 2,   VarSpec Up)
+                                   ] :: RelSpec
 
     tRelSpecXX2 = Map.fromList [ (TpltRole, NodeSpec $ At 2)
                            , (Mbr 1,   VarSpec Up)

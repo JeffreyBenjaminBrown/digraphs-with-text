@@ -56,7 +56,7 @@ _matchRelSpecNodesLab g spec = prependCaller "_matchRelSpecNodesLab: " $ do
 
 -- | Rels using Node n in RelRole r
 _usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
-_usersInRole g n r = prependCaller "usersInRoleVerboseTypes: " $
+_usersInRole g n r = prependCaller "usersInRole: " $
   do gelemM g n -- makes f safe
      return $ f g n r
   where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
@@ -76,11 +76,11 @@ _qGet :: -- x herein is either Node or LNode Expr
   -- Can safely be unsafe, because the QAt's contents are surely present.
   -> (RSLT -> [x])       -- | nodes or labNodes; used for QLeaf
   -> (RSLT -> RelSpecConcrete -> Either DwtErr [x])
-    -- | matchRelSpecNodesVerboseTypes or matchRelSpecNodesLabVerboseTypes; used for QRel
+    -- | matchRelSpecNodes or matchRelSpecNodesLab; used for QRel
   -> RSLT -> Insertion -> Either DwtErr [x]
 _qGet f _ _ g (At n) = return $ if gelem n g then [f g n] else []
 _qGet _ f _ g (InsLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
-_qGet _ _ f g i@(InsRel _ _ qms) = prependCaller "_qGetVerboseTypes: " $ do
+_qGet _ _ f g i@(InsRel _ _ qms) = prependCaller "_qGet: " $ do
   t <- qGet1XX g (InsLeaf $ extractTplt i) -- todo ? multiple qt, qms matches
   ms <- mapM (qGet1XX g) qms
   let relspec = _mkRelSpec t ms
@@ -112,7 +112,7 @@ qGet1XX g q = prependCaller "qGet1: " $ case qGet g q of
 qPutSt :: Insertion -> StateT RSLT (Either DwtErr) Node
 qPutSt i@(InsRel _ _ qms) = do
   -- TODO ? would be more efficient to return even the half-completed state
-  -- let tag = prependCaller "qPutStVerboseTypes: " -- TODO: use
+  -- let tag = prependCaller "qPutSt: " -- TODO: use
   t <- qPutSt $ InsLeaf $ extractTplt i
   ms <- mapM qPutSt $ filter (not . isAbsent) qms
   g <- get
@@ -122,7 +122,7 @@ qPutSt q@(InsLeaf x) = get >>= \g -> case qGet1XX g q of
   Right n -> lift $ Right n
   Left (FoundNo,_,_) -> let g' = insLeaf x g
     in put g' >> lift (Right $ maxNode g')
-  Left e -> lift $ prependCaller "qPutStVerboseTypes: " $ Left e
+  Left e -> lift $ prependCaller "qPutSt: " $ Left e
 
 -- == Regex
 qRegexWord :: RSLT -> String -> [Node]

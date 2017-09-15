@@ -183,7 +183,7 @@ users g n = do gelemM g n
 -- ======== using directions (RelSpecs)
 -- todo ? 1Dir because it should have one such direction. I forget why.
   -- clarif: if I want a generation in the Down direction of the rel "has/",
-  -- the RelSpecVerboseTypes has to have only one Up variable.
+  -- the RelSpec has to have only one Up variable.
 -- TODO ? check: Up|Down good, Any|It bad
   -- fork1Up uses otherDir, so it will catch those errors, but obscurely
 

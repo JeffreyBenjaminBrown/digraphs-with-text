@@ -48,8 +48,8 @@ insRelSpec rSpec g = do
 
 relSpec :: RSLT -> Insertion -> Either DwtErr RelSpecConcrete
   -- name ? getRelSpecDe
-  -- is nearly inverse to partitionRelSpecVerboseTypes
-relSpec g q = prependCaller "relSpecVerboseTypes: " $ do
+  -- is nearly inverse to partitionRelSpec
+relSpec g q = prependCaller "relSpec: " $ do
   n <- qGet1XX g q
   case (fromJust $ lab g n) of
     RelSpecExpr rvs -> do
@@ -59,14 +59,14 @@ relSpec g q = prependCaller "relSpecVerboseTypes: " $ do
           rnsl' = map (\(role,node)->(role,NodeSpecC node)) rnsl
       return $ Map.fromList $ rvsl' ++ rnsl'
     x -> Left (ConstructorMistmatch, [ErrExpr x, ErrQNode $ QAt n]
-              , "relSpecVerboseTypes.")
+              , "relSpec.")
 
 usersInRole :: RSLT -> Insertion -> RelRole -> Either DwtErr [Node]
-usersInRole g (At n) r = prependCaller "usersInRoleVerboseTypes: " $ _usersInRole g n r
+usersInRole g (At n) r = prependCaller "usersInRole: " $ _usersInRole g n r
 usersInRole g q r = qGet1XX g q >>= \n -> _usersInRole g n r
 
 matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
-matchRelSpecNodes g spec = prependCaller "matchRelSpecNodesVerboseTypes: " $ do
+matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
   let qNodeSpecs = Map.toList
         $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,NodeOrVar)]
@@ -74,10 +74,10 @@ matchRelSpecNodes g spec = prependCaller "matchRelSpecNodesVerboseTypes: " $ do
   return $ listIntersect nodeListList
 
 matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
-matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLabVerboseTypes: " $ do
+matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
   ns <- matchRelSpecNodes g spec
   return $ zip ns $ map (fromJust . lab g) ns
-    -- fromJust is safe because matchRelSpecNodesVerboseTypes only returns Nodes in g
+    -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
 
 has1DirXX :: Mbrship -> RelSpec -> Bool
 has1DirXX mv rc = 1 == length (Map.toList $ Map.filter f rc)
@@ -98,7 +98,7 @@ fork1DirXX g qFrom (dir,axis) = do -- returns one generation, neighbors
       -- EXCEPT: that might hurt the dfs, bfs functions below
 
 --TODO: fork1DirsQ
---fork1DirsQ :: RSLT -> QNode -> [(Mbrship,RelSpecVerboseTypes)] -> Either DwtErr [Node]
+--fork1DirsQ :: RSLT -> QNode -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
 --fork1DirsQ g q rs = concat <$> mapM (fork1Dir g n) rs
 
 subNodeForVars :: Insertion -> Mbrship -> RelSpec
@@ -108,7 +108,7 @@ subNodeForVars q v r = do -- TODO: use prependCaller
   n <- lift $ qGet1XX g q
   let f (VarSpec v') = if v == v' then NodeSpec (At n) else VarSpec v'
       f x = x -- the v,v' distinction is needed; otherwise v gets masked
-  lift $ Right $ Map.map f r -- ^ change each VarSpecVerboseTypes v to NodeSpecVerboseTypes n
+  lift $ Right $ Map.map f r -- ^ change each VarSpec v to NodeSpec n
 
 _bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
   -> RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> Either DwtErr [Node]
