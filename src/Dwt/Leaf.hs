@@ -23,6 +23,7 @@ import Data.Text (pack, unpack, strip, splitOn)
 import Control.Lens
 
 -- == Tplt
+
 _splitStringForTplt :: String -> [String]
 _splitStringForTplt t = map unpack $ splitOn (pack "_") (pack t)
 

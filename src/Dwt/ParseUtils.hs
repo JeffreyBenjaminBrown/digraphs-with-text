@@ -30,7 +30,7 @@ parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
 
 wordChar :: Parser Char
-wordChar = C.alphaNumChar <|> C.char '_' <|> C.char '-'
+wordChar = C.alphaNumChar <|> C.char '-'
 
 symbol :: String -> Parser String -- | is already a lexeme
 symbol = L.symbol sc
@@ -43,8 +43,8 @@ word w = lexeme $ C.string w <* notFollowedBy wordChar
 anyWord :: Parser String
 anyWord = lexeme $ some wordChar
 
-phrase :: Parser String -- | accepts the empty string, because it uses "many"
-phrase = concat . intersperse " " <$> many anyWord
+phrase :: Parser String -- | does not accept the empty string
+phrase = concat . intersperse " " <$> some anyWord
 
 integer :: Integral a => Parser a
 integer = lexeme L.decimal

@@ -14,20 +14,19 @@ import Text.Megaparsec.Expr (makeExprParser, Operator(..))
 import Text.Megaparsec.Char (satisfy, string, char)
 
 
-type PTplt = [PTpltUnit]
 data PTpltUnit = Blank | Phrase String deriving Show
 
 _splitStringForTpltMB :: String -> [Maybe String]
 _splitStringForTpltMB = fr . parse pTplt ""
 
 pTplt :: Parser [Maybe String]
-pTplt = toMaybeStrings . dropNonExtremeBlanks
-        <$> many (pBlank <|> pPhrase)
+pTplt = map toMaybeString . dropNonExtremeBlanks
+        <$> some (pBlank <|> pPhrase)
   where pBlank, pPhrase :: Parser PTpltUnit
         pBlank = const Blank <$> lexeme (char '_')
         pPhrase = Phrase <$> phrase
 
-dropNonExtremeBlanks :: PTplt -> PTplt
+dropNonExtremeBlanks :: [PTpltUnit] -> [PTpltUnit]
 dropNonExtremeBlanks us = map snd $ filter f zs
   where zs = zip [1..] us
         f (_, Phrase _) = True
@@ -35,6 +34,6 @@ dropNonExtremeBlanks us = map snd $ filter f zs
         f ((== length us) -> True, Blank) = True
         f (_,Blank) = False
 
-toMaybeStrings :: PTplt -> [Maybe String]
-toMaybeStrings = map f where f Blank = Nothing
-                             f (Phrase p) = Just p
+toMaybeString :: PTpltUnit -> Maybe String
+toMaybeString Blank = Nothing
+toMaybeString (Phrase p) = Just p
