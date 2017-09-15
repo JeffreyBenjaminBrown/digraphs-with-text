@@ -58,7 +58,7 @@ relSpec g q = prependCaller "relSpec: " $ do
           rvsl' = map (\(role,var) ->(role,VarSpecC  var )) rvsl
           rnsl' = map (\(role,node)->(role,NodeSpecC node)) rnsl
       return $ Map.fromList $ rvsl' ++ rnsl'
-    x -> Left (ConstructorMistmatch, [ErrExpr x, ErrQNode $ QAt n]
+    x -> Left (ConstructorMistmatch, [ErrExpr x, ErrInsertion $ At n]
               , "relSpec.")
 
 usersInRole :: RSLT -> Insertion -> RelRole -> Either DwtErr [Node]

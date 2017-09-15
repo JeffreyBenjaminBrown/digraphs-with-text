@@ -5,7 +5,7 @@ module Dwt.Types (
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , Mbrship(..), RelVarSpec, RelNodeSpec
   , NodeOrVar(..), RelSpec
-  , QNode(..), isAt, isAbsent
+  , isAt, isAbsent
   , Insertion(..), Level, JointX(..), EO(..), blankEo
   , DwtErr(..), ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString
@@ -50,11 +50,6 @@ type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
 type RelSpec =    Map.Map RelRole NodeOrVar -- if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
 
--- == Queries
-data QNode = QAt Node -- when you already know the Node
-  | QLeaf Expr -- when you don't but you know its contents
-  | QRel QNode [QNode] deriving (Show, Eq)
-
 -- == Parsing Hash expressions
 -- todo ? Insertion and QNode could be merged
 data Insertion = At Node -- for when you know the expression's node
@@ -94,8 +89,7 @@ data ErrBase = Legacy -- | for when the String has all the info
 data ErrOpt =  -- ^ New error style: sum type
   ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrMbrship Mbrship
-  | ErrQNode QNode | ErrRelSpec RelSpec
-  | ErrInsertion Insertion
+  | ErrRelSpec RelSpec | ErrInsertion Insertion
   deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase
