@@ -1,7 +1,6 @@
     module TData (
       g1, g1Alt
       , tRelSpec, tRelSpec2, tRelSpecNonsense
-      , tRelSpecXX2, tRelSpecXXNonsense
     ) where
 
     import Dwt
@@ -56,16 +55,6 @@
                            ] :: RelSpec
 
     tRelSpecNonsense = Map.fromList [ (TpltRole, NodeSpec $ At 0) -- "dog" Word, not Tplt
-                                   , (Mbr 1,   VarSpec It)
-                                   , (Mbr 2,   VarSpec Up)
-                                   ] :: RelSpec
-
-    tRelSpecXX2 = Map.fromList [ (TpltRole, NodeSpec $ At 2)
-                           , (Mbr 1,   VarSpec Up)
-                           , (Mbr 2,   VarSpec Down)
-                           ] :: RelSpec
-
-    tRelSpecXXNonsense = Map.fromList [ (TpltRole, NodeSpec $ At 0) -- "dog" Word, not Tplt
                                    , (Mbr 1,   VarSpec It)
                                    , (Mbr 2,   VarSpec Up)
                                    ] :: RelSpec

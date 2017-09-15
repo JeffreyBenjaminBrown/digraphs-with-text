@@ -18,9 +18,9 @@ tAddLabeled = TestCase $ do
       qa = InsLeaf $ Word "a"
       qb = InsLeaf $ Word "b"
       qab = InsRel blankEo [JointX "x"] [qa,qb]
-  assertBool "1" $ either (const False) (const True) $ qGet1XX g qa
-  assertBool "2" $ do either (const False) (const True) $ qGet1XX g qb
-  assertBool "3" $ do either (const False) (const True) $ qGet1XX g qab
+  assertBool "1" $ either (const False) (const True) $ qGet1 g qa
+  assertBool "2" $ do either (const False) (const True) $ qGet1 g qb
+  assertBool "3" $ do either (const False) (const True) $ qGet1 g qab
 
 tAddUnlabeled = TestCase $ do
   let Right g = execStateT f empty
@@ -30,6 +30,6 @@ tAddUnlabeled = TestCase $ do
       qa = InsLeaf $ Word "a"
       qb = InsLeaf $ Word "b"
       qab = InsRel blankEo [JointX ""] [qa,qb]
-  assertBool "1" $ either (const False) (const True) $ qGet1XX g qa
-  assertBool "2" $ do either (const False) (const True) $ qGet1XX g qb
-  assertBool "3" $ do either (const False) (const True) $ qGet1XX g qab
+  assertBool "1" $ either (const False) (const True) $ qGet1 g qa
+  assertBool "2" $ do either (const False) (const True) $ qGet1 g qb
+  assertBool "3" $ do either (const False) (const True) $ qGet1 g qab

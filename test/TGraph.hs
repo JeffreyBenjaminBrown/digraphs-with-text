@@ -173,14 +173,14 @@
                       ]
 
     tHas1Dir = TestCase $ do
-      assertBool "has 1 Up" $ has1DirXX Up tRelSpecXXNonsense
-      assertBool "has no Up" $ not $ has1DirXX Up tRelSpec
+      assertBool "has 1 Up" $ has1Dir Up tRelSpecNonsense
+      assertBool "has no Up" $ not $ has1Dir Up tRelSpec
 
     tFork1Dir = TestCase $ do -- todo, incomplete
       assertBool "searching Down, and no Up vars; should fail"
-        $ isLeft $ fork1DirXX g1 (At 0) (Down, tRelSpec)
+        $ isLeft $ fork1Dir g1 (At 0) (Down, tRelSpec)
       assertBool "dog(ana) wants brandy(kata)" 
-        $ fork1DirXX g1 (At 0) (Down, tRelSpecXX2) == Right [4]
+        $ fork1Dir g1 (At 0) (Down, tRelSpec2) == Right [4]
 
     tValidRole = TestCase $ do
       assertBool "Tplt: valid role" $ isRight $ validRole g1 5 TpltRole

@@ -4,7 +4,7 @@
 module Dwt.Search.Node (
   qGet
   , qGetLab
-  , qGet1XX
+  , qGet1
   , qPutSt
 
   , qRegexWord
@@ -81,8 +81,8 @@ _qGet :: -- x herein is either Node or LNode Expr
 _qGet f _ _ g (At n) = return $ if gelem n g then [f g n] else []
 _qGet _ f _ g (InsLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
 _qGet _ _ f g i@(InsRel _ _ qms) = prependCaller "_qGet: " $ do
-  t <- qGet1XX g (InsLeaf $ extractTplt i) -- todo ? multiple qt, qms matches
-  ms <- mapM (qGet1XX g) qms
+  t <- qGet1 g (InsLeaf $ extractTplt i) -- todo ? multiple qt, qms matches
+  ms <- mapM (qGet1 g) qms
   let relspec = _mkRelSpec t ms
   f g relspec
 
@@ -101,14 +101,6 @@ qGet1 g q = prependCaller "qGet1: " $ case qGet g q of
     Left e -> Left e
   where queryError = [ErrInsertion q]
 
-qGet1XX :: RSLT -> Insertion -> Either DwtErr Node
-qGet1XX g q = prependCaller "qGet1: " $ case qGet g q of
-    Right [] -> Left (FoundNo, queryError, ".")
-    Right [a] -> Right a
-    Right as -> Left (FoundMany, queryError, ".")
-    Left e -> Left e
-  where queryError = [ErrInsertion q]
-
 qPutSt :: Insertion -> StateT RSLT (Either DwtErr) Node
 qPutSt i@(InsRel _ _ qms) = do
   -- TODO ? would be more efficient to return even the half-completed state
@@ -118,7 +110,7 @@ qPutSt i@(InsRel _ _ qms) = do
   g <- get
   insRelSt t ms
 qPutSt (At n) = lift $ Right n
-qPutSt q@(InsLeaf x) = get >>= \g -> case qGet1XX g q of
+qPutSt q@(InsLeaf x) = get >>= \g -> case qGet1 g q of
   Right n -> lift $ Right n
   Left (FoundNo,_,_) -> let g' = insLeaf x g
     in put g' >> lift (Right $ maxNode g')

@@ -5,8 +5,8 @@ module Dwt.Search.Branch (
   , usersInRole
   , matchRelSpecNodes
   , matchRelSpecNodesLab
-  , has1DirXX
-  , fork1DirXX
+  , has1Dir
+  , fork1Dir
   , subNodeForVars
   , dwtDfs
   , dwtBfs
@@ -31,7 +31,7 @@ partitionRelSpec :: RSLT -> RelSpec
 partitionRelSpec g rSpec = let f (VarSpec _) = True
                                f (NodeSpec _) = False
                                (vs,qs) = Map.partition f rSpec
-  in do ns <- mapM (\(NodeSpec q) -> qGet1XX g q)  qs
+  in do ns <- mapM (\(NodeSpec q) -> qGet1 g q)  qs
         return (Map.map  (\(VarSpec  v) -> v)  vs, ns)
 
 insRelSpec :: RelSpec -> RSLT -> Either DwtErr RSLT
@@ -50,7 +50,7 @@ relSpec :: RSLT -> Insertion -> Either DwtErr RelSpecConcrete
   -- name ? getRelSpecDe
   -- is nearly inverse to partitionRelSpec
 relSpec g q = prependCaller "relSpec: " $ do
-  n <- qGet1XX g q
+  n <- qGet1 g q
   case (fromJust $ lab g n) of
     RelSpecExpr rvs -> do
       rnsl <- Map.toList <$> relNodeSpec g n
@@ -63,7 +63,7 @@ relSpec g q = prependCaller "relSpec: " $ do
 
 usersInRole :: RSLT -> Insertion -> RelRole -> Either DwtErr [Node]
 usersInRole g (At n) r = prependCaller "usersInRole: " $ _usersInRole g n r
-usersInRole g q r = qGet1XX g q >>= \n -> _usersInRole g n r
+usersInRole g q r = qGet1 g q >>= \n -> _usersInRole g n r
 
 matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
 matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
@@ -79,15 +79,15 @@ matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
   return $ zip ns $ map (fromJust . lab g) ns
     -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
 
-has1DirXX :: Mbrship -> RelSpec -> Bool
-has1DirXX mv rc = 1 == length (Map.toList $ Map.filter f rc)
+has1Dir :: Mbrship -> RelSpec -> Bool
+has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (VarSpec y) = y == mv
         f _ = False
 
-fork1DirXX :: RSLT -> Insertion -> (Mbrship,RelSpec) -> Either DwtErr [Node]
-fork1DirXX g qFrom (dir,axis) = do -- returns one generation, neighbors
+fork1Dir :: RSLT -> Insertion -> (Mbrship,RelSpec) -> Either DwtErr [Node]
+fork1Dir g qFrom (dir,axis) = do -- returns one generation, neighbors
   fromDir <- otherDir dir
-  if has1DirXX fromDir axis then return ()
+  if has1Dir fromDir axis then return ()
      else Left (Invalid, [ErrRelSpec axis]
                , "fork1Dir: should have only one " ++ show fromDir)
   let dirRoles = Map.keys $ Map.filter (== VarSpec dir) axis
@@ -105,7 +105,7 @@ subNodeForVars :: Insertion -> Mbrship -> RelSpec
   -> ReaderT RSLT (Either DwtErr) RelSpec
 subNodeForVars q v r = do -- TODO: use prependCaller
   g <- ask
-  n <- lift $ qGet1XX g q
+  n <- lift $ qGet1 g q
   let f (VarSpec v') = if v == v' then NodeSpec (At n) else VarSpec v'
       f x = x -- the v,v' distinction is needed; otherwise v gets masked
   lift $ Right $ Map.map f r -- ^ change each VarSpec v to NodeSpec n
@@ -114,7 +114,7 @@ _bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
   -> RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> Either DwtErr [Node]
 _bfsOrDfs _ _ _ [] acc = return acc
 _bfsOrDfs collector g qdir pending@(n:ns) acc = do
-  newNodes <- fork1DirXX g (At n) qdir
+  newNodes <- fork1Dir g (At n) qdir
     --ifdo speed: calls has1Dir redundantly
   _bfsOrDfs collector g qdir (nub $ collector newNodes ns) (n:acc)
     -- ifdo speed: discard visited nodes from graph
