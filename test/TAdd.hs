@@ -17,7 +17,7 @@ tAddLabeled = TestCase $ do
       exprs = ["a #x", "#x a", "a #x b", "##x b #x"]
       qa = InsLeaf $ Word "a"
       qb = InsLeaf $ Word "b"
-      qab = InsRel blankEo (mkJoints "_ x _") [qa,qb]
+      qab = InsRel blankEo [JointX "x"] [qa,qb]
   assertBool "1" $ either (const False) (const True) $ qGet1XX g qa
   assertBool "2" $ do either (const False) (const True) $ qGet1XX g qb
   assertBool "3" $ do either (const False) (const True) $ qGet1XX g qab
@@ -29,7 +29,7 @@ tAddUnlabeled = TestCase $ do
         -- TODO: unlabeled rels (a #) and (# a) are visually indistinguishable
       qa = InsLeaf $ Word "a"
       qb = InsLeaf $ Word "b"
-      qab = InsRel blankEo (mkJoints "_ _") [qa,qb]
+      qab = InsRel blankEo [JointX ""] [qa,qb]
   assertBool "1" $ either (const False) (const True) $ qGet1XX g qa
   assertBool "2" $ do either (const False) (const True) $ qGet1XX g qb
   assertBool "3" $ do either (const False) (const True) $ qGet1XX g qab

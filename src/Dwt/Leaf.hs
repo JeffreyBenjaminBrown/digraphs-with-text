@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Dwt.Leaf (
-  _splitStringForTplt, mkTplt, mkJoints, extractTplt
+  _splitStringForTplt, mkTplt, extractTplt
   , subInTplt, padTpltStrings, subInTpltWithHashes
   , tpltArity, mbrListMatchesTpltArity
   , insLeaf
@@ -21,19 +21,16 @@ import Data.Graph.Inductive (Node, Graph, lab, newNodes, insNode)
 import Control.Monad.Except (MonadError, throwError, catchError)
 import Data.Text (pack, unpack, strip, splitOn)
 import Control.Lens
+import Data.Maybe (fromJust, isJust)
 
 -- == Tplt
-
 _splitStringForTplt :: String -> [String]
-_splitStringForTplt t = map unpack $ splitOn (pack "_") (pack t)
+_splitStringForTplt = map (maybe "" id) . _splitStringForTpltMB
 
 mkTplt :: String -> Expr
 mkTplt = Tplt
   . map (unpack . strip . pack)
   . _splitStringForTplt
-
-mkJoints :: String -> [JointX]
-mkJoints = map JointX . _splitStringForTplt
 
 extractTplt :: Insertion -> Expr
 extractTplt (InsRel _ js as) = Tplt $ ja ++ map (\(JointX s) -> s) js ++ jz

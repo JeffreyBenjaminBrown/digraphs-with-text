@@ -20,12 +20,6 @@ import Control.Lens ((.~))
 -- be searched for. If found, it becomes an At; if not, it is created, and
 -- becomes an At.
 
-isAt, isAbsent :: Insertion -> Bool
-isAbsent Absent = True
-isAbsent _ = False
-isAt (At _) = True
-isAt _ = False
-
 isValid :: Insertion -> Bool
 isValid (InsRel _ [_] [Absent,Absent]) = False
 isValid (InsRel _ [_] [_,_]) = True
@@ -54,5 +48,9 @@ addExpr Absent = lift $ Left (Impossible
   , [ErrInsertion Absent], "execInsertion.")
 addExpr (InsLeaf e) = qPutStXX $ InsLeaf e
 addExpr q@(InsRel _ js as) = do
-  ms <- mapM addExpr $ filter (not . isAbsent) as
-  qPutStXX $ InsRel blankEo js (map At ms)
+  ns <- mapM addExpr $ filter (not . isAbsent) as
+  qPutStXX $ InsRel blankEo js $ reshuffle ns as
+  where reshuffle :: [Node] -> [Insertion] -> [Insertion]
+        reshuffle [] ms = ms
+        reshuffle ns (Absent:is) = Absent : reshuffle ns is
+        reshuffle (n:ns) (_:is) = At n : reshuffle ns is

@@ -151,7 +151,7 @@ qPutStXX i@(InsRel _ _ qms) = do
   -- TODO ? would be more efficient to return even the half-completed state
   -- let tag = prependCaller "qPutSt: " -- TODO: use
   t <- qPutSt $ QLeaf $ extractTplt i
-  ms <- mapM qPutStXX qms
+  ms <- mapM qPutStXX $ filter (not . isAbsent) qms
   g <- get
   insRelSt t ms
 qPutStXX (At n) = lift $ Right n

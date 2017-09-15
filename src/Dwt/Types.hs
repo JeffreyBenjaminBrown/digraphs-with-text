@@ -5,7 +5,7 @@ module Dwt.Types (
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , Mbrship(..), RelVarSpec, RelNodeSpec
   , NodeOrVar(..), NodeOrVarXX(..), RelSpec, RelSpecXX
-  , QNode(..)
+  , QNode(..), isAt, isAbsent
   , Insertion(..), Level, JointX(..), EO(..), blankEo
   , DwtErr(..), ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString
@@ -106,3 +106,10 @@ errOpts :: Lens' DwtErr [ErrOpt]
 errOpts = _2
 errString :: Lens' DwtErr String
 errString = _3
+
+-- ==
+isAt, isAbsent :: Insertion -> Bool
+isAbsent Absent = True
+isAbsent _ = False
+isAt (At _) = True
+isAt _ = False
