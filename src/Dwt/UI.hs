@@ -7,8 +7,8 @@ import Data.Graph.Inductive (empty, nodes, Node)
 import Dwt.Types
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
-import Dwt.Hash.Parse
-import Dwt.Search.Parse
+import Dwt.Hash.Parse (expr)
+import Dwt.Search.Parse (pAll, pUsers)
 import Dwt.Util (fr)
 
 import Brick.Widgets.Core ( (<+>), (<=>), hLimit, vLimit, str)
@@ -32,10 +32,12 @@ import Data.List (partition)
 
 
 data Name = Edit1 | Edit2 deriving (Ord, Show, Eq)
+type Command = String
 
 data St = St { _rslt :: RSLT
              , _nodesInView :: [Node]
-             , _viewRequests :: [String]
+             , _commands :: [Command]
+             , _UIView :: [String]
              ,_focusRing :: F.FocusRing Name
              , _edit1, _edit2 :: E.Editor String Name
              }
@@ -43,7 +45,7 @@ data St = St { _rslt :: RSLT
 makeLenses ''St
 
 initialState :: RSLT -> St
-initialState g = St g (nodes g) [] (F.focusRing [Edit1, Edit2])
+initialState g = St g (nodes g) [] [] (F.focusRing [Edit1, Edit2])
   (E.editor Edit1 Nothing "") (E.editor Edit2 (Just 2) "")
 
 
@@ -56,7 +58,8 @@ viewRSLT st = do
         newNodesInView = runReader theReader $ st ^. rslt
         f1 = nodesInView .~ newNodesInView
         f2 = edit2 %~ E.applyEdit Z.clearZipper
-    M.continue $ st & f2 . f1
+        f3 = commands %~ (request :)
+    M.continue $ st & f3 . f2 . f1
 
 addToRSLT :: St -> T.EventM Name (T.Next St)
 addToRSLT st = do
@@ -129,6 +132,7 @@ theApp = M.App { M.appDraw = appDraw
 
 
 -- ==== Main
-ui :: RSLT -> IO (RSLT)
+ui :: RSLT -> IO (RSLT, [Command])
 ui g = do st <- M.defaultMain theApp $ initialState g
-          return $ st ^. rslt
+          return (st ^. rslt
+                 , st ^. commands)
