@@ -35,9 +35,8 @@ data Name = Edit1 | Edit2 deriving (Ord, Show, Eq)
 type Command = String
 
 data St = St { _rslt :: RSLT
-             , _nodesInView :: [Node]
              , _commands :: [Command]
-             , _UIView :: [String]
+             , _uiView :: [String]
              ,_focusRing :: F.FocusRing Name
              , _edit1, _edit2 :: E.Editor String Name
              }
@@ -45,7 +44,7 @@ data St = St { _rslt :: RSLT
 makeLenses ''St
 
 initialState :: RSLT -> St
-initialState g = St g (nodes g) [] [] (F.focusRing [Edit1, Edit2])
+initialState g = St g [] [] (F.focusRing [Edit1, Edit2])
   (E.editor Edit1 Nothing "") (E.editor Edit2 (Just 2) "")
 
 
@@ -55,8 +54,8 @@ viewRSLT st = do
     let (request:_) = st ^. edit2 & E.getEditContents
           -- TODO: find a more elegant way to take only one string
         theReader = fr $ parse (pUsers <|> pAll) "" request -- TODO: nix fr
-        newNodesInView = runReader theReader $ st ^. rslt
-        f1 = nodesInView .~ newNodesInView
+        nodesToView = runReader theReader $ st ^. rslt
+        f1 = uiView .~ lines (view  (st^.rslt)  nodesToView)
         f2 = edit2 %~ E.applyEdit Z.clearZipper
         f3 = commands %~ (request :)
     M.continue $ st & f3 . f2 . f1
@@ -64,7 +63,7 @@ viewRSLT st = do
 addToRSLT :: St -> T.EventM Name (T.Next St)
 addToRSLT st = do
     let strings = st ^. edit1 & E.getEditContents
-        graphUpdater = mapM (addExpr . fr . parse expr "" ) strings
+        graphUpdater = mapM (addExpr . fr . parse expr "") strings
           -- TODO: nix the fr
         g = st ^. rslt
         e = execStateT graphUpdater g
@@ -96,7 +95,7 @@ appChooseCursor = F.focusRingCursor (^.focusRing)
 appDraw :: St -> [T.Widget Name]
 appDraw st = [ui] where
   g = st ^. rslt
-  v = str $ view g $ st ^. nodesInView
+  -- v = str $ view g $ st ^. nodesInView
   e1 = F.withFocusRing
          (st^.focusRing)
          (  -- :: Bool -> a -> b
@@ -113,7 +112,7 @@ appDraw st = [ui] where
     <=> str " "
     <=> (str "Input 2: " <+> e2)
     <=>  str " "
-    <=> (str "The RSLT: " <+> v)
+    <=> (str "The RSLT: " <+> str (unlines $ st ^. uiView))
     <=> str " "
     <=> str "Press Tab to switch between editors, Esc to quit."
 
