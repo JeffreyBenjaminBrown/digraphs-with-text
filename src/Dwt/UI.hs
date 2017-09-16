@@ -67,14 +67,12 @@ changeView st = do
       st' = commandWindow %~ E.applyEdit Z.clearZipper
             $ commands %~ (commandString :) $ st
       command = fr $ parse pCommand "" commandString -- TODO: nix fr
-  case command of ViewGraph theReader -> viewRSLT command st'
+  case command of ViewGraph reader -> viewRSLT reader st'
                   ShowQueries -> showQueries st'
   where
-    viewRSLT :: Command -> St -> T.EventM Name (T.Next St)
-    viewRSLT (ViewGraph theReader) st = do
+    viewRSLT theReader st = do
       let nodesToView = runReader theReader $ st^.rslt
       M.continue $ st & uiView .~ lines (view  (st^.rslt)  nodesToView)
-    showQueries :: St -> T.EventM Name (T.Next St)
     showQueries st = M.continue $ st & uiView .~ st^.commands
 
 -- ==== Controls

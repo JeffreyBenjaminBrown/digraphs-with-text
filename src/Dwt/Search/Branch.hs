@@ -67,10 +67,10 @@ usersInRole g q r = qGet1 g q >>= \n -> _usersInRole g n r
 
 matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
 matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
-  let qNodeSpecs = Map.toList
+  let nodeSpecs = Map.toList
         $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,NodeOrVar)]
-  nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) qNodeSpecs
+  nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) nodeSpecs
   return $ listIntersect nodeListList
 
 matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
@@ -98,7 +98,7 @@ fork1Dir g qFrom (dir,axis) = do -- returns one generation, neighbors
       -- EXCEPT: that might hurt the dfs, bfs functions below
 
 --TODO: fork1DirsQ
---fork1DirsQ :: RSLT -> QNode -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
+--fork1DirsQ :: RSLT -> Insertion -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
 --fork1DirsQ g q rs = concat <$> mapM (fork1Dir g n) rs
 
 subNodeForVars :: Insertion -> Mbrship -> RelSpec

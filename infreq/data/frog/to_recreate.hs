@@ -1,6 +1,6 @@
 SENSITIVE to order
   Node-specifying functions here can be broken by reordering the earlier stmts
-  use QNode to fix that
+  use Insertion to fix that
 
 let g = empty :: Mindmap -- g is now an empty mindmap.
   -- I use the letter g because Mindmaps are Graphs,

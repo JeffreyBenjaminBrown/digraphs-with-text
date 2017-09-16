@@ -51,7 +51,6 @@ type RelSpec =    Map.Map RelRole NodeOrVar -- if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
 
 -- == Parsing Hash expressions
--- todo ? Insertion and QNode could be merged
 data Insertion = At Node -- for when you know the expression's node
   | Absent | InsLeaf Expr | InsRel EO [JointX] [Insertion]
   -- Every rel has at least one jointX, and potentially members on either side

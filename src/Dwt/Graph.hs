@@ -82,7 +82,6 @@ mkRelSpec :: Insertion -> [Insertion] -> RelSpec
 mkRelSpec t ns = Map.fromList $ (TpltRole, NodeSpec t) : mbrSpecs
   where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
--- pitfall: does not need conversion to QNode format
 relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
 relNodeSpec g n = prependCaller "relNodeSpec: " $ do
   gelemM g n
