@@ -32,7 +32,7 @@ mkTplt = Tplt
   . map (unpack . strip . pack)
   . _splitStringForTplt
 
-extractTplt :: Insertion -> Expr
+extractTplt :: QNode -> Expr
 extractTplt (InsRel _ js as) = Tplt $ ja ++ map (\(JointX s) -> s) js ++ jz
   where (ja,jz) = (f $ head as, f $ last as)
         f Absent = []

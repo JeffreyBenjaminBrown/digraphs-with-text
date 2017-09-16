@@ -20,7 +20,7 @@ import Control.Lens ((.~))
 -- be searched for. If found, it becomes an At; if not, it is created, and
 -- becomes an At.
 
-isValid :: Insertion -> Bool
+isValid :: QNode -> Bool
 isValid (InsRel _ [_] [Absent,Absent]) = False
 isValid (InsRel _ [_] [_,_]) = True
 isValid (InsRel _ js  ms) = (not $ any isAbsent $ middle)
@@ -29,28 +29,28 @@ isValid (InsRel _ js  ms) = (not $ any isAbsent $ middle)
   where middle = tail . reverse . tail $ ms
 isValid _ = True
 
-prettyPrint :: Insertion -> IO ()
+prettyPrint :: QNode -> IO ()
 prettyPrint = it 0 where
   space :: Int -> String
   space k = replicate (4*k) ' '
-  it :: Level -> Insertion -> IO ()
+  it :: Level -> QNode -> IO ()
   it indent (InsRel _ js (m:ms)) = do
-    putStrLn $ space indent ++ "Insertion: "
+    putStrLn $ space indent ++ "QNode: "
     it (indent+1) m
     let f (j,m) = do putStrLn $ (space $ indent+1) ++ show j
                      it (indent+1) m
     mapM_ f $ zip js ms
   it indent l = putStrLn $ space indent ++ show l
 
-addExpr :: Insertion -> StateT RSLT (Either DwtErr) Node
+addExpr :: QNode -> StateT RSLT (Either DwtErr) Node
 addExpr (At n) = get >>= lift . flip gelemM n >> return n
 addExpr Absent = lift $ Left (Impossible
-  , [ErrInsertion Absent], "execInsertion.")
+  , [ErrQNode Absent], "execQNode.")
 addExpr (InsLeaf e) = qPutSt $ InsLeaf e
 addExpr q@(InsRel _ js as) = do
   ns <- mapM addExpr $ filter (not . isAbsent) as
   qPutSt $ InsRel blankEo js $ reshuffle ns as
-  where reshuffle :: [Node] -> [Insertion] -> [Insertion]
+  where reshuffle :: [Node] -> [QNode] -> [QNode]
         reshuffle [] ms = ms
         reshuffle ns (Absent:is) = Absent : reshuffle ns is
         reshuffle (n:ns) (_:is) = At n : reshuffle ns is

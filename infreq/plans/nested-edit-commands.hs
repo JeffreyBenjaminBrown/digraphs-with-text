@@ -4,7 +4,7 @@
 -- are themselves instructions for adding something to the graph,
 -- unless that thing is already present.
 
--- Thanks to Reddit user WarDaf: https://www.reddit.com/r/haskell/comments/6wmrwh/how_to_process_a_tree_of_orderdependent_insertion/
+-- Thanks to Reddit user WarDaf: https://www.reddit.com/r/haskell/comments/6wmrwh/how_to_process_a_tree_of_orderdependent_qNode/
 
 import Data.List
 import Data.Ratio

@@ -31,38 +31,38 @@ hasBlanks = parse p "not a file"
 
 
 -- == Things used when parsing Word and Rel values
--- Insertion expresses how to add (nested) data to the RSLT
-isInsRel :: Insertion -> Bool
+-- QNode expresses how to add (nested) data to the RSLT
+isInsRel :: QNode -> Bool
 isInsRel (InsRel _ _ _) = True
 isInsRel _ = False
 
-startRel :: Level -> JointX -> Insertion -> Insertion -> Insertion
+startRel :: Level -> JointX -> QNode -> QNode -> QNode
 startRel l j a b = InsRel (EO True l) [j] [a,b]
 
 -- | PITFALL: In "a # b # c # d", you might imagine evaluating the middle #
 -- after the others. In that case both sides would be a InsRel, and you would
 -- want to modify both, rather than make one a member of the other. These
--- concat functions skip that possibility; one of the two Insertion arguments is
+-- concat functions skip that possibility; one of the two QNode arguments is
 -- always incorporated into the other. I believe that is safe, because 
 -- expressions in serial on the same level will always be parsed left to
 -- right, not outside to inside.
-rightConcat :: JointX -> Insertion -> Insertion -> Insertion
+rightConcat :: JointX -> QNode -> QNode -> QNode
   -- TODO: if|when need speed, use a two-sided list of pairs
 rightConcat j m (InsRel eo joints mbrs)
   = InsRel eo (joints ++ [j]) (mbrs ++ [m])
 rightConcat _ _ _ = error "can only rightConcat into a InsRel"
 
-leftConcat :: JointX -> Insertion -> Insertion -> Insertion
+leftConcat :: JointX -> QNode -> QNode -> QNode
 leftConcat j m (InsRel eo joints mbrs)
   = InsRel eo (j : joints) (m : mbrs)
 leftConcat _ _ _ = error "can only leftConcat into a InsRel"
 
-close :: Insertion -> Insertion
+close :: QNode -> QNode
 close (InsLeaf x) = InsLeaf x
 close (InsRel (EO _     a) b c)
      = InsRel (EO False a) b c
 
-hash :: Level -> JointX -> Insertion -> Insertion -> Insertion
+hash :: Level -> JointX -> QNode -> QNode -> QNode
 hash l j a@(isInsRel -> False) b@(isInsRel -> False)       = startRel l j a b
 hash l j a@(isInsRel -> False) b@(InsRel (EO False _) _ _) = startRel l j a b
 hash l j a@(InsRel (EO False _) _ _) b@(isInsRel -> False) = startRel l j a b
@@ -86,15 +86,15 @@ hash l j a@(InsRel ea _ _) b@(InsRel eb _ _) =
      else if e == ea then rightConcat j b a
      else error msg
 
--- == the Insertion parser
-expr :: Parser Insertion
+-- == the QNode parser
+expr :: Parser QNode
 expr = makeExprParser term [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
-term :: Parser Insertion
+term :: Parser QNode
 term = InsLeaf <$> leaf
        <|> close <$> parens expr
        <|> absent where
-  absent :: Parser Insertion
+  absent :: Parser QNode
   absent = const Absent <$> f <?> "Intended to \"find\" nothing."
   f = lookAhead $ const () <$> satisfy (== '#') <|> eof
     -- the Absent parser should look for #, but not ), because
@@ -104,7 +104,7 @@ pHashUnlabeled :: Int -> Parser ()
 pHashUnlabeled n = const () <$> f
   where f = string (replicate n '#') <* notFollowedBy (char '#')
 
-pHash :: Int -> Parser (Insertion -> Insertion -> Insertion)
+pHash :: Int -> Parser (QNode -> QNode -> QNode)
 pHash n = lexeme $ do
   pHashUnlabeled n
   label <- option "" $ anyWord <|> parens phrase

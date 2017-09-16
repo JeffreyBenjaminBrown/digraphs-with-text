@@ -6,7 +6,7 @@ module Dwt.Types (
   , Mbrship(..), RelVarSpec, RelNodeSpec
   , NodeOrVar(..), RelSpec
   , isAt, isAbsent
-  , Insertion(..), Level, JointX(..), EO(..), blankEo
+  , QNode(..), Level, JointX(..), EO(..), blankEo
   , DwtErr(..), ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString
   ) where
@@ -42,7 +42,7 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
 
 -- == Specifying kinds of relationships
 data Mbrship = It | Any | Up | Down deriving (Show,Read,Eq,Ord)
-data NodeOrVar = NodeSpec Insertion |VarSpec Mbrship deriving (Show,Eq)
+data NodeOrVar = NodeSpec QNode |VarSpec Mbrship deriving (Show,Eq)
 
 -- at the TpltRole key is always a concrete NodeSpec
 type RelVarSpec =  Map.Map RelRole Mbrship
@@ -51,8 +51,8 @@ type RelSpec =    Map.Map RelRole NodeOrVar -- if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
 
 -- == Parsing Hash expressions
-data Insertion = At Node -- for when you know the expression's node
-  | Absent | InsLeaf Expr | InsRel EO [JointX] [Insertion]
+data QNode = At Node -- for when you know the expression's node
+  | Absent | InsLeaf Expr | InsRel EO [JointX] [QNode]
   -- Every rel has at least one jointX, and potentially members on either side
   -- If there are more, the list of pairs stores them.
   deriving (Show, Eq)
@@ -88,7 +88,7 @@ data ErrBase = Legacy -- | for when the String has all the info
 data ErrOpt =  -- ^ New error style: sum type
   ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrMbrship Mbrship
-  | ErrRelSpec RelSpec | ErrInsertion Insertion
+  | ErrRelSpec RelSpec | ErrQNode QNode
   deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase
@@ -99,7 +99,7 @@ errString :: Lens' DwtErr String
 errString = _3
 
 -- ==
-isAt, isAbsent :: Insertion -> Bool
+isAt, isAbsent :: QNode -> Bool
 isAbsent Absent = True
 isAbsent _ = False
 isAt (At _) = True

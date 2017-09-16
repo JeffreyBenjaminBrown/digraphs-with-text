@@ -46,7 +46,7 @@ insRelSpec rSpec g = do
         -- these edges specify the addressed nodes
   return $ insEdges newLEdges $ insNode newLNode g
 
-relSpec :: RSLT -> Insertion -> Either DwtErr RelSpecConcrete
+relSpec :: RSLT -> QNode -> Either DwtErr RelSpecConcrete
   -- name ? getRelSpecDe
   -- is nearly inverse to partitionRelSpec
 relSpec g q = prependCaller "relSpec: " $ do
@@ -58,10 +58,10 @@ relSpec g q = prependCaller "relSpec: " $ do
           rvsl' = map (\(role,var) ->(role,VarSpecC  var )) rvsl
           rnsl' = map (\(role,node)->(role,NodeSpecC node)) rnsl
       return $ Map.fromList $ rvsl' ++ rnsl'
-    x -> Left (ConstructorMistmatch, [ErrExpr x, ErrInsertion $ At n]
+    x -> Left (ConstructorMistmatch, [ErrExpr x, ErrQNode $ At n]
               , "relSpec.")
 
-usersInRole :: RSLT -> Insertion -> RelRole -> Either DwtErr [Node]
+usersInRole :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
 usersInRole g (At n) r = prependCaller "usersInRole: " $ _usersInRole g n r
 usersInRole g q r = qGet1 g q >>= \n -> _usersInRole g n r
 
@@ -84,7 +84,7 @@ has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (VarSpec y) = y == mv
         f _ = False
 
-fork1Dir :: RSLT -> Insertion -> (Mbrship,RelSpec) -> Either DwtErr [Node]
+fork1Dir :: RSLT -> QNode -> (Mbrship,RelSpec) -> Either DwtErr [Node]
 fork1Dir g qFrom (dir,axis) = do -- returns one generation, neighbors
   fromDir <- otherDir dir
   if has1Dir fromDir axis then return ()
@@ -98,10 +98,10 @@ fork1Dir g qFrom (dir,axis) = do -- returns one generation, neighbors
       -- EXCEPT: that might hurt the dfs, bfs functions below
 
 --TODO: fork1DirsQ
---fork1DirsQ :: RSLT -> Insertion -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
+--fork1DirsQ :: RSLT -> QNode -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
 --fork1DirsQ g q rs = concat <$> mapM (fork1Dir g n) rs
 
-subNodeForVars :: Insertion -> Mbrship -> RelSpec
+subNodeForVars :: QNode -> Mbrship -> RelSpec
   -> ReaderT RSLT (Either DwtErr) RelSpec
 subNodeForVars q v r = do -- TODO: use prependCaller
   g <- ask

@@ -9,18 +9,18 @@ import Control.Monad
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Reader
 
-data Command = ViewGraph ReadNodes | ShowQueries | ShowInsertions
+data Command = ViewGraph ReadNodes | ShowQueries | ShowQNodes
 
 type ReadNodes = Reader RSLT [Node]
 
 pCommand :: Parser Command
 pCommand = foldl1 (<|>) [pUsers, pAllNodes, pShowQueries]
-  --TODO: add pShowInsertions]
+  --TODO: add pShowQNodes]
 
 pUsers :: Parser Command
 pUsers = ViewGraph . f <$> (symbol "u" *> integer) where
-  f insertion = do g <- ask
-                   return $ pre g insertion
+  f qNode = do g <- ask
+               return $ pre g qNode
 
 pAllNodes :: Parser Command
 pAllNodes = const (ViewGraph $ asks nodes) <$> symbol "all"
@@ -28,10 +28,10 @@ pAllNodes = const (ViewGraph $ asks nodes) <$> symbol "all"
 pShowQueries :: Parser Command
 pShowQueries = const ShowQueries <$> symbol "qs"
 
-pShowInsertions :: Parser Command
-pShowInsertions = const ShowInsertions <$> symbol "is"
+pShowQNodes :: Parser Command
+pShowQNodes = const ShowQNodes <$> symbol "is"
 
 
 -- ==== unused
-pAt :: Parser Insertion
+pAt :: Parser QNode
 pAt = At <$> integer

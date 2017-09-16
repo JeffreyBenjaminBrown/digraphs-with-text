@@ -78,7 +78,7 @@ insColl mt ns g = do
         map (\n -> (newNode, n, CollEdge CollMbr)) ns
   return $ insEdges newEdges $ insNode (newNode,Coll) g
 
-mkRelSpec :: Insertion -> [Insertion] -> RelSpec
+mkRelSpec :: QNode -> [QNode] -> RelSpec
 mkRelSpec t ns = Map.fromList $ (TpltRole, NodeSpec t) : mbrSpecs
   where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
