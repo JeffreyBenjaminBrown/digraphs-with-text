@@ -8,7 +8,7 @@ import Dwt.Types
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse (expr)
-import Dwt.Search.Parse (pAllNodes, pUsers)
+import Dwt.Search.Parse (Command(..), pCommand)
 import Dwt.Util (fr)
 
 import Brick.Widgets.Core ( (<+>), (<=>), hLimit, vLimit, str)
@@ -48,18 +48,6 @@ initialState g = St g [] [] (F.focusRing [InsertWindow, CommandWindow])
 
 
 -- ==== Change state
-changeView :: St -> T.EventM Name (T.Next St)
-changeView st = do
-    let (request:_) = st ^. commandWindow & E.getEditContents
-          -- TODO: find a more elegant way to take only one string
-        theReader = fr $ parse (pUsers <|> pAllNodes) "" request
-          -- TODO: nix fr
-        nodesToView = runReader theReader $ st ^. rslt
-        f1 = uiView .~ lines (view  (st^.rslt)  nodesToView)
-        f2 = commandWindow %~ E.applyEdit Z.clearZipper
-        f3 = commands %~ (request :)
-    M.continue $ st & f3 . f2 . f1
-
 addToRSLT :: St -> T.EventM Name (T.Next St)
 addToRSLT st = do
     let strings = st ^. insertWindow & E.getEditContents
@@ -71,6 +59,19 @@ addToRSLT st = do
         f2 = case e of Left _ -> id -- TODO: display the error
                        Right g' -> rslt .~ g'
     M.continue $ st & f2 . f1
+
+changeView :: St -> T.EventM Name (T.Next St)
+changeView st = do
+  let (commandString:_) = st ^. commandWindow & E.getEditContents
+        -- TODO: take first string without discarding rest
+      st' = commandWindow %~ E.applyEdit Z.clearZipper
+            $ commands %~ (commandString :) $ st
+  viewRSLT (fr $ parse pCommand "" commandString) st' -- TODO: nix fr
+
+viewRSLT :: Command -> St -> T.EventM Name (T.Next St)
+viewRSLT (ViewGraph theReader) st = do
+  let nodesToView = runReader theReader $ st ^. rslt
+  M.continue $ st & uiView .~ lines (view  (st^.rslt)  nodesToView)
 
 
 -- ==== Controls
