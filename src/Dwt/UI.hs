@@ -36,17 +36,15 @@ import qualified Data.Text.Zipper as Z
 
 import Data.List (partition)
 
-data Name = Edit1
-          | Edit2
-          deriving (Ord, Show, Eq)
+data Name = Edit1 | Edit2 deriving (Ord, Show, Eq)
 
-data St =
-    St { _rslt :: RSLT
-       , _nodesInView :: [Node]
-       ,_focusRing :: F.FocusRing Name
-       , _edit1 :: E.Editor String Name
-       , _edit2 :: E.Editor String Name
-       }
+data St = St { _rslt :: RSLT
+             , _nodesInView :: [Node]
+             , _viewRequests :: [String]
+             ,_focusRing :: F.FocusRing Name
+             , _edit1 :: E.Editor String Name
+             , _edit2 :: E.Editor String Name
+             }
 
 makeLenses ''St
 
@@ -110,28 +108,25 @@ addToRSLT st = do
     M.continue $ st & f2 . f1
 
 initialState :: RSLT -> St
-initialState g = St g (nodes g) (F.focusRing [Edit1, Edit2])
+initialState g = St g (nodes g) [] (F.focusRing [Edit1, Edit2])
   (E.editor Edit1 Nothing "") (E.editor Edit2 (Just 2) "")
 
 appAttrMap :: A.AttrMap
-appAttrMap = A.attrMap V.defAttr
-    [ (E.editAttr,                   V.white `on` V.blue)
-    , (E.editFocusedAttr,            V.black `on` V.yellow)
-    ]
+appAttrMap = A.attrMap V.defAttr [ (E.editAttr       , V.white `on` V.blue)
+                                 , (E.editFocusedAttr, V.black `on` V.yellow)
+                                 ]
 
 appChooseCursor :: St -> [T.CursorLocation Name] -> Maybe (T.CursorLocation Name)
 appChooseCursor = F.focusRingCursor (^.focusRing)
 
 theApp :: M.App St e Name
-theApp =
-    M.App { M.appDraw = appDraw
-          , M.appChooseCursor = appChooseCursor
-          , M.appHandleEvent = appHandleEvent
-          , M.appStartEvent = return
-          , M.appAttrMap = const appAttrMap
-          }
+theApp = M.App { M.appDraw = appDraw
+               , M.appChooseCursor = appChooseCursor
+               , M.appHandleEvent = appHandleEvent
+               , M.appStartEvent = return
+               , M.appAttrMap = const appAttrMap
+               }
 
 ui :: RSLT -> IO (RSLT)
-ui g = do
-    st <- M.defaultMain theApp $ initialState g
-    return $ st ^. rslt
+ui g = do st <- M.defaultMain theApp $ initialState g
+          return $ st ^. rslt
