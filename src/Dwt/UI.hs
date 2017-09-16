@@ -31,7 +31,7 @@ import Control.Monad.Trans.Reader (runReader)
 import Data.List (partition)
 
 
-data Name = Edit1 | Edit2 deriving (Ord, Show, Eq)
+data Name = InsertWindow | CommandWindow deriving (Ord, Show, Eq)
 
 data St = St { _rslt :: RSLT
              , _commands :: [String]
@@ -43,13 +43,13 @@ data St = St { _rslt :: RSLT
 makeLenses ''St
 
 initialState :: RSLT -> St
-initialState g = St g [] [] (F.focusRing [Edit1, Edit2])
-  (E.editor Edit1 Nothing "") (E.editor Edit2 (Just 2) "")
+initialState g = St g [] [] (F.focusRing [InsertWindow, CommandWindow])
+  (E.editor InsertWindow Nothing "") (E.editor CommandWindow (Just 2) "")
 
 
 -- ==== Change state
-viewRSLT :: St -> T.EventM Name (T.Next St)
-viewRSLT st = do
+changeView :: St -> T.EventM Name (T.Next St)
+changeView st = do
     let (request:_) = st ^. edit2 & E.getEditContents
           -- TODO: find a more elegant way to take only one string
         theReader = fr $ parse (pUsers <|> pAllNodes) "" request
@@ -82,11 +82,11 @@ appHandleEvent st (T.VtyEvent ev) =
   V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusPrev
     -- TODO ? why is this the representation of Tab?
   V.EvKey V.KEnter [V.MMeta] -> case focus of -- MMeta = only working modifier
-    Just Edit1 -> addToRSLT st
-    Just Edit2 -> viewRSLT st
+    Just InsertWindow -> addToRSLT st
+    Just CommandWindow -> changeView st
   _ -> M.continue =<< case focus of
-    Just Edit1 -> T.handleEventLensed st edit1 E.handleEditorEvent ev
-    Just Edit2 -> T.handleEventLensed st edit2 E.handleEditorEvent ev
+    Just InsertWindow -> T.handleEventLensed st edit1 E.handleEditorEvent ev
+    Just CommandWindow -> T.handleEventLensed st edit2 E.handleEditorEvent ev
     Nothing -> return st
 appHandleEvent st _ = M.continue st
 
