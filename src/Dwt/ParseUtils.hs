@@ -29,20 +29,20 @@ lexeme = L.lexeme sc
 parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
 
-wordChar :: Parser Char
-wordChar = C.alphaNumChar <|> C.char '-'
-
 symbol :: String -> Parser String -- | is already a lexeme
 symbol = L.symbol sc
+
+-- TODO: Mystery: I want wordChar to include '_', but it makes tests fail.
+wordChar :: Parser Char
+wordChar = C.alphaNumChar <|> C.char '-'
 
 -- | The notFollowedBy makes word different from symbol.
 -- For instance, word "(" will fail where symbol "(" would not.
 word :: String -> Parser String -- | could fail half-in, so requires "try"
-word w = lexeme $ C.string w <* notFollowedBy (wordChar <|> C.char '_')
-  -- todo : the <|> in that feels awkward
+word w = lexeme $ C.string w <* notFollowedBy wordChar
 
 anyWord :: Parser String
-anyWord = lexeme $ some wordChar
+anyWord = lexeme $ some wordChar  <* notFollowedBy wordChar
 
 phrase :: Parser String -- | does not accept the empty string
 phrase = concat . intersperse " " <$> some anyWord

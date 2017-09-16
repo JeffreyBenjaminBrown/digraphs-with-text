@@ -5,7 +5,9 @@
 module Dwt.Hash.Parse where
 
 import Text.Megaparsec
-import Dwt.ParseUtils (Parser, anyWord, lexeme, parens, phrase, word, sc)
+import qualified Text.Megaparsec.Char as C
+import Dwt.ParseUtils (Parser, lexeme, parens, phrase
+                      , anyWord, word, wordChar, sc)
 import Text.Megaparsec.Expr (makeExprParser, Operator(..))
 import Text.Megaparsec.Char (satisfy, string, char)
 
@@ -108,7 +110,9 @@ pHash n = lexeme $ do
   return $ hash n $ Joint label
 
 leaf :: Parser Expr
-leaf = do p <- some anyWord
-          return $ case elem "_" p of True ->  mkTplt . f $ p
-                                      False -> Word   . f $ p
-  where f = concat . intersperse " " 
+leaf = do
+  let blank = lexeme $ C.string "_" <* notFollowedBy (wordChar <|> C.char '_')
+      f = concat . intersperse " " 
+  p <- some $ blank <|> anyWord
+  return $ case elem "_" p of True ->  mkTplt . f $ p
+                              False -> Word   . f $ p
