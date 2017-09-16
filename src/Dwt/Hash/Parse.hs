@@ -33,14 +33,14 @@ hasBlanks = parse p "not a file"
 -- == Things used when parsing Word and Rel values
 -- QNode expresses how to add (nested) data to the RSLT
 isInsRel :: QNode -> Bool
-isInsRel (InsRel _ _ _) = True
+isInsRel (QRel _ _ _) = True
 isInsRel _ = False
 
 startRel :: Level -> Joint -> QNode -> QNode -> QNode
-startRel l j a b = InsRel (EO True l) [j] [a,b]
+startRel l j a b = QRel (EO True l) [j] [a,b]
 
 -- | PITFALL: In "a # b # c # d", you might imagine evaluating the middle #
--- after the others. In that case both sides would be a InsRel, and you would
+-- after the others. In that case both sides would be a QRel, and you would
 -- want to modify both, rather than make one a member of the other. These
 -- concat functions skip that possibility; one of the two QNode arguments is
 -- always incorporated into the other. I believe that is safe, because 
@@ -48,33 +48,33 @@ startRel l j a b = InsRel (EO True l) [j] [a,b]
 -- right, not outside to inside.
 rightConcat :: Joint -> QNode -> QNode -> QNode
   -- TODO: if|when need speed, use a two-sided list of pairs
-rightConcat j m (InsRel eo joints mbrs)
-  = InsRel eo (joints ++ [j]) (mbrs ++ [m])
-rightConcat _ _ _ = error "can only rightConcat into a InsRel"
+rightConcat j m (QRel eo joints mbrs)
+  = QRel eo (joints ++ [j]) (mbrs ++ [m])
+rightConcat _ _ _ = error "can only rightConcat into a QRel"
 
 leftConcat :: Joint -> QNode -> QNode -> QNode
-leftConcat j m (InsRel eo joints mbrs)
-  = InsRel eo (j : joints) (m : mbrs)
-leftConcat _ _ _ = error "can only leftConcat into a InsRel"
+leftConcat j m (QRel eo joints mbrs)
+  = QRel eo (j : joints) (m : mbrs)
+leftConcat _ _ _ = error "can only leftConcat into a QRel"
 
 close :: QNode -> QNode
-close (InsLeaf x) = InsLeaf x
-close (InsRel (EO _     a) b c)
-     = InsRel (EO False a) b c
+close (QQLeaf x) = QQLeaf x
+close (QRel (EO _     a) b c)
+     = QRel (EO False a) b c
 
 hash :: Level -> Joint -> QNode -> QNode -> QNode
 hash l j a@(isInsRel -> False) b@(isInsRel -> False)       = startRel l j a b
-hash l j a@(isInsRel -> False) b@(InsRel (EO False _) _ _) = startRel l j a b
-hash l j a@(InsRel (EO False _) _ _) b@(isInsRel -> False) = startRel l j a b
-hash l j a@(isInsRel -> False) b@(InsRel (EO True l') _ _)
+hash l j a@(isInsRel -> False) b@(QRel (EO False _) _ _) = startRel l j a b
+hash l j a@(QRel (EO False _) _ _) b@(isInsRel -> False) = startRel l j a b
+hash l j a@(isInsRel -> False) b@(QRel (EO True l') _ _)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = leftConcat j a b -- I suspect this won't happen either
   | l > l' = startRel l j a b
-hash l j a@(InsRel (EO True l') _ _) b@(isInsRel -> False)
+hash l j a@(QRel (EO True l') _ _) b@(isInsRel -> False)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = rightConcat j b a -- but this will
   | l > l' = startRel l j a b
-hash l j a@(InsRel ea _ _) b@(InsRel eb _ _) =
+hash l j a@(QRel ea _ _) b@(QRel eb _ _) =
   let e = EO True l
       msg = unlines [ "Joint should have been evaluated earlier."
                     , "level: " ++ show l
@@ -91,7 +91,7 @@ expr :: Parser QNode
 expr = makeExprParser term [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
 term :: Parser QNode
-term = InsLeaf <$> leaf
+term = QQLeaf <$> leaf
        <|> close <$> parens expr
        <|> absent where
   absent :: Parser QNode

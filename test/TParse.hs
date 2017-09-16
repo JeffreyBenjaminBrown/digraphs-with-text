@@ -20,48 +20,48 @@ tHash = TestCase $ do
   assertBool "4" $ either (const True) (const False) $ parse expr "" ")("
 
   assertBool "1" $
-    hash 2 ("") (InsLeaf $ Word "hi") (InsLeaf $ Word "there")
-    == InsRel (EO True 2) [""] [(InsLeaf $ Word "hi")
-                                    ,(InsLeaf $ Word "there")]
+    hash 2 ("") (QQLeaf $ Word "hi") (QQLeaf $ Word "there")
+    == QRel (EO True 2) [""] [(QQLeaf $ Word "hi")
+                                    ,(QQLeaf $ Word "there")]
 
   assertBool "2" $
-    rightConcat ("") (InsLeaf $ Word "na")
-    (InsRel (EO True 3) ["zaba"] [(InsLeaf $ Word "left")
-                                      ,(InsLeaf $ Word "right")])
-    == InsRel (EO True 3) ["zaba",""] [(InsLeaf $ Word "left")
-                                        ,(InsLeaf $ Word "right")
-                                        ,(InsLeaf $ Word "na")]
+    rightConcat ("") (QQLeaf $ Word "na")
+    (QRel (EO True 3) ["zaba"] [(QQLeaf $ Word "left")
+                                      ,(QQLeaf $ Word "right")])
+    == QRel (EO True 3) ["zaba",""] [(QQLeaf $ Word "left")
+                                        ,(QQLeaf $ Word "right")
+                                        ,(QQLeaf $ Word "na")]
 
   assertBool "3"
-    $ leftConcat ("new") (InsLeaf $ Word "new")
-      (InsRel (EO True 4) ["j"] [(InsLeaf $ Word "left")
-                                    ,(InsLeaf $ Word "right")])
-    == InsRel (EO True 4) ["new","j"]
-      [(InsLeaf $ Word "new"),(InsLeaf $ Word "left"),(InsLeaf $ Word "right")]
+    $ leftConcat ("new") (QQLeaf $ Word "new")
+      (QRel (EO True 4) ["j"] [(QQLeaf $ Word "left")
+                                    ,(QQLeaf $ Word "right")])
+    == QRel (EO True 4) ["new","j"]
+      [(QQLeaf $ Word "new"),(QQLeaf $ Word "left"),(QQLeaf $ Word "right")]
   assertBool "4" $ p == Right a where
       p = parse expr "uhh ... parse error?"
         "dogs #like you ###becase you #(give or misplace) (bones #that reek super nasty) #to dogs ##sometimes"
-      a = InsRel 
+      a = QRel 
             (EO True 3) 
             ["becase"] 
-            [InsRel 
+            [QRel 
               (EO True 1) 
               ["like"] 
-              [InsLeaf (Word "dogs")
-              ,InsLeaf (Word "you")]
-            ,InsRel 
+              [QQLeaf (Word "dogs")
+              ,QQLeaf (Word "you")]
+            ,QRel 
               (EO True 2) 
               ["sometimes"] 
-              [InsRel 
+              [QRel 
                 (EO True 1) 
                 ["give or misplace", "to"] 
-                [InsLeaf (Word "you")
-                ,InsRel 
+                [QQLeaf (Word "you")
+                ,QRel 
                   (EO False 1) 
                   ["that"] 
-                  [InsLeaf (Word "bones")
-                  ,InsLeaf  (Word "reek super nasty")]
-                ,InsLeaf (Word "dogs")]
+                  [QQLeaf (Word "bones")
+                  ,QQLeaf  (Word "reek super nasty")]
+                ,QQLeaf (Word "dogs")]
               ,Absent]]
   -- WARNING: assertions added below this line sometimes fail, even though
   -- they work above it. for instance, the following:

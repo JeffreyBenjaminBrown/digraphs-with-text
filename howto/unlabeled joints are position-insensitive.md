@@ -3,11 +3,11 @@
 The unary relationship "#word _" (for instance, "#maybe _") is different from the unary relatinship "_ #word". However, if there is no label attached to the joint, as in "# _" and "_ #", then they are indistinguishable. 
 
 ```
-> extractTplt $ InsRel eo [""] [Absent,InsLeaf $ Word "char"]
+> extractTplt $ QRel eo [""] [Absent,QQLeaf $ Word "char"]
 Tplt ["",""]
-> extractTplt $ InsRel eo ["dd"] [Absent,InsLeaf $ Word "char"]
+> extractTplt $ QRel eo ["dd"] [Absent,QQLeaf $ Word "char"]
 Tplt ["dd",""]
-> extractTplt $ InsRel eo ["dd"] [InsLeaf $ Word "char", Absent]
+> extractTplt $ QRel eo ["dd"] [QQLeaf $ Word "char", Absent]
 Tplt ["","dd"]
 ```
 

@@ -13,7 +13,7 @@
     import qualified Text.Megaparsec.Lexer as L
 
 -- data
-    data Cmd = Help | View | InsWord | InsTplt | InsRel | Quit deriving (Show, Read)
+    data Cmd = Help | View | InsWord | InsTplt | QRel | Quit deriving (Show, Read)
     type WizState = RSLT
 
 -- parser utilities
@@ -37,7 +37,7 @@
                      , ("v", View)
                      , ("iw", InsWord)
                      , ("it", InsTplt)
-                     , ("ir", InsRel)
+                     , ("ir", QRel)
                      , ("q",  Quit)
                      ]
 
@@ -64,7 +64,7 @@
           InsTplt -> tryWizStateIO "Enter a Tplt to add."
                            ((>0) . length . filter (=='_'))
                            insTplt g
-          InsRel -> do h <- insRelWiz g; wiz h
+          QRel -> do h <- insRelWiz g; wiz h
           Quit -> return g
 
     tryWizStateIO :: -- only used once

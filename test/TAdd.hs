@@ -15,9 +15,9 @@ tAddLabeled = TestCase $ do
   let Right g = execStateT f empty
       f = mapM (addExpr . fr . parse expr "" ) exprs
       exprs = ["a #x", "#x a", "a #x b", "##x b #x"]
-      qa = InsLeaf $ Word "a"
-      qb = InsLeaf $ Word "b"
-      qab = InsRel blankEo [Joint "x"] [qa,qb]
+      qa = QQLeaf $ Word "a"
+      qb = QQLeaf $ Word "b"
+      qab = QRel blankEo [Joint "x"] [qa,qb]
   assertBool "1" $ either (const False) (const True) $ qGet1 g qa
   assertBool "2" $ do either (const False) (const True) $ qGet1 g qb
   assertBool "3" $ do either (const False) (const True) $ qGet1 g qab
@@ -27,9 +27,9 @@ tAddUnlabeled = TestCase $ do
       f = mapM (addExpr . fr . parse expr "" ) exprs
       exprs = ["a #", "# a", "a # b", "## b #"]
         -- TODO: unlabeled rels (a #) and (# a) are visually indistinguishable
-      qa = InsLeaf $ Word "a"
-      qb = InsLeaf $ Word "b"
-      qab = InsRel blankEo [Joint ""] [qa,qb]
+      qa = QQLeaf $ Word "a"
+      qb = QQLeaf $ Word "b"
+      qab = QRel blankEo [Joint ""] [qa,qb]
   assertBool "1" $ either (const False) (const True) $ qGet1 g qa
   assertBool "2" $ do either (const False) (const True) $ qGet1 g qb
   assertBool "3" $ do either (const False) (const True) $ qGet1 g qab

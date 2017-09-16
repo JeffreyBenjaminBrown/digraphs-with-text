@@ -52,10 +52,9 @@ type RelSpec =    Map.Map RelRole NodeOrVar -- if well-formed, includes
 
 -- == Parsing Hash expressions
 data QNode = At Node -- for when you know the expression's node
-  | Absent | InsLeaf Expr | InsRel EO [Joint] [QNode]
+  | Absent | QQLeaf Expr | QRel EO [Joint] [QNode] deriving (Show, Eq)
   -- Every rel has at least one joint, and potentially members on either side
   -- If there are more, the list of pairs stores them.
-  deriving (Show, Eq)
 type Level = Int -- in "cats like you because you like them", the "because"
   -- relationship is level 2, and the "like" relationships are level 1
 
@@ -65,7 +64,7 @@ instance IsString Joint where fromString = Joint
 
 data EO = EO     -- EO = "expression orderer"
   { open :: Bool -- open = "more expressions can be concatentated into it"
-                 -- In b@(InsRel (EO x _) _ _), x is true until
+                 -- In b@(QRel (EO x _) _ _), x is true until
                  -- b has been surrounded by parentheses.
   , inLevel :: Level } deriving (Eq)
 instance Show EO where
