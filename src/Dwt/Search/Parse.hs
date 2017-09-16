@@ -14,7 +14,7 @@ data Command = ViewGraph ReadNodes | ShowQueries | ShowInsertions
 type ReadNodes = Reader RSLT [Node]
 
 pCommand :: Parser Command
-pCommand = foldl1 (<|>) [pUsers, pAllNodes, pShowQueries, pShowInsertions]
+pCommand = foldl1 (<|>) [pUsers, pAllNodes, pShowQueries] --, pShowInsertions]
 
 pUsers :: Parser Command
 pUsers = ViewGraph . f <$> (symbol "u" *> integer) where

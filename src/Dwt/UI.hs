@@ -62,17 +62,20 @@ addToRSLT st = do
 
 changeView :: St -> T.EventM Name (T.Next St)
 changeView st = do
-  let (commandString:_) = st ^. commandWindow & E.getEditContents
+  let (commandString:_) = st^.commandWindow & E.getEditContents
         -- TODO: take first string without discarding rest
       st' = commandWindow %~ E.applyEdit Z.clearZipper
             $ commands %~ (commandString :) $ st
-  viewRSLT (fr $ parse pCommand "" commandString) st' -- TODO: nix fr
-
-viewRSLT :: Command -> St -> T.EventM Name (T.Next St)
-viewRSLT (ViewGraph theReader) st = do
-  let nodesToView = runReader theReader $ st ^. rslt
-  M.continue $ st & uiView .~ lines (view  (st^.rslt)  nodesToView)
-
+      command = fr $ parse pCommand "" commandString -- TODO: nix fr
+  case command of ViewGraph theReader -> viewRSLT command st'
+                  ShowQueries -> showQueries st'
+  where
+    viewRSLT :: Command -> St -> T.EventM Name (T.Next St)
+    viewRSLT (ViewGraph theReader) st = do
+      let nodesToView = runReader theReader $ st^.rslt
+      M.continue $ st & uiView .~ lines (view  (st^.rslt)  nodesToView)
+    showQueries :: St -> T.EventM Name (T.Next St)
+    showQueries st = M.continue $ st & uiView .~ st^.commands
 
 -- ==== Controls
 appHandleEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
@@ -112,13 +115,12 @@ appDraw st = [ui] where
        (E.renderEditor $ str . unlines)
        (st^.commandWindow)
   ui = C.center
-    $ (str "Input 1: " <+> e1)
+    $ (str "Insert here: " <+> e1)
     <=> str " "
-    <=> (str "Input 2: " <+> e2)
+    <=> (str "Command here: " <+> e2)
     <=>  str " "
-    <=> (str "The RSLT: " <+> str (unlines $ st ^. uiView))
+    <=> (str "See here: " <+> str (unlines $ st ^. uiView))
     <=> str " "
-    <=> str "Press Tab to switch between editors, Esc to quit."
 
 appAttrMap :: A.AttrMap
 appAttrMap = A.attrMap V.defAttr [ (E.editAttr       , V.white `on` V.blue)
