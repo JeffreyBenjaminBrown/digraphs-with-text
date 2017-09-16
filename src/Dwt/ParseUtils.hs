@@ -38,7 +38,8 @@ symbol = L.symbol sc
 -- | The notFollowedBy makes word different from symbol.
 -- For instance, word "(" will fail where symbol "(" would not.
 word :: String -> Parser String -- | could fail half-in, so requires "try"
-word w = lexeme $ C.string w <* notFollowedBy wordChar
+word w = lexeme $ C.string w <* notFollowedBy (wordChar <|> C.char '_')
+  -- todo : the <|> in that feels awkward
 
 anyWord :: Parser String
 anyWord = lexeme $ some wordChar

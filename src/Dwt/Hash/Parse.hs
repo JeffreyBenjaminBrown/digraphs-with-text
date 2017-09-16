@@ -18,15 +18,10 @@ import Data.Void (Void)
 import Data.List (intersperse)
 
 
--- == Things used when parsing Tplt values
-hasBlanks :: String -> Either  (ParseError (Token String) Void) Bool
-hasBlanks = parse p "not a file"
-  where p :: Parser Bool
-        p = (>0) . length . concat
-            <$> (sc *> (many $ blank <|> other)) -- order across <|> matters
-        blank :: Parser String
+hasBlanks :: Parser Bool
+hasBlanks = (>0) . length . concat <$> (sc *> (many $ blank <|> other))
+  where blank, other :: Parser String  -- order across the <|> matters
         blank = try $ word "_"
-        other :: Parser String
         other = const "" <$> anyWord
 
 
@@ -99,6 +94,8 @@ term = QQLeaf <$> leaf
   f = lookAhead $ const () <$> satisfy (== '#') <|> eof
     -- the Absent parser should look for #, but not ), because
     -- parentheses get consumed in pairs in an outer (earlier) context
+
+
 
 pHashUnlabeled :: Int -> Parser ()
 pHashUnlabeled n = const () <$> f
