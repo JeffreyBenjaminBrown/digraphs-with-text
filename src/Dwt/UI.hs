@@ -8,7 +8,7 @@ import Dwt.Types
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse (expr)
-import Dwt.Search.Parse (pAll, pUsers)
+import Dwt.Search.Parse (pAllNodes, pUsers)
 import Dwt.Util (fr)
 
 import Brick.Widgets.Core ( (<+>), (<=>), hLimit, vLimit, str)
@@ -32,10 +32,9 @@ import Data.List (partition)
 
 
 data Name = Edit1 | Edit2 deriving (Ord, Show, Eq)
-type Command = String
 
 data St = St { _rslt :: RSLT
-             , _commands :: [Command]
+             , _commands :: [String]
              , _uiView :: [String]
              ,_focusRing :: F.FocusRing Name
              , _edit1, _edit2 :: E.Editor String Name
@@ -53,7 +52,8 @@ viewRSLT :: St -> T.EventM Name (T.Next St)
 viewRSLT st = do
     let (request:_) = st ^. edit2 & E.getEditContents
           -- TODO: find a more elegant way to take only one string
-        theReader = fr $ parse (pUsers <|> pAll) "" request -- TODO: nix fr
+        theReader = fr $ parse (pUsers <|> pAllNodes) "" request
+          -- TODO: nix fr
         nodesToView = runReader theReader $ st ^. rslt
         f1 = uiView .~ lines (view  (st^.rslt)  nodesToView)
         f2 = edit2 %~ E.applyEdit Z.clearZipper
@@ -75,13 +75,16 @@ addToRSLT st = do
 
 -- ==== Controls
 appHandleEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
-appHandleEvent st (T.VtyEvent ev) = case ev of
+appHandleEvent st (T.VtyEvent ev) =
+  let focus = F.focusGetCurrent (st^.focusRing)
+  in case ev of
   V.EvKey V.KEsc [] -> M.halt st
-  V.EvKey V.KIns [] -> addToRSLT st
-  V.EvKey V.KHome [] -> viewRSLT st
-  V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusNext
-  V.EvKey V.KBackTab [] -> M.continue $ st & focusRing %~ F.focusPrev
-  _ -> M.continue =<< case F.focusGetCurrent (st^.focusRing) of
+  V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusPrev
+    -- TODO ? why is this the representation of Tab?
+  V.EvKey V.KEnter [V.MMeta] -> case focus of -- MMeta = only working modifier
+    Just Edit1 -> addToRSLT st
+    Just Edit2 -> viewRSLT st
+  _ -> M.continue =<< case focus of
     Just Edit1 -> T.handleEventLensed st edit1 E.handleEditorEvent ev
     Just Edit2 -> T.handleEventLensed st edit2 E.handleEditorEvent ev
     Nothing -> return st
@@ -131,7 +134,7 @@ theApp = M.App { M.appDraw = appDraw
 
 
 -- ==== Main
-ui :: RSLT -> IO (RSLT, [Command])
+ui :: RSLT -> IO (RSLT, [String])
 ui g = do st <- M.defaultMain theApp $ initialState g
           return (st ^. rslt
                  , st ^. commands)

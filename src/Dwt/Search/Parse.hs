@@ -8,6 +8,8 @@ import Control.Monad
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Reader
 
+data Command = ViewGraph ReadNodes | ShowQueries | ShowInsertions
+
 type ReadNodes = Reader RSLT [Node]
 
 pAt :: Parser Insertion
@@ -18,5 +20,11 @@ pUsers = f <$> (symbol "u" *> integer) where
   f insertion = do g <- ask
                    return $ pre g insertion
 
-pAll :: Parser ReadNodes
-pAll = const (asks nodes) <$> symbol "all"
+pAllNodes :: Parser ReadNodes
+pAllNodes = const (asks nodes) <$> symbol "all"
+
+pShowQueries :: Parser Command
+pShowQueries = const ShowQueries <$> symbol "qs"
+
+pShowInsertions :: Parser Command
+pShowInsertions = const ShowInsertions <$> symbol "is"
