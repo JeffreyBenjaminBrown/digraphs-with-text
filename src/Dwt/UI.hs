@@ -37,7 +37,7 @@ data St = St { _rslt :: RSLT
              , _commands :: [String]
              , _uiView :: [String]
              ,_focusRing :: F.FocusRing Name
-             , _edit1, _edit2 :: E.Editor String Name
+             , _insertWindow, _commandWindow :: E.Editor String Name
              }
 
 makeLenses ''St
@@ -50,24 +50,24 @@ initialState g = St g [] [] (F.focusRing [InsertWindow, CommandWindow])
 -- ==== Change state
 changeView :: St -> T.EventM Name (T.Next St)
 changeView st = do
-    let (request:_) = st ^. edit2 & E.getEditContents
+    let (request:_) = st ^. commandWindow & E.getEditContents
           -- TODO: find a more elegant way to take only one string
         theReader = fr $ parse (pUsers <|> pAllNodes) "" request
           -- TODO: nix fr
         nodesToView = runReader theReader $ st ^. rslt
         f1 = uiView .~ lines (view  (st^.rslt)  nodesToView)
-        f2 = edit2 %~ E.applyEdit Z.clearZipper
+        f2 = commandWindow %~ E.applyEdit Z.clearZipper
         f3 = commands %~ (request :)
     M.continue $ st & f3 . f2 . f1
 
 addToRSLT :: St -> T.EventM Name (T.Next St)
 addToRSLT st = do
-    let strings = st ^. edit1 & E.getEditContents
+    let strings = st ^. insertWindow & E.getEditContents
         graphUpdater = mapM (addExpr . fr . parse expr "") strings
           -- TODO: nix the fr
         g = st ^. rslt
         e = execStateT graphUpdater g
-    let f1 = edit1 %~ E.applyEdit Z.clearZipper
+    let f1 = insertWindow %~ E.applyEdit Z.clearZipper
         f2 = case e of Left _ -> id -- TODO: display the error
                        Right g' -> rslt .~ g'
     M.continue $ st & f2 . f1
@@ -85,8 +85,8 @@ appHandleEvent st (T.VtyEvent ev) =
     Just InsertWindow -> addToRSLT st
     Just CommandWindow -> changeView st
   _ -> M.continue =<< case focus of
-    Just InsertWindow -> T.handleEventLensed st edit1 E.handleEditorEvent ev
-    Just CommandWindow -> T.handleEventLensed st edit2 E.handleEditorEvent ev
+    Just InsertWindow -> T.handleEventLensed st insertWindow E.handleEditorEvent ev
+    Just CommandWindow -> T.handleEventLensed st commandWindow E.handleEditorEvent ev
     Nothing -> return st
 appHandleEvent st _ = M.continue st
 
@@ -106,10 +106,10 @@ appDraw st = [ui] where
            E.renderEditor
              -- :: ([t] -> Widget n) -> Bool -> Editor t n -> Widget n
            $ str . unlines)
-         (st^.edit1)
+         (st^.insertWindow)
   e2 = F.withFocusRing (st^.focusRing)
        (E.renderEditor $ str . unlines)
-       (st^.edit2)
+       (st^.commandWindow)
   ui = C.center
     $ (str "Input 1: " <+> e1)
     <=> str " "
