@@ -6,7 +6,7 @@ module Dwt.Types (
   , Mbrship(..), RelVarSpec, RelNodeSpec
   , NodeOrVar(..), RelSpec
   , isAt, isAbsent
-  , QNode(..), Level, JointX(..), EO(..), blankEo
+  , QNode(..), Level, Joint(..), EO(..), blankEo
   , DwtErr(..), ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString
   ) where
@@ -52,16 +52,16 @@ type RelSpec =    Map.Map RelRole NodeOrVar -- if well-formed, includes
 
 -- == Parsing Hash expressions
 data QNode = At Node -- for when you know the expression's node
-  | Absent | InsLeaf Expr | InsRel EO [JointX] [QNode]
-  -- Every rel has at least one jointX, and potentially members on either side
+  | Absent | InsLeaf Expr | InsRel EO [Joint] [QNode]
+  -- Every rel has at least one joint, and potentially members on either side
   -- If there are more, the list of pairs stores them.
   deriving (Show, Eq)
 type Level = Int -- in "cats like you because you like them", the "because"
   -- relationship is level 2, and the "like" relationships are level 1
 
-data JointX = JointX String deriving (Show, Eq)
-  -- in "you #like peaches #at noon", "like" and "at" are jointXs
-instance IsString JointX where fromString = JointX
+data Joint = Joint String deriving (Show, Eq)
+  -- in "you #like peaches #at noon", "like" and "at" are joints
+instance IsString Joint where fromString = Joint
 
 data EO = EO     -- EO = "expression orderer"
   { open :: Bool -- open = "more expressions can be concatentated into it"
