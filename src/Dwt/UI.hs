@@ -72,7 +72,9 @@ changeView st = do
   where
     viewRSLT theReader st = do
       let nodesToView = runReader theReader $ st^.rslt
-      M.continue $ st & uiView .~ lines (view  (st^.rslt)  nodesToView)
+      case nodesToView of
+        Left dwtErr -> error $ "viewRSLT" ++ show dwtErr
+        Right ntv -> M.continue $ st & uiView .~ lines (view  (st^.rslt)  ntv)
     showQueries st = M.continue $ st & uiView .~ st^.commands
 
 -- ==== Controls

@@ -11,7 +11,7 @@ import Control.Monad.Trans.Reader
 
 
 data Command = ViewGraph ReadNodes | ShowQueries | ShowQNodes
-type ReadNodes = Reader RSLT [Node]
+type ReadNodes = Reader RSLT (Either DwtErr [Node])
 
 pCommand :: Parser Command
 pCommand = foldl1 (<|>) [pUsers, pAllNodes, pShowQueries]
@@ -23,11 +23,14 @@ pCommand = foldl1 (<|>) [pUsers, pAllNodes, pShowQueries]
 
 pUsers :: Parser Command
 pUsers = ViewGraph . f <$> (symbol "u" *> integer) where
-  f qNode = do g <- ask
-               return $ pre g qNode
+  f node = do g <- ask
+              return $ Right $ pre g node
+  -- TODO: what if qNode is not present? use QNode, not Node
 
 pAllNodes :: Parser Command
-pAllNodes = const (ViewGraph $ asks nodes) <$> symbol "all"
+pAllNodes = const f <$> symbol "all" where
+   f = ViewGraph $ do g <- ask
+                      return $ Right $ nodes g
 
 pShowQueries :: Parser Command
 pShowQueries = const ShowQueries <$> symbol "qs"
