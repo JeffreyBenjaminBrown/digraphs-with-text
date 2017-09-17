@@ -72,6 +72,10 @@ instance Show EO where
 instance Ord EO where -- Open > closed. If those are equal, ## > #, etc.
   EO a b <= EO c d = a <= c && b <= d
 disregardedEo = EO True 0 -- todo: retire
+  -- what I should have done, rather than make Dwt.Hash.Parse.Qeo a pair, is
+  -- data Qeo = QeoRel QNode Eo | Qeo QNode
+  -- That way I wouldn't have to use disregardedNode
+
 
 -- == Errors
 type DwtErr = (ErrBase, [ErrOpt], String)
