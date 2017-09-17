@@ -8,7 +8,6 @@ import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Types
 import Dwt.Search.Node
 import Dwt.Util (fr, maxNode, prependCaller, gelemM)
-import Dwt.Leaf (extractTplt)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)
 import Data.List (mapAccumL)

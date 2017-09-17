@@ -32,11 +32,12 @@ mkTplt = Tplt
   . map (unpack . strip . pack)
   . _splitStringForTplt
 
-extractTplt :: QNode -> Expr
-extractTplt (QRel js as) = Tplt $ ja ++ map (\(Joint s) -> s) js ++ jz
+extractTplt :: QNode -> Either DwtErr Expr
+extractTplt (QRel js as) = Right $ Tplt $ ja ++ map (\(Joint s) -> s) js ++ jz
   where (ja,jz) = (f $ head as, f $ last as)
         f Absent = []
         f _ = [""]
+extractTplt q = Left (ConstructorMistmatch, [ErrQNode q], "extractTplt.")
 
 subInTpltWithHashes :: Expr      -- must be a Tplt
                      -> [String] -- members for the Tplt
