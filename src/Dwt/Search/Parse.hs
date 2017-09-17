@@ -2,7 +2,9 @@ module Dwt.Search.Parse where
 
 import Data.Graph.Inductive (Node, pre, nodes)
 import Dwt.Types
-import Dwt.ParseUtils (Parser, integer, symbol)
+import Dwt.ParseUtils (Parser, integer, symbol, word)
+import Dwt.Hash.Parse (expr)
+import Dwt.Search.Node (qGet)
 import Text.Megaparsec.Char (satisfy, string, char)
 import Control.Applicative ((<|>))
 import Control.Monad
@@ -14,12 +16,13 @@ data Command = ViewGraph ReadNodes | ShowQueries | ShowQNodes
 type ReadNodes = Reader RSLT (Either DwtErr [Node])
 
 pCommand :: Parser Command
-pCommand = foldl1 (<|>) [pUsers, pAllNodes, pShowQueries]
+pCommand = foldl1 (<|>) [pUsers, pAllNodes, pShowQueries, pQNode]
   --TODO: add pShowQNodes]
 
---pQNode :: Parser Command
---pQNode = do q <- word "qn" >> expr
---            let 
+pQNode :: Parser Command
+pQNode = ViewGraph . f <$> (word "qn" >> expr) where
+  f qnode = do g <- ask
+               return $ qGet g qnode
 
 pUsers :: Parser Command
 pUsers = ViewGraph . f <$> (symbol "u" *> integer) where
