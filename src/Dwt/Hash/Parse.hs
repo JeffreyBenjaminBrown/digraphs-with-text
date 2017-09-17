@@ -55,7 +55,7 @@ leftConcat j m (QRel eo joints mbrs)
 leftConcat _ _ _ = error "can only leftConcat into a QRel"
 
 close :: QNode -> QNode
-close (QQLeaf x) = QQLeaf x
+close (QLeaf x) = QLeaf x
 close (QRel (EO _     a) b c)
      = QRel (EO False a) b c
 
@@ -88,7 +88,7 @@ expr :: Parser QNode
 expr = makeExprParser term [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
 term :: Parser QNode
-term = QQLeaf <$> leaf
+term = QLeaf <$> leaf
        <|> close <$> parens expr
        <|> absent where
   absent :: Parser QNode

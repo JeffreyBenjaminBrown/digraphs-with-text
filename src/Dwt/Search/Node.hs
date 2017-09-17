@@ -79,9 +79,9 @@ _qGet :: -- x herein is either Node or LNode Expr
     -- | matchRelSpecNodes or matchRelSpecNodesLab; used for QRel
   -> RSLT -> QNode -> Either DwtErr [x]
 _qGet f _ _ g (At n) = return $ if gelem n g then [f g n] else []
-_qGet _ f _ g (QQLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
+_qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
 _qGet _ _ f g i@(QRel _ _ qms) = prependCaller "_qGet: " $ do
-  t <- qGet1 g (QQLeaf $ extractTplt i) -- todo ? multiple qt, qms matches
+  t <- qGet1 g (QLeaf $ extractTplt i) -- todo ? multiple qt, qms matches
   ms <- mapM (qGet1 g) qms
   let relspec = _mkRelSpec t ms
   f g relspec
@@ -105,12 +105,12 @@ qPutSt :: QNode -> StateT RSLT (Either DwtErr) Node
 qPutSt i@(QRel _ _ qms) = do
   -- TODO ? would be more efficient to return even the half-completed state
   -- let tag = prependCaller "qPutSt: " -- TODO: use
-  t <- qPutSt $ QQLeaf $ extractTplt i
+  t <- qPutSt $ QLeaf $ extractTplt i
   ms <- mapM qPutSt $ filter (not . isAbsent) qms
   g <- get
   insRelSt t ms
 qPutSt (At n) = lift $ Right n
-qPutSt q@(QQLeaf x) = get >>= \g -> case qGet1 g q of
+qPutSt q@(QLeaf x) = get >>= \g -> case qGet1 g q of
   Right n -> lift $ Right n
   Left (FoundNo,_,_) -> let g' = insLeaf x g
     in put g' >> lift (Right $ maxNode g')

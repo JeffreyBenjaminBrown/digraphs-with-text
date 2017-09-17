@@ -52,7 +52,7 @@ type RelSpec =    Map.Map RelRole NodeOrVar -- if well-formed, includes
 
 -- == Parsing Hash expressions
 data QNode = At Node -- for when you know the expression's node
-  | Absent | QQLeaf Expr | QRel EO [Joint] [QNode] deriving (Show, Eq)
+  | Absent | QLeaf Expr | QRel EO [Joint] [QNode] deriving (Show, Eq)
   -- Every rel has at least one joint, and potentially members on either side
   -- If there are more, the list of pairs stores them.
 type Level = Int -- in "cats like you because you like them", the "because"

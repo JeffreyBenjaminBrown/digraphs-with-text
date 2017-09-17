@@ -2,6 +2,7 @@ module Dwt.Search.Parse where
 
 import Data.Graph.Inductive (Node, pre, nodes)
 import Dwt.Types
+import Dwt.Hash.Parse (leaf)
 import Dwt.ParseUtils (Parser, integer, symbol)
 import Text.Megaparsec.Char (satisfy, string, char)
 import Control.Applicative ((<|>))
@@ -36,5 +37,5 @@ pShowQNodes = const ShowQNodes <$> symbol "is"
 pAt :: Parser QNode
 pAt = At <$> integer
 
---pLeaf :: Parser QNode
---pLeaf = QExpr .
+pLeaf :: Parser QNode
+pLeaf = QLeaf <$> leaf
