@@ -20,7 +20,7 @@ module Dwt.Graph (
   , validRole -- RSLT -> Node -> RelRole -> Either DwtErr ()
   , relTplt -- unsafe. RSLT -> Node(Rel) -> Either DwtErr Expr(Tplt)
   , collPrinciple -- RSLT -> Node(Coll) -> Either DwtErr Expr(Principle)
-  , rels -- Gr Expr b -> [Node]
+  , tplts -- Gr Expr b -> [Node]
   , mbrs -- RSLT -> Node(Rel) -> [Node(Mbr)]
   , users -- Graph gr => gr a b -> Node -> Either DwtErr [Node]
   ) where
@@ -170,8 +170,8 @@ collPrinciple g collNode = do
     [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
 
 -- ==== .. -> [Node]
-rels :: Gr Expr b -> [Node]
-rels = nodes . labfilter (\n -> case n of Tplt _ -> True; _ -> False)
+tplts :: Gr Expr b -> [Node]
+tplts = nodes . labfilter (\n -> case n of Tplt _ -> True; _ -> False)
 
 -- opposites: mbrs, users
   -- though they would not be if Tplts pointed to|had members of their own
