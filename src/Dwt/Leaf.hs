@@ -33,7 +33,7 @@ mkTplt = Tplt
   . _splitStringForTplt
 
 extractTplt :: QNode -> Expr
-extractTplt (QRel _ js as) = Tplt $ ja ++ map (\(Joint s) -> s) js ++ jz
+extractTplt (QRel js as) = Tplt $ ja ++ map (\(Joint s) -> s) js ++ jz
   where (ja,jz) = (f $ head as, f $ last as)
         f Absent = []
         f _ = [""]

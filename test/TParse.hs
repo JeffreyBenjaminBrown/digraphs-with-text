@@ -22,26 +22,26 @@ tHash = TestCase $ do
   assertBool "1"
     $ hash 2 ("") (QLeaf $ Word "hi", disregardedEo)
                   (QLeaf $ Word "there", disregardedEo)
-    == (QRel disregardedEo [""] [(QLeaf $ Word "hi")
+    == (QRel [""] [(QLeaf $ Word "hi")
                                 ,(QLeaf $ Word "there")]
        , EO True 2)
 
   assertBool "2" $
     rightConcat ("") (QLeaf $ Word "na", disregardedEo)
-    (QRel disregardedEo ["zaba"] [(QLeaf $ Word "left")
+    (QRel ["zaba"] [(QLeaf $ Word "left")
                                  ,(QLeaf $ Word "right")]
     , EO True 3)
-    == (QRel disregardedEo ["zaba",""] [(QLeaf $ Word "left")
+    == (QRel ["zaba",""] [(QLeaf $ Word "left")
                                         ,(QLeaf $ Word "right")
                                         ,(QLeaf $ Word "na")]
        , EO True 3)
 
   assertBool "3"
     $ leftConcat ("new") (QLeaf $ Word "new", disregardedEo)
-      (QRel disregardedEo ["j"] [(QLeaf $ Word "left")
+      (QRel ["j"] [(QLeaf $ Word "left")
                                 ,(QLeaf $ Word "right")]
       , EO True 4)
-    == (QRel disregardedEo ["new","j"]
+    == (QRel ["new","j"]
         [(QLeaf $ Word "new")
         ,(QLeaf $ Word "left")
         ,(QLeaf $ Word "right")]
@@ -49,18 +49,18 @@ tHash = TestCase $ do
 
   let p = parse expr "uhh ... parse error?"
         "dogs #like you ###becase you #(give or misplace) (bones #that reek super nasty) #to dogs ##sometimes"
-      a = QRel (EO True 3) 
+      a = QRel
             ["becase"] 
-            [QRel (EO True 1) 
+            [QRel
               ["like"] 
               [QLeaf (Word "dogs")
               ,QLeaf (Word "you")]
-            ,QRel (EO True 2) 
+            ,QRel
               ["sometimes"] 
-              [QRel (EO True 1) 
+              [QRel
                 ["give or misplace", "to"] 
                 [QLeaf (Word "you")
-                ,QRel (EO False 1) 
+                ,QRel
                   ["that"] 
                   [QLeaf (Word "bones")
                   ,QLeaf  (Word "reek super nasty")]

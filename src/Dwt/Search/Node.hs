@@ -80,7 +80,7 @@ _qGet :: -- x herein is either Node or LNode Expr
   -> RSLT -> QNode -> Either DwtErr [x]
 _qGet f _ _ g (At n) = return $ if gelem n g then [f g n] else []
 _qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
-_qGet _ _ f g i@(QRel _ _ qms) = prependCaller "_qGet: " $ do
+_qGet _ _ f g i@(QRel _ qms) = prependCaller "_qGet: " $ do
   t <- qGet1 g (QLeaf $ extractTplt i) -- todo ? multiple qt, qms matches
   ms <- mapM (qGet1 g) qms
   let relspec = _mkRelSpec t ms
@@ -102,7 +102,7 @@ qGet1 g q = prependCaller "qGet1: " $ case qGet g q of
   where queryError = [ErrQNode q]
 
 qPutSt :: QNode -> StateT RSLT (Either DwtErr) Node
-qPutSt i@(QRel _ _ qms) = do
+qPutSt i@(QRel _ qms) = do
   -- TODO ? would be more efficient to return even the half-completed state
   -- let tag = prependCaller "qPutSt: " -- TODO: use
   t <- qPutSt $ QLeaf $ extractTplt i

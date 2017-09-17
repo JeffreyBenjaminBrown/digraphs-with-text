@@ -27,11 +27,11 @@ type Qeo = (QNode, EO)
 -- == Things used when parsing Word and Rel values
 -- QNode expresses how to add (nested) data to the RSLT
 isInsRel :: Qeo -> Bool
-isInsRel (QRel _ _ _, _) = True
+isInsRel (QRel _ _, _) = True
 isInsRel _ = False
 
 startRel :: Level -> Joint -> Qeo -> Qeo -> Qeo
-startRel l j a b = (QRel disregardedEo [j] [fst a, fst b], EO True l)
+startRel l j a b = (QRel [j] [fst a, fst b], EO True l)
 
 
 -- | PITFALL: In "a # b # c # d", you might imagine evaluating the middle #
@@ -43,33 +43,33 @@ startRel l j a b = (QRel disregardedEo [j] [fst a, fst b], EO True l)
 -- right, not outside to inside.
 rightConcat :: Joint -> Qeo -> Qeo -> Qeo
   -- TODO: if|when need speed, use a two-sided list of pairs
-rightConcat j m (QRel _ joints mbrs, eo)
-  = (QRel disregardedEo (joints ++ [j]) (mbrs ++ [fst m]), eo)
+rightConcat j m (QRel joints mbrs, eo)
+  = (QRel (joints ++ [j]) (mbrs ++ [fst m]), eo)
 rightConcat _ _ _ = error "can only rightConcat into a QRel"
 
 leftConcat :: Joint -> Qeo -> Qeo -> Qeo
-leftConcat j m (QRel _ joints mbrs, eo)
-  = (QRel disregardedEo (j : joints) (fst m : mbrs), eo)
+leftConcat j m (QRel joints mbrs, eo)
+  = (QRel (j : joints) (fst m : mbrs), eo)
 leftConcat _ _ _ = error "can only leftConcat into a QRel"
 
 close :: Qeo -> Qeo
 close (QLeaf x, _)         = (QLeaf x, disregardedEo)
-close (QRel _ b c, EO _ a) = (QRel disregardedEo b c, EO False a)
+close (QRel b c, EO _ a) = (QRel b c, EO False a)
 
 
 hash :: Level -> Joint -> Qeo -> Qeo -> Qeo
 hash l j a@(isInsRel -> False) b@(isInsRel -> False)       = startRel l j a b
-hash l j a@(isInsRel -> False) b@(QRel _ _ _, EO False _) = startRel l j a b
-hash l j a@(QRel _ _ _, EO False _) b@(isInsRel -> False) = startRel l j a b
-hash l j a@(isInsRel -> False) b@(QRel _ _ _, EO True l')
+hash l j a@(isInsRel -> False) b@(QRel _ _, EO False _) = startRel l j a b
+hash l j a@(QRel _ _, EO False _) b@(isInsRel -> False) = startRel l j a b
+hash l j a@(isInsRel -> False) b@(QRel _ _, EO True l')
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = leftConcat j a b -- I suspect this won't happen either
   | l > l' = startRel l j a b
-hash l j a@(QRel _ _ _, EO True l') b@(isInsRel -> False)
+hash l j a@(QRel _ _, EO True l') b@(isInsRel -> False)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = rightConcat j b a -- but this will
   | l > l' = startRel l j a b
-hash l j a@(QRel _ _ _, ea) b@(QRel _ _ _, eb) =
+hash l j a@(QRel _ _, ea) b@(QRel _ _, eb) =
   let e = EO True l
       msg = unlines [ "Joint should have been evaluated earlier."
                     , "level: " ++ show l

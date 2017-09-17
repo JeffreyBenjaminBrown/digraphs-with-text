@@ -17,7 +17,7 @@ tAddLabeled = TestCase $ do
       exprs = ["a #x", "#x a", "a #x b", "##x b #x"]
       qa = QLeaf $ Word "a"
       qb = QLeaf $ Word "b"
-      qab = QRel disregardedEo [Joint "x"] [qa,qb]
+      qab = QRel [Joint "x"] [qa,qb]
   assertBool "1" $ either (const False) (const True) $ qGet1 g qa
   assertBool "2" $ do either (const False) (const True) $ qGet1 g qb
   assertBool "3" $ do either (const False) (const True) $ qGet1 g qab
@@ -29,7 +29,7 @@ tAddUnlabeled = TestCase $ do
         -- TODO: unlabeled rels (a #) and (# a) are visually indistinguishable
       qa = QLeaf $ Word "a"
       qb = QLeaf $ Word "b"
-      qab = QRel disregardedEo [Joint ""] [qa,qb]
+      qab = QRel [Joint ""] [qa,qb]
   assertBool "1" $ either (const False) (const True) $ qGet1 g qa
   assertBool "2" $ do either (const False) (const True) $ qGet1 g qb
   assertBool "3" $ do either (const False) (const True) $ qGet1 g qab
