@@ -1,3 +1,5 @@
+import Dwt.Hash.ParseEo as E
+
 import Data.Graph.Inductive
 
 import Control.Monad

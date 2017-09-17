@@ -33,9 +33,10 @@ pShowQNodes :: Parser Command
 pShowQNodes = const ShowQNodes <$> symbol "is"
 
 
--- ==== unused
+-- ==== Parse a QNode
 pAt :: Parser QNode
 pAt = At <$> integer
 
 pLeaf :: Parser QNode
 pLeaf = QLeaf <$> leaf
+

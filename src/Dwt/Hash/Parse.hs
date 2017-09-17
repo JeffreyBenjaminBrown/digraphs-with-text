@@ -1,7 +1,6 @@
 -- From an expression like "I #like turtles ##when the sun #is big", creates a set of instructions for adding expressions to a RSLT.
 -- discussion: https://www.reddit.com/r/haskell/comments/6v9b13/can_this_problem_be_approached_from_the_bottomup/
 {-# LANGUAGE ViewPatterns #-}
-
 module Dwt.Hash.Parse where
 
 import Text.Megaparsec
