@@ -1,7 +1,7 @@
 module TAdd where
 
 import Dwt hiding (fromRight)
-import Dwt.Types (EO(..), disregardedEo)
+import Dwt.Types (EO(..))
 import Data.Graph.Inductive
 import Test.HUnit hiding (Node)
 import Text.Megaparsec (parse)

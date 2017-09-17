@@ -1,6 +1,6 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE TupleSections #-}
-module Dwt.Hash.ParseEo (
+module Dwt.Hash.Parse (
   expr, leaf
 
   -- for tests, not interface

@@ -1,4 +1,4 @@
-import Dwt.Hash.ParseEo as E
+import Dwt.Hash.Parse as E
 
 import Data.Graph.Inductive
 

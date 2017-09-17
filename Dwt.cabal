@@ -17,7 +17,7 @@ library
                      , Dwt.Leaf
                      , Dwt.Graph
                      , Dwt.Hash.Parse
-                     , Dwt.Hash.ParseEo
+                     , Dwt.Hash.Parse
                      , Dwt.Hash.Insert 
                      , Dwt.ParseUtils
                      , Dwt.Search.Branch
