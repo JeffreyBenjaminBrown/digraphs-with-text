@@ -19,13 +19,6 @@ import Data.Void (Void)
 import Data.List (intersperse)
 
 
-hasBlanks :: Parser Bool
-hasBlanks = (>0) . length . concat <$> (sc *> (many $ blank <|> other))
-  where blank, other :: Parser String  -- order across the <|> matters
-        blank = try $ word "_"
-        other = const "" <$> anyWord
-
-
 -- == Things used when parsing Word and Rel values
 -- QNode expresses how to add (nested) data to the RSLT
 isInsRel :: QNode -> Bool

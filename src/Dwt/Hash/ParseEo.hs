@@ -1,6 +1,11 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE TupleSections #-}
-module Dwt.Hash.ParseEo () where
+module Dwt.Hash.ParseEo (
+  expr, leaf
+
+  -- for tests, not interface
+  , hash, rightConcat, leftConcat
+  ) where
 
 import Text.Megaparsec
 import qualified Text.Megaparsec.Char as C
@@ -113,3 +118,10 @@ leaf = do
   p <- some $ blank <|> anyWord
   return $ case elem "_" p of True ->  mkTplt . f $ p
                               False -> Word   . f $ p
+
+-- | unused
+hasBlanks :: Parser Bool
+hasBlanks = (>0) . length . concat <$> (sc *> (many $ blank <|> other))
+  where blank, other :: Parser String  -- order across the <|> matters
+        blank = try $ word "_"
+        other = const "" <$> anyWord

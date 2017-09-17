@@ -2,7 +2,7 @@ module Dwt.Search.Parse where
 
 import Data.Graph.Inductive (Node, pre, nodes)
 import Dwt.Types
-import Dwt.Hash.Parse (leaf)
+import Dwt.Hash.ParseEo (leaf)
 import Dwt.ParseUtils (Parser, integer, symbol)
 import Text.Megaparsec.Char (satisfy, string, char)
 import Control.Applicative ((<|>))

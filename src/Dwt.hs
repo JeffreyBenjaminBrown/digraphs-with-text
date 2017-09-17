@@ -6,7 +6,7 @@ module Dwt
   , module Dwt.Graph
   , module Dwt.Leaf
   , module Dwt.Hash.Insert
-  , module Dwt.Hash.Parse
+  , module Dwt.Hash.ParseEo
   , module Dwt.ParseUtils
   , module Dwt.Search.Branch
   , module Dwt.Search.Node
@@ -23,7 +23,7 @@ import Data.Graph.Inductive (Node,Edge,LNode,LEdge,empty)
 import Dwt.Leaf
 import Dwt.Graph
 import Dwt.Hash.Insert
-import Dwt.Hash.Parse
+import Dwt.Hash.ParseEo
 import Dwt.ParseUtils
 import Dwt.Search.Branch
 import Dwt.Search.Node

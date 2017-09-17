@@ -7,7 +7,7 @@ import Data.Graph.Inductive (empty, nodes, Node)
 import Dwt.Types
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
-import Dwt.Hash.Parse (expr)
+import Dwt.Hash.ParseEo (expr)
 import Dwt.Search.Parse (Command(..), pCommand)
 import Dwt.Util (fr)
 
