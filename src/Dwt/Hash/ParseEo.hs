@@ -50,3 +50,27 @@ close :: Qeo -> Qeo
 close (QLeaf x, _)         = (QLeaf x, disregardedEo)
 close (QRel _ b c, EO _ a) = (QRel disregardedEo b c, EO False a)
 
+
+hash :: Level -> Joint -> Qeo -> Qeo -> Qeo
+hash l j a@(isInsRel -> False) b@(isInsRel -> False)       = startRel l j a b
+hash l j a@(isInsRel -> False) b@(QRel _ _ _, EO False _) = startRel l j a b
+hash l j a@(QRel _ _ _, EO False _) b@(isInsRel -> False) = startRel l j a b
+hash l j a@(isInsRel -> False) b@(QRel _ _ _, EO True l')
+  | l < l' = error "Higher level should not have been evaluated first."
+  | l == l' = leftConcat j a b -- I suspect this won't happen either
+  | l > l' = startRel l j a b
+hash l j a@(QRel _ _ _, EO True l') b@(isInsRel -> False)
+  | l < l' = error "Higher level should not have been evaluated first."
+  | l == l' = rightConcat j b a -- but this will
+  | l > l' = startRel l j a b
+hash l j a@(QRel _ _ _, ea) b@(QRel _ _ _, eb) =
+  let e = EO True l
+      msg = unlines [ "Joint should have been evaluated earlier."
+                    , "level: " ++ show l
+                    , "joint: " ++ show j
+                    , "left: " ++ show a
+                    , "right: " ++ show b ]
+  in if e <= eb then error msg
+     else if e > ea then startRel l j a b
+     else if e == ea then rightConcat j b a
+     else error msg
