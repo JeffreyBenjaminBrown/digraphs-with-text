@@ -25,7 +25,7 @@ isInsRel (QRel _ _ _, _) = True
 isInsRel _ = False
 
 startRel :: Level -> Joint -> Qeo -> Qeo -> Qeo
-startRel l j a b = (QRel blankEo [j] [fst a, fst b], EO True l)
+startRel l j a b = (QRel disregardedEo [j] [fst a, fst b], EO True l)
 
 
 -- | PITFALL: In "a # b # c # d", you might imagine evaluating the middle #
@@ -38,5 +38,15 @@ startRel l j a b = (QRel blankEo [j] [fst a, fst b], EO True l)
 rightConcat :: Joint -> Qeo -> Qeo -> Qeo
   -- TODO: if|when need speed, use a two-sided list of pairs
 rightConcat j m (QRel _ joints mbrs, eo)
-  = (QRel blankEo (joints ++ [j]) (mbrs ++ [fst m]), eo)
+  = (QRel disregardedEo (joints ++ [j]) (mbrs ++ [fst m]), eo)
 rightConcat _ _ _ = error "can only rightConcat into a QRel"
+
+leftConcat :: Joint -> Qeo -> Qeo -> Qeo
+leftConcat j m (QRel _ joints mbrs, eo)
+  = (QRel disregardedEo (j : joints) (fst m : mbrs), eo)
+leftConcat _ _ _ = error "can only leftConcat into a QRel"
+
+close :: Qeo -> Qeo
+close (QLeaf x, _)         = (QLeaf x, disregardedEo)
+close (QRel _ b c, EO _ a) = (QRel disregardedEo b c, EO False a)
+

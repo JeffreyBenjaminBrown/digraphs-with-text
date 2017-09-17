@@ -1,7 +1,7 @@
 module TAdd where
 
 import Dwt hiding (fromRight)
-import Dwt.Types (EO(..), blankEo)
+import Dwt.Types (EO(..), disregardedEo)
 import Data.Graph.Inductive
 import Test.HUnit hiding (Node)
 import Text.Megaparsec (parse)
@@ -17,7 +17,7 @@ tAddLabeled = TestCase $ do
       exprs = ["a #x", "#x a", "a #x b", "##x b #x"]
       qa = QLeaf $ Word "a"
       qb = QLeaf $ Word "b"
-      qab = QRel blankEo [Joint "x"] [qa,qb]
+      qab = QRel disregardedEo [Joint "x"] [qa,qb]
   assertBool "1" $ either (const False) (const True) $ qGet1 g qa
   assertBool "2" $ do either (const False) (const True) $ qGet1 g qb
   assertBool "3" $ do either (const False) (const True) $ qGet1 g qab
@@ -29,7 +29,7 @@ tAddUnlabeled = TestCase $ do
         -- TODO: unlabeled rels (a #) and (# a) are visually indistinguishable
       qa = QLeaf $ Word "a"
       qb = QLeaf $ Word "b"
-      qab = QRel blankEo [Joint ""] [qa,qb]
+      qab = QRel disregardedEo [Joint ""] [qa,qb]
   assertBool "1" $ either (const False) (const True) $ qGet1 g qa
   assertBool "2" $ do either (const False) (const True) $ qGet1 g qb
   assertBool "3" $ do either (const False) (const True) $ qGet1 g qab

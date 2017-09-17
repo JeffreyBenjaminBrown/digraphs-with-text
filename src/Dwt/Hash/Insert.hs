@@ -49,7 +49,7 @@ addExpr Absent = lift $ Left (Impossible
 addExpr (QLeaf e) = qPutSt $ QLeaf e
 addExpr q@(QRel _ js as) = do
   ns <- mapM addExpr $ filter (not . isAbsent) as
-  qPutSt $ QRel blankEo js $ reshuffle ns as
+  qPutSt $ QRel disregardedEo js $ reshuffle ns as
   where reshuffle :: [Node] -> [QNode] -> [QNode]
         reshuffle [] ms = ms
         reshuffle ns (Absent:is) = Absent : reshuffle ns is
