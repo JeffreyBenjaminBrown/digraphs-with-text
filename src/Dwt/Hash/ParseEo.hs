@@ -1,4 +1,5 @@
 {-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE TupleSections #-}
 module Dwt.Hash.ParseEo () where
 
 import Text.Megaparsec
@@ -74,3 +75,41 @@ hash l j a@(QRel _ _ _, ea) b@(QRel _ _ _, eb) =
      else if e > ea then startRel l j a b
      else if e == ea then rightConcat j b a
      else error msg
+
+
+-- == the QNode parser
+expr :: Parser QNode
+expr = fst <$> expr'
+
+expr' :: Parser Qeo
+expr' = makeExprParser term
+  [ [InfixL $ try $ pHash n] | n <- [1..8] ]
+
+term :: Parser Qeo
+term = (, disregardedEo) . QLeaf <$> leaf
+       <|> close <$> parens expr'
+       <|> absent where
+  absent :: Parser Qeo
+  absent = (, disregardedEo) . const Absent <$> f
+    <?> "Intended to \"find\" nothing."
+  f = lookAhead $ const () <$> satisfy (== '#') <|> eof
+    -- the Absent parser should look for #, but not ), because
+    -- parentheses get consumed in pairs in an outer (earlier) context
+
+pHashUnlabeled :: Int -> Parser ()
+pHashUnlabeled n = const () <$> f
+  where f = string (replicate n '#') <* notFollowedBy (char '#')
+
+pHash :: Int -> Parser (Qeo -> Qeo -> Qeo)
+pHash n = lexeme $ do
+  pHashUnlabeled n
+  label <- option "" $ anyWord <|> parens phrase
+  return $ hash n $ Joint label
+
+leaf :: Parser Expr
+leaf = do
+  let blank = lexeme $ C.string "_" <* notFollowedBy (wordChar <|> C.char '_')
+      f = concat . intersperse " " 
+  p <- some $ blank <|> anyWord
+  return $ case elem "_" p of True ->  mkTplt . f $ p
+                              False -> Word   . f $ p
