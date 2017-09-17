@@ -29,7 +29,7 @@ lexeme = L.lexeme sc
 parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
 
-symbol :: String -> Parser String -- | lexeme but doesn't check that it's not followed by a non-space character!
+symbol :: String -> Parser String -- | TODO: eliminate, because dangerous: is lexeme, but doesn't check that it's not followed by a non-space character
 symbol = L.symbol sc
 
 -- TODO: Mystery: I want wordChar to include '_', but it makes tests fail.
