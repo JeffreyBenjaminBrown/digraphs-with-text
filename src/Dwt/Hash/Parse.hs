@@ -1,20 +1,20 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE TupleSections #-}
 module Dwt.Hash.Parse (
-  expr, leaf
+  expr
 
   -- for tests, not interface
   , hash, rightConcat, leftConcat
   ) where
 
 import Text.Megaparsec
-import qualified Text.Megaparsec.Char as C
-import Dwt.ParseUtils (Parser, lexeme, parens, phrase
-                      , anyWord, word, wordChar, sc)
-import Text.Megaparsec.Expr (makeExprParser, Operator(..))
 import Text.Megaparsec.Char (satisfy, string, char)
+import Text.Megaparsec.Expr (makeExprParser, Operator(..))
 
 import Data.Graph.Inductive (Node)
+import Dwt.ParseUtils (Parser, lexeme, parens, sc
+                      , integer
+                      , anyWord, word, wordChar, phrase)
 import Dwt.Types
 import Dwt.Leaf (mkTplt)
 
@@ -92,6 +92,7 @@ expr' = makeExprParser term
 
 term :: Parser Qeo
 term = (, disregardedEo) . QLeaf <$> leaf
+       <|> (, disregardedEo) <$> at
        <|> close <$> parens expr'
        <|> absent where
   absent :: Parser Qeo
@@ -113,11 +114,14 @@ pHash n = lexeme $ do
 
 leaf :: Parser Expr
 leaf = do
-  let blank = lexeme $ C.string "_" <* notFollowedBy (wordChar <|> C.char '_')
+  let blank = lexeme $ string "_" <* notFollowedBy (wordChar <|> char '_')
       f = concat . intersperse " " 
   p <- some $ blank <|> anyWord
   return $ case elem "_" p of True ->  mkTplt . f $ p
                               False -> Word   . f $ p
+
+at :: Parser QNode
+at = At <$> (char '@' >> integer)
 
 -- | unused
 hasBlanks :: Parser Bool
