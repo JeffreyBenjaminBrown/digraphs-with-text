@@ -2,19 +2,21 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Search.Node (
-  qGet
-  , qGetLab
-  , qGet1
-  , qPutSt
+  qGet -- RSLT -> QNode -> Either DwtErr [Node]
+  , qGetLab -- RSLT -> QNode -> Either DwtErr [LNode Expr]
+  , qGet1 -- RSLT -> QNode -> Either DwtErr Node
+  , qPutSt -- QNode -> StateT RSLT (Either DwtErr) Node
 
-  , qRegexWord
+  , qRegexWord -- RSLT -> String -> [Node]
 
   -- for internal export, not for interface
-  , NodeOrVarConcrete(..), RelSpecConcrete
-  , _matchRelSpecNodes
-  , _matchRelSpecNodesLab
-  , _usersInRole
-  , _mkRelSpec
+  , NodeOrVarConcrete(..) -- Uses Node, not QNode. Still uses Mbrship.
+  , RelSpecConcrete -- Uses NodeOrVarConcrete
+  , _matchRelSpecNodes -- RSLT -> RelSpecConcrete -> Either DwtErr [Node]
+    -- critical: the intersection-finding function
+  , _matchRelSpecNodesLab -- same, except LNodes
+  , _usersInRole -- RSLT -> Node -> RelRole -> Either DwtErr [Node]
+  , _mkRelSpec -- Node -> [Node] -> RelSpecConcrete
 ) where
 
 import Text.Regex
@@ -34,7 +36,7 @@ import qualified Data.Map as M
 import qualified Data.Maybe as Mb
 import Control.Monad (foldM)
 
--- | "Concrete" in the sense that it requires specific nodes, not queries
+-- | "Concrete" in the sense that it uses Nodes, not QNodes
 data NodeOrVarConcrete = NodeSpecC Node
   | VarSpecC Mbrship deriving (Show,Read,Eq)
 type RelSpecConcrete = M.Map RelRole NodeOrVarConcrete
@@ -52,6 +54,7 @@ _matchRelSpecNodesLab :: RSLT -> RelSpecConcrete -> Either DwtErr [LNode Expr]
 _matchRelSpecNodesLab g spec = prependCaller "_matchRelSpecNodesLab: " $ do
   ns <- _matchRelSpecNodes g spec
   return $ zip ns $ map (fromJust . lab g) ns
+    -- TODO: slow: this looks up each node a second time to find its label
     -- fromJust is safe because _matchRelSpecNodes only returns Nodes in g
 
 -- | Rels using Node n in RelRole r

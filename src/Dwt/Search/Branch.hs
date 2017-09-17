@@ -1,21 +1,24 @@
 module Dwt.Search.Branch (
-  partitionRelSpec
-  , insRelSpec
-  , relSpec
-  , usersInRole
-  , matchRelSpecNodes
-  , matchRelSpecNodesLab
-  , has1Dir
-  , fork1Dir
-  , subNodeForVars
-  , dwtDfs
-  , dwtBfs
+  partitionRelSpec -- returns two relspecs
+  , insRelSpec -- add a relspec to a graph
+  , relSpec -- unused. returns a RelSpecConcrete
+  , usersInRole -- RSLT -> QNode -> RelRole -> Either DwtErr [Node]
+  , matchRelSpecNodes -- RSLT -> RelSpec -> Either DwtErr [Node]
+  , matchRelSpecNodesLab -- same, except LNodes
+  , has1Dir -- Mbrship(the dir it has 1 of) -> RelSpec -> Bool
+  , fork1Dir -- RSLT -> QNode -> (Mbrship,RelSpec) -> Either DwtErr [Node]
+    -- TODO: rewrite Mbrship as To,From,It,Any. Then use RelSpec, not a pair.
+  , subNodeForVars -- QNode(sub this) -> Mbrship(for this) -> RelSpec(in this)
+                   -- -> ReaderT RSLT (Either DwtErr) RelSpec
+  , dwtDfs -- RSLT -> (Mbrship,RelSpec) -> [Node] -> Either DwtErr [Node]
+  , dwtBfs -- same
 ) where
 
 import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Graph
-import Dwt.Search.Node
+import Dwt.Search.Node (RelSpecConcrete(..), NodeOrVarConcrete(..)
+                       , qGet1, _usersInRole)
 
 import Dwt.Util (listIntersect, prependCaller, gelemM, otherDir)
 import qualified Data.Map as Map
@@ -77,6 +80,7 @@ matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
 matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
   ns <- matchRelSpecNodes g spec
   return $ zip ns $ map (fromJust . lab g) ns
+    -- TODO speed: this looks up each node twice
     -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
 
 has1Dir :: Mbrship -> RelSpec -> Bool
@@ -96,10 +100,6 @@ fork1Dir g qFrom (dir,axis) = do -- returns one generation, neighbors
   concat <$> mapM (\rel -> relElts g rel dirRoles) rels
     -- TODO: this line is unnecessary. just return the rels, not their elts.
       -- EXCEPT: that might hurt the dfs, bfs functions below
-
---TODO: fork1DirsQ
---fork1DirsQ :: RSLT -> QNode -> [(Mbrship,RelSpec)] -> Either DwtErr [Node]
---fork1DirsQ g q rs = concat <$> mapM (fork1Dir g n) rs
 
 subNodeForVars :: QNode -> Mbrship -> RelSpec
   -> ReaderT RSLT (Either DwtErr) RelSpec

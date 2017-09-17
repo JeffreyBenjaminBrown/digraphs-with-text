@@ -2,22 +2,27 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Graph (
-  insRelUsf
-  , insRel
-  , insRelSt
-  , insColl
-  , mkRelSpec
-  , relNodeSpec
-  , chLeaf
-  , chRelRole
-  , whereis
-  , tpltAt
-  , relElts
-  , validRole
-  , relTplt
-  , collPrinciple
-  , rels, mbrs
-  , users
+  insRelUsf -- Node(Tplt) -> [Node] -> RSLT -> RSLT
+  , insRel -- Node(Tplt) -> [Node] -> RSLT -> Either DwtErr RSLT
+  , insRelSt -- Node(Tplt) -> [Node] -> StateT RSLT (Either DwtErr) Node(Rel)
+  , insColl -- (Maybe Node)(principle) -> [Node] -> RSLT -> Either DwtErr RSLT
+  , mkRelSpec -- unused.  QNode(Tplt) -> [QNode] -> RelSpec
+
+  -- edit in place (as opposed to insert)
+  , chLeaf -- RSLT -> Node -> Expr -> Either DwtErr RSLT
+  , chRelRole --RSLT -> Node(Rel) -> Node(new Mbr) -> RelRole -> Either DwtErr RSLT
+
+  -- query
+  , relNodeSpec -- RSLT -> Node(RelSpec) -> Either DwtErr RelNodeSpec
+  , whereis -- RSLT -> Expr -> [Node]
+  , tpltAt -- (MonadError DwtErr m) => RSLT -> Node(Tplt) -> m Expr(Tplt)
+  , relElts -- RSLT -> Node(Rel) -> [RelRole] -> Either DwtErr [Node]
+  , validRole -- RSLT -> Node -> RelRole -> Either DwtErr ()
+  , relTplt -- unsafe. RSLT -> Node(Rel) -> Either DwtErr Expr(Tplt)
+  , collPrinciple -- RSLT -> Node(Coll) -> Either DwtErr Expr(Principle)
+  , rels -- Gr Expr b -> [Node]
+  , mbrs -- RSLT -> Node(Rel) -> [Node(Mbr)]
+  , users -- Graph gr => gr a b -> Node -> Either DwtErr [Node]
   ) where
 
 import Dwt.Types
@@ -78,20 +83,9 @@ insColl mt ns g = do
         map (\n -> (newNode, n, CollEdge CollMbr)) ns
   return $ insEdges newEdges $ insNode (newNode,Coll) g
 
--- | TODO: dubious b/c unused, and with branch addMbrshipToQnode, might break
 mkRelSpec :: QNode -> [QNode] -> RelSpec
 mkRelSpec t ns = Map.fromList $ (TpltRole, NodeSpec t) : mbrSpecs
   where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
-
-relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
-relNodeSpec g n = prependCaller "relNodeSpec: " $ do
-  gelemM g n
-  case lab g n of
-    Just (RelSpecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
-      where f (node,RelEdge r) = (r,node)
-    Just _ -> Left
-      (NotRelSpecExpr, [ErrNode n], "")
-    Nothing -> Left (FoundNo, [ErrNode n], "")
 
 -- ======== edit (but not insert)
 chLeaf :: RSLT -> Node -> Expr -> Either DwtErr RSLT
@@ -122,6 +116,16 @@ chRelRole g user newMbr role = do
 
 -- ======== query
 -- ==== more complex ("locate"?) queries
+relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
+relNodeSpec g n = prependCaller "relNodeSpec: " $ do
+  gelemM g n
+  case lab g n of
+    Just (RelSpecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
+      where f (node,RelEdge r) = (r,node)
+    Just _ -> Left
+      (NotRelSpecExpr, [ErrNode n], "")
+    Nothing -> Left (FoundNo, [ErrNode n], "")
+
 whereis :: RSLT -> Expr -> [Node]
   -- TODO: dependent types. (hopefully, length = 1)
   -- move ? Search.hs
@@ -153,7 +157,7 @@ validRole g relNode role = isRelM g relNode >> case role of
   where err = (Invalid, [ErrRelRole role], "validRoleStrErr.")
 
 relTplt :: RSLT -> Node -> Either DwtErr Expr -- unsafe
-  -- might not be called on a template
+  -- might not be called on a Rel
 relTplt g relNode = do
   [n] <- relElts g relNode [TpltRole]
   return $ fromJust $ lab g n
@@ -179,13 +183,6 @@ mbrs g n = [addr | (addr,elab) <- lsuc g n, isMbrEdge elab]
 users :: Graph gr => gr a b -> Node -> Either DwtErr [Node]
 users g n = do gelemM g n
                return [m | (m,label@_) <- lpre g n]
-
--- ======== using directions (RelSpecs)
--- todo ? 1Dir because it should have one such direction. I forget why.
-  -- clarif: if I want a generation in the Down direction of the rel "has/",
-  -- the RelSpec has to have only one Up variable.
--- TODO ? check: Up|Down good, Any|It bad
-  -- fork1Up uses otherDir, so it will catch those errors, but obscurely
 
 -- ========= Deprecated
 insRelUsf :: Node -> [Node] -> RSLT -> RSLT

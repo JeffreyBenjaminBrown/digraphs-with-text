@@ -42,7 +42,7 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
 
 -- == Specifying kinds of relationships
 data Mbrship = It | Any | Up | Down deriving (Show,Read,Eq,Ord)
-data NodeOrVar = NodeSpec QNode |VarSpec Mbrship deriving (Show,Eq)
+data NodeOrVar = NodeSpec QNode | VarSpec Mbrship deriving (Show,Eq)
 
 -- at the TpltRole key is always a concrete NodeSpec
 type RelVarSpec =  Map.Map RelRole Mbrship
