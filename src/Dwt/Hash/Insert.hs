@@ -2,11 +2,12 @@
 -- Dwt.prettyPrint $ fr $ parse expr "" "a # b ##z # (d # e) # e ## f ## g # h"
 -- let Right (_,g) = runStateT (mapM (addExpr . fr . parse expr "" ) ["a # b", "# c", "## d #"]) empty
 
-module Dwt.Hash.Insert where
+module Dwt.Hash.Insert (prettyPrint, addExpr) where
 
 import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Types
 import Dwt.Search.QNode
+import Dwt.Measure (isAbsent, isValid)
 import Dwt.Util (fr, maxNode, prependCaller, gelemM)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)
@@ -18,15 +19,6 @@ import Control.Lens ((.~))
 -- Leaf and QRel represent something that *might* already exist; it will
 -- be searched for. If found, it becomes an At; if not, it is created, and
 -- becomes an At.
-
-isValid :: QNode -> Bool
-isValid (QRel [_] [Absent,Absent]) = False
-isValid (QRel [_] [_,_]) = True
-isValid (QRel js  ms) = (not $ any isAbsent $ middle)
-                           && all isValid ms
-                           && length js + 1 == length ms
-  where middle = tail . reverse . tail $ ms
-isValid _ = True
 
 prettyPrint :: QNode -> IO ()
 prettyPrint = it 0 where

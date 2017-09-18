@@ -4,7 +4,7 @@ module Dwt
   ( module Data.Graph.Inductive
   , module Dwt
   , module Dwt.Edit
-  , module Dwt.Leaf
+  , module Dwt.Measure
   , module Dwt.Hash.Insert
   , module Dwt.Hash.Parse
   , module Dwt.ParseUtils
@@ -20,7 +20,7 @@ module Dwt
 
 import Data.Graph.Inductive (Node,Edge,LNode,LEdge,empty)
 
-import Dwt.Leaf
+import Dwt.Measure
 import Dwt.Edit
 import Dwt.Hash.Insert
 import Dwt.Hash.Parse

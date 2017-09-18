@@ -1,9 +1,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Dwt.Leaf (
-  mbrListMatchesTpltArity
-  , extractTplt
-  , tpltArity
+module Dwt.Measure (
+  -- Tplt stuff
+  mbrListMatchesTpltArity -- (MonadError DwtErr m) => [Node] -> Expr -> m ()
+  , extractTplt -- QNode -> Either DwtErr Expr
+  , tpltArity -- Expr -> Arity
 
   -- Expr tests
   , isWord, isWordM
@@ -12,6 +13,10 @@ module Dwt.Leaf (
   , isRel, isRelM
   , isColl, isCollM
   , isLeaf, areLikeExprs
+
+  -- QNode tests
+  , isAt, isAbsent
+  , isValid
   ) where
 
 import Dwt.Types
@@ -104,3 +109,21 @@ areLikeExprs e f = case e of
   Rel    ->  case f of Rel    -> True;  _ -> False
   Coll   ->  case f of Coll   -> True;  _ -> False
   RelSpecExpr _ ->  case f of RelSpecExpr _ -> True;  _ -> False
+
+
+-- ==== QNode tests
+isAt, isAbsent, isValid :: QNode -> Bool
+
+isAbsent Absent = True
+isAbsent _ = False
+
+isAt (At _) = True
+isAt _ = False
+
+isValid (QRel [_] [Absent,Absent]) = False
+isValid (QRel [_] [_,_]) = True
+isValid (QRel js  ms) = (not $ any isAbsent $ middle)
+                           && all isValid ms
+                           && length js + 1 == length ms
+  where middle = tail . reverse . tail $ ms
+isValid _ = True

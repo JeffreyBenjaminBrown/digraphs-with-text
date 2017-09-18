@@ -25,7 +25,7 @@ import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Edit
 import Dwt.Util (fr, maxNode, dropEdges, fromRight, prependCaller, listIntersect, gelemM)
-import Dwt.Leaf (extractTplt)
+import Dwt.Measure (extractTplt, isAbsent)
 import Data.Maybe (fromJust)
 
 import Control.Monad (liftM)

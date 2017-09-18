@@ -1,7 +1,12 @@
+-- | These are "basic" queries in that they mostly don't use RelSpec or
+-- QNode. The two exceptions, listed first, might belong elsewhere.
+
 {-# LANGUAGE FlexibleContexts #-}
 module Dwt.Search.Base (
-  -- query
+  -- these two might belong elsewhere
   relNodeSpec -- RSLT -> Node(RelSpec) -> Either DwtErr RelNodeSpec
+  , mkRelSpec -- unused.  QNode(Tplt) -> [QNode] -> RelSpec
+
   , whereis -- RSLT -> Expr -> [Node]
   , tpltAt -- (MonadError DwtErr m) => RSLT -> Node(Tplt) -> m Expr(Tplt)
   , relElts -- RSLT -> Node(Rel) -> [RelRole] -> Either DwtErr [Node]
@@ -15,7 +20,7 @@ module Dwt.Search.Base (
 
 import Dwt.Types
 import Dwt.Util (gelemM)
-import Dwt.Leaf (isCollM, isRelM, tpltArity)
+import Dwt.Measure (isCollM, isRelM, tpltArity)
 import Dwt.Util (prependCaller)
 import Data.Graph.Inductive
 import qualified Data.Map as Map
@@ -33,6 +38,10 @@ relNodeSpec g n = prependCaller "relNodeSpec: " $ do
     Just _ -> Left
       (NotRelSpecExpr, [ErrNode n], "")
     Nothing -> Left (FoundNo, [ErrNode n], "")
+
+mkRelSpec :: QNode -> [QNode] -> RelSpec
+mkRelSpec t ns = Map.fromList $ (TpltRole, NodeSpec t) : mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
 whereis :: RSLT -> Expr -> [Node]
   -- TODO: dependent types. (hopefully, length = 1)

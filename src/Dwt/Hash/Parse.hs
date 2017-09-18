@@ -4,7 +4,7 @@ module Dwt.Hash.Parse (
   expr
 
   -- for tests, not interface
-  , hash, rightConcat, leftConcat
+  , hash, rightConcat, leftConcat, disregardedEo
   ) where
 
 import Text.Megaparsec
@@ -22,7 +22,13 @@ import Control.Applicative (empty)
 import Data.Void (Void)
 import Data.List (intersperse)
 
+
 type Qeo = (QNode, EO)
+disregardedEo = EO True 0 -- todo: retire
+  -- what I should have done, rather than make Dwt.Hash.Parse.Qeo a pair, is
+  -- data Qeo = QeoRel QNode Eo | Qeo QNode
+  -- That way I wouldn't have to use disregardedNode
+
 
 -- == Things used when parsing Word and Rel values
 -- QNode expresses how to add (nested) data to the RSLT

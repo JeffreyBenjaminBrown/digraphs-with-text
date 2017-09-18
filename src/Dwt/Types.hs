@@ -5,10 +5,9 @@ module Dwt.Types (
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , Mbrship(..), RelVarSpec, RelNodeSpec
   , NodeOrVar(..), RelSpec
-  , isAt, isAbsent
-  , QNode(..), Level, Joint(..), EO(..), disregardedEo
+  , QNode(..), Level, Joint(..), EO(..)
   , DwtErr(..), ErrBase(..), ErrOpt(..)
-  , errBase, errOpts, errString
+  , errBase, errOpts, errString -- lenses
   ) where
 
 import Data.Graph.Inductive
@@ -71,11 +70,6 @@ instance Show EO where
   show (EO x y) = "(EO " ++ show x ++ " " ++ show y ++ ")"
 instance Ord EO where -- Open > closed. If those are equal, ## > #, etc.
   EO a b <= EO c d = a <= c && b <= d
-disregardedEo = EO True 0 -- todo: retire
-  -- what I should have done, rather than make Dwt.Hash.Parse.Qeo a pair, is
-  -- data Qeo = QeoRel QNode Eo | Qeo QNode
-  -- That way I wouldn't have to use disregardedNode
-
 
 -- == Errors
 type DwtErr = (ErrBase, [ErrOpt], String)
@@ -100,10 +94,3 @@ errOpts :: Lens' DwtErr [ErrOpt]
 errOpts = _2
 errString :: Lens' DwtErr String
 errString = _3
-
--- ==
-isAt, isAbsent :: QNode -> Bool
-isAbsent Absent = True
-isAbsent _ = False
-isAt (At _) = True
-isAt _ = False

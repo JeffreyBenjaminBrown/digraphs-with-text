@@ -14,7 +14,7 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src, test
   exposed-modules:     Dwt
-                     , Dwt.Leaf
+                     , Dwt.Measure
                      , Dwt.Edit
                      , Dwt.Hash.Parse
                      , Dwt.Hash.Parse

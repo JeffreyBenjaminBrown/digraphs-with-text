@@ -5,7 +5,7 @@ module Dwt.Show
   ) where
 
 import Dwt.Edit
-import Dwt.Leaf (tpltArity)
+import Dwt.Measure (tpltArity)
 import Dwt.MkTplt (subInTplt, subInTpltWithHashes)
 import Dwt.Search.Base (users,mbrs)
 import Dwt.Types

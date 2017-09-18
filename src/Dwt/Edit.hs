@@ -7,7 +7,6 @@ module Dwt.Edit (
   , insRel -- Node(Tplt) -> [Node] -> RSLT -> Either DwtErr RSLT
   , insRelSt -- Node(Tplt) -> [Node] -> StateT RSLT (Either DwtErr) Node(Rel)
   , insColl -- (Maybe Node)(principle) -> [Node] -> RSLT -> Either DwtErr RSLT
-  , mkRelSpec -- unused.  QNode(Tplt) -> [QNode] -> RelSpec
 
   -- unused
   -- edit in place (as opposed to insert)
@@ -16,7 +15,7 @@ module Dwt.Edit (
   ) where
 
 import Dwt.Types
-import Dwt.Leaf
+import Dwt.Measure
 import Dwt.Util
 import Dwt.Search.Base (tpltAt)
 import Data.Graph.Inductive hiding (lift)
@@ -79,10 +78,6 @@ insColl mt ns g = do
       newEdges = nameEdges ++
         map (\n -> (newNode, n, CollEdge CollMbr)) ns
   return $ insEdges newEdges $ insNode (newNode,Coll) g
-
-mkRelSpec :: QNode -> [QNode] -> RelSpec
-mkRelSpec t ns = Map.fromList $ (TpltRole, NodeSpec t) : mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
 -- ======== edit (but not insert)
 chLeaf :: RSLT -> Node -> Expr -> Either DwtErr RSLT
