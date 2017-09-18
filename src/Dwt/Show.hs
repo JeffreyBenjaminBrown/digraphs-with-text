@@ -6,7 +6,7 @@ module Dwt.Show
 
 import Dwt.Edit
 import Dwt.Leaf (tpltArity)
-import Dwt.Tplt (subInTplt, subInTpltWithHashes)
+import Dwt.MkTplt (subInTplt, subInTpltWithHashes)
 import Dwt.Search.Base (users,mbrs)
 import Dwt.Types
 import Dwt.Util

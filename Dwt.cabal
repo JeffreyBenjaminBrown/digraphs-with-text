@@ -24,7 +24,7 @@ library
                      , Dwt.Search.Node
                      , Dwt.Search.Parse
                      , Dwt.Show
-                     , Dwt.Tplt
+                     , Dwt.MkTplt
                      , Dwt.Types
                      , Dwt.UI
                      , Dwt.Util

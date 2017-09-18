@@ -16,7 +16,7 @@ import Dwt.ParseUtils (Parser, lexeme, parens, sc
                       , integer
                       , anyWord, word, wordChar, phrase)
 import Dwt.Types
-import Dwt.Tplt (mkTplt)
+import Dwt.MkTplt (mkTplt)
 
 import Control.Applicative (empty)
 import Data.Void (Void)

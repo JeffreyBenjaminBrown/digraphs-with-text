@@ -1,7 +1,6 @@
 {-# LANGUAGE ViewPatterns #-}
 
-module Dwt.Tplt (
-  -- Tplt, involve no RSLT
+module Dwt.MkTplt (
   _splitStringForTplt
   , mkTplt
   , subInTplt
