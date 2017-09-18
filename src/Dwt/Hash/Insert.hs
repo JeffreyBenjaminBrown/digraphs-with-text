@@ -6,7 +6,7 @@ module Dwt.Hash.Insert where
 
 import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Types
-import Dwt.Search.Node
+import Dwt.Search.QNode
 import Dwt.Util (fr, maxNode, prependCaller, gelemM)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)

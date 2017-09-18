@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Dwt.Search.Node (
+module Dwt.Search.QNode (
   qGet -- RSLT -> QNode -> Either DwtErr [Node]
   , qGetLab -- RSLT -> QNode -> Either DwtErr [LNode Expr]
   , qGet1 -- RSLT -> QNode -> Either DwtErr Node

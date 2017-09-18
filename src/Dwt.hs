@@ -9,7 +9,7 @@ module Dwt
   , module Dwt.Hash.Parse
   , module Dwt.ParseUtils
   , module Dwt.Search.Branch
-  , module Dwt.Search.Node
+  , module Dwt.Search.QNode
   , module Dwt.Search.Parse
   , module Dwt.Show
   , module Dwt.MkTplt
@@ -26,7 +26,7 @@ import Dwt.Hash.Insert
 import Dwt.Hash.Parse
 import Dwt.ParseUtils
 import Dwt.Search.Branch
-import Dwt.Search.Node
+import Dwt.Search.QNode
 import Dwt.Search.Parse
 import Dwt.Show
 import Dwt.MkTplt

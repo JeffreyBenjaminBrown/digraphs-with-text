@@ -21,7 +21,7 @@ library
                      , Dwt.Hash.Insert 
                      , Dwt.ParseUtils
                      , Dwt.Search.Branch
-                     , Dwt.Search.Node
+                     , Dwt.Search.QNode
                      , Dwt.Search.Parse
                      , Dwt.Show
                      , Dwt.MkTplt

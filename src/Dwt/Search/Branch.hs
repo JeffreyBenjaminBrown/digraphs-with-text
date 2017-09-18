@@ -19,7 +19,7 @@ import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Edit
 import Dwt.Search.Base (relNodeSpec, relElts)
-import Dwt.Search.Node (RelSpecConcrete(..), NodeOrVarConcrete(..)
+import Dwt.Search.QNode (RelSpecConcrete(..), NodeOrVarConcrete(..)
                        , qGet1, _usersInRole)
 
 import Dwt.Util (listIntersect, prependCaller, gelemM)

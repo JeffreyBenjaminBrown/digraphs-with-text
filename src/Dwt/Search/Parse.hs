@@ -4,7 +4,7 @@ import Data.Graph.Inductive (Node, pre, nodes)
 import Dwt.Types
 import Dwt.ParseUtils (Parser, integer, symbol, word)
 import Dwt.Hash.Parse (expr)
-import Dwt.Search.Node (qGet)
+import Dwt.Search.QNode (qGet)
 import Text.Megaparsec.Char (satisfy, string, char)
 import Control.Applicative ((<|>))
 import Control.Monad
