@@ -4,15 +4,13 @@
 module Dwt.Util (
   listIntersect -- lists
 
-  -- graphs
-  , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
-  , replaceNode
-
-  , otherDir -- kind of an orphan
-
   -- graphs & monads
   , hasLEdgeM
   , gelemM
+
+  -- graphs
+  , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
+  , replaceNode
 
    -- monads
   , fr, fromRight
@@ -42,13 +40,6 @@ negateGraph :: Gr a b -> Gr a b
 negateGraph m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
   where negAdj = map (\(label,n) -> (label,-n))
 
-
--- | swap Up and Down, or err
-otherDir :: Mbrship -> Either DwtErr Mbrship
-otherDir Up = Right Down
-otherDir Down = Right Up
-otherDir mv = Left (ConstructorMistmatch, [ErrMbrship mv]
-                   , "otherDir: Only accepts Up or Down.")
 
 -- in progress
 -- TODO ! fails silently. use Either.

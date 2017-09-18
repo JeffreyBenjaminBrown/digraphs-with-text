@@ -1,5 +1,6 @@
 module Dwt.Search.Branch (
-  partitionRelSpec -- returns two relspecs
+  otherDir -- Mbrship -> Either DwtErr Mbrship
+  , partitionRelSpec -- returns two relspecs
   , insRelSpec -- add a relspec to a graph
   , relSpec -- unused. returns a RelSpecConcrete
   , usersInRole -- RSLT -> QNode -> RelRole -> Either DwtErr [Node]
@@ -21,7 +22,7 @@ import Dwt.Search.Base (relNodeSpec, relElts)
 import Dwt.Search.Node (RelSpecConcrete(..), NodeOrVarConcrete(..)
                        , qGet1, _usersInRole)
 
-import Dwt.Util (listIntersect, prependCaller, gelemM, otherDir)
+import Dwt.Util (listIntersect, prependCaller, gelemM)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.List (nub)
@@ -29,6 +30,14 @@ import Data.List (nub)
 import Control.Monad
 import Control.Monad.Reader
 import Control.Monad.Trans.Class
+
+
+-- | swap Up and Down, or err
+otherDir :: Mbrship -> Either DwtErr Mbrship
+otherDir Up = Right Down
+otherDir Down = Right Up
+otherDir mv = Left (ConstructorMistmatch, [ErrMbrship mv]
+                   , "otherDir: Only accepts Up or Down.")
 
 partitionRelSpec :: RSLT -> RelSpec
   -> Either DwtErr (RelVarSpec, RelNodeSpec)
