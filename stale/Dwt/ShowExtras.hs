@@ -4,7 +4,7 @@
       ) where
 
     import Data.Graph.Inductive
-    import Dwt.Graph
+    import Dwt.Edit
     import Dwt.ParsecUtils
     import Data.List (intersperse, sortOn)
 

@@ -23,9 +23,9 @@ import Text.Regex
 
 import Data.Graph.Inductive
 import Dwt.Types
-import Dwt.Graph
+import Dwt.Edit
 import Dwt.Util (fr, maxNode, dropEdges, fromRight, prependCaller, listIntersect, gelemM)
-import Dwt.Leaf (insLeaf, extractTplt)
+import Dwt.Leaf (extractTplt)
 import Data.Maybe (fromJust)
 
 import Control.Monad (liftM)

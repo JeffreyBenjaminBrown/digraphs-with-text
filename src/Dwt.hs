@@ -3,7 +3,7 @@
 module Dwt
   ( module Data.Graph.Inductive
   , module Dwt
-  , module Dwt.Graph
+  , module Dwt.Edit
   , module Dwt.Leaf
   , module Dwt.Hash.Insert
   , module Dwt.Hash.Parse
@@ -21,7 +21,7 @@ module Dwt
 import Data.Graph.Inductive (Node,Edge,LNode,LEdge,empty)
 
 import Dwt.Leaf
-import Dwt.Graph
+import Dwt.Edit
 import Dwt.Hash.Insert
 import Dwt.Hash.Parse
 import Dwt.ParseUtils

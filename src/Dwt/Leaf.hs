@@ -1,10 +1,9 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Dwt.Leaf (
-  -- Tplt, involve no RSLT
-  _splitStringForTplt, mkTplt, extractTplt
-  , subInTplt, padTpltStrings, subInTpltWithHashes
-  , tpltArity, mbrListMatchesTpltArity
+  mbrListMatchesTpltArity
+  , extractTplt
+  , tpltArity
 
   -- Expr tests
   , isWord, isWordM
@@ -16,21 +15,10 @@ module Dwt.Leaf (
   ) where
 
 import Dwt.Types
-import Dwt.Tplt (_splitStringForTpltMB, pTplt)
 import Data.Graph.Inductive (Node, Graph, lab, newNodes, insNode)
 import Control.Monad.Except (MonadError, throwError, catchError)
-import Data.Text (pack, unpack, strip, splitOn)
 import Control.Lens
 import Data.Maybe (fromJust, isJust)
-
--- == Tplt
-_splitStringForTplt :: String -> [String]
-_splitStringForTplt = map (maybe "" id) . _splitStringForTpltMB
-
-mkTplt :: String -> Expr
-mkTplt = Tplt
-  . map (unpack . strip . pack)
-  . _splitStringForTplt
 
 extractTplt :: QNode -> Either DwtErr Expr
 extractTplt (QRel js as) = Right $ Tplt $ ja ++ map (\(Joint s) -> s) js ++ jz
@@ -38,37 +26,6 @@ extractTplt (QRel js as) = Right $ Tplt $ ja ++ map (\(Joint s) -> s) js ++ jz
         f Absent = []
         f _ = [""]
 extractTplt q = Left (ConstructorMistmatch, [ErrQNode q], "extractTplt.")
-
-subInTpltWithHashes :: Expr      -- must be a Tplt
-                     -> [String] -- members for the Tplt
-                     -> Int      -- relationship level = number of #s
-                     -> String
-  -- todo ? test length (should match arity), use Either
-  -- todo ? test each tplt-string; if has space, wrap in parens
-subInTpltWithHashes (Tplt ts) ss prefixCount =
-  let ts' = padTpltStrings (Tplt ts)
-          $ replicate (2^prefixCount) '#'
-      pairList = zip ts' $ ss ++ [""]
-       -- append "" because there are n+1 segments in an n-ary Tplt; 
-         -- zipper ends early otherwise
-  in foldl (\s (a,b) -> s++a++b) "" pairList
-subInTpltWithHashes _ _ _ = error "subInTplt: not a Tplt" -- todo ? omit
-
-subInTplt :: Expr -> [String] -> String
-subInTplt (Tplt ts) ss = subInTpltWithHashes (Tplt ts) ss 0
-
-padTpltStrings :: Expr -> String -> [String]
-padTpltStrings (Tplt ss) prefix =
-  let a = head ss
-      z = last ss
-      middle = reverse $ tail $ reverse $ tail ss
-      f s = if elem ' ' s then '(' : (s ++ ")") else s
-      doToMiddle s = " " ++ prefix ++ f s ++ " "
-      doToFirst s = case s of "" -> ""
-                              _ -> prefix ++ f s ++ " "
-      doToLast  s = case s of "" -> ""
-                              _ -> " " ++ prefix ++ f s
-  in [doToFirst a] ++ map doToMiddle middle ++ [doToLast z]
 
 tpltArity :: Expr -> Arity
 tpltArity e = case e of Tplt ss -> length ss - 1

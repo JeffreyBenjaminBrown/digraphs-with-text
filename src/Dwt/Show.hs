@@ -4,8 +4,9 @@ module Dwt.Show
   ( module Dwt.Show
   ) where
 
-import Dwt.Graph
-import Dwt.Leaf (tpltArity, subInTpltWithHashes, subInTplt)
+import Dwt.Edit
+import Dwt.Leaf (tpltArity)
+import Dwt.Tplt (subInTplt, subInTpltWithHashes)
 import Dwt.Search.Base (users,mbrs)
 import Dwt.Types
 import Dwt.Util

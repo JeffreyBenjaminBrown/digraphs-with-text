@@ -15,7 +15,7 @@ library
   hs-source-dirs:      src, test
   exposed-modules:     Dwt
                      , Dwt.Leaf
-                     , Dwt.Graph
+                     , Dwt.Edit
                      , Dwt.Hash.Parse
                      , Dwt.Hash.Parse
                      , Dwt.Hash.Insert 

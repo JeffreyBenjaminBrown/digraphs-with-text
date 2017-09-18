@@ -3,7 +3,7 @@
     ) where
 
     import Data.Graph.Inductive
-    import Dwt.Graph
+    import Dwt.Edit
     import Dwt.Show
 
     import System.IO ( BufferMode(NoBuffering)

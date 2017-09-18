@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Dwt.Graph (
+module Dwt.Edit (
   insLeaf -- Expr -> RSLT -> RSLT
   , insRelUsf -- Node(Tplt) -> [Node] -> RSLT -> RSLT
   , insRel -- Node(Tplt) -> [Node] -> RSLT -> Either DwtErr RSLT
@@ -9,6 +9,7 @@ module Dwt.Graph (
   , insColl -- (Maybe Node)(principle) -> [Node] -> RSLT -> Either DwtErr RSLT
   , mkRelSpec -- unused.  QNode(Tplt) -> [QNode] -> RelSpec
 
+  -- unused
   -- edit in place (as opposed to insert)
   , chLeaf -- RSLT -> Node -> Expr -> Either DwtErr RSLT
   , chRelRole --RSLT -> Node(Rel) -> Node(new Mbr) -> RelRole -> Either DwtErr RSLT

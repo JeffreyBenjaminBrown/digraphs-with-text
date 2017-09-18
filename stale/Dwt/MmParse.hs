@@ -39,7 +39,7 @@
 --        , fromRight, mlArrowDestUsf, readMmNLabUsf
       ) where
 
-    import Dwt.Graph
+    import Dwt.Edit
     import Dwt.Util
     import Dwt.ParsecUtils
 

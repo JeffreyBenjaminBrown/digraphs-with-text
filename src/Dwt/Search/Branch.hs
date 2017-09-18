@@ -16,7 +16,7 @@ module Dwt.Search.Branch (
 
 import Data.Graph.Inductive
 import Dwt.Types
-import Dwt.Graph
+import Dwt.Edit
 import Dwt.Search.Base (relNodeSpec, relElts)
 import Dwt.Search.Node (RelSpecConcrete(..), NodeOrVarConcrete(..)
                        , qGet1, _usersInRole)

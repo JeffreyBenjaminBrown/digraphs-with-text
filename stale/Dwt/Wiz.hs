@@ -3,7 +3,7 @@
 
     module Dwt.Wiz where
     import Data.Graph.Inductive
-    import Dwt.Graph
+    import Dwt.Edit
     import Dwt.Show
     import qualified Data.Maybe as Mb
 
