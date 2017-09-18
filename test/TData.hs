@@ -35,14 +35,14 @@
           -- [dog wants brandy] is dubious
       ]
 
-    g1Alt = insFl 1.3           $ insLeaf (Fl 1)
+    g1Alt = insLeaf (Fl 1.3)           $ insLeaf (Fl 1)
           $ insRelUsf 9 [5,10] 
-          $ insWord"dubious"     $ insTplt"_ is _"
-          $ insRelUsf 7 [0,3,4] $ insTplt"_ needs _ for _"
+          $ insLeaf (Word "dubious")     $ insLeaf (mkTplt "_ is _")
+          $ insRelUsf 7 [0,3,4] $ insLeaf (mkTplt"_ needs _ for _")
           $ insRelUsf 2 [0,3]   $ insRelUsf 1 [0,4]
-          $ insWord"brandy"      $ insWord"water"
-          $ insTplt"_ needs _"  $ insTplt"_ wants _"
-          $ insWord"dog"         $ empty :: RSLT
+          $ insLeaf (Word"brandy")    $ insLeaf (Word"water")
+          $ insLeaf (mkTplt"_ needs _")  $ insLeaf (mkTplt"_ wants _")
+          $ insLeaf (Word"dog")         $ empty :: RSLT
 
     tRelSpec = Map.fromList [ (TpltRole, VarSpec It)
                            , (Mbr 1,   NodeSpec $ At 0)

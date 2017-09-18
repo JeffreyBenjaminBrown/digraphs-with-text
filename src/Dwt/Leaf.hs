@@ -1,12 +1,14 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module Dwt.Leaf (
+  -- Tplt, involve no RSLT
   _splitStringForTplt, mkTplt, extractTplt
   , subInTplt, padTpltStrings, subInTpltWithHashes
   , tpltArity, mbrListMatchesTpltArity
-  , insLeaf
-    , insWord, insTplt, insFl -- TODO ? deprec, insLeaf generalizes them
 
+  , insLeaf -- invovles an RSLT
+
+  -- Expr tests
   , isWord, isWordM
   , isTplt, isTpltM
   , isFl, isFlM
@@ -88,15 +90,6 @@ insLeaf :: Expr -> RSLT -> RSLT
 insLeaf e g = case isLeaf e of
   True -> insNode (newAddr, e) g where [newAddr] = newNodes 1 g
   False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
-
-insWord :: String -> RSLT -> RSLT
-insWord str = insLeaf (Word str)
-
-insTplt :: String -> RSLT -> RSLT
-insTplt s = insLeaf $ mkTplt s
-
-insFl :: Float -> RSLT -> RSLT
-insFl f = insLeaf $ Fl f
 
 -- == Expr tests
 _isExprMConstructorStrErr :: (MonadError String m, Graph gr) => (a -> Bool) ->
