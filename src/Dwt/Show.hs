@@ -6,6 +6,7 @@ module Dwt.Show
 
 import Dwt.Graph
 import Dwt.Leaf (tpltArity, subInTpltWithHashes, subInTplt)
+import Dwt.Search.Base (users,mbrs)
 import Dwt.Types
 import Dwt.Util
 
