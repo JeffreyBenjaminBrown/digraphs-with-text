@@ -10,8 +10,8 @@ module Dwt.Search.Base (
   , whereis -- RSLT -> Expr -> [Node]
   , tpltAt -- (MonadError DwtErr m) => RSLT -> Node(Tplt) -> m Expr(Tplt)
   , relElts -- RSLT -> Node(Rel) -> [RelRole] -> Either DwtErr [Node]
-  , validRole -- RSLT -> Node -> RelRole -> Either DwtErr ()
-  , relTplt -- unsafe. RSLT -> Node(Rel) -> Either DwtErr Expr(Tplt)
+  , validMbrRole -- RSLT -> Node -> RelRole -> Either DwtErr ()
+  , relTplt -- RSLT -> Node(Rel) -> Either DwtErr Expr(Tplt)
   , collPrinciple -- RSLT -> Node(Coll) -> Either DwtErr Expr(Principle)
   , tplts -- Gr Expr b -> [Node]
   , mbrs -- RSLT -> Node(Rel) -> [Node(Mbr)]
@@ -59,11 +59,11 @@ tpltAt g tn = let name = "tpltAt." in case lab g tn of
 relElts :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
 relElts g relNode roles = do
   isRelM g relNode
-  mapM_  (validRole g relNode) roles
+  mapM_  (validMbrRole g relNode) roles
   return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
-validRole :: RSLT -> Node -> RelRole -> Either DwtErr ()
-validRole g relNode role = isRelM g relNode >> case role of
+validMbrRole :: RSLT -> Node -> RelRole -> Either DwtErr ()
+validMbrRole g relNode role = isRelM g relNode >> case role of
   TpltRole -> return ()
   Mbr p -> do
     if p >= 1 then return () else Left err
@@ -71,13 +71,12 @@ validRole g relNode role = isRelM g relNode >> case role of
     let a = tpltArity t
     if p <= a then return ()
       else Left $ _1 .~ ArityMismatch $ _2 %~ (ErrExpr t:) $ err
-  where err = (Invalid, [ErrRelRole role], "validRoleStrErr.")
+  where err = (Invalid, [ErrRelRole role], "validMbrRoleStrErr.")
 
-relTplt :: RSLT -> Node -> Either DwtErr Expr -- unsafe
-  -- might not be called on a Rel
-relTplt g relNode = do
-  [n] <- relElts g relNode [TpltRole]
-  return $ fromJust $ lab g n
+relTplt :: RSLT -> Node -> Either DwtErr Expr
+relTplt g relNode = do isRelM g relNode
+                       [n] <- relElts g relNode [TpltRole]
+                       return $ fromJust $ lab g n
 
 collPrinciple :: RSLT -> Node -> Either DwtErr Expr
   -- analogous to relTplt

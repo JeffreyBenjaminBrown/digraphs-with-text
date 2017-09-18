@@ -16,15 +16,15 @@ library
   exposed-modules:     Dwt
                      , Dwt.Measure
                      , Dwt.Edit
-                     , Dwt.Hash.Parse
-                     , Dwt.Hash.Parse
                      , Dwt.Hash.Insert 
-                     , Dwt.ParseUtils
-                     , Dwt.Search.Branch
-                     , Dwt.Search.QNode
-                     , Dwt.Search.Parse
-                     , Dwt.Show
+                     , Dwt.Hash.Parse
                      , Dwt.MkTplt
+                     , Dwt.ParseUtils
+                     , Dwt.Search.Base
+                     , Dwt.Search.Branch
+                     , Dwt.Search.Parse
+                     , Dwt.Search.QNode
+                     , Dwt.Show
                      , Dwt.Types
                      , Dwt.UI
                      , Dwt.Util
