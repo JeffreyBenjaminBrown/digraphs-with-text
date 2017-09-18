@@ -20,10 +20,10 @@ module Dwt.Measure (
   ) where
 
 import Dwt.Types
-import Data.Graph.Inductive (Node, Graph, lab, newNodes, insNode)
-import Control.Monad.Except (MonadError, throwError, catchError)
+import Data.Graph.Inductive (Node, Graph, lab)
+import Control.Monad.Except (MonadError, throwError)
 import Control.Lens
-import Data.Maybe (fromJust, isJust)
+
 
 extractTplt :: QNode -> Either DwtErr Expr
 extractTplt (QRel js as) = Right $ Tplt $ ja ++ map (\(Joint s) -> s) js ++ jz
@@ -104,7 +104,8 @@ isLeaf _ = False
 
 areLikeExprs :: Expr -> Expr -> Bool
 areLikeExprs e f = case e of
-  Word _  ->  case f of Word  _ -> True;  _ -> False
+  Word _ ->  case f of Word _ -> True;  _ -> False
+  Fl _   ->  case f of Fl _   -> True;  _ -> False
   Tplt _ ->  case f of Tplt _ -> True;  _ -> False
   Rel    ->  case f of Rel    -> True;  _ -> False
   Coll   ->  case f of Coll   -> True;  _ -> False

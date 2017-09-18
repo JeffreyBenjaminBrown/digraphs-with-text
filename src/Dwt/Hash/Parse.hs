@@ -11,15 +11,11 @@ import Text.Megaparsec
 import Text.Megaparsec.Char (satisfy, string, char)
 import Text.Megaparsec.Expr (makeExprParser, Operator(..))
 
-import Data.Graph.Inductive (Node)
 import Dwt.ParseUtils (Parser, lexeme, parens, sc
                       , integer
                       , anyWord, word, wordChar, phrase)
 import Dwt.Types
 import Dwt.MkTplt (mkTplt)
-
-import Control.Applicative (empty)
-import Data.Void (Void)
 import Data.List (intersperse)
 
 
@@ -59,11 +55,11 @@ leftConcat j m (QRel joints mbrs, eo)
 leftConcat _ _ _ = error "can only leftConcat into a QRel"
 
 close :: Qeo -> Qeo
-close (QLeaf x, _)         = (QLeaf x, disregardedEo)
 close (QRel b c, EO _ a) = (QRel b c, EO False a)
-
+close (x, _) = (x, disregardedEo)
 
 hash :: Level -> Joint -> Qeo -> Qeo -> Qeo
+-- TODO: cover the At case
 hash l j a@(isInsRel -> False) b@(isInsRel -> False)       = startRel l j a b
 hash l j a@(isInsRel -> False) b@(QRel _ _, EO False _) = startRel l j a b
 hash l j a@(QRel _ _, EO False _) b@(isInsRel -> False) = startRel l j a b

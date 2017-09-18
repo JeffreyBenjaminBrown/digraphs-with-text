@@ -1,11 +1,10 @@
 module TAdd where
 
-import Dwt hiding (fromRight)
-import Dwt.Types (EO(..))
-import Data.Graph.Inductive
+import Dwt
 import Test.HUnit hiding (Node)
 import Text.Megaparsec (parse)
-import Control.Monad.Trans.State (runStateT, execStateT)
+import Control.Monad.Trans.State (execStateT)
+
 
 tAdd = TestList [ TestLabel "tAddLabeled" tAddLabeled
                 , TestLabel "tAddUnlabeled" tAddUnlabeled

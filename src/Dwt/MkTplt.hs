@@ -13,11 +13,10 @@ module Dwt.MkTplt (
 
 import Dwt.Types
 import Dwt.Util (fr)
-import Data.Text (pack, unpack, strip, splitOn)
+import Data.Text (pack, unpack, strip)
 import Text.Megaparsec
-import Dwt.ParseUtils (Parser, anyWord, lexeme, parens, phrase, word, sc)
-import Text.Megaparsec.Expr (makeExprParser, Operator(..))
-import Text.Megaparsec.Char (satisfy, string, char)
+import Dwt.ParseUtils (Parser, lexeme, phrase)
+import Text.Megaparsec.Char (char)
 
 
 data PTpltUnit = Blank | Phrase String deriving Show
@@ -69,6 +68,7 @@ subInTpltWithHashes _ _ _ = error "subInTplt: not a Tplt" -- todo ? omit
 
 subInTplt :: Expr -> [String] -> String
 subInTplt (Tplt ts) ss = subInTpltWithHashes (Tplt ts) ss 0
+subInTplt _ _ = error "subInTplt: given a non-Tplt"
 
 padTpltStrings :: Expr -> String -> [String]
 padTpltStrings (Tplt ss) prefix =
@@ -82,3 +82,4 @@ padTpltStrings (Tplt ss) prefix =
       doToLast  s = case s of "" -> ""
                               _ -> " " ++ prefix ++ f s
   in [doToFirst a] ++ map doToMiddle middle ++ [doToLast z]
+padTpltStrings _ _ = error "padTpltStrings: given a non-Tplt"

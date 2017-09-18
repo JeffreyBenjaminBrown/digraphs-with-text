@@ -7,8 +7,6 @@ module Dwt.ParseUtils (
   , integer
   ) where
 
-import Data.Graph.Inductive (Node)
-
 import Control.Applicative (empty)
 import Data.Void (Void)
 import Data.List (intersperse)

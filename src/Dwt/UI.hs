@@ -3,7 +3,6 @@
 {-# LANGUAGE RankNTypes #-}
 module Dwt.UI where
 
-import Data.Graph.Inductive (empty, nodes, Node)
 import Dwt.Types
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
@@ -19,16 +18,15 @@ import qualified Brick.Widgets.Center as C
 import qualified Brick.Widgets.Edit as E
 import qualified Brick.AttrMap as A
 import qualified Brick.Focus as F
-
 import qualified Graphics.Vty as V
 import qualified Data.Text.Zipper as Z
+
 import Lens.Micro
 import Lens.Micro.TH
-
-import Text.Megaparsec (parse, (<|>))
+import Text.Megaparsec (parse)
 import Control.Monad.Trans.State (execStateT)
 import Control.Monad.Trans.Reader (runReader)
-import Data.List (partition)
+import Data.Maybe (fromJust)
 
 
 data Name = InsertWindow | CommandWindow deriving (Ord, Show, Eq)
@@ -69,6 +67,7 @@ changeView st = do
       command = fr $ parse pCommand "" commandString -- TODO: nix fr
   case command of ViewGraph reader -> viewRSLT reader st'
                   ShowQueries -> showQueries st'
+                  -- TODO: ShowQNodes
   where
     viewRSLT theReader st = do
       let nodesToView = runReader theReader $ st^.rslt
@@ -85,13 +84,12 @@ appHandleEvent st (T.VtyEvent ev) =
   V.EvKey V.KEsc [] -> M.halt st
   V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusPrev
     -- TODO ? why is this the representation of Tab?
-  V.EvKey V.KEnter [V.MMeta] -> case focus of -- MMeta = only working modifier
-    Just InsertWindow -> addToRSLT st
-    Just CommandWindow -> changeView st
-  _ -> M.continue =<< case focus of
-    Just InsertWindow -> T.handleEventLensed st insertWindow E.handleEditorEvent ev
-    Just CommandWindow -> T.handleEventLensed st commandWindow E.handleEditorEvent ev
-    Nothing -> return st
+  V.EvKey V.KEnter [V.MMeta] -> case fromJust focus of
+    InsertWindow -> addToRSLT st -- MMeta is the only working modifier
+    CommandWindow -> changeView st
+  _ -> M.continue =<< case fromJust focus of
+    InsertWindow -> T.handleEventLensed st insertWindow E.handleEditorEvent ev
+    CommandWindow -> T.handleEventLensed st commandWindow E.handleEditorEvent ev
 appHandleEvent st _ = M.continue st
 
 appChooseCursor :: St -> [T.CursorLocation Name] -> Maybe (T.CursorLocation Name)
@@ -101,7 +99,6 @@ appChooseCursor = F.focusRingCursor (^.focusRing)
 -- ==== Draw
 appDraw :: St -> [T.Widget Name]
 appDraw st = [ui] where
-  g = st ^. rslt
   -- v = str $ view g $ st ^. nodesInView
   e1 = F.withFocusRing
          (st^.focusRing)

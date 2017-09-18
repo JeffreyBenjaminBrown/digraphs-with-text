@@ -24,17 +24,15 @@ import Text.Regex
 import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Edit
-import Dwt.Util (fr, maxNode, dropEdges, fromRight, prependCaller, listIntersect, gelemM)
+import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, listIntersect, gelemM)
 import Dwt.Measure (extractTplt, isAbsent)
 import Data.Maybe (fromJust)
 
-import Control.Monad (liftM)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State
-import Control.Lens
 import qualified Data.Map as M
 import qualified Data.Maybe as Mb
-import Control.Monad (foldM)
+
 
 -- | "Concrete" in the sense that it uses Nodes, not QNodes
 data NodeOrVarConcrete = NodeSpecC Node
@@ -81,6 +79,7 @@ _qGet :: -- x herein is either Node or LNode Expr
   -> (RSLT -> RelSpecConcrete -> Either DwtErr [x])
     -- | _matchRelSpecNodes or _matchRelSpecNodesLab; used for QRel
   -> RSLT -> QNode -> Either DwtErr [x]
+_qGet _ _ _ _ Absent = Left (Impossible, [ErrQNode Absent], "qGet.")
 _qGet f _ _ g (At n) = return $ if gelem n g then [f g n] else []
 _qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
 _qGet _ _ f g q@(QRel _ qms) = prependCaller "_qGet: " $ do
@@ -101,18 +100,18 @@ qGet1 :: RSLT -> QNode -> Either DwtErr Node
 qGet1 g q = prependCaller "qGet1: " $ case qGet g q of
     Right [] -> Left (FoundNo, queryError, ".")
     Right [a] -> Right a
-    Right as -> Left (FoundMany, queryError, ".")
+    Right _ -> Left (FoundMany, queryError, ".")
     Left e -> Left e
   where queryError = [ErrQNode q]
 
 qPutSt :: QNode -> StateT RSLT (Either DwtErr) Node
+qPutSt Absent = lift $ Left (Impossible, [ErrQNode Absent], "qPutSt.")
 qPutSt i@(QRel _ qms) = do
   -- TODO ? would be more efficient to return even the half-completed state
   -- let tag = prependCaller "qPutSt: " -- TODO: use
   t <- lift $ extractTplt i
   tnode <- qPutSt $ QLeaf t
   ms <- mapM qPutSt $ filter (not . isAbsent) qms
-  g <- get
   insRelSt tnode ms
 qPutSt (At n) = lift $ Right n
 qPutSt q@(QLeaf x) = get >>= \g -> case qGet1 g q of

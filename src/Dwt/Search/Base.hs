@@ -24,7 +24,7 @@ import Dwt.Measure (isCollM, isRelM, tpltArity)
 import Dwt.Util (prependCaller)
 import Data.Graph.Inductive
 import qualified Data.Map as Map
-import Control.Monad.Except (MonadError, throwError, catchError)
+import Control.Monad.Except (MonadError, throwError)
 import Data.Maybe (fromJust)
 import Control.Lens ((%~), (.~), _1, _2)
 
@@ -35,8 +35,8 @@ relNodeSpec g n = prependCaller "relNodeSpec: " $ do
   case lab g n of
     Just (RelSpecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
       where f (node,RelEdge r) = (r,node)
-    Just _ -> Left
-      (NotRelSpecExpr, [ErrNode n], "")
+            f _ = error "relNodeSpec: something was not a RelEdge"
+    Just _ -> Left (NotRelSpecExpr, [ErrNode n], "")
     Nothing -> Left (FoundNo, [ErrNode n], "")
 
 mkRelSpec :: QNode -> [QNode] -> RelSpec

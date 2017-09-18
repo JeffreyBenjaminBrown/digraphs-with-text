@@ -17,7 +17,6 @@ module Dwt.Search.Branch (
 
 import Data.Graph.Inductive
 import Dwt.Types
-import Dwt.Edit
 import Dwt.Search.Base (relNodeSpec, relElts)
 import Dwt.Search.QNode (RelSpecConcrete(..), NodeOrVarConcrete(..)
                        , qGet1, _usersInRole)
@@ -26,10 +25,7 @@ import Dwt.Util (listIntersect, prependCaller, gelemM)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.List (nub)
-
-import Control.Monad
 import Control.Monad.Reader
-import Control.Monad.Trans.Class
 
 
 -- | swap Up and Down, or err
@@ -120,10 +116,13 @@ subNodeForVars q v r = do -- TODO: use prependCaller
       f x = x -- the v,v' distinction is needed; otherwise v gets masked
   lift $ Right $ Map.map f r -- ^ change each VarSpec v to NodeSpec n
 
-_bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- | determines dfs|bfs
-  -> RSLT -> (Mbrship, RelSpec) -> [Node] -> [Node] -> Either DwtErr [Node]
+_bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- ^ determines dfs|bfs
+  -> RSLT -> (Mbrship, RelSpec)
+  -> [Node] -- ^ pending to add
+  -> [Node] -- ^ the accumulator getting added to
+  -> Either DwtErr [Node]
 _bfsOrDfs _ _ _ [] acc = return acc
-_bfsOrDfs collector g qdir pending@(n:ns) acc = do
+_bfsOrDfs collector g qdir (n:ns) acc = do
   newNodes <- fork1Dir g (At n) qdir
     --ifdo speed: calls has1Dir redundantly
   _bfsOrDfs collector g qdir (nub $ collector newNodes ns) (n:acc)

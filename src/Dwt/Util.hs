@@ -21,8 +21,7 @@ import Data.Graph.Inductive
 import Dwt.Types
 import Data.List (intersect)
 import qualified Data.Map as Map
-import Control.Monad.Except (MonadError, throwError)
-import Control.Lens  ((.~), (%~))
+import Control.Lens  ((%~))
 
 -- == lists
 listIntersect [] = []
@@ -44,10 +43,10 @@ negateGraph m = gmap (\(a,b,c,d) -> (negAdj a, -b, c, negAdj d)) m
 -- in progress
 -- TODO ! fails silently. use Either.
 replaceNode :: LNode a -> Gr a b -> Either DwtErr (Gr a b)
-replaceNode (adr,dat) (match adr -> (Just (a,b,c,d), g)) = Right
-  $ (a,b,dat,d) & g
-replaceNode (adr,_) (match adr -> (Nothing, g))          = Left
-  (FoundNo, [ErrNode adr], "replaceNode.")
+replaceNode (adr,c) (match adr -> (Just (a,b,_,d), g))
+  = Right $ (a,b,c,d) & g
+replaceNode (adr,_) (match adr -> (Nothing, _))
+  = Left (FoundNo, [ErrNode adr], "replaceNode.")
 
 -- make the nodes the least positive integers possible
 compressGraph :: DynGraph gr => gr a b -> gr a b
@@ -85,5 +84,5 @@ fromRight (Right r) = r
 fromRight _ = error "fromRight applied to Left"
 
 prependCaller :: String -> Either DwtErr a -> Either DwtErr a
-prependCaller name e@(Right _) = e
+prependCaller _ e@(Right _) = e
 prependCaller name (Left e) = Left $ errString %~ (name++) $ e

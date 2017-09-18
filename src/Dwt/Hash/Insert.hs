@@ -7,13 +7,11 @@ module Dwt.Hash.Insert (prettyPrint, addExpr) where
 import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Types
 import Dwt.Search.QNode
-import Dwt.Measure (isAbsent, isValid)
-import Dwt.Util (fr, maxNode, prependCaller, gelemM)
+import Dwt.Measure (isAbsent)
+import Dwt.Util (gelemM)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)
-import Data.List (mapAccumL)
-import qualified Data.Sequence as S
-import Control.Lens ((.~))
+
 
 -- | (At n) represents something already extant in the graph.
 -- Leaf and QRel represent something that *might* already exist; it will
@@ -38,10 +36,11 @@ addExpr (At n) = get >>= lift . flip gelemM n >> return n
 addExpr Absent = lift $ Left (Impossible
   , [ErrQNode Absent], "execQNode.")
 addExpr (QLeaf e) = qPutSt $ QLeaf e
-addExpr q@(QRel js as) = do
+addExpr (QRel js as) = do
   ns <- mapM addExpr $ filter (not . isAbsent) as
   qPutSt $ QRel js $ reshuffle ns as
   where reshuffle :: [Node] -> [QNode] -> [QNode]
         reshuffle [] ms = ms
         reshuffle ns (Absent:is) = Absent : reshuffle ns is
         reshuffle (n:ns) (_:is) = At n : reshuffle ns is
+        -- ns is shorter or equal, so the case reshuffle _ [] is unnecessary

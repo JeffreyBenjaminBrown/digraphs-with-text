@@ -18,16 +18,10 @@ import Dwt.Types
 import Dwt.Measure
 import Dwt.Util
 import Dwt.Search.Base (tpltAt)
-import Data.Graph.Inductive hiding (lift)
-import Data.Either (partitionEithers)
-import Data.List (intersect, nub)
-import qualified Data.Map as Map
-import Data.Maybe (catMaybes, fromJust)
+import Data.Graph.Inductive
 import Control.Monad (mapM_)
-import Control.Monad.Except (MonadError, throwError, catchError)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class
-import Data.Text (pack, unpack, strip, splitOn)
 import Control.Lens hiding ((&))
 
 

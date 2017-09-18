@@ -4,11 +4,8 @@ module TParse where
 
 import Dwt
 import Test.HUnit
-
 import Text.Megaparsec (parse)
-import qualified Data.Map as Map
-import qualified Data.Set as Set
-import Data.Maybe (fromJust)
+
 
 tParse = TestList [ TestLabel "tParseInner" tParseInner
                   ]

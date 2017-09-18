@@ -6,7 +6,7 @@ module Dwt.Types (
   , Mbrship(..), RelVarSpec, RelNodeSpec
   , NodeOrVar(..), RelSpec
   , QNode(..), Level, Joint(..), EO(..)
-  , DwtErr(..), ErrBase(..), ErrOpt(..)
+  , DwtErr, ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString -- lenses
   ) where
 
