@@ -71,8 +71,8 @@ relSpec g q = prependCaller "relSpec: " $ do
               , "relSpec.")
 
 usersInRole :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
-usersInRole g (At n) r = prependCaller "usersInRole: " $ _usersInRole g n r
-usersInRole g q r = qGet1 g q >>= \n -> _usersInRole g n r
+usersInRole g q r = prependCaller "usersInRole: "
+  $ qGet1 g q >>= \n -> _usersInRole g n r
 
 matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
 matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do

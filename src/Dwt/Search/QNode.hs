@@ -19,19 +19,18 @@ module Dwt.Search.QNode (
   , _mkRelSpec -- Node -> [Node] -> RelSpecConcrete
 ) where
 
-import Text.Regex
-
 import Data.Graph.Inductive
 import Dwt.Types
-import Dwt.Edit
+import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, listIntersect, gelemM)
 import Dwt.Measure (extractTplt, isAbsent)
-import Data.Maybe (fromJust)
 
 import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.State
+import Control.Monad.Trans.State (StateT, get, put)
 import qualified Data.Map as M
 import qualified Data.Maybe as Mb
+import Data.Maybe (fromJust)
+import Text.Regex (mkRegex, matchRegex)
 
 
 -- | "Concrete" in the sense that it uses Nodes, not QNodes
