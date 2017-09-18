@@ -6,8 +6,6 @@ module Dwt.Leaf (
   , subInTplt, padTpltStrings, subInTpltWithHashes
   , tpltArity, mbrListMatchesTpltArity
 
-  , insLeaf -- invovles an RSLT
-
   -- Expr tests
   , isWord, isWordM
   , isTplt, isTpltM
@@ -84,12 +82,6 @@ mbrListMatchesTpltArity ns e = case e of
   _ -> throwError (NotTplt,         [ErrExpr e], funcName)
   where funcName = "mbrListMatchesTpltArity."
 
--- == Insert
-insLeaf :: Expr -> RSLT -> RSLT
-  -- TODO : use this to avoid duplicate ways to delete, replace, ...
-insLeaf e g = case isLeaf e of
-  True -> insNode (newAddr, e) g where [newAddr] = newNodes 1 g
-  False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
 
 -- == Expr tests
 _isExprMConstructorStrErr :: (MonadError String m, Graph gr) => (a -> Bool) ->

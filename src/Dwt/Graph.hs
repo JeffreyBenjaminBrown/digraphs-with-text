@@ -2,7 +2,8 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Graph (
-  insRelUsf -- Node(Tplt) -> [Node] -> RSLT -> RSLT
+  insLeaf -- Expr -> RSLT -> RSLT
+  , insRelUsf -- Node(Tplt) -> [Node] -> RSLT -> RSLT
   , insRel -- Node(Tplt) -> [Node] -> RSLT -> Either DwtErr RSLT
   , insRelSt -- Node(Tplt) -> [Node] -> StateT RSLT (Either DwtErr) Node(Rel)
   , insColl -- (Maybe Node)(principle) -> [Node] -> RSLT -> Either DwtErr RSLT
@@ -29,7 +30,13 @@ import Control.Monad.Trans.Class
 import Data.Text (pack, unpack, strip, splitOn)
 import Control.Lens hiding ((&))
 
--- ======== build
+
+insLeaf :: Expr -> RSLT -> RSLT
+  -- TODO : use this to avoid duplicate ways to delete, replace, ...
+insLeaf e g = case isLeaf e of
+  True -> insNode (newAddr, e) g where [newAddr] = newNodes 1 g
+  False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."
+
 insRel :: Node -> [Node] -> RSLT -> Either DwtErr RSLT
 insRel template mbrs g =
   do mapM_ (gelemM g) $ template:mbrs
