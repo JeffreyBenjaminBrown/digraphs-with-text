@@ -6,66 +6,22 @@ module Dwt.Search.QNode (
   , qGetLab -- RSLT -> QNode -> Either DwtErr [LNode Expr]
   , qGet1 -- RSLT -> QNode -> Either DwtErr Node
   , qPutSt -- QNode -> StateT RSLT (Either DwtErr) Node
-
   , qRegexWord -- RSLT -> String -> [Node]
-
-  -- for internal export, not for interface
-  , NodeOrVarConcrete(..) -- Uses Node, not QNode. Still uses Mbrship.
-  , RelSpecConcrete -- Uses NodeOrVarConcrete
-  , _matchRelSpecNodes -- RSLT -> RelSpecConcrete -> Either DwtErr [Node]
-    -- critical: the intersection-finding function
-  , _matchRelSpecNodesLab -- same, except LNodes
-  , _usersInRole -- RSLT -> Node -> RelRole -> Either DwtErr [Node]
-  , _mkRelSpec -- Node -> [Node] -> RelSpecConcrete
 ) where
 
 import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Edit (insLeaf, insRelSt)
-import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, listIntersect, gelemM)
+import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM)
 import Dwt.Measure (extractTplt, isAbsent)
+import Dwt.Search.Base (RelSpecConcrete(..), _matchRelSpecNodes
+                       , _matchRelSpecNodesLab, _mkRelSpec)
 
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State (StateT, get, put)
-import qualified Data.Map as M
 import qualified Data.Maybe as Mb
 import Data.Maybe (fromJust)
 import Text.Regex (mkRegex, matchRegex)
-
-
--- | "Concrete" in the sense that it uses Nodes, not QNodes
-data NodeOrVarConcrete = NodeSpecC Node
-  | VarSpecC Mbrship deriving (Show,Read,Eq)
-type RelSpecConcrete = M.Map RelRole NodeOrVarConcrete
-
-_matchRelSpecNodes :: RSLT -> RelSpecConcrete -> Either DwtErr [Node]
-_matchRelSpecNodes g spec = prependCaller "_matchRelSpecNodes: " $ do
-  let nodeSpecs = M.toList
-        $ M.filter (\ns -> case ns of NodeSpecC _ -> True; _ -> False)
-        $ spec :: [(RelRole,NodeOrVarConcrete)]
-  nodeListList <- mapM (\(r,NodeSpecC n) -> _usersInRole g n r) nodeSpecs
-  return $ listIntersect nodeListList
-
--- ifdo speed: this searches for nodes, then searches again for labels
-_matchRelSpecNodesLab :: RSLT -> RelSpecConcrete -> Either DwtErr [LNode Expr]
-_matchRelSpecNodesLab g spec = prependCaller "_matchRelSpecNodesLab: " $ do
-  ns <- _matchRelSpecNodes g spec
-  return $ zip ns $ map (fromJust . lab g) ns
-    -- TODO: slow: this looks up each node a second time to find its label
-    -- fromJust is safe because _matchRelSpecNodes only returns Nodes in g
-
--- | Rels using Node n in RelRole r
-_usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
-_usersInRole g n r = prependCaller "usersInRole: " $
-  do gelemM g n -- makes f safe
-     return $ f g n r
-  where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
-        f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
-
--- | Use when all the nodes the Rel involves are known.
-_mkRelSpec :: Node -> [Node] -> RelSpecConcrete
-_mkRelSpec t ns = M.fromList $ [(TpltRole, NodeSpecC t)] ++ mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpecC ns)
 
 
 -- TODO: simplify some stuff (maybe outside of this file?) by using 

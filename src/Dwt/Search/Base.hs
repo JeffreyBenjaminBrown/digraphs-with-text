@@ -3,8 +3,17 @@
 
 {-# LANGUAGE FlexibleContexts #-}
 module Dwt.Search.Base (
+  -- things involving NodeOrVarConcrete
+  NodeOrVarConcrete(..) -- Uses Node, not QNode. Still uses Mbrship.
+  , RelSpecConcrete -- Uses NodeOrVarConcrete
+  , _matchRelSpecNodes -- RSLT -> RelSpecConcrete -> Either DwtErr [Node]
+    -- critical: the intersection-finding function
+  , _matchRelSpecNodesLab -- same, except LNodes
+  , _usersInRole -- RSLT -> Node -> RelRole -> Either DwtErr [Node]
+  , _mkRelSpec -- Node -> [Node] -> RelSpecConcrete
+
   -- these two might belong elsewhere; they use RelSpec and|or QNode
-  relNodeSpec -- RSLT -> Node(RelSpec) -> Either DwtErr RelNodeSpec
+  , relNodeSpec -- RSLT -> Node(RelSpec) -> Either DwtErr RelNodeSpec
   , mkRelSpec -- unused.  QNode(Tplt) -> [QNode] -> RelSpec
 
   , whereis -- RSLT -> Expr -> [Node]
@@ -19,7 +28,7 @@ module Dwt.Search.Base (
   ) where
 
 import Dwt.Types
-import Dwt.Util (gelemM)
+import Dwt.Util (gelemM, listIntersect)
 import Dwt.Measure (isCollM, isRelM, tpltArity)
 import Dwt.Util (prependCaller)
 import Data.Graph.Inductive
@@ -28,7 +37,44 @@ import Control.Monad.Except (MonadError, throwError)
 import Data.Maybe (fromJust)
 import Control.Lens ((%~), (.~), _1, _2)
 
--- ==== more complex ("locate"?) queries
+
+-- ====
+-- | "Concrete" in the sense that it uses Nodes, not QNodes
+data NodeOrVarConcrete = NodeSpecC Node
+  | VarSpecC Mbrship deriving (Show,Read,Eq)
+type RelSpecConcrete = Map.Map RelRole NodeOrVarConcrete
+
+_matchRelSpecNodes :: RSLT -> RelSpecConcrete -> Either DwtErr [Node]
+_matchRelSpecNodes g spec = prependCaller "_matchRelSpecNodes: " $ do
+  let nodeSpecs = Map.toList
+        $ Map.filter (\ns -> case ns of NodeSpecC _ -> True; _ -> False)
+        $ spec :: [(RelRole,NodeOrVarConcrete)]
+  nodeListList <- mapM (\(r,NodeSpecC n) -> _usersInRole g n r) nodeSpecs
+  return $ listIntersect nodeListList
+
+-- ifdo speed: this searches for nodes, then searches again for labels
+_matchRelSpecNodesLab :: RSLT -> RelSpecConcrete -> Either DwtErr [LNode Expr]
+_matchRelSpecNodesLab g spec = prependCaller "_matchRelSpecNodesLab: " $ do
+  ns <- _matchRelSpecNodes g spec
+  return $ zip ns $ map (fromJust . lab g) ns
+    -- TODO: slow: this looks up each node a second time to find its label
+    -- fromJust is safe because _matchRelSpecNodes only returns Nodes in g
+
+-- | Rels using Node n in RelRole r
+_usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
+_usersInRole g n r = prependCaller "usersInRole: " $
+  do gelemM g n -- makes f safe
+     return $ f g n r
+  where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
+        f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
+
+-- | Use when all the nodes the Rel involves are known.
+_mkRelSpec :: Node -> [Node] -> RelSpecConcrete
+_mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpecC t)] ++ mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpecC ns)
+
+
+-- ====
 relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
 relNodeSpec g n = prependCaller "relNodeSpec: " $ do
   gelemM g n
