@@ -1,9 +1,9 @@
 -- | These are "basic" queries in that they mostly don't use RelSpec or
--- QNode. The two exceptions, listed first, might belong elsewhere.
+-- QNode.
 
 {-# LANGUAGE FlexibleContexts #-}
 module Dwt.Search.Base (
-  -- these two might belong elsewhere
+  -- these two might belong elsewhere; they use RelSpec and|or QNode
   relNodeSpec -- RSLT -> Node(RelSpec) -> Either DwtErr RelNodeSpec
   , mkRelSpec -- unused.  QNode(Tplt) -> [QNode] -> RelSpec
 
