@@ -61,7 +61,6 @@ matchQRelSpecNodes g spec = prependCaller "matchQRelSpecNodes: " $ do
   nodeListList <- mapM (\(r,QNodeSpec n) -> qPlaysRoleIn g n r) nodeSpecs
   return $ listIntersect nodeListList
 
--- ifdo speed: this searches for nodes, then searches again for labels
 matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
 matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
   ns <- matchRelSpecNodes g spec
@@ -127,6 +126,7 @@ qPutSt q@(QLeaf x) = get >>= \g -> case qGet1 g q of
   Left (FoundNo,_,_) -> let g' = insLeaf x g
     in put g' >> lift (Right $ maxNode g')
   Left e -> lift $ prependCaller "qPutSt: " $ Left e
+
 
 -- == Regex
 qRegexWord :: RSLT -> String -> [Node]

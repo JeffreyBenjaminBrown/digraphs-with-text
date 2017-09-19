@@ -42,6 +42,7 @@ library
                      , either
                           -- for Control.Monad.Trans.Either (for in repl)
                      , transformers
+                     , mmorph
                      , parsec
                      , regex-compat
                      , text
