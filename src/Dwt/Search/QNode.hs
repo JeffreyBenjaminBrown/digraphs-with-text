@@ -14,8 +14,8 @@ import Dwt.Types
 import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM)
 import Dwt.Measure (extractTplt, isAbsent)
-import Dwt.Search.Base (_matchRelSpecNodes
-                       , _matchRelSpecNodesLab, _mkRelSpec)
+import Dwt.Search.Base (matchRelSpecNodes
+                       , matchRelSpecNodesLab, _mkRelSpec)
 
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State (StateT, get, put)
@@ -32,7 +32,7 @@ _qGet :: -- x herein is either Node or LNode Expr
   -- Can safely be unsafe, because the QAt's contents are surely present.
   -> (RSLT -> [x])       -- | nodes or labNodes; used for QLeaf
   -> (RSLT -> RelSpec -> Either DwtErr [x])
-    -- | _matchRelSpecNodes or _matchRelSpecNodesLab; used for QRel
+    -- | matchRelSpecNodes or matchRelSpecNodesLab; used for QRel
   -> RSLT -> QNode -> Either DwtErr [x]
 _qGet _ _ _ _ Absent = Left (Impossible, [ErrQNode Absent], "qGet.")
 _qGet f _ _ g (At n) = return $ if gelem n g then [f g n] else []
@@ -45,10 +45,10 @@ _qGet _ _ f g q@(QRel _ qms) = prependCaller "_qGet: " $ do
   f g relspec
 
 qGet :: RSLT -> QNode -> Either DwtErr [Node]
-qGet = _qGet (\_ n -> n) nodes _matchRelSpecNodes
+qGet = _qGet (\_ n -> n) nodes matchRelSpecNodes
 
 qGetLab :: RSLT -> QNode -> Either DwtErr [LNode Expr]
-qGetLab = _qGet f labNodes _matchRelSpecNodesLab where
+qGetLab = _qGet f labNodes matchRelSpecNodesLab where
   f g n = (n, Mb.fromJust $ lab g n)
 
 qGet1 :: RSLT -> QNode -> Either DwtErr Node

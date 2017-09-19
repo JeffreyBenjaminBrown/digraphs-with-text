@@ -163,8 +163,8 @@ tSpecUsers = TestCase $ do
   assertBool "with Arity" $ _usersInRole g1 0 (Mbr 1) == Right [5,6,8]
 
 tMatchRel = TestCase $ do
-  assertBool "dog in first pos"     $ matchRelSpecNodes g1 tRelSpec == Right [5,6,8]
-  assertBool "nothing should match" $ matchRelSpecNodes g1 tRelSpecNonsense == Right []
+  assertBool "dog in first pos"     $ matchQRelSpecNodes g1 tRelSpec == Right [5,6,8]
+  assertBool "nothing should match" $ matchQRelSpecNodes g1 tRelSpecNonsense == Right []
 
 -- ==== chase and helpers
 tChase = TestList [ TestLabel "tHas1Up" tHas1Dir

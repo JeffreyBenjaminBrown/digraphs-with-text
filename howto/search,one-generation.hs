@@ -1,6 +1,6 @@
 Table of Contents (eventually this format is Haskell)
     pre: Find all nodes using a leaf (even a Tplt)
-    matchRelSpecNodes: find all relationships using the Nodes (ignore the variables) specified by a QRelSpec
+    matchQRelSpecNodes: find all relationships using the Nodes (ignore the variables) specified by a QRelSpec
     Find all gold nodes (from Freeplane)
 
 -- Find all nodes using a leaf, even a Tplt
@@ -12,9 +12,9 @@ Table of Contents (eventually this format is Haskell)
     (7,"_ #can _")
     (8,"turtles ##can swim")
 
---  matchRelSpecNodes: find all relationships using the Nodes (ignore the variables) specified by a QRelSpec
+--  matchQRelSpecNodes: find all relationships using the Nodes (ignore the variables) specified by a QRelSpec
     > let s = M.fromList [(TpltRole,QNodeSpec 7),(Mbr 1,QVarSpec Any),(Mbr 2,QVarSpec Any)]
-    >  matchRelSpecNodes g s
+    >  matchQRelSpecNodes g s
     Right [8]
 
 -- Find all gold nodes (from Freeplane)

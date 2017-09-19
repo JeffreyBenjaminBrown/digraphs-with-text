@@ -4,9 +4,9 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Dwt.Search.Base (
   -- things involving NodeOrVar
-  _matchRelSpecNodes -- RSLT -> RelSpec -> Either DwtErr [Node]
+  matchRelSpecNodes -- RSLT -> RelSpec -> Either DwtErr [Node]
     -- critical: the intersection-finding function
-  , _matchRelSpecNodesLab -- same, except LNodes
+  , matchRelSpecNodesLab -- same, except LNodes
   , _usersInRole -- RSLT -> Node -> RelRole -> Either DwtErr [Node]
   , _mkRelSpec -- Node -> [Node] -> RelSpec
 
@@ -38,8 +38,8 @@ import Control.Lens ((%~), (.~), _1, _2)
 
 -- ====
 -- | "Concrete" in the sense that it uses Nodes, not QNodes
-_matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
-_matchRelSpecNodes g spec = prependCaller "_matchRelSpecNodes: " $ do
+matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
+matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
   let nodeSpecs = Map.toList
         $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,NodeOrVar)]
@@ -47,12 +47,12 @@ _matchRelSpecNodes g spec = prependCaller "_matchRelSpecNodes: " $ do
   return $ listIntersect nodeListList
 
 -- ifdo speed: this searches for nodes, then searches again for labels
-_matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
-_matchRelSpecNodesLab g spec = prependCaller "_matchRelSpecNodesLab: " $ do
-  ns <- _matchRelSpecNodes g spec
+matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
+matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
+  ns <- matchRelSpecNodes g spec
   return $ zip ns $ map (fromJust . lab g) ns
     -- TODO: slow: this looks up each node a second time to find its label
-    -- fromJust is safe because _matchRelSpecNodes only returns Nodes in g
+    -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
 
 -- | Rels using Node n in RelRole r
 _usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]

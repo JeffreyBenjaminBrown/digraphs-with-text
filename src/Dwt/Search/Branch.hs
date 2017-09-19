@@ -4,8 +4,8 @@ module Dwt.Search.Branch (
   , insRelSpec -- add a relspec to a graph
   , relSpec -- unused. returns a RelSpec
   , usersInRole -- RSLT -> QNode -> RelRole -> Either DwtErr [Node]
-  , matchRelSpecNodes -- RSLT -> QRelSpec -> Either DwtErr [Node]
-  , matchRelSpecNodesLab -- same, except LNodes
+  , matchQRelSpecNodes -- RSLT -> QRelSpec -> Either DwtErr [Node]
+  , matchQRelSpecNodesLab -- same, except LNodes
   , has1Dir -- Mbrship(the dir it has 1 of) -> QRelSpec -> Bool
   , fork1Dir -- RSLT -> QNode -> (Mbrship,QRelSpec) -> Either DwtErr [Node]
     -- TODO: rewrite Mbrship as To,From,It,Any. Then use QRelSpec, not a pair.
@@ -73,20 +73,20 @@ usersInRole :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
 usersInRole g q r = prependCaller "usersInRole: "
   $ qGet1 g q >>= \n -> _usersInRole g n r
 
-matchRelSpecNodes :: RSLT -> QRelSpec -> Either DwtErr [Node]
-matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
+matchQRelSpecNodes :: RSLT -> QRelSpec -> Either DwtErr [Node]
+matchQRelSpecNodes g spec = prependCaller "matchQRelSpecNodes: " $ do
   let nodeSpecs = Map.toList
         $ Map.filter (\ns -> case ns of QNodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,QNodeOrVar)]
   nodeListList <- mapM (\(r,QNodeSpec n) -> usersInRole g n r) nodeSpecs
   return $ listIntersect nodeListList
 
-matchRelSpecNodesLab :: RSLT -> QRelSpec -> Either DwtErr [LNode Expr]
-matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
-  ns <- matchRelSpecNodes g spec
+matchQRelSpecNodesLab :: RSLT -> QRelSpec -> Either DwtErr [LNode Expr]
+matchQRelSpecNodesLab g spec = prependCaller "matchQRelSpecNodesLab: " $ do
+  ns <- matchQRelSpecNodes g spec
   return $ zip ns $ map (fromJust . lab g) ns
     -- TODO speed: this looks up each node twice
-    -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
+    -- fromJust is safe because matchQRelSpecNodes only returns Nodes in g
 
 has1Dir :: Mbrship -> QRelSpec -> Bool
 has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
@@ -101,7 +101,7 @@ fork1Dir g qFrom (dir,axis) = do -- returns one generation, neighbors
                , "fork1Dir: should have only one " ++ show fromDir)
   let dirRoles = Map.keys $ Map.filter (== QVarSpec dir) axis
   axis' <- runReaderT (subNodeForVars qFrom fromDir axis) g
-  rels <- matchRelSpecNodes g axis'
+  rels <- matchQRelSpecNodes g axis'
   concat <$> mapM (\rel -> relElts g rel dirRoles) rels
     -- TODO: this line is unnecessary. just return the rels, not their elts.
       -- EXCEPT: that might hurt the dfs, bfs functions below
