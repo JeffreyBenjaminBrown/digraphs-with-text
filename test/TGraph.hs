@@ -3,7 +3,7 @@ module TGraph where
 import Dwt hiding (fromRight)
 import Data.Graph.Inductive
 import TData
-import Dwt.Search.Base (relElts, validMbrRole, users, relTplt, tpltAt)
+import Dwt.Search.Base (relElts, validMbrRole, users, tpltAt)
 import Test.HUnit hiding (Node)
 
 import qualified Data.Map as Map
@@ -134,10 +134,10 @@ tTpltAt = TestCase $ do
   assertBool "absent" $ isLeft $ tpltAt g1 (-1)
 
 tTpltForRelAt = TestCase $ do
-  assertBool "normal" $ relTplt g1 5 ==
+  assertBool "normal" $ tpltAt g1 5 ==
     ( Right $ Tplt ["","wants",""] )
-  assertBool "not a Rel" $ isLeft $ relTplt g1 1
-  assertBool "absent" $ isLeft $ relTplt g1 (-1)
+  assertBool "not a Rel" $ isLeft $ tpltAt g1 1
+  assertBool "absent" $ isLeft $ tpltAt g1 (-1)
 
 tTpltArity = TestCase $ do
   assertBool "arity 0" $

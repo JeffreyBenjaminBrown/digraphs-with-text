@@ -11,7 +11,6 @@ module Dwt.Search.Base (
   , tpltAt -- (MonadError DwtErr m) => RSLT -> Node(Tplt) -> m Expr(Tplt)
   , relElts -- RSLT -> Node(Rel) -> [RelRole] -> Either DwtErr [Node]
   , validMbrRole -- RSLT -> Node -> RelRole -> Either DwtErr ()
-  , relTplt -- RSLT -> Node(Rel) -> Either DwtErr Expr(Tplt)
   , collPrinciple -- RSLT -> Node(Coll) -> Either DwtErr Expr(Principle)
   , tplts -- Gr Expr b -> [Node]
   , mbrs -- RSLT -> Node(Rel) -> [Node(Mbr)]
@@ -52,7 +51,7 @@ relNodeSpec g n = prependCaller "relNodeSpec: " $ do
 -- ====
 whereis :: RSLT -> Expr -> [Node] -- TODO ? dependent types: length == 1
 whereis g x = nodes $ labfilter (== x) g
-
+ 
 tpltAt :: (MonadError DwtErr m) => RSLT -> Node -> m Expr
 tpltAt g tn = let name = "tpltAt." in case lab g tn of
   Just t@(Tplt _) -> return t
@@ -66,23 +65,16 @@ relElts g relNode roles = prependCaller "relElts" $ do
   return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
 validMbrRole :: RSLT -> Node -> RelRole -> Either DwtErr ()
-validMbrRole g relNode role = do
-  tag (isRelM g relNode) >> case role of
+validMbrRole g relNode role = prependCaller "validMbrRole: " $ do
+  isRelM g relNode >> case role of
     TpltRole -> return ()
     Mbr p -> do
       if p >= 1 then return () else Left err
-      t <- tag $ relTplt g relNode
+      t <- tpltAt g relNode
       let a = tpltArity t
       if p <= a then return ()
         else Left $ _1 .~ ArityMismatch $ _2 %~ (ErrExpr t:) $ err
-  where err = (Invalid, [ErrRelRole role], "validMbrRole.")
-        tag = prependCaller "validMbrRole: "
-
-relTplt :: RSLT -> Node -> Either DwtErr Expr
-relTplt g relNode = prependCaller "relTplt" $ do
-  isRelM g relNode
-  [n] <- relElts g relNode [TpltRole]
-  return $ fromJust $ lab g n
+  where err = (Invalid, [ErrRelRole role], ".")
 
 collPrinciple :: RSLT -> Node -> Either DwtErr Expr
   -- analogous to relTplt
