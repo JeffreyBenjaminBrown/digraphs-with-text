@@ -46,16 +46,6 @@ mbrListMatchesTpltArity ns e = case e of
 
 
 -- == Expr tests
-_isExprMConstructorStrErr :: (MonadError String m, Graph gr) => (a -> Bool) ->
-  gr a b -> Node -> m () -- constructs an isExprM function (Expr a variable)
-  -- todo ? catch these erorrs, append strings
-    -- otherwise the distinction bewteen absence and inequality is lost
-_isExprMConstructorStrErr pred g n = case mExpr of 
-    Nothing -> throwError $ "Node " ++ show n ++ " absent."
-    Just expr ->  case pred expr of True -> return ()
-                                    False -> throwError $ "is not"
-  where mExpr = lab g n
-
 _isExprMConstructor -- constructs an is_M function (_ is a variable)
   :: (Graph gr) => (a -> Bool) -> gr a b -> Node -> Either DwtErr ()
   -- todo ? catch these erorrs, append strings

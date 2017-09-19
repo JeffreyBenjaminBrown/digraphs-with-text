@@ -11,7 +11,7 @@ module Dwt.Types (
   , errBase, errOpts, errString -- lenses
   ) where
 
-import Data.Graph.Inductive
+import Data.Graph.Inductive (Gr, Node, Edge)
 import Data.Map as Map
 import Control.Lens hiding (Level)
 import Data.String (IsString, fromString)

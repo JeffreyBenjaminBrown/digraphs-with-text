@@ -64,7 +64,7 @@ changeView st = do
         -- TODO: take first string without discarding rest
       st' = commandWindow %~ E.applyEdit Z.clearZipper
             $ commands %~ (commandString :) $ st
-      command = fr $ parse pCommand "" commandString -- TODO: nix fr
+      command = fr $ parse pCommand "" commandString -- TODO: nix the fr
   case command of ViewGraph reader -> viewRSLT reader st'
                   ShowQueries -> showQueries st'
                   -- TODO: ShowQNodes
@@ -83,7 +83,6 @@ appHandleEvent st (T.VtyEvent ev) =
   in case ev of
   V.EvKey V.KEsc [] -> M.halt st
   V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusPrev
-    -- TODO ? why is this the representation of Tab?
   V.EvKey V.KEnter [V.MMeta] -> case fromJust focus of
     InsertWindow -> addToRSLT st -- MMeta is the only working modifier
     CommandWindow -> changeView st

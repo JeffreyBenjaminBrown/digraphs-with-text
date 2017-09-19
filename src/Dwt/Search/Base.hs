@@ -20,11 +20,12 @@ module Dwt.Search.Base (
   , users -- Graph gr => gr a b -> Node -> Either DwtErr [Node]
   ) where
 
+import Data.Graph.Inductive (Node, Graph, Gr, lsuc, lpre, lab, labfilter
+                            , nodes)
 import Dwt.Types
 import Dwt.Util (gelemM, listIntersect)
 import Dwt.Measure (isCollM, isRelM, tpltArity)
 import Dwt.Util (prependCaller)
-import Data.Graph.Inductive
 import qualified Data.Map as Map
 import Control.Monad.Except (MonadError, throwError)
 import Data.Maybe (fromJust)

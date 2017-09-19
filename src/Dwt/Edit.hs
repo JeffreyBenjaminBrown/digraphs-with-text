@@ -26,7 +26,6 @@ import Control.Lens hiding ((&))
 
 
 insLeaf :: Expr -> RSLT -> RSLT
-  -- TODO : use this to avoid duplicate ways to delete, replace, ...
 insLeaf e g = case isLeaf e of
   True -> insNode (newAddr, e) g where [newAddr] = newNodes 1 g
   False -> error $ "insLeaf: " ++ show e ++ "is not a leaf."

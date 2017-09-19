@@ -6,13 +6,13 @@ module Dwt.Search.Branch (
   , has1Dir -- Mbrship(the dir it has 1 of) -> QRelSpec -> Bool
   , fork1Dir -- RSLT -> QNode -> (Mbrship,QRelSpec) -> Either DwtErr [Node]
     -- TODO: rewrite Mbrship as To,From,It,Any. Then use QRelSpec, not a pair.
-  , subNodeForVars -- QNode(sub this) -> Mbrship(for this) -> QRelSpec(in this)
-                   -- -> ReaderT RSLT (Either DwtErr) QRelSpec
+  , subNodeForVars --QNode(sub this) -> Mbrship(for this) -> QRelSpec(in this)
+    -- -> ReaderT RSLT (Either DwtErr) QRelSpec
   , dwtDfs -- RSLT -> (Mbrship,QRelSpec) -> [Node] -> Either DwtErr [Node]
   , dwtBfs -- same
 ) where
 
-import Data.Graph.Inductive
+import Data.Graph.Inductive (Node, insNode, insEdges, newNodes, lab)
 import Dwt.Types
 import Dwt.Search.Base (relNodeSpec, relElts)
 import Dwt.Search.QNode (qGet1, usersInRole, matchQRelSpecNodes)
@@ -21,7 +21,7 @@ import Dwt.Util (listIntersect, prependCaller, gelemM)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 import Data.List (nub)
-import Control.Monad.Reader
+import Control.Monad.Reader (ReaderT, runReaderT, ask, lift)
 
 
 -- | swap Up and Down, or err
@@ -86,7 +86,8 @@ fork1Dir g qFrom (dir,axis) = do -- returns one generation, neighbors
 
 subNodeForVars :: QNode -> Mbrship -> QRelSpec
   -> ReaderT RSLT (Either DwtErr) QRelSpec
-subNodeForVars q v r = do -- TODO: use prependCaller
+subNodeForVars q v r = do
+  -- TODO ? lift (prependCaller "subNodeForVars") $ do ...
   g <- ask
   n <- lift $ qGet1 g q
   let f (QVarSpec v') = if v == v' then QNodeSpec (At n) else QVarSpec v'

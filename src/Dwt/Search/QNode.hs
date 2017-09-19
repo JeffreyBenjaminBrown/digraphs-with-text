@@ -17,7 +17,8 @@ module Dwt.Search.QNode (
   , qRegexWord -- RSLT -> String -> [Node]
 ) where
 
-import Data.Graph.Inductive
+import Data.Graph.Inductive (Node, LNode, Graph, labfilter, lab, nodes
+                            , labNodes, gelem, lpre)
 import Dwt.Types
 import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM

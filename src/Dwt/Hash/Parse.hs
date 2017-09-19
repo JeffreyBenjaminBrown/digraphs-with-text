@@ -59,7 +59,6 @@ close (QRel b c, EO _ a) = (QRel b c, EO False a)
 close (x, _) = (x, disregardedEo)
 
 hash :: Level -> Joint -> Qeo -> Qeo -> Qeo
--- TODO: cover the At case
 hash l j a@(isInsRel -> False) b@(isInsRel -> False)       = startRel l j a b
 hash l j a@(isInsRel -> False) b@(QRel _ _, EO False _) = startRel l j a b
 hash l j a@(QRel _ _, EO False _) b@(isInsRel -> False) = startRel l j a b
