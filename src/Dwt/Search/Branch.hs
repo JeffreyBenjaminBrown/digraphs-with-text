@@ -15,7 +15,7 @@ module Dwt.Search.Branch (
 import Data.Graph.Inductive (Node, insNode, insEdges, newNodes, lab)
 import Dwt.Types
 import Dwt.Search.Base (getRelNodeSpec, selectRelElts)
-import Dwt.Search.QNode (qGet1, usersInRole, matchQRelSpecNodes)
+import Dwt.Search.QNode (qGet1, playsRoleIn, matchQRelSpecNodes)
 
 import Dwt.Util (listIntersect, prependCaller, gelemM)
 import qualified Data.Map as Map
