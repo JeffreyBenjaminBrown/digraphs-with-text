@@ -1,18 +1,18 @@
--- | These are "basic" queries in that they mostly don't use RelSpec or
+-- | These are "basic" queries in that they mostly don't use QRelSpec or
 -- QNode.
 
 {-# LANGUAGE FlexibleContexts #-}
 module Dwt.Search.Base (
-  -- things involving NodeOrVarConcrete
-  _matchRelSpecNodes -- RSLT -> RelSpecConcrete -> Either DwtErr [Node]
+  -- things involving NodeOrVar
+  _matchRelSpecNodes -- RSLT -> RelSpec -> Either DwtErr [Node]
     -- critical: the intersection-finding function
   , _matchRelSpecNodesLab -- same, except LNodes
   , _usersInRole -- RSLT -> Node -> RelRole -> Either DwtErr [Node]
-  , _mkRelSpec -- Node -> [Node] -> RelSpecConcrete
+  , _mkRelSpec -- Node -> [Node] -> RelSpec
 
-  -- these two might belong elsewhere; they use RelSpec and|or QNode
-  , relNodeSpec -- RSLT -> Node(RelSpec) -> Either DwtErr RelNodeSpec
-  , mkRelSpec -- unused.  QNode(Tplt) -> [QNode] -> RelSpec
+  -- these two might belong elsewhere; they use QRelSpec and|or QNode
+  , relNodeSpec -- RSLT -> Node(QRelSpec) -> Either DwtErr RelNodeSpec
+  , mkRelSpec -- unused.  QNode(Tplt) -> [QNode] -> QRelSpec
 
   , whereis -- RSLT -> Expr -> [Node]
   , tpltAt -- (MonadError DwtErr m) => RSLT -> Node(Tplt) -> m Expr(Tplt)
@@ -38,16 +38,16 @@ import Control.Lens ((%~), (.~), _1, _2)
 
 -- ====
 -- | "Concrete" in the sense that it uses Nodes, not QNodes
-_matchRelSpecNodes :: RSLT -> RelSpecConcrete -> Either DwtErr [Node]
+_matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
 _matchRelSpecNodes g spec = prependCaller "_matchRelSpecNodes: " $ do
   let nodeSpecs = Map.toList
-        $ Map.filter (\ns -> case ns of NodeSpecC _ -> True; _ -> False)
-        $ spec :: [(RelRole,NodeOrVarConcrete)]
-  nodeListList <- mapM (\(r,NodeSpecC n) -> _usersInRole g n r) nodeSpecs
+        $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
+        $ spec :: [(RelRole,NodeOrVar)]
+  nodeListList <- mapM (\(r,NodeSpec n) -> _usersInRole g n r) nodeSpecs
   return $ listIntersect nodeListList
 
 -- ifdo speed: this searches for nodes, then searches again for labels
-_matchRelSpecNodesLab :: RSLT -> RelSpecConcrete -> Either DwtErr [LNode Expr]
+_matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
 _matchRelSpecNodesLab g spec = prependCaller "_matchRelSpecNodesLab: " $ do
   ns <- _matchRelSpecNodes g spec
   return $ zip ns $ map (fromJust . lab g) ns
@@ -63,9 +63,9 @@ _usersInRole g n r = prependCaller "usersInRole: " $
         f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
 
 -- | Use when all the nodes the Rel involves are known.
-_mkRelSpec :: Node -> [Node] -> RelSpecConcrete
-_mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpecC t)] ++ mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpecC ns)
+_mkRelSpec :: Node -> [Node] -> RelSpec
+_mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
 
 -- ====
@@ -79,9 +79,9 @@ relNodeSpec g n = prependCaller "relNodeSpec: " $ do
     Just _ -> Left (NotRelSpecExpr, [ErrNode n], "")
     Nothing -> Left (FoundNo, [ErrNode n], "")
 
-mkRelSpec :: QNode -> [QNode] -> RelSpec
-mkRelSpec t ns = Map.fromList $ (TpltRole, NodeSpec t) : mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
+mkRelSpec :: QNode -> [QNode] -> QRelSpec
+mkRelSpec t ns = Map.fromList $ (TpltRole, QNodeSpec t) : mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) (fmap QNodeSpec ns)
 
 whereis :: RSLT -> Expr -> [Node]
   -- TODO: dependent types. (hopefully, length = 1)

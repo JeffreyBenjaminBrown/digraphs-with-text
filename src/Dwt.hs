@@ -39,7 +39,7 @@ import qualified Data.Maybe as Mb
 
 -- ==== shorthand (can't go in Util.hs; depends on more)
 -- mindmap things
-ns = NodeSpec
+ns = QNodeSpec
 
 p :: (Applicative f) => a -> f a
 p = pure

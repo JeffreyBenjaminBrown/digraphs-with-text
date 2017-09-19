@@ -4,8 +4,8 @@ module Dwt.Types (
   MbrPos, Arity
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , Mbrship(..), RelVarSpec, RelNodeSpec
-  , NodeOrVarConcrete(..), RelSpecConcrete
   , NodeOrVar(..), RelSpec
+  , QNodeOrVar(..), QRelSpec
   , QNode(..), Level, Joint(..), EO(..)
   , DwtErr, ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString -- lenses
@@ -42,14 +42,14 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
 
 -- == Specifying kinds of relationships
 data Mbrship = It | Any | Up | Down deriving (Show,Read,Eq,Ord)
-data NodeOrVar = NodeSpec QNode | VarSpec Mbrship deriving (Show,Eq)
-data NodeOrVarConcrete = NodeSpecC Node | VarSpecC Mbrship
+data QNodeOrVar = QNodeSpec QNode | QVarSpec Mbrship deriving (Show,Eq)
+data NodeOrVar = NodeSpec Node | VarSpec Mbrship
   deriving (Show,Read,Eq)
-type RelSpec =    Map.Map RelRole NodeOrVar -- if well-formed, includes
+type RelSpec =  Map.Map RelRole NodeOrVar
+type QRelSpec = Map.Map RelRole QNodeOrVar -- if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
-type RelSpecConcrete = Map.Map RelRole NodeOrVarConcrete
 
--- at the TpltRole key is always a concrete NodeSpec
+-- at the TpltRole key is always a concrete QNodeSpec
 type RelVarSpec =  Map.Map RelRole Mbrship
 type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
 
@@ -89,7 +89,7 @@ data ErrBase = Legacy -- | for when the String has all the info
 data ErrOpt =  -- ^ New error style: sum type
   ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrMbrship Mbrship
-  | ErrRelSpec RelSpec | ErrQNode QNode
+  | ErrRelSpec QRelSpec | ErrQNode QNode
   deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase

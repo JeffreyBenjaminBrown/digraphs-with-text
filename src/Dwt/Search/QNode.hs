@@ -31,7 +31,7 @@ _qGet :: -- x herein is either Node or LNode Expr
      (RSLT -> Node -> x) -- | gets what's there; used for QAt.
   -- Can safely be unsafe, because the QAt's contents are surely present.
   -> (RSLT -> [x])       -- | nodes or labNodes; used for QLeaf
-  -> (RSLT -> RelSpecConcrete -> Either DwtErr [x])
+  -> (RSLT -> RelSpec -> Either DwtErr [x])
     -- | _matchRelSpecNodes or _matchRelSpecNodesLab; used for QRel
   -> RSLT -> QNode -> Either DwtErr [x]
 _qGet _ _ _ _ Absent = Left (Impossible, [ErrQNode Absent], "qGet.")

@@ -71,17 +71,17 @@ _showExpr vp g d (Just n) =
                  [m | (m,CollEdge CollMbr) <- lsuc g n] )
 
 -- toto : resurrect when needed
--- It was using NodeSpec, not NodeSpec
+-- It was using QNodeSpec, not QNodeSpec
 --      Just (RelSpecExpr rvs) ->
 --        let rs = fromRight $ relSpec g (QAt n)
 --            rsl = tail $ sortOn fst $ Map.toList rs -- tail drops the tplt
---              -- e.g. rsl = [(Mbr 1,VarSpec Down),(Mbr 2,NodeSpec 3)]
---            tpltNode = (\(NodeSpec n) -> n) $ fromJust $ Map.lookup TpltRole rs
+--              -- e.g. rsl = [(Mbr 1,QVarSpec Down),(Mbr 2,QNodeSpec 3)]
+--            tpltNode = (\(QNodeSpec n) -> n) $ fromJust $ Map.lookup TpltRole rs
 --            Just tpltLab = lab g tpltNode :: Maybe Expr
 --            showAddressOrVar ms = case ms of
---              VarSpec var -> show var
---              NodeSpec node -> show_maybe_node $ Just node
---        in ((_rel $ vpPrefixer vp) n tpltNode ++)  $  ("#RelSpec#: " ++)
+--              QVarSpec var -> show var
+--              QNodeSpec node -> show_maybe_node $ Just node
+--        in ((_rel $ vpPrefixer vp) n tpltNode ++)  $  ("#QRelSpec#: " ++)
 --          $ subInTplt tpltLab 
 --          $ map showAddressOrVar $ map snd rsl
 

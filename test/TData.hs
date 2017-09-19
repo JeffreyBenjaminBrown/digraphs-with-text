@@ -44,17 +44,17 @@
           $ insLeaf (mkTplt"_ needs _")  $ insLeaf (mkTplt"_ wants _")
           $ insLeaf (Word"dog")         $ empty :: RSLT
 
-    tRelSpec = Map.fromList [ (TpltRole, VarSpec It)
-                           , (Mbr 1,   NodeSpec $ At 0)
-                           , (Mbr 2,   VarSpec Any)
-                           ] :: RelSpec
+    tRelSpec = Map.fromList [ (TpltRole, QVarSpec It)
+                           , (Mbr 1,   QNodeSpec $ At 0)
+                           , (Mbr 2,   QVarSpec Any)
+                           ] :: QRelSpec
 
-    tRelSpec2 = Map.fromList [ (TpltRole, NodeSpec $ At 2)
-                           , (Mbr 1,   VarSpec Up)
-                           , (Mbr 2,   VarSpec Down)
-                           ] :: RelSpec
+    tRelSpec2 = Map.fromList [ (TpltRole, QNodeSpec $ At 2)
+                           , (Mbr 1,   QVarSpec Up)
+                           , (Mbr 2,   QVarSpec Down)
+                           ] :: QRelSpec
 
-    tRelSpecNonsense = Map.fromList [ (TpltRole, NodeSpec $ At 0) -- "dog" Word, not Tplt
-                                   , (Mbr 1,   VarSpec It)
-                                   , (Mbr 2,   VarSpec Up)
-                                   ] :: RelSpec
+    tRelSpecNonsense = Map.fromList [ (TpltRole, QNodeSpec $ At 0) -- "dog" Word, not Tplt
+                                   , (Mbr 1,   QVarSpec It)
+                                   , (Mbr 2,   QVarSpec Up)
+                                   ] :: QRelSpec

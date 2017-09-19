@@ -309,9 +309,9 @@
     frameSansStyles :: RSLT -- put a direction on the .mm/ relation
     frameSansStyles = fromRight $ insRelSpecStrErr r frameSansStylesOrDirections
       where r = Map.fromList 
-                 [(TpltRole, NodeSpec $ head $ node frameNodes $ mkTplt "_ .mm/ _")
-                 ,(Mbr 1, VarSpec Up)
-                 ,(Mbr 2, VarSpec Down)]
+                 [(TpltRole, QNodeSpec $ head $ node frameNodes $ mkTplt "_ .mm/ _")
+                 ,(Mbr 1, QVarSpec Up)
+                 ,(Mbr 2, QVarSpec Down)]
 
     firstStyleNode = -(length $ nodes frameSansStyles) :: Node 
       -- TRICKY: If this is -25, the second style node will be at -26, etc.
