@@ -14,7 +14,7 @@ module Dwt.Search.Branch (
 
 import Data.Graph.Inductive (Node, insNode, insEdges, newNodes, lab)
 import Dwt.Types
-import Dwt.Search.Base (relNodeSpec, relElts)
+import Dwt.Search.Base (getRelNodeSpec, selectRelElts)
 import Dwt.Search.QNode (qGet1, usersInRole, matchQRelSpecNodes)
 
 import Dwt.Util (listIntersect, prependCaller, gelemM)
@@ -58,7 +58,7 @@ relSpec g q = prependCaller "relSpec: " $ do
   n <- qGet1 g q
   case (fromJust $ lab g n) of
     RelSpecExpr rvs -> do
-      rnsl <- Map.toList <$> relNodeSpec g n
+      rnsl <- Map.toList <$> getRelNodeSpec g n
       let rvsl = Map.toList rvs
           rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
           rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
@@ -80,7 +80,7 @@ fork1Dir g qFrom (dir,axis) = do -- returns one generation, neighbors
   let dirRoles = Map.keys $ Map.filter (== QVarSpec dir) axis
   axis' <- runReaderT (subNodeForVars qFrom fromDir axis) g
   rels <- matchQRelSpecNodes g axis'
-  concat <$> mapM (\rel -> relElts g rel dirRoles) rels
+  concat <$> mapM (\rel -> selectRelElts g rel dirRoles) rels
     -- TODO: this line is unnecessary. just return the rels, not their elts.
       -- EXCEPT: that might hurt the dfs, bfs functions below
 

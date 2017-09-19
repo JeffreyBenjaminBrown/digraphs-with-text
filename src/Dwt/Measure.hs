@@ -1,12 +1,13 @@
 {-# LANGUAGE FlexibleContexts #-}
-
+-- | Measurements that do not require a RSLT.
+-- For the other kind, see Dwt.Search.*
 module Dwt.Measure (
-  -- Tplt stuff
+  -- Tplt
   mbrListMatchesTpltArity -- (MonadError DwtErr m) => [Node] -> Expr -> m ()
   , extractTplt -- QNode -> Either DwtErr Expr
   , tpltArity -- Expr -> Arity
 
-  -- Expr tests
+  -- Expr
   , isWord, isWordM
   , isTplt, isTpltM
   , isFl, isFlM
@@ -14,7 +15,7 @@ module Dwt.Measure (
   , isColl, isCollM
   , isLeaf, areLikeExprs
 
-  -- QNode tests
+  -- QNode
   , isAt, isAbsent
   , isValid
   ) where

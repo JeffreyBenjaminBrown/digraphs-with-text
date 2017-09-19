@@ -3,7 +3,7 @@ module TGraph where
 import Dwt hiding (fromRight)
 import Data.Graph.Inductive
 import TData
-import Dwt.Search.Base (relElts, validMbrRole, users, tpltAt)
+import Dwt.Search.Base (selectRelElts, validMbrRole, users, relTplt, tpltAt)
 import Test.HUnit hiding (Node)
 
 import qualified Data.Map as Map
@@ -134,10 +134,10 @@ tTpltAt = TestCase $ do
   assertBool "absent" $ isLeft $ tpltAt g1 (-1)
 
 tTpltForRelAt = TestCase $ do
-  assertBool "normal" $ tpltAt g1 5 ==
+  assertBool "normal" $ relTplt g1 5 ==
     ( Right $ Tplt ["","wants",""] )
-  assertBool "not a Rel" $ isLeft $ tpltAt g1 1
-  assertBool "absent" $ isLeft $ tpltAt g1 (-1)
+  assertBool "not a Rel" $ isLeft $ relTplt g1 1
+  assertBool "absent" $ isLeft $ relTplt g1 (-1)
 
 tTpltArity = TestCase $ do
   assertBool "arity 0" $
@@ -189,9 +189,9 @@ tValidRole = TestCase $ do
   assertBool "Mbr 3: too big, invalid role" $ isLeft $ validMbrRole g1 5 (Mbr 3)
 
 tRelElts = TestCase $ do
-  assertBool "dog wants water -> dog" $ relElts g1 5 [Mbr 1] == Right [0]
-  assertBool "dog wants water -> dog" $ relElts g1 5 [TpltRole] == Right [1]
-  assertBool "dog wants water -> dog" $ isLeft $ relElts g1 5 [Mbr 3]
+  assertBool "dog wants water -> dog" $ selectRelElts g1 5 [Mbr 1] == Right [0]
+  assertBool "dog wants water -> dog" $ selectRelElts g1 5 [TpltRole] == Right [1]
+  assertBool "dog wants water -> dog" $ isLeft $ selectRelElts g1 5 [Mbr 3]
 
 tRecursiveSearch = TestCase $ do
   let g = mkGraph [(0,Word "a"),(1,Word "b"),(2,Tplt ["","is",""]),(3,Rel),(4,Word "c"),(5,Tplt ["","uses",""]),(6,Rel),(7,Word "d"),(8,Rel),(9,Word "f"),(10,Rel),(11,Word "g"),(12,Rel)] [(3,0,RelEdge (Mbr 1)),(3,1,RelEdge (Mbr 2)),(3,2,RelEdge TpltRole),(6,0,RelEdge (Mbr 1)),(6,4,RelEdge (Mbr 2)),(6,5,RelEdge TpltRole),(8,1,RelEdge (Mbr 1)),(8,2,RelEdge TpltRole),(8,7,RelEdge (Mbr 2)),(10,1,RelEdge (Mbr 1)),(10,2,RelEdge TpltRole),(10,9,RelEdge (Mbr 2)),(12,2,RelEdge TpltRole),(12,7,RelEdge (Mbr 1)),(12,11,RelEdge (Mbr 2))]
