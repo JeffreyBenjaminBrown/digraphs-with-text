@@ -4,10 +4,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Dwt.Search.Base (
   mkRelSpec -- Node -> [Node] -> RelSpec
-
-  -- these two might belong elsewhere; they use QRelSpec and|or QNode
-  , relNodeSpec -- RSLT -> Node(QRelSpec) -> Either DwtErr RelNodeSpec
   , mkQRelSpec -- unused.  QNode(Tplt) -> [QNode] -> QRelSpec
+  , relNodeSpec -- RSLT -> Node(QRelSpec) -> Either DwtErr RelNodeSpec
 
   , whereis -- RSLT -> Expr -> [Node]
   , tpltAt -- (MonadError DwtErr m) => RSLT -> Node(Tplt) -> m Expr(Tplt)
@@ -32,13 +30,15 @@ import Data.Maybe (fromJust)
 import Control.Lens ((%~), (.~), _1, _2)
 
 
--- | Use when all the nodes the Rel involves are known.
+-- | Applies only when all the nodes the Rel involves are known.
 mkRelSpec :: Node -> [Node] -> RelSpec
 mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
   where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
+mkQRelSpec :: QNode -> [QNode] -> QRelSpec
+mkQRelSpec t ns = Map.fromList $ (TpltRole, QNodeSpec t) : mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) (fmap QNodeSpec ns)
 
--- ====
 relNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
 relNodeSpec g n = prependCaller "relNodeSpec: " $ do
   gelemM g n
@@ -49,14 +49,8 @@ relNodeSpec g n = prependCaller "relNodeSpec: " $ do
     Just _ -> Left (NotRelSpecExpr, [ErrNode n], "")
     Nothing -> Left (FoundNo, [ErrNode n], "")
 
-mkQRelSpec :: QNode -> [QNode] -> QRelSpec
-mkQRelSpec t ns = Map.fromList $ (TpltRole, QNodeSpec t) : mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) (fmap QNodeSpec ns)
-
-whereis :: RSLT -> Expr -> [Node]
-  -- TODO: dependent types. (hopefully, length = 1)
-  -- move ? Search.hs
-  -- name ? exprOf
+-- ====
+whereis :: RSLT -> Expr -> [Node] -- TODO ? dependent types: length == 1
 whereis g x = nodes $ labfilter (== x) g
 
 tpltAt :: (MonadError DwtErr m) => RSLT -> Node -> m Expr
@@ -65,28 +59,30 @@ tpltAt g tn = let name = "tpltAt." in case lab g tn of
   Nothing -> throwError (FoundNo, [ErrNode tn], name)
   _       -> throwError (NotTplt, [ErrNode tn], name)
 
--- todo: add prependCaller
 relElts :: RSLT -> Node -> [RelRole] -> Either DwtErr [Node]
-relElts g relNode roles = do
+relElts g relNode roles = prependCaller "relElts" $ do
   isRelM g relNode
   mapM_  (validMbrRole g relNode) roles
   return [n | (n, RelEdge r) <- lsuc g relNode, elem r roles]
 
 validMbrRole :: RSLT -> Node -> RelRole -> Either DwtErr ()
-validMbrRole g relNode role = isRelM g relNode >> case role of
-  TpltRole -> return ()
-  Mbr p -> do
-    if p >= 1 then return () else Left err
-    t <- relTplt g relNode
-    let a = tpltArity t
-    if p <= a then return ()
-      else Left $ _1 .~ ArityMismatch $ _2 %~ (ErrExpr t:) $ err
+validMbrRole g relNode role = do
+  tag (isRelM g relNode) >> case role of
+    TpltRole -> return ()
+    Mbr p -> do
+      if p >= 1 then return () else Left err
+      t <- tag $ relTplt g relNode
+      let a = tpltArity t
+      if p <= a then return ()
+        else Left $ _1 .~ ArityMismatch $ _2 %~ (ErrExpr t:) $ err
   where err = (Invalid, [ErrRelRole role], "validMbrRole.")
+        tag = prependCaller "validMbrRole: "
 
 relTplt :: RSLT -> Node -> Either DwtErr Expr
-relTplt g relNode = do isRelM g relNode
-                       [n] <- relElts g relNode [TpltRole]
-                       return $ fromJust $ lab g n
+relTplt g relNode = prependCaller "relTplt" $ do
+  isRelM g relNode
+  [n] <- relElts g relNode [TpltRole]
+  return $ fromJust $ lab g n
 
 collPrinciple :: RSLT -> Node -> Either DwtErr Expr
   -- analogous to relTplt

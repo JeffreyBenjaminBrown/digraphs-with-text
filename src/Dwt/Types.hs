@@ -15,6 +15,7 @@ import Data.Graph.Inductive (Gr, Node, Edge)
 import Data.Map as Map
 import Control.Lens hiding (Level)
 import Data.String (IsString, fromString)
+import Data.Void
 
 -- == Fundamental
 type Arity = Int
@@ -27,7 +28,6 @@ data Expr = Word String | Fl Float -- these two are similarly atomic
   | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
     -- The RelVarSpec specifies the variable members.
     -- Edges specify the concrete (addressed) members.
-
 data RSLTEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
   -- | only Rels and Colls emit edges, have subexpressions
   -- "RSLTEdgeLabel" would be a more accurate name.
@@ -50,6 +50,7 @@ type QRelSpec = Map.Map RelRole QNodeOrVar -- if well-formed, includes
 -- at the TpltRole key is always a concrete QNodeSpec
 type RelVarSpec  = Map.Map RelRole Mbrship
 type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
+type RelQNodeSpec = Void -- TODO?
 
 -- == Parsing Hash expressions
 data QNode = At Node -- for when you know the expression's node
