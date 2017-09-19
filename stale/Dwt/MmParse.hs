@@ -307,7 +307,7 @@
             f a b = conn [head $ node frameNodes a, head $ node frameNodes b]
 
     frameSansStyles :: RSLT -- put a direction on the .mm/ relation
-    frameSansStyles = fromRight $ insRelSpecStrErr r frameSansStylesOrDirections
+    frameSansStyles = fromRight $ insRelSpec r frameSansStylesOrDirections
       where r = Map.fromList 
                  [(TpltRole, QNodeSpec $ head $ node frameNodes $ mkTplt "_ .mm/ _")
                  ,(Mbr 1, QVarSpec Up)
@@ -329,7 +329,7 @@
          )
 
     frame :: DwtFrame -> Either String DwtFrame
-    frame (mm, mp) = do mm' <- foldM (\mm n -> insRelStrErr (instanceNode) 
+    frame (mm, mp) = do mm' <- foldM (\mm n -> insRel (instanceNode) 
                                                       [stylesNode, n] mm)
                                        -- n is already negative
                                      mm (Map.elems mp)
@@ -338,7 +338,7 @@
     loadNodes :: (DwtSpec, DwtFrame) -> Either String RSLT
     loadNodes ( (ns,_), (mm, mp) ) =
       let noded = foldl (\mm n -> insNode (mmId n, Word $ text n) mm) mm ns
-      in foldM (\mm n -> insRelStrErr (usesFontNode) 
+      in foldM (\mm n -> insRel (usesFontNode) 
                                  [ mmId n
                                  , (Map.!) mp $ Mb.fromJust $ style n
                                  ] mm)
@@ -347,7 +347,7 @@
     -- todo: connect imported graph's root to frames root
     loadEdges :: DwtSpec -> RSLT -> Either String RSLT
     loadEdges (_,es) mm = foldM (\mm (from,to,kind)
-                                   -> insRelStrErr (edgeNode kind) [from,to] mm
+                                   -> insRel (edgeNode kind) [from,to] mm
                                  ) mm es
 
 -- the final product

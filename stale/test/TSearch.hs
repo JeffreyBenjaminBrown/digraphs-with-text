@@ -35,7 +35,7 @@ tQPut = TestCase $ do
   assertBool "2" $ let Right (_, n) = qPut g1 qCat in n == 14
   assertBool "3" $ let Right (_, n) = qPut g1 qDogWantsBrandy in n==5
   assertBool "4" $ let Right (g,n) = qPut empty qDogWantsBrandy in n > (-1)
---  assertBool "4" $ qPutStrErr empty qDogWantsBrandy
+--  assertBool "4" $ qPut empty qDogWantsBrandy
 --    == Right (mkGraph [(0, Word "dog"), (1, word "brandy"), (2, mkTplt "_ wants _"), (3, Rel)] [], 3)
 
 tQGet = TestCase $ do
@@ -60,7 +60,7 @@ tQPutRel = let
                      [qRedundant, QAt 10] -- 10 = dubious
   qNovel = QRel (QLeaf $ mkTplt "_ wants _")
            [QLeaf $ Word "dog", QLeaf $ Word "dog"]
-  (g2,_) = fr $ qPutStrErr g1 qNovel
+  (g2,_) = fr $ qPut g1 qNovel
   in TestCase $ do
   assertBool "1" $ qGet g1 qRedundant == Right [5]
   assertBool "2" $ qGet g1 qNestedRedundant == Right [11]

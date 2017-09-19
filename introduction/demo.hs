@@ -23,8 +23,8 @@ g <- pure $ foldl (flip insWord) g ["person","Mildred","stable angina","coronary
 putStr $ view g $ nodes g
 
 -- Now that we have both Templates and Words, we can start adding Relationships. First let's encode that Mildred is a person and stable angina is a coronary artery disease:
-g <- pure $ fromRight $ insRelStrErr 1 [6,5] g
-g <- pure $ fromRight $ insRelStrErr 1 [7,8] g
+g <- pure $ fromRight $ insRel 1 [6,5] g
+g <- pure $ fromRight $ insRel 1 [7,8] g
 -- The first of those two commands says "insert into g a Relationship that uses the Template at address 1 ("_ is a _"), where the Members are the expressions at address 6 ("Mildred") and 5 ("person")". The second command is similar.
 
 -- Rather than showing all of g, let's just look at the Relationships in it:
@@ -32,11 +32,11 @@ putStr $ view g $ nodes $ labfilter isRel g
 -- In expressions 10 and 11, the ## symbol identifies the Relationship label "is a". The two relationship Members appear to either side of the label.
 
 -- Last, let us encode the idea that every person with coronary artery disease needs mustard:
-g <- pure $ fromRight $ insRelStrErr 3 [5,8] g
+g <- pure $ fromRight $ insRel 3 [5,8] g
       -- creates node 12: "person with coronary artery disease"
-g <- pure $ fromRight $ insRelStrErr 0 [12] g
+g <- pure $ fromRight $ insRel 0 [12] g
       -- creates node 13: "every person with coronary artery disease"
-g <- pure $ fromRight $ insRelStrErr 4 [13,9] g
+g <- pure $ fromRight $ insRel 4 [13,9] g
       -- creates node 14: "every person with coronary artery disease needs mustard"
 
 -- Here is the final RSLT:

@@ -81,7 +81,7 @@ validMbrRole g relNode role = isRelM g relNode >> case role of
     let a = tpltArity t
     if p <= a then return ()
       else Left $ _1 .~ ArityMismatch $ _2 %~ (ErrExpr t:) $ err
-  where err = (Invalid, [ErrRelRole role], "validMbrRoleStrErr.")
+  where err = (Invalid, [ErrRelRole role], "validMbrRole.")
 
 relTplt :: RSLT -> Node -> Either DwtErr Expr
 relTplt g relNode = do isRelM g relNode

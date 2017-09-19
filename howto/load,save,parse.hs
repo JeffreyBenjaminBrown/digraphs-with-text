@@ -8,7 +8,7 @@
 
 -- ! DESTRUCTIVE !
   g <- p $ insWord _ g
-  g <- p $ fr $ (insRelStrErr 2 [4,3] g :: EM)
+  g <- p $ fr $ (insRel 2 [4,3] g :: EM)
   putStrLn $ graphToText g
 
   -- writeFile filename $ graphToText g -- SAVE!
