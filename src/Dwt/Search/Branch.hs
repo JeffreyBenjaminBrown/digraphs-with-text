@@ -3,9 +3,6 @@ module Dwt.Search.Branch (
   , partitionRelSpec -- returns two relspecs
   , insRelSpec -- add a relspec to a graph
   , relSpec -- unused. returns a RelSpec
-  , usersInRole -- RSLT -> QNode -> RelRole -> Either DwtErr [Node]
-  , matchQRelSpecNodes -- RSLT -> QRelSpec -> Either DwtErr [Node]
-  , matchQRelSpecNodesLab -- same, except LNodes
   , has1Dir -- Mbrship(the dir it has 1 of) -> QRelSpec -> Bool
   , fork1Dir -- RSLT -> QNode -> (Mbrship,QRelSpec) -> Either DwtErr [Node]
     -- TODO: rewrite Mbrship as To,From,It,Any. Then use QRelSpec, not a pair.
@@ -17,8 +14,8 @@ module Dwt.Search.Branch (
 
 import Data.Graph.Inductive
 import Dwt.Types
-import Dwt.Search.Base (relNodeSpec, relElts, _usersInRole)
-import Dwt.Search.QNode (qGet1)
+import Dwt.Search.Base (relNodeSpec, relElts)
+import Dwt.Search.QNode (qGet1, usersInRole, matchQRelSpecNodes)
 
 import Dwt.Util (listIntersect, prependCaller, gelemM)
 import qualified Data.Map as Map
@@ -68,25 +65,6 @@ relSpec g q = prependCaller "relSpec: " $ do
       return $ Map.fromList $ rvsl' ++ rnsl'
     x -> Left (ConstructorMistmatch, [ErrExpr x, ErrQNode $ At n]
               , "relSpec.")
-
-usersInRole :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
-usersInRole g q r = prependCaller "usersInRole: "
-  $ qGet1 g q >>= \n -> _usersInRole g n r
-
-matchQRelSpecNodes :: RSLT -> QRelSpec -> Either DwtErr [Node]
-matchQRelSpecNodes g spec = prependCaller "matchQRelSpecNodes: " $ do
-  let nodeSpecs = Map.toList
-        $ Map.filter (\ns -> case ns of QNodeSpec _ -> True; _ -> False)
-        $ spec :: [(RelRole,QNodeOrVar)]
-  nodeListList <- mapM (\(r,QNodeSpec n) -> usersInRole g n r) nodeSpecs
-  return $ listIntersect nodeListList
-
-matchQRelSpecNodesLab :: RSLT -> QRelSpec -> Either DwtErr [LNode Expr]
-matchQRelSpecNodesLab g spec = prependCaller "matchQRelSpecNodesLab: " $ do
-  ns <- matchQRelSpecNodes g spec
-  return $ zip ns $ map (fromJust . lab g) ns
-    -- TODO speed: this looks up each node twice
-    -- fromJust is safe because matchQRelSpecNodes only returns Nodes in g
 
 has1Dir :: Mbrship -> QRelSpec -> Bool
 has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)

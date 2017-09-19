@@ -3,8 +3,7 @@ module TGraph where
 import Dwt hiding (fromRight)
 import Data.Graph.Inductive
 import TData
-import Dwt.Search.Base (relElts, validMbrRole, users, relTplt, tpltAt
-                       , _usersInRole)
+import Dwt.Search.Base (relElts, validMbrRole, users, relTplt, tpltAt)
 import Test.HUnit hiding (Node)
 
 import qualified Data.Map as Map
@@ -160,7 +159,7 @@ tUsers = TestCase $ do
   assertBool "2" $ isLeft $ (users g1 100 :: Either DwtErr [Node])
 
 tSpecUsers = TestCase $ do
-  assertBool "with Arity" $ _usersInRole g1 0 (Mbr 1) == Right [5,6,8]
+  assertBool "with Arity" $ usersInRole g1 0 (Mbr 1) == Right [5,6,8]
 
 tMatchRel = TestCase $ do
   assertBool "dog in first pos"     $ matchQRelSpecNodes g1 tRelSpec == Right [5,6,8]

@@ -2,7 +2,15 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Search.QNode (
-  qGet -- RSLT -> QNode -> Either DwtErr [Node]
+  usersInRole -- RSLT -> Node -> RelRole -> Either DwtErr [Node]
+  , qUsersInRole -- RSLT -> QNode -> RelRole -> Either DwtErr [Node]
+  , matchRelSpecNodes -- RSLT -> RelSpec -> Either DwtErr [Node]
+    -- critical: the intersection-finding function
+  , matchQRelSpecNodes -- RSLT -> QRelSpec -> Either DwtErr [Node]
+  , matchRelSpecNodesLab -- same, except LNodes
+  , matchQRelSpecNodesLab -- same, except LNodes
+
+  , qGet -- RSLT -> QNode -> Either DwtErr [Node]
   , qGetLab -- RSLT -> QNode -> Either DwtErr [LNode Expr]
   , qGet1 -- RSLT -> QNode -> Either DwtErr Node
   , qPutSt -- QNode -> StateT RSLT (Either DwtErr) Node
@@ -12,16 +20,61 @@ module Dwt.Search.QNode (
 import Data.Graph.Inductive
 import Dwt.Types
 import Dwt.Edit (insLeaf, insRelSt)
-import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM)
+import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
+                , listIntersect)
 import Dwt.Measure (extractTplt, isAbsent)
-import Dwt.Search.Base (matchRelSpecNodes
-                       , matchRelSpecNodesLab, _mkRelSpec)
+import Dwt.Search.Base (mkRelSpec)
 
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State (StateT, get, put)
 import qualified Data.Maybe as Mb
 import Data.Maybe (fromJust)
 import Text.Regex (mkRegex, matchRegex)
+import qualified Data.Map as Map
+
+
+-- | Rels using Node n in RelRole r
+usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
+usersInRole g n r = prependCaller "qUsersInRole: " $
+  do gelemM g n -- makes f safe
+     return $ f g n r
+  where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
+        f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
+
+qUsersInRole :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
+qUsersInRole g q r = prependCaller "qUsersInRole: "
+  $ qGet1 g q >>= \n -> usersInRole g n r
+
+matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
+matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
+  let nodeSpecs = Map.toList
+        $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
+        $ spec :: [(RelRole,NodeOrVar)]
+  nodeListList <- mapM (\(r,NodeSpec n) -> usersInRole g n r) nodeSpecs
+  return $ listIntersect nodeListList
+
+matchQRelSpecNodes :: RSLT -> QRelSpec -> Either DwtErr [Node]
+matchQRelSpecNodes g spec = prependCaller "matchQRelSpecNodes: " $ do
+  let nodeSpecs = Map.toList
+        $ Map.filter (\ns -> case ns of QNodeSpec _ -> True; _ -> False)
+        $ spec :: [(RelRole,QNodeOrVar)]
+  nodeListList <- mapM (\(r,QNodeSpec n) -> qUsersInRole g n r) nodeSpecs
+  return $ listIntersect nodeListList
+
+-- ifdo speed: this searches for nodes, then searches again for labels
+matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
+matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
+  ns <- matchRelSpecNodes g spec
+  return $ zip ns $ map (fromJust . lab g) ns
+    -- TODO: slow: this looks up each node a second time to find its label
+    -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
+
+matchQRelSpecNodesLab :: RSLT -> QRelSpec -> Either DwtErr [LNode Expr]
+matchQRelSpecNodesLab g spec = prependCaller "matchQRelSpecNodesLab: " $ do
+  ns <- matchQRelSpecNodes g spec
+  return $ zip ns $ map (fromJust . lab g) ns
+    -- TODO speed: this looks up each node twice
+    -- fromJust is safe because matchQRelSpecNodes only returns Nodes in g
 
 
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
@@ -41,7 +94,7 @@ _qGet _ _ f g q@(QRel _ qms) = prependCaller "_qGet: " $ do
   t <- extractTplt q
   tnode <- qGet1 g (QLeaf t) -- todo ? multiple qt, qms matches
   ms <- mapM (qGet1 g) qms
-  let relspec = _mkRelSpec tnode ms
+  let relspec = mkRelSpec tnode ms
   f g relspec
 
 qGet :: RSLT -> QNode -> Either DwtErr [Node]
@@ -81,3 +134,4 @@ qRegexWord g s = nodes $ labfilter f $ dropEdges g
   where r = mkRegex s
         f (Word t) = Mb.isJust $ matchRegex r t
         f _ = False
+

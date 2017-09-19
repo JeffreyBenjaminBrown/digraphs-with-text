@@ -3,16 +3,11 @@
 
 {-# LANGUAGE FlexibleContexts #-}
 module Dwt.Search.Base (
-  -- things involving NodeOrVar
-  matchRelSpecNodes -- RSLT -> RelSpec -> Either DwtErr [Node]
-    -- critical: the intersection-finding function
-  , matchRelSpecNodesLab -- same, except LNodes
-  , _usersInRole -- RSLT -> Node -> RelRole -> Either DwtErr [Node]
-  , _mkRelSpec -- Node -> [Node] -> RelSpec
+  mkRelSpec -- Node -> [Node] -> RelSpec
 
   -- these two might belong elsewhere; they use QRelSpec and|or QNode
   , relNodeSpec -- RSLT -> Node(QRelSpec) -> Either DwtErr RelNodeSpec
-  , mkRelSpec -- unused.  QNode(Tplt) -> [QNode] -> QRelSpec
+  , mkQRelSpec -- unused.  QNode(Tplt) -> [QNode] -> QRelSpec
 
   , whereis -- RSLT -> Expr -> [Node]
   , tpltAt -- (MonadError DwtErr m) => RSLT -> Node(Tplt) -> m Expr(Tplt)
@@ -36,35 +31,9 @@ import Data.Maybe (fromJust)
 import Control.Lens ((%~), (.~), _1, _2)
 
 
--- ====
--- | "Concrete" in the sense that it uses Nodes, not QNodes
-matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
-matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
-  let nodeSpecs = Map.toList
-        $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
-        $ spec :: [(RelRole,NodeOrVar)]
-  nodeListList <- mapM (\(r,NodeSpec n) -> _usersInRole g n r) nodeSpecs
-  return $ listIntersect nodeListList
-
--- ifdo speed: this searches for nodes, then searches again for labels
-matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
-matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
-  ns <- matchRelSpecNodes g spec
-  return $ zip ns $ map (fromJust . lab g) ns
-    -- TODO: slow: this looks up each node a second time to find its label
-    -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
-
--- | Rels using Node n in RelRole r
-_usersInRole :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
-_usersInRole g n r = prependCaller "usersInRole: " $
-  do gelemM g n -- makes f safe
-     return $ f g n r
-  where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
-        f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
-
 -- | Use when all the nodes the Rel involves are known.
-_mkRelSpec :: Node -> [Node] -> RelSpec
-_mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
+mkRelSpec :: Node -> [Node] -> RelSpec
+mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
   where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
 
 
@@ -79,8 +48,8 @@ relNodeSpec g n = prependCaller "relNodeSpec: " $ do
     Just _ -> Left (NotRelSpecExpr, [ErrNode n], "")
     Nothing -> Left (FoundNo, [ErrNode n], "")
 
-mkRelSpec :: QNode -> [QNode] -> QRelSpec
-mkRelSpec t ns = Map.fromList $ (TpltRole, QNodeSpec t) : mbrSpecs
+mkQRelSpec :: QNode -> [QNode] -> QRelSpec
+mkQRelSpec t ns = Map.fromList $ (TpltRole, QNodeSpec t) : mbrSpecs
   where mbrSpecs = zip (fmap Mbr [1..]) (fmap QNodeSpec ns)
 
 whereis :: RSLT -> Expr -> [Node]
@@ -124,6 +93,7 @@ collPrinciple g collNode = do
   prependCaller "collPrincipleDe: " $ isCollM g collNode
   return $ fromJust $ lab g $ head
     [n | (n, CollEdge CollPrinciple) <- lsuc g collNode]
+
 
 -- ==== .. -> [Node]
 tplts :: Gr Expr b -> [Node]
