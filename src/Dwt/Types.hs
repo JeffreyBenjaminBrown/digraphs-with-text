@@ -4,6 +4,7 @@ module Dwt.Types (
   MbrPos, Arity
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , Mbrship(..), RelVarSpec, RelNodeSpec
+  , NodeOrVarConcrete(..), RelSpecConcrete
   , NodeOrVar(..), RelSpec
   , QNode(..), Level, Joint(..), EO(..)
   , DwtErr, ErrBase(..), ErrOpt(..)
@@ -42,12 +43,15 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
 -- == Specifying kinds of relationships
 data Mbrship = It | Any | Up | Down deriving (Show,Read,Eq,Ord)
 data NodeOrVar = NodeSpec QNode | VarSpec Mbrship deriving (Show,Eq)
+data NodeOrVarConcrete = NodeSpecC Node | VarSpecC Mbrship
+  deriving (Show,Read,Eq)
+type RelSpec =    Map.Map RelRole NodeOrVar -- if well-formed, includes
+  -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
+type RelSpecConcrete = Map.Map RelRole NodeOrVarConcrete
 
 -- at the TpltRole key is always a concrete NodeSpec
 type RelVarSpec =  Map.Map RelRole Mbrship
 type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
-type RelSpec =    Map.Map RelRole NodeOrVar -- if well-formed, includes
-  -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
 
 -- == Parsing Hash expressions
 data QNode = At Node -- for when you know the expression's node

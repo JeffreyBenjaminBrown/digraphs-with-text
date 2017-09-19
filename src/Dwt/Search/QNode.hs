@@ -14,7 +14,7 @@ import Dwt.Types
 import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM)
 import Dwt.Measure (extractTplt, isAbsent)
-import Dwt.Search.Base (RelSpecConcrete(..), _matchRelSpecNodes
+import Dwt.Search.Base (_matchRelSpecNodes
                        , _matchRelSpecNodesLab, _mkRelSpec)
 
 import Control.Monad.Trans.Class (lift)

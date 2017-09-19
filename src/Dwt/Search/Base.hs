@@ -4,9 +4,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Dwt.Search.Base (
   -- things involving NodeOrVarConcrete
-  NodeOrVarConcrete(..) -- Uses Node, not QNode. Still uses Mbrship.
-  , RelSpecConcrete -- Uses NodeOrVarConcrete
-  , _matchRelSpecNodes -- RSLT -> RelSpecConcrete -> Either DwtErr [Node]
+  _matchRelSpecNodes -- RSLT -> RelSpecConcrete -> Either DwtErr [Node]
     -- critical: the intersection-finding function
   , _matchRelSpecNodesLab -- same, except LNodes
   , _usersInRole -- RSLT -> Node -> RelRole -> Either DwtErr [Node]
@@ -40,10 +38,6 @@ import Control.Lens ((%~), (.~), _1, _2)
 
 -- ====
 -- | "Concrete" in the sense that it uses Nodes, not QNodes
-data NodeOrVarConcrete = NodeSpecC Node
-  | VarSpecC Mbrship deriving (Show,Read,Eq)
-type RelSpecConcrete = Map.Map RelRole NodeOrVarConcrete
-
 _matchRelSpecNodes :: RSLT -> RelSpecConcrete -> Either DwtErr [Node]
 _matchRelSpecNodes g spec = prependCaller "_matchRelSpecNodes: " $ do
   let nodeSpecs = Map.toList
