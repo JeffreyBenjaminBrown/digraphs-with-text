@@ -42,15 +42,13 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
 
 -- == Specifying kinds of relationships
 data Mbrship = It | Any | Up | Down deriving (Show,Read,Eq,Ord)
+data NodeOrVar  = NodeSpec Node | VarSpec Mbrship deriving (Show,Read,Eq)
 data QNodeOrVar = QNodeSpec QNode | QVarSpec Mbrship deriving (Show,Eq)
-data NodeOrVar = NodeSpec Node | VarSpec Mbrship
-  deriving (Show,Read,Eq)
-type RelSpec =  Map.Map RelRole NodeOrVar
+type RelSpec  = Map.Map RelRole NodeOrVar
 type QRelSpec = Map.Map RelRole QNodeOrVar -- if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
-
 -- at the TpltRole key is always a concrete QNodeSpec
-type RelVarSpec =  Map.Map RelRole Mbrship
+type RelVarSpec  = Map.Map RelRole Mbrship
 type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
 
 -- == Parsing Hash expressions
@@ -79,18 +77,16 @@ instance Ord EO where -- Open > closed. If those are equal, ## > #, etc.
 type DwtErr = (ErrBase, [ErrOpt], String)
 
 data ErrBase = Legacy -- | for when the String has all the info
-             | FoundNo | FoundMany | FoundWrongKind
-             | ArityMismatch | ConstructorMistmatch
-             | NotRelSpecExpr | NotTplt | NotColl | NotLeaf
-             | Invalid -- | (MbrPos 0), for instance, is ill-formed
-             | Impossible
-  deriving (Show, Eq)
+  | FoundNo | FoundMany | FoundWrongKind
+  | ArityMismatch | ConstructorMistmatch
+  | NotRelSpecExpr | NotTplt | NotColl | NotLeaf
+  | Invalid -- | (MbrPos 0), for instance, is ill-formed
+  | Impossible deriving (Show, Eq)
 
 data ErrOpt =  -- ^ New error style: sum type
   ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrMbrship Mbrship
-  | ErrRelSpec QRelSpec | ErrQNode QNode
-  deriving (Show, Eq)
+  | ErrRelSpec QRelSpec | ErrQNode QNode deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase
 errBase = _1
