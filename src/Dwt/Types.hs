@@ -46,8 +46,8 @@ data NodeOrVar  = NodeSpec Node | VarSpec Mbrship deriving (Show,Read,Eq)
 data QNodeOrVar = QNodeSpec QNode | QVarSpec Mbrship deriving (Show,Eq)
 type RelSpec  = Map.Map RelRole NodeOrVar
 type QRelSpec = Map.Map RelRole QNodeOrVar -- if well-formed, includes
-  -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else
--- at the TpltRole key is always a concrete QNodeSpec
+  -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else,
+  -- and at the TpltRole key is a QNodeSpec, not a QVarSpec
 type RelVarSpec  = Map.Map RelRole Mbrship
 type RelNodeSpec = Map.Map RelRole Node -- set-complement of RelVarSpec
 type RelQNodeSpec = Void -- TODO?

@@ -5,14 +5,15 @@ module Main (main) where
 import Test.HUnit
 
 import TParse
+import TAdd
 import TGraph
 import TShow
-import TAdd
+import TSearch
 
-main = runTestTT $ TestList
-  [
+main = runTestTT $ TestList [
     TestLabel "tParse"   tParse
-  , TestLabel "tAdd" tAdd
+  , TestLabel "tAdd"     tAdd
   , TestLabel "tGraph"   tGraph
-  , TestLabel "tView"    tView
+  , TestLabel "tShow"    tShow
+  , TestLabel "tSearch"  tSearch
   ]

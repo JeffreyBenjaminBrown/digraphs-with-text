@@ -6,7 +6,7 @@ import TData
 import Test.HUnit
 
 
-tView = TestList [ TestLabel "tShowExpr" tShowExpr
+tShow = TestList [ TestLabel "tShowExpr" tShowExpr
                  ]
 
 tShowExpr = TestCase $ do
