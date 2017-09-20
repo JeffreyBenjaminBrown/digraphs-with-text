@@ -72,7 +72,7 @@ anyNeedsWater = Map.fromList
 
 anyNeedsFromForTo :: QRelSpec
 anyNeedsFromForTo = Map.fromList
-  [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _ for ")
+  [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _ for _")
   ,(Mbr 1, QVarSpec Any)
   ,(Mbr 2, QVarSpec From)
   ,(Mbr 3, QVarSpec To)]

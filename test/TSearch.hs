@@ -6,9 +6,13 @@ import Dwt
 import TData
 import Data.Map as M
 import Test.HUnit
+import Control.Applicative (liftA2)
+import qualified Data.Set as S
+import Control.Monad.Trans.State (runStateT)
 
 tSearch = TestList [ TestLabel "tQPlaysRoleIn" tQPlaysRoleIn
                    , TestLabel "tMatchQRelSpecNodes" tMatchQRelSpecNodes
+                   , TestLabel "tStar" tStar
                    ]
 
 tQPlaysRoleIn = TestCase $ do
@@ -24,5 +28,14 @@ tMatchQRelSpecNodes = TestCase $ do
   assertBool "2" $ matchQRelSpecNodes g1 tpltForRelsWithDogInPos1
     == Right [5,6,8]
 
--- tStar = TestCase $ do
--- runStateT (qPutSt $ QRel ["needs","for"] [QLeaf $ Word "dog", QLeaf $ Word "water", QLeaf $ Word "chocolate"]) g1
+tStar = TestCase $ do
+  let Right (dogWaterChoco,g2)
+        = flip runStateT g1 ( qPutSt $ QRel ["needs","for"]
+                                       [ QLeaf $ Word "dog"
+                                       , QLeaf $ Word "water"
+                                       , QLeaf $ Word "chocolate"] )
+  assertBool "1" $
+    (fmap S.fromList $ star g2 (QLeaf $ Word "water") anyNeedsFromForTo)
+    == (fmap S.fromList $ liftA2 (++)
+                          (qGet g2 $ QLeaf $ Word "brandy")
+                          (qGet g2 $ QLeaf $ Word "chocolate") )

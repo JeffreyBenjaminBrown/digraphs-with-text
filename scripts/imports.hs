@@ -2,6 +2,7 @@ import Dwt.Hash.Parse as E
 
 import Data.Graph.Inductive
 
+import Control.Applicative
 import Control.Monad
 import Control.Monad.Morph
 import Control.Monad.Trans.Class
