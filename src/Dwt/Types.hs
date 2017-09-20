@@ -41,7 +41,7 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
     -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
 
 -- == Specifying kinds of relationships
-data Mbrship = It | Any | Up | Down deriving (Show,Read,Eq,Ord)
+data Mbrship = It | Any | From | To deriving (Show,Read,Eq,Ord)
 data NodeOrVar  = NodeSpec Node | VarSpec Mbrship deriving (Show,Read,Eq)
 data QNodeOrVar = QNodeSpec QNode | QVarSpec Mbrship deriving (Show,Eq)
 type RelSpec  = Map.Map RelRole NodeOrVar

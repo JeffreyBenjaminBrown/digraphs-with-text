@@ -27,10 +27,10 @@ import Control.Monad.Morph (hoist)
 
 -- | swap Up and Down, or err
 otherDir :: Mbrship -> Either DwtErr Mbrship
-otherDir Up = Right Down
-otherDir Down = Right Up
-otherDir mv = Left (ConstructorMistmatch, [ErrMbrship mv]
-                   , "otherDir: Only accepts Up or Down.")
+otherDir From = Right To
+otherDir To = Right From
+otherDir Any = Right Any
+otherDir It = Left (ConstructorMistmatch, [ErrMbrship It], "otherDir: Accepts To, From or Any.") -- todo ? just return Right It
 
 partitionRelSpec :: RSLT -> QRelSpec
   -> Either DwtErr (RelVarSpec, RelNodeSpec)

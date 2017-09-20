@@ -50,11 +50,11 @@
                            ] :: QRelSpec
 
     tRelSpec2 = Map.fromList [ (TpltRole, QNodeSpec $ At 2)
-                           , (Mbr 1,   QVarSpec Up)
-                           , (Mbr 2,   QVarSpec Down)
+                           , (Mbr 1,   QVarSpec From)
+                           , (Mbr 2,   QVarSpec To)
                            ] :: QRelSpec
 
     tRelSpecNonsense = Map.fromList [ (TpltRole, QNodeSpec $ At 0) -- "dog" Word, not Tplt
                                    , (Mbr 1,   QVarSpec It)
-                                   , (Mbr 2,   QVarSpec Up)
+                                   , (Mbr 2,   QVarSpec From)
                                    ] :: QRelSpec

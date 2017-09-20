@@ -166,21 +166,21 @@ tMatchRel = TestCase $ do
   assertBool "nothing should match" $ matchQRelSpecNodes g1 tRelSpecNonsense == Right []
 
 -- ==== chase and helpers
-tChase = TestList [ TestLabel "tHas1Up" tHas1Dir
+tChase = TestList [ TestLabel "tHas1From" tHas1Dir
                   , TestLabel "tFork1Dir" tFork1Dir
                   , TestLabel "tValidRole"tValidRole
                   , TestLabel "tRelElts" tRelElts
                   ]
 
 tHas1Dir = TestCase $ do
-  assertBool "has 1 Up" $ has1Dir Up tRelSpecNonsense
-  assertBool "has no Up" $ not $ has1Dir Up tRelSpec
+  assertBool "has 1 From" $ has1Dir From tRelSpecNonsense
+  assertBool "has no From" $ not $ has1Dir From tRelSpec
 
 tFork1Dir = TestCase $ do -- todo, incomplete
-  assertBool "searching Down, and no Up vars; should fail"
-    $ isLeft $ fork1Dir g1 (At 0) (Down, tRelSpec)
+  assertBool "searching To, and no From vars; should fail"
+    $ isLeft $ fork1Dir g1 (At 0) (To, tRelSpec)
   assertBool "dog(ana) wants brandy(kata)" 
-    $ fork1Dir g1 (At 0) (Down, tRelSpec2) == Right [4]
+    $ fork1Dir g1 (At 0) (To, tRelSpec2) == Right [4]
 
 tValidRole = TestCase $ do
   assertBool "Tplt: valid role" $ isRight $ validMbrRole g1 5 TpltRole
@@ -195,6 +195,6 @@ tRelElts = TestCase $ do
 
 tRecursiveSearch = TestCase $ do
   let g = mkGraph [(0,Word "a"),(1,Word "b"),(2,Tplt ["","is",""]),(3,Rel),(4,Word "c"),(5,Tplt ["","uses",""]),(6,Rel),(7,Word "d"),(8,Rel),(9,Word "f"),(10,Rel),(11,Word "g"),(12,Rel)] [(3,0,RelEdge (Mbr 1)),(3,1,RelEdge (Mbr 2)),(3,2,RelEdge TpltRole),(6,0,RelEdge (Mbr 1)),(6,4,RelEdge (Mbr 2)),(6,5,RelEdge TpltRole),(8,1,RelEdge (Mbr 1)),(8,2,RelEdge TpltRole),(8,7,RelEdge (Mbr 2)),(10,1,RelEdge (Mbr 1)),(10,2,RelEdge TpltRole),(10,9,RelEdge (Mbr 2)),(12,2,RelEdge TpltRole),(12,7,RelEdge (Mbr 1)),(12,11,RelEdge (Mbr 2))]
-      rspec = Map.fromList [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ is _"),(Mbr 1, QVarSpec Up), (Mbr 2, QVarSpec Down)]
-  assertBool "1" $ dwtDfs g (Down, rspec) [0] == Right [0,1,7,11,9]
-  assertBool "2" $ dwtBfs g (Down, rspec) [0] == Right [0,1,7,9,11]
+      rspec = Map.fromList [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ is _"),(Mbr 1, QVarSpec From), (Mbr 2, QVarSpec To)]
+  assertBool "1" $ dwtDfs g (To, rspec) [0] == Right [0,1,7,11,9]
+  assertBool "2" $ dwtBfs g (To, rspec) [0] == Right [0,1,7,9,11]
