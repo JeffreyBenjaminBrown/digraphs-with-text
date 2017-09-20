@@ -6,7 +6,7 @@ module Dwt.Search.Branch (
   , has1Dir -- Mbrship(the dir it has 1 of) -> QRelSpec -> Bool
   , star -- RSLT -> QNode -> QRelSpec -> Either DwtErr [Node]
     -- TODO: rewrite Mbrship as To,From,It,Any. Then use QRelSpec, not a pair.
-  , subNodeForVars --QNode(sub this) -> Mbrship(for this) -> QRelSpec(in this)
+  , subQNodeForVars --QNode(sub this) -> Mbrship(for this) -> QRelSpec(in this)
     -- -> ReaderT RSLT (Either DwtErr) QRelSpec
   , dwtDfs -- RSLT -> QRelSpec -> [Node] -> Either DwtErr [Node]
   , dwtBfs -- same
@@ -77,14 +77,14 @@ star g qFrom axis = do -- returns one generation, neighbors
      else Left (Invalid, [ErrRelSpec axis]
                , "star: should have only one " ++ show From)
   let forwardRoles = Map.keys $ Map.filter (== QVarSpec To) axis
-  axis' <- runReaderT (subNodeForVars qFrom From axis) g
+  axis' <- runReaderT (subQNodeForVars qFrom From axis) g
   rels <- matchQRelSpecNodes g axis'
   concat <$> mapM (\rel -> selectRelElts g rel forwardRoles) rels
 
 -- | in r, changes each QVarSpec v to QNodeSpec n
-subNodeForVars :: QNode -> Mbrship -> QRelSpec
+subQNodeForVars :: QNode -> Mbrship -> QRelSpec
   -> ReaderT RSLT (Either DwtErr) QRelSpec
-subNodeForVars q v r = hoist (prependCaller "subNodeForVars") $ do
+subQNodeForVars q v r = hoist (prependCaller "subQNodeForVars") $ do
   g <- ask
   n <- lift $ qGet1 g q
   let f (QVarSpec v') = if v == v' then QNodeSpec (At n) else QVarSpec v'
