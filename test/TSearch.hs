@@ -31,11 +31,17 @@ tMatchQRelSpecNodes = TestCase $ do
 tStar = TestCase $ do
   let Right (dogWaterChoco,g2)
         = flip runStateT g1 ( qPutSt $ QRel ["needs","for"]
-                                       [ QLeaf $ Word "dog"
+                                       [ QLeaf $ Word "Laura"
                                        , QLeaf $ Word "water"
                                        , QLeaf $ Word "chocolate"] )
-  assertBool "1" $
+  assertBool "star treats It the same as Any" $
+    (fmap S.fromList $ star g2 (QLeaf $ Word "water") anyNeedsFromForTo)
+    == (fmap S.fromList $ star g2 (QLeaf $ Word "water") itNeedsFromForTo)
+  assertBool "any matches Laura and dog" $
     (fmap S.fromList $ star g2 (QLeaf $ Word "water") anyNeedsFromForTo)
     == (fmap S.fromList $ liftA2 (++)
                           (qGet g2 $ QLeaf $ Word "brandy")
                           (qGet g2 $ QLeaf $ Word "chocolate") )
+  assertBool "but dog only matches dog" $
+    (star g2 (QLeaf $ Word "water") dogNeedsFromForTo)
+    == (qGet g2 $ QLeaf $ Word "brandy")

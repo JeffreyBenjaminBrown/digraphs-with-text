@@ -167,7 +167,6 @@ tMatchRel = TestCase $ do
 
 -- ==== chase and helpers
 tChase = TestList [ TestLabel "tHas1From" tHas1Dir
-                  , TestLabel "tFork1Dir" tFork1Dir
                   , TestLabel "tValidRole"tValidRole
                   , TestLabel "tRelElts" tRelElts
                   ]
@@ -175,12 +174,6 @@ tChase = TestList [ TestLabel "tHas1From" tHas1Dir
 tHas1Dir = TestCase $ do
   assertBool "has 1 From" $ has1Dir From dogAsTplt
   assertBool "has no From" $ not $ has1Dir From firstMemberOfAnyTplt
-
-tFork1Dir = TestCase $ do -- todo, incomplete
-  assertBool "searching To, and no From vars; should fail"
-    $ isLeft $ star g1 (At 0) firstMemberOfAnyTplt
-  assertBool "dog(ana) wants brandy(kata)" 
-    $ star g1 (At 0) fromNeedsTo == Right [4]
 
 tValidRole = TestCase $ do
   assertBool "Tplt: valid role" $ isRight $ validMbrRole g1 5 TpltRole

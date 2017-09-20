@@ -9,6 +9,8 @@ module TData (
   , dogNeedsWaterForBrandy
   , dogNeedsWater
   , anyNeedsWater
+  , dogNeedsFromForTo
+  , itNeedsFromForTo
   , dogWantsBrandy
   , dogWantsBrandyIsDubious
   , anyNeedsFromForTo
@@ -74,6 +76,20 @@ anyNeedsFromForTo :: QRelSpec
 anyNeedsFromForTo = Map.fromList
   [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _ for _")
   ,(Mbr 1, QVarSpec Any)
+  ,(Mbr 2, QVarSpec From)
+  ,(Mbr 3, QVarSpec To)]
+
+dogNeedsFromForTo :: QRelSpec
+dogNeedsFromForTo = Map.fromList
+  [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _ for _")
+  ,(Mbr 1, QNodeSpec $ QLeaf $ Word "dog")
+  ,(Mbr 2, QVarSpec From)
+  ,(Mbr 3, QVarSpec To)]
+
+itNeedsFromForTo :: QRelSpec
+itNeedsFromForTo = Map.fromList
+  [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _ for _")
+  ,(Mbr 1, QVarSpec It)
   ,(Mbr 2, QVarSpec From)
   ,(Mbr 3, QVarSpec To)]
 
