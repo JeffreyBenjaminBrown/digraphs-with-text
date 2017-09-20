@@ -1,6 +1,6 @@
 module TData (
   g1, g1Alt
-  , tRelSpec, tRelSpec2, tRelSpecNonsense
+  , firstMemberOfAnyTplt, fromNeedsTo, dogAsTplt
   , needsFor
   , dog
   , water
@@ -67,17 +67,18 @@ anyNeedsFromForTo = Map.fromList
   ,(Mbr 2, QVarSpec From)
   ,(Mbr 3, QVarSpec To)]
 
-tRelSpec = Map.fromList [ (TpltRole, QVarSpec It)
+firstMemberOfAnyTplt = Map.fromList [ (TpltRole, QVarSpec It)
                        , (Mbr 1,   QNodeSpec $ At 0)
                        , (Mbr 2,   QVarSpec Any)
                        ] :: QRelSpec
 
-tRelSpec2 = Map.fromList [ (TpltRole, QNodeSpec $ At 2)
+fromNeedsTo = Map.fromList [ (TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _")
                        , (Mbr 1,   QVarSpec From)
                        , (Mbr 2,   QVarSpec To)
                        ] :: QRelSpec
 
-tRelSpecNonsense = Map.fromList [ (TpltRole, QNodeSpec $ At 0) -- "dog" Word, not Tplt
-                               , (Mbr 1,   QVarSpec It)
-                               , (Mbr 2,   QVarSpec From)
-                               ] :: QRelSpec
+dogAsTplt = Map.fromList [
+  (TpltRole, QNodeSpec $ At 0) -- "dog" Word, not Tplt
+  , (Mbr 1,   QVarSpec To)
+  , (Mbr 2,   QVarSpec From)
+  ] :: QRelSpec
