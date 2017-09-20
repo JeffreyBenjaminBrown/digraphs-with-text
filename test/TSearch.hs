@@ -21,4 +21,8 @@ tMatchQRelSpecNodes = TestCase $ do
   assertBool "find dogNeedsWater" $ qGet g1 dogNeedsWater == Right [6]
   assertBool "1" $ matchQRelSpecNodes g1 anyNeedsWater
     == qGet g1 dogNeedsWater
-  assertBool "2" $ matchQRelSpecNodes g1 tpltForRelsWithDogInPos1 == [5,6,8]
+  assertBool "2" $ matchQRelSpecNodes g1 tpltForRelsWithDogInPos1
+    == Right [5,6,8]
+
+-- tStar = TestCase $ do
+-- runStateT (qPutSt $ QRel ["needs","for"] [QLeaf $ Word "dog", QLeaf $ Word "water", QLeaf $ Word "chocolate"]) g1

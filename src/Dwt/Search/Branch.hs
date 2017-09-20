@@ -4,7 +4,7 @@ module Dwt.Search.Branch (
   , insRelSpec -- add a relspec to a graph
   , getRelSpec -- unused.  RSLT -> QNode -> Either DwtErr RelSpec
   , has1Dir -- Mbrship(the dir it has 1 of) -> QRelSpec -> Bool
-  , fork1Dir -- RSLT -> QNode -> QRelSpec -> Either DwtErr [Node]
+  , star -- RSLT -> QNode -> QRelSpec -> Either DwtErr [Node]
     -- TODO: rewrite Mbrship as To,From,It,Any. Then use QRelSpec, not a pair.
   , subNodeForVars --QNode(sub this) -> Mbrship(for this) -> QRelSpec(in this)
     -- -> ReaderT RSLT (Either DwtErr) QRelSpec
@@ -70,18 +70,16 @@ has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (QVarSpec y) = y == mv
         f _ = False
 
-fork1Dir :: RSLT -> QNode -> QRelSpec -> Either DwtErr [Node]
-fork1Dir g qFrom axis = do -- returns one generation, neighbors
-  -- fromDir <- otherDir forward
+-- | warning ? treats It like Any
+star :: RSLT -> QNode -> QRelSpec -> Either DwtErr [Node]
+star g qFrom axis = do -- returns one generation, neighbors
   if has1Dir From axis then return ()
      else Left (Invalid, [ErrRelSpec axis]
-               , "fork1Dir: should have only one " ++ show From)
+               , "star: should have only one " ++ show From)
   let forwardRoles = Map.keys $ Map.filter (== QVarSpec To) axis
   axis' <- runReaderT (subNodeForVars qFrom From axis) g
   rels <- matchQRelSpecNodes g axis'
   concat <$> mapM (\rel -> selectRelElts g rel forwardRoles) rels
-    -- TODO: this line is unnecessary. just return the rels, not their elts.
-      -- EXCEPT: that might hurt the dfs, bfs functions below
 
 -- | in r, changes each QVarSpec v to QNodeSpec n
 subNodeForVars :: QNode -> Mbrship -> QRelSpec
@@ -100,7 +98,7 @@ _bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- ^ order determines dfs or bfs
   -> Either DwtErr [Node]
 _bfsOrDfs _ _ _ [] acc = return acc
 _bfsOrDfs collector g qdir (n:ns) acc = do
-  newNodes <- fork1Dir g (At n) qdir -- todo speed ? calls has1Dir too much
+  newNodes <- star g (At n) qdir -- todo speed ? calls has1Dir too much
   _bfsOrDfs collector g qdir (nub $ collector newNodes ns) (n:acc)
     -- todo speed ? discard visited nodes from graph.  (might backfire?)
 

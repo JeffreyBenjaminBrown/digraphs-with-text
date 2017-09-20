@@ -178,9 +178,9 @@ tHas1Dir = TestCase $ do
 
 tFork1Dir = TestCase $ do -- todo, incomplete
   assertBool "searching To, and no From vars; should fail"
-    $ isLeft $ fork1Dir g1 (At 0) firstMemberOfAnyTplt
+    $ isLeft $ star g1 (At 0) firstMemberOfAnyTplt
   assertBool "dog(ana) wants brandy(kata)" 
-    $ fork1Dir g1 (At 0) fromNeedsTo == Right [4]
+    $ star g1 (At 0) fromNeedsTo == Right [4]
 
 tValidRole = TestCase $ do
   assertBool "Tplt: valid role" $ isRight $ validMbrRole g1 5 TpltRole
