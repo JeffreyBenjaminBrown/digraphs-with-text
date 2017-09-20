@@ -1,8 +1,8 @@
 #!/bin/bash
 
-wordChar='[^a-zA-Z0-9_]'
-before='(^|[^$wordChar])'
-after='($|[^$wordChar])'
+wordCharFromFile="$(head -1 scripts/wordCharFromFile.txt)"
+  # thanks, Nick Hyde!
+    # reading in that expression as a file lets you avoid lots of 
+    # tricky unquoting
 
-egrep "$before$1$after" --exclude-dir=.stack-work \\\
-     -r . --include \*.hs --include \*.md --include \*.txt
+egrep "(^|$wordCharFromFile)$1($|$wordCharFromFile)" --exclude-dir=.stack-work -r . --include \*.hs --include \*.md --include \*.txt
