@@ -1,6 +1,14 @@
 module TData (
   g1, g1Alt
   , tRelSpec, tRelSpec2, tRelSpecNonsense
+  , needsFor
+  , dog
+  , water
+  , brandy
+  , dogNeedsWaterForBrandy
+  , dogWantsBrandy
+  , dogWantsBrandyIsDubious
+  , anyNeedsFromForTo
 ) where
 
 import Dwt
@@ -43,6 +51,21 @@ g1Alt = insLeaf (Fl 1.3)           $ insLeaf (Fl 1)
       $ insLeaf (Word"brandy")    $ insLeaf (Word"water")
       $ insLeaf (mkTplt"_ needs _")  $ insLeaf (mkTplt"_ wants _")
       $ insLeaf (Word"dog")         $ empty :: RSLT
+
+needsFor = QLeaf $ mkTplt "_ needs _ for _" :: QNode
+dog = QLeaf $ Word "dog" :: QNode
+water = QLeaf $ Word "water" :: QNode
+brandy = QLeaf $ Word "brandy" :: QNode
+dogNeedsWaterForBrandy = At 8 :: QNode
+dogWantsBrandy = QRel ["wants"] [dog,brandy] :: QNode
+dogWantsBrandyIsDubious = At 11 :: QNode
+
+anyNeedsFromForTo :: QRelSpec
+anyNeedsFromForTo = Map.fromList
+  [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _ for ")
+  ,(Mbr 1, QVarSpec Any)
+  ,(Mbr 2, QVarSpec From)
+  ,(Mbr 3, QVarSpec To)]
 
 tRelSpec = Map.fromList [ (TpltRole, QVarSpec It)
                        , (Mbr 1,   QNodeSpec $ At 0)
