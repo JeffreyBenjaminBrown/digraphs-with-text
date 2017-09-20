@@ -4,11 +4,11 @@ module Dwt.Search.Branch (
   , insRelSpec -- add a relspec to a graph
   , getRelSpec -- unused.  RSLT -> QNode -> Either DwtErr RelSpec
   , has1Dir -- Mbrship(the dir it has 1 of) -> QRelSpec -> Bool
-  , fork1Dir -- RSLT -> QNode -> (Mbrship,QRelSpec) -> Either DwtErr [Node]
+  , fork1Dir -- RSLT -> QNode -> QRelSpec -> Either DwtErr [Node]
     -- TODO: rewrite Mbrship as To,From,It,Any. Then use QRelSpec, not a pair.
   , subNodeForVars --QNode(sub this) -> Mbrship(for this) -> QRelSpec(in this)
     -- -> ReaderT RSLT (Either DwtErr) QRelSpec
-  , dwtDfs -- RSLT -> (Mbrship,QRelSpec) -> [Node] -> Either DwtErr [Node]
+  , dwtDfs -- RSLT -> QRelSpec -> [Node] -> Either DwtErr [Node]
   , dwtBfs -- same
 ) where
 
@@ -70,14 +70,14 @@ has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (QVarSpec y) = y == mv
         f _ = False
 
-fork1Dir :: RSLT -> QNode -> (Mbrship,QRelSpec) -> Either DwtErr [Node]
-fork1Dir g qFrom (forward,axis) = do -- returns one generation, neighbors
-  fromDir <- otherDir forward
-  if has1Dir fromDir axis then return ()
+fork1Dir :: RSLT -> QNode -> QRelSpec -> Either DwtErr [Node]
+fork1Dir g qFrom axis = do -- returns one generation, neighbors
+  -- fromDir <- otherDir forward
+  if has1Dir From axis then return ()
      else Left (Invalid, [ErrRelSpec axis]
-               , "fork1Dir: should have only one " ++ show fromDir)
-  let forwardRoles = Map.keys $ Map.filter (== QVarSpec forward) axis
-  axis' <- runReaderT (subNodeForVars qFrom fromDir axis) g
+               , "fork1Dir: should have only one " ++ show From)
+  let forwardRoles = Map.keys $ Map.filter (== QVarSpec To) axis
+  axis' <- runReaderT (subNodeForVars qFrom From axis) g
   rels <- matchQRelSpecNodes g axis'
   concat <$> mapM (\rel -> selectRelElts g rel forwardRoles) rels
     -- TODO: this line is unnecessary. just return the rels, not their elts.
@@ -94,7 +94,7 @@ subNodeForVars q v r = hoist (prependCaller "subNodeForVars") $ do
   lift $ Right $ Map.map f r
 
 _bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- ^ order determines dfs or bfs
-  -> RSLT -> (Mbrship, QRelSpec)
+  -> RSLT -> QRelSpec
   -> [Node] -- ^ pending accumulation
   -> [Node] -- ^ the accumulator
   -> Either DwtErr [Node]
@@ -107,10 +107,10 @@ _bfsOrDfs collector g qdir (n:ns) acc = do
 bfsConcat = _bfsOrDfs (\new old -> old ++ new)
 dfsConcat = _bfsOrDfs (\new old -> new ++ old)
 
-dwtDfs :: RSLT -> (Mbrship,QRelSpec) -> [Node] -> Either DwtErr [Node]
+dwtDfs :: RSLT -> QRelSpec -> [Node] -> Either DwtErr [Node]
 dwtDfs g dir starts = do mapM_ (gelemM g) $ starts
                          (nub . reverse) <$> dfsConcat g dir starts []
 
-dwtBfs :: RSLT -> (Mbrship, QRelSpec) -> [Node] -> Either DwtErr [Node]
+dwtBfs :: RSLT -> QRelSpec -> [Node] -> Either DwtErr [Node]
 dwtBfs g dir starts = do mapM_ (gelemM g) $ starts
                          (nub . reverse) <$> bfsConcat g dir starts []
