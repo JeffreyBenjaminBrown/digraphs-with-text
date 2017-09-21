@@ -11,7 +11,7 @@ import qualified Data.Set as S
 import Control.Monad.Trans.State (runStateT)
 
 tSearch = TestList [ TestLabel "tQPlaysRoleIn" tQPlaysRoleIn
-                   , TestLabel "tMatchQRelSpecNodes" tMatchQRelSpecNodes
+                   , TestLabel "tMatchQRelspecNodes" tMatchQRelspecNodes
                    , TestLabel "tStar" tStar
                    ]
 
@@ -21,11 +21,11 @@ tQPlaysRoleIn = TestCase $ do
   assertBool "2" $ qPlaysRoleIn g1 dogWantsBrandy (Mbr 1)
     == qGet g1 dogWantsBrandyIsDubious
 
-tMatchQRelSpecNodes = TestCase $ do
+tMatchQRelspecNodes = TestCase $ do
   assertBool "find dogNeedsWater" $ qGet g1 dogNeedsWater == Right [6]
-  assertBool "1" $ matchQRelSpecNodes g1 anyNeedsWater
+  assertBool "1" $ matchQRelspecNodes g1 anyNeedsWater
     == qGet g1 dogNeedsWater
-  assertBool "2" $ matchQRelSpecNodes g1 tpltForRelsWithDogInPos1
+  assertBool "2" $ matchQRelspecNodes g1 tpltForRelsWithDogInPos1
     == Right [5,6,8]
 
 tStar = TestCase $ do

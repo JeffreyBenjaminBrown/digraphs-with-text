@@ -24,8 +24,8 @@ tBuildGraph = TestList [ TestLabel "tSubInTplt" tSubInTplt
                        , TestLabel "tInsert" tInsert
                        , TestLabel "tInsRelM" tInsRelM
                        -- , TestLabel "tInsColl" tInsColl
-                       , TestLabel "tPartitionRelSpec" tPartitionRelSpec
-                       , TestLabel "tInsRelSpec" tInsRelSpec
+                       , TestLabel "tPartitionRelspec" tPartitionRelspec
+                       , TestLabel "tInsRelspec" tInsRelspec
                        -- , TestLabel "tChLeafAt" tChLeafAt
                        -- , TestLabel "tChMbr" tChMbr
                        ]
@@ -69,19 +69,19 @@ tInsRelM = TestCase $ do
 --        $    (length $ nodes g1) + 1 == (length $ nodes gg)
 --          && (length $ edges g1) + 4 == (length $ edges gg)
 
-tPartitionRelSpec = TestCase $ do
-  let Right (vs,ns) = partitionRelSpec g1 firstMemberOfAnyTplt
+tPartitionRelspec = TestCase $ do
+  let Right (vs,ns) = partitionRelspec g1 firstMemberOfAnyTplt
   assertBool "1" $ Set.fromList (Map.toList vs)
     == Set.fromList [ (TpltRole, It)
                     , (Mbr 2,   Any) ]
   assertBool "2" $ Set.fromList (Map.toList ns)
     == Set.fromList [ (Mbr 1, 0) ]
 
-tInsRelSpec = TestCase $ do
-  let Right (vs,_) = partitionRelSpec g1 firstMemberOfAnyTplt
-      Right g2 = insRelSpec firstMemberOfAnyTplt g1
+tInsRelspec = TestCase $ do
+  let Right (vs,_) = partitionRelspec g1 firstMemberOfAnyTplt
+      Right g2 = insRelspec firstMemberOfAnyTplt g1
       [newNode] = newNodes 1 g1
-  assertBool "node" $ lab g2 newNode == Just (RelSpecExpr vs)
+  assertBool "node" $ lab g2 newNode == Just (RelspecExpr vs)
   assertBool "only 1 more edge" $ 
     (length $ edges g1) + 1 == (length $ edges g2)
   assertBool "the edge" $ hasLEdge g2 (newNode, 0, RelEdge $ Mbr 1)
@@ -162,8 +162,8 @@ tSpecUsers = TestCase $ do
   assertBool "with Arity" $ playsRoleIn g1 0 (Mbr 1) == Right [5,6,8]
 
 tMatchRel = TestCase $ do
-  assertBool "dog in first pos"     $ matchQRelSpecNodes g1 firstMemberOfAnyTplt == Right [5,6,8]
-  assertBool "nothing should match" $ matchQRelSpecNodes g1 dogAsTplt == Right []
+  assertBool "dog in first pos"     $ matchQRelspecNodes g1 firstMemberOfAnyTplt == Right [5,6,8]
+  assertBool "nothing should match" $ matchQRelspecNodes g1 dogAsTplt == Right []
 
 -- ==== chase and helpers
 tChase = TestList [ TestLabel "tHas1From" tHas1Dir

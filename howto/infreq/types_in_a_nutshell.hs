@@ -8,7 +8,7 @@ Here are the types:
       -- one connects it to its TpltRole (relationship template)
       -- k more connect it to each of its k Mbrs (relationship members)
     -- Similarly, Colls use CollRoles.
-    -- RelSpecExprs use RelRoles.
+    -- RelspecExprs use RelRoles.
       -- but unlike Rels, they can be well-formed without emitting any.
 
     type MbrPos = Int -- the k members of a k-ary Rel take MbrPos values [1..k]
@@ -16,7 +16,7 @@ Here are the types:
 
     type RSLT = Gr Expr RSLTEdge
     data Expr = Word String | Tplt [String] | Rel | Coll String
-              | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
+              | RelspecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
 
     data RSLTEdge = RoleEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
     data RelRole = TpltRole | Mbr MbrPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
@@ -26,10 +26,10 @@ Here are the types:
       deriving (Show,Read,Eq,Ord)
     data QNodeOrVar = QVarSpec Mbrship | QNodeOrVar Node deriving(Show,Read,Eq,Ord)
 
-    type RelVarSpec = Map.Map RelRole Mbrship -- subset of QRelSpec info, but
-      -- a RelVarSpec in a RSLT is transformable into a QRelSpec.
+    type RelVarSpec = Map.Map RelRole Mbrship -- subset of QRelspec info, but
+      -- a RelVarSpec in a RSLT is transformable into a QRelspec.
       -- The rest of the info can be inferred from the edges connected to it.
-    type QRelSpec = Map.Map RelRole QNodeOrVar
+    type QRelspec = Map.Map RelRole QNodeOrVar
       -- if well-formed, has a Tplt, and MbrPoss from 1 to the Tplt's Arity
 
 The following is an obsolete (uses an earlier version of Dwt) RSLT that represents the expression "dog needs water" using the subexpressions "dog" (a string), "water" (a string), and "_ wants _" (a relationship two things can have, that is a binary Rel):

@@ -100,7 +100,7 @@ areLikeExprs e f = case e of
   Tplt _ ->  case f of Tplt _ -> True;  _ -> False
   Rel    ->  case f of Rel    -> True;  _ -> False
   Coll   ->  case f of Coll   -> True;  _ -> False
-  RelSpecExpr _ ->  case f of RelSpecExpr _ -> True;  _ -> False
+  RelspecExpr _ ->  case f of RelspecExpr _ -> True;  _ -> False
 
 
 -- ==== QNode tests

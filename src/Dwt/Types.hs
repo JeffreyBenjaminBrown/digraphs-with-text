@@ -4,8 +4,8 @@ module Dwt.Types (
   MbrPos, Arity
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , Mbrship(..), RelVarSpec, RelNodeSpec
-  , NodeOrVar(..), RelSpec
-  , QNodeOrVar(..), QRelSpec
+  , NodeOrVar(..), Relspec
+  , QNodeOrVar(..), QRelspec
   , QNode(..), Level, Joint(..), EO(..)
   , DwtErr, ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString -- lenses
@@ -25,7 +25,7 @@ type RSLT = Gr Expr RSLTEdge -- ^ reflective set of labeled tuples
 data Expr = Word String | Fl Float -- ^ Fl and Word are similarly atomic
   | Rel | Tplt [String]
   | Coll -- ^ each uses a CollPrinciple like "and" or "or"
-  | RelSpecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
+  | RelspecExpr RelVarSpec deriving(Show,Read,Eq,Ord)
     -- ^ The RelVarSpec specifies the variable members.
     -- Edges specify the concrete (addressed) members.
 data RSLTEdge = RelEdge RelRole | CollEdge CollRole deriving(Show,Read,Eq,Ord)
@@ -43,8 +43,8 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
 data Mbrship = It | Any | From | To deriving (Show,Read,Eq,Ord)
 data NodeOrVar  = NodeSpec Node | VarSpec Mbrship deriving (Show,Read,Eq)
 data QNodeOrVar = QNodeSpec QNode | QVarSpec Mbrship deriving (Show,Eq)
-type RelSpec  = Map.Map RelRole NodeOrVar
-type QRelSpec = Map.Map RelRole QNodeOrVar -- ^ if well-formed, includes
+type Relspec  = Map.Map RelRole NodeOrVar
+type QRelspec = Map.Map RelRole QNodeOrVar -- ^ if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else,
   -- and at the TpltRole key is a QNodeSpec, not a QVarSpec
 type RelVarSpec  = Map.Map RelRole Mbrship
@@ -79,14 +79,14 @@ type DwtErr = (ErrBase, [ErrOpt], String)
 data ErrBase = Legacy -- | for when the String has all the info
   | FoundNo | FoundMany | FoundWrongKind
   | ArityMismatch | ConstructorMistmatch
-  | NotRelSpecExpr | NotTplt | NotColl | NotLeaf
+  | NotRelspecExpr | NotTplt | NotColl | NotLeaf
   | Invalid -- | (MbrPos 0), for instance, is ill-formed
   | Impossible deriving (Show, Eq)
 
 data ErrOpt =
   ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrMbrship Mbrship
-  | ErrRelSpec QRelSpec | ErrQNode QNode deriving (Show, Eq)
+  | ErrRelspec QRelspec | ErrQNode QNode deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase
 errBase = _1

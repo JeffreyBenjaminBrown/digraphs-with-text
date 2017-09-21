@@ -4,11 +4,11 @@
 module Dwt.Search.QNode (
   playsRoleIn -- RSLT -> Node -> RelRole -> Either DwtErr [Node]
   , qPlaysRoleIn -- RSLT -> QNode -> RelRole -> Either DwtErr [Node]
-  , matchRelSpecNodes -- RSLT -> RelSpec -> Either DwtErr [Node]
+  , matchRelspecNodes -- RSLT -> Relspec -> Either DwtErr [Node]
     -- critical: the intersection-finding function
-  , matchQRelSpecNodes -- RSLT -> QRelSpec -> Either DwtErr [Node]
-  , matchRelSpecNodesLab -- same, except LNodes
-  , matchQRelSpecNodesLab -- same, except LNodes
+  , matchQRelspecNodes -- RSLT -> QRelspec -> Either DwtErr [Node]
+  , matchRelspecNodesLab -- same, except LNodes
+  , matchQRelspecNodesLab -- same, except LNodes
 
   , qGet -- RSLT -> QNode -> Either DwtErr [Node]
   , qGetLab -- RSLT -> QNode -> Either DwtErr [LNode Expr]
@@ -24,7 +24,7 @@ import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
                 , listIntersect)
 import Dwt.Measure (extractTplt, isAbsent)
-import Dwt.Search.Base (mkRelSpec)
+import Dwt.Search.Base (mkRelspec)
 
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State (StateT, get, put)
@@ -45,46 +45,46 @@ qPlaysRoleIn :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
 qPlaysRoleIn g q r = prependCaller "qPlaysRoleIn: "
   $ qGet1 g q >>= \n -> playsRoleIn g n r
 
-matchRelSpecNodes :: RSLT -> RelSpec -> Either DwtErr [Node]
-matchRelSpecNodes g spec = prependCaller "matchRelSpecNodes: " $ do
+matchRelspecNodes :: RSLT -> Relspec -> Either DwtErr [Node]
+matchRelspecNodes g spec = prependCaller "matchRelspecNodes: " $ do
   let nodeSpecs = Map.toList
         $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,NodeOrVar)]
   nodeListList <- mapM (\(r,NodeSpec n) -> playsRoleIn g n r) nodeSpecs
   return $ listIntersect nodeListList
 
-matchQRelSpecNodes :: RSLT -> QRelSpec -> Either DwtErr [Node]
-matchQRelSpecNodes g spec = prependCaller "matchQRelSpecNodes: " $ do
+matchQRelspecNodes :: RSLT -> QRelspec -> Either DwtErr [Node]
+matchQRelspecNodes g spec = prependCaller "matchQRelspecNodes: " $ do
   let nodeSpecs = Map.toList
         $ Map.filter (\ns -> case ns of QNodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,QNodeOrVar)]
   nodeListList <- mapM (\(r,QNodeSpec n) -> qPlaysRoleIn g n r) nodeSpecs
   return $ listIntersect nodeListList
 
-matchRelSpecNodesLab :: RSLT -> RelSpec -> Either DwtErr [LNode Expr]
-matchRelSpecNodesLab g spec = prependCaller "matchRelSpecNodesLab: " $ do
-  ns <- matchRelSpecNodes g spec
+matchRelspecNodesLab :: RSLT -> Relspec -> Either DwtErr [LNode Expr]
+matchRelspecNodesLab g spec = prependCaller "matchRelspecNodesLab: " $ do
+  ns <- matchRelspecNodes g spec
   return $ zip ns $ map (Mb.fromJust . lab g) ns
     -- TODO: slow: this looks up each node a second time to find its label
-    -- fromJust is safe because matchRelSpecNodes only returns Nodes in g
+    -- fromJust is safe because matchRelspecNodes only returns Nodes in g
 
-matchQRelSpecNodesLab :: RSLT -> QRelSpec -> Either DwtErr [LNode Expr]
-matchQRelSpecNodesLab g spec = prependCaller "matchQRelSpecNodesLab: " $ do
-  ns <- matchQRelSpecNodes g spec
+matchQRelspecNodesLab :: RSLT -> QRelspec -> Either DwtErr [LNode Expr]
+matchQRelspecNodesLab g spec = prependCaller "matchQRelspecNodesLab: " $ do
+  ns <- matchQRelspecNodes g spec
   return $ zip ns $ map (Mb.fromJust . lab g) ns
     -- TODO speed: this looks up each node twice
-    -- fromJust is safe because matchQRelSpecNodes only returns Nodes in g
+    -- fromJust is safe because matchQRelspecNodes only returns Nodes in g
 
 
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1
 
-_qGet :: -- x herein is either Node or LNode Expr
+_qGet :: -- ^ x herein is either Node or LNode Expr. TODO: use a typeclass
      (RSLT -> Node -> x) -- | gets what's there; used for QAt.
   -- Can safely be unsafe, because the QAt's contents are surely present.
   -> (RSLT -> [x])       -- | nodes or labNodes; used for QLeaf
-  -> (RSLT -> RelSpec -> Either DwtErr [x])
-    -- | matchRelSpecNodes or matchRelSpecNodesLab; used for QRel
+  -> (RSLT -> Relspec -> Either DwtErr [x])
+    -- | matchRelspecNodes or matchRelspecNodesLab; used for QRel
   -> RSLT -> QNode -> Either DwtErr [x]
 _qGet _ _ _ _ Absent = Left (Impossible, [ErrQNode Absent], "qGet.")
 _qGet f _ _ g (At n) = return $ if gelem n g then [f g n] else []
@@ -93,14 +93,14 @@ _qGet _ _ f g q@(QRel _ qms) = prependCaller "_qGet: " $ do
   t <- extractTplt q
   tnode <- qGet1 g (QLeaf t) -- todo ? multiple qt, qms matches
   ms <- mapM (qGet1 g) qms
-  let relspec = mkRelSpec tnode ms
+  let relspec = mkRelspec tnode ms
   f g relspec
 
 qGet :: RSLT -> QNode -> Either DwtErr [Node]
-qGet = _qGet (\_ n -> n) nodes matchRelSpecNodes
+qGet = _qGet (\_ n -> n) nodes matchRelspecNodes
 
 qGetLab :: RSLT -> QNode -> Either DwtErr [LNode Expr]
-qGetLab = _qGet f labNodes matchRelSpecNodesLab where
+qGetLab = _qGet f labNodes matchRelspecNodesLab where
   f g n = (n, Mb.fromJust $ lab g n)
 
 qGet1 :: RSLT -> QNode -> Either DwtErr Node

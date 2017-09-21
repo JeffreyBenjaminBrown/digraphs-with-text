@@ -326,7 +326,7 @@ A Branch in a graph is everything descended from a given node along a given dire
 
 Starting from a Star, you can create a Branch by drawing another Star around each leaf in the first one, and then drawing another Star around each of the new leaves, etc. until you've reached all the data you can reach that way.
 
-I implemented the Direction, and called it QRelSpec. It is reified; that is, RelSpecs are another kind of node in the RSLT graph.
+I implemented the Direction, and called it QRelspec. It is reified; that is, Relspecs are another kind of node in the RSLT graph.
 
 I implemented some Star and Branch-creating functions; they are the ones with "fork" or "dfs" or "bfs" in the name. I have not yet reified Stars or Branches.
 

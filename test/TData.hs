@@ -66,27 +66,27 @@ dogNeedsWater = QRel ["needs"] [dog,water] :: QNode
 dogWantsBrandy = QRel ["wants"] [dog,brandy] :: QNode
 dogWantsBrandyIsDubious = At 11 :: QNode
 
-anyNeedsWater :: QRelSpec
+anyNeedsWater :: QRelspec
 anyNeedsWater = Map.fromList
   [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _")
   ,(Mbr 1, QVarSpec Any)
   ,(Mbr 2, QNodeSpec $ QLeaf $ Word "water")]
 
-anyNeedsFromForTo :: QRelSpec
+anyNeedsFromForTo :: QRelspec
 anyNeedsFromForTo = Map.fromList
   [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _ for _")
   ,(Mbr 1, QVarSpec Any)
   ,(Mbr 2, QVarSpec From)
   ,(Mbr 3, QVarSpec To)]
 
-dogNeedsFromForTo :: QRelSpec
+dogNeedsFromForTo :: QRelspec
 dogNeedsFromForTo = Map.fromList
   [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _ for _")
   ,(Mbr 1, QNodeSpec $ QLeaf $ Word "dog")
   ,(Mbr 2, QVarSpec From)
   ,(Mbr 3, QVarSpec To)]
 
-itNeedsFromForTo :: QRelSpec
+itNeedsFromForTo :: QRelspec
 itNeedsFromForTo = Map.fromList
   [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _ for _")
   ,(Mbr 1, QVarSpec It)
@@ -97,19 +97,19 @@ firstMemberOfAnyTplt = Map.fromList [ (TpltRole, QVarSpec It)
   -- todo: rename
                        , (Mbr 1,   QNodeSpec $ At 0)
                        , (Mbr 2,   QVarSpec Any)
-                       ] :: QRelSpec
+                       ] :: QRelspec
 
 tpltForRelsWithDogInPos1 = Map.fromList [ (TpltRole, QVarSpec It)
                                         , (Mbr 1,   QNodeSpec $ At 0)
-                                        ] :: QRelSpec
+                                        ] :: QRelspec
 
 fromNeedsTo =Map.fromList [ (TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _")
                        , (Mbr 1,   QVarSpec From)
                        , (Mbr 2,   QVarSpec To)
-                       ] :: QRelSpec
+                       ] :: QRelspec
 
 dogAsTplt = Map.fromList [
   (TpltRole, QNodeSpec $ At 0) -- "dog" Word, not Tplt
   , (Mbr 1,   QVarSpec To)
   , (Mbr 2,   QVarSpec From)
-  ] :: QRelSpec
+  ] :: QRelspec
