@@ -40,8 +40,6 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
   -- cleaner, and closer to truth, to pointonly to transitive Tplts.
   -- Exceptions: "some of," "no more than," "exactly" would use unary Tplts.
     -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
-
--- == Specifying kinds of relationships
 data Mbrship = It | Any | From | To deriving (Show,Read,Eq,Ord)
 data NodeOrVar  = NodeSpec Node | VarSpec Mbrship deriving (Show,Read,Eq)
 data QNodeOrVar = QNodeSpec QNode | QVarSpec Mbrship deriving (Show,Eq)

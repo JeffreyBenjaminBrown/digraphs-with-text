@@ -1,8 +1,10 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.MkTplt (
-  _splitStringForTplt
-  , mkTplt
+  mkTplt
+  , jointsToTplt
+
+  , _splitStringForTplt
   , subInTplt
   , padTpltStrings
   , subInTpltWithHashes
@@ -17,6 +19,12 @@ import Data.Text (pack, unpack, strip)
 import Text.Megaparsec
 import Dwt.ParseUtils (Parser, lexeme, phrase)
 import Text.Megaparsec.Char (char)
+
+
+mkTplt       :: String -> Expr
+jointsToTplt :: [Joint] -> Expr
+mkTplt       = Tplt . map (unpack . strip . pack) . _splitStringForTplt
+jointsToTplt = Tplt . map (unpack . strip . pack) . map (\(Joint s) -> s)
 
 
 data PTpltUnit = Blank | Phrase String deriving Show
@@ -45,11 +53,6 @@ toMaybeString (Phrase p) = Just p
 
 _splitStringForTplt :: String -> [String]
 _splitStringForTplt = map (maybe "" id) . _splitStringForTpltMB
-
-mkTplt :: String -> Expr
-mkTplt = Tplt
-  . map (unpack . strip . pack)
-  . _splitStringForTplt
 
 subInTpltWithHashes :: Expr      -- must be a Tplt
                      -> [String] -- members for the Tplt
@@ -83,3 +86,4 @@ padTpltStrings (Tplt ss) prefix =
                               _ -> " " ++ prefix ++ f s
   in [doToFirst a] ++ map doToMiddle middle ++ [doToLast z]
 padTpltStrings _ _ = error "padTpltStrings: given a non-Tplt"
+

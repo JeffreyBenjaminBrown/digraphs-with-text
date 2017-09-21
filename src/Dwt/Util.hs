@@ -18,7 +18,8 @@ module Dwt.Util (
   ) where
 
 import Data.Graph.Inductive
-import Dwt.Types
+import Dwt.Types (RSLT, RSLTEdge
+                 , DwtErr(..), ErrBase(..), ErrOpt(..), errString)
 import Data.List (intersect)
 import qualified Data.Map as Map
 import Control.Lens  ((%~))

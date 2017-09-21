@@ -30,6 +30,11 @@ import Data.Maybe (fromJust)
 import Control.Lens ((%~), (.~), _1, _2)
 
 
+--toQRelSpec :: QNode -> QRelSpec
+--toQRelSpec (QRel js qs) = Map.fromList $ t ++ ms where
+--  ms = zip (map Mbr [1..]) (map QNodeSpec qs)
+--  t = (TpltRole, 
+
 -- | Applies only when all the nodes the Rel involves are known.
 mkRelSpec :: Node -> [Node] -> RelSpec
 mkRelSpec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
