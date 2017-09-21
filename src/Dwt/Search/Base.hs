@@ -21,6 +21,7 @@ module Dwt.Search.Base (
 import Data.Graph.Inductive (Node, Graph, Gr, lsuc, lpre, lab, labfilter
                             , nodes)
 import Dwt.Types
+import Dwt.MkTplt (jointsToTplt)
 import Dwt.Util (gelemM, listIntersect)
 import Dwt.Measure (isCollM, isRelM, tpltArity)
 import Dwt.Util (prependCaller)
@@ -30,10 +31,10 @@ import Data.Maybe (fromJust)
 import Control.Lens ((%~), (.~), _1, _2)
 
 
---toQRelSpec :: QNode -> QRelSpec
---toQRelSpec (QRel js qs) = Map.fromList $ t ++ ms where
---  ms = zip (map Mbr [1..]) (map QNodeSpec qs)
---  t = (TpltRole, 
+toQRelSpec :: QNode -> QRelSpec
+toQRelSpec (QRel js qs) = Map.fromList $ t : ms where
+  t = (TpltRole, QNodeSpec $ QLeaf $ jointsToTplt js)
+  ms = zip (map Mbr [1..]) (map QNodeSpec qs)
 
 -- | Applies only when all the nodes the Rel involves are known.
 mkRelSpec :: Node -> [Node] -> RelSpec
