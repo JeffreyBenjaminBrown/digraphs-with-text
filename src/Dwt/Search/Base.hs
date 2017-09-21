@@ -31,10 +31,11 @@ import Data.Maybe (fromJust)
 import Control.Lens ((%~), (.~), _1, _2)
 
 
-toQRelSpec :: QNode -> QRelSpec
-toQRelSpec (QRel js qs) = Map.fromList $ t : ms where
+toQRelSpec :: QNode -> Either DwtErr QRelSpec
+toQRelSpec (QRel js qs) = Right $ Map.fromList $ t : ms where
   t = (TpltRole, QNodeSpec $ QLeaf $ jointsToTplt js)
   ms = zip (map Mbr [1..]) (map QNodeSpec qs)
+toQRelSpec x = Left (ConstructorMistmatch, [ErrQNode x], "toQRelSpec.")
 
 -- | Applies only when all the nodes the Rel involves are known.
 mkRelSpec :: Node -> [Node] -> RelSpec
