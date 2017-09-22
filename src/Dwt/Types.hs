@@ -55,6 +55,7 @@ type RelQNodeSpec = Void -- todo?
 -- | Every rel has at least one joint, and potentially members on either side
   -- If there are more, the list of pairs stores them.
 data QNode = At Node -- ^ for when you know the expression's node
+  | QVar Mbrship -- ^ NEW
   | Absent | QLeaf Expr | QRel [Joint] [QNode] deriving (Show, Eq)
 type Level = Int -- ^ in "cats like you because you like them", the "because"
   -- relationship is level 2, and the "like" relationships are level 1
@@ -76,17 +77,18 @@ instance Ord EO where -- ^ Open > closed. If those are equal, ## > #, etc.
 -- == Errors
 type DwtErr = (ErrBase, [ErrOpt], String)
 
-data ErrBase = Legacy -- | for when the String has all the info
+data ErrBase = Legacy -- ^ for when the errString has all the info
   | FoundNo | FoundMany | FoundWrongKind
   | ArityMismatch | ConstructorMistmatch
+  | NothingSpecified -- ^ for a search consisting entirely of variables
   | NotRelspecExpr | NotTplt | NotColl | NotLeaf
-  | Invalid -- | (MbrPos 0), for instance, is ill-formed
+  | Invalid -- ^ (MbrPos 0), for instance, is ill-formed
   | Impossible deriving (Show, Eq)
 
-data ErrOpt =
-  ErrNode Node | ErrEdge Edge | ErrExpr Expr
+data ErrOpt = ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrMbrship Mbrship
-  | ErrRelspec QRelspec | ErrQNode QNode deriving (Show, Eq)
+  | ErrQRelspec QRelspec | ErrRelspec Relspec 
+  | ErrQNode QNode deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase
 errBase = _1

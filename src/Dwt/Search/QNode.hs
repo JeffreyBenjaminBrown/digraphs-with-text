@@ -50,6 +50,8 @@ matchRelspecNodes g spec = prependCaller "matchRelspecNodes: " $ do
   let nodeSpecs = Map.toList
         $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,NodeOrVar)]
+  if nodeSpecs /= [] then return ()
+    else Left (NothingSpecified, [ErrRelspec spec], "matchRelspecNodes")
   nodeListList <- mapM (\(r,NodeSpec n) -> playsRoleIn g n r) nodeSpecs
   return $ listIntersect nodeListList
 
@@ -58,6 +60,8 @@ matchQRelspecNodes g spec = prependCaller "matchQRelspecNodes: " $ do
   let nodeSpecs = Map.toList
         $ Map.filter (\ns -> case ns of QNodeSpec _ -> True; _ -> False)
         $ spec :: [(RelRole,QNodeOrVar)]
+  if nodeSpecs /= [] then return ()
+    else Left (NothingSpecified, [ErrQRelspec spec], "matchRelspecNodes")
   nodeListList <- mapM (\(r,QNodeSpec n) -> qPlaysRoleIn g n r) nodeSpecs
   return $ listIntersect nodeListList
 

@@ -74,7 +74,7 @@ has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
 star :: RSLT -> QNode -> QRelspec -> Either DwtErr [Node]
 star g qFrom axis = do -- returns one generation, neighbors
   if has1Dir From axis then return ()
-     else Left (Invalid, [ErrRelspec axis]
+     else Left (Invalid, [ErrQRelspec axis]
                , "star: should have only one " ++ show From)
   let forwardRoles = Map.keys $ Map.filter (== QVarSpec To) axis
   axis' <- runReaderT (subQNodeForVars qFrom From axis) g
