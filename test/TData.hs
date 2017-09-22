@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module TData (
   g1, g1Alt
   , firstMemberOfAnyTplt, tpltForRelsWithDogInPos1
