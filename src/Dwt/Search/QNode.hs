@@ -83,15 +83,16 @@ matchQRelspecNodesLab g spec = prependCaller "matchQRelspecNodesLab: " $ do
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1
 
-_qGet :: -- ^ x herein is either Node or LNode Expr. TODO: use a typeclass
-     (RSLT -> Node -> x) -- | gets what's there; used for QAt.
+-- ^ x herein is either Node or LNode Expr. TODO: use a typeclass
+_qGet :: (RSLT -> Node -> x) -- ^ gets what's there; used for At.
   -- Can safely be unsafe, because the QAt's contents are surely present.
-  -> (RSLT -> [x])       -- | nodes or labNodes; used for QLeaf
+  -> (RSLT -> [x]) -- ^ nodes or labNodes; used for QLeaf
   -> (RSLT -> Relspec -> Either DwtErr [x])
-    -- | matchRelspecNodes or matchRelspecNodesLab; used for QRel
+    -- ^ matchRelspecNodes or matchRelspecNodesLab; used for QRel
   -> RSLT -> QNode -> Either DwtErr [x]
 _qGet _ _ _ _ Absent = Left (Impossible, [ErrQNode Absent], "qGet.")
-_qGet f _ _ g (At n) = return $ if gelem n g then [f g n] else []
+_qGet f _ _ g q@(At n) = if gelem n g then return [f g n]
+  else Left (FoundNo, [ErrQNode q], "_qGet.")
 _qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
 _qGet _ _ f g q@(QRel _ qms) = prependCaller "_qGet: " $ do
   t <- extractTplt q
