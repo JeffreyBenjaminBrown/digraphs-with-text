@@ -5,12 +5,6 @@ module Dwt.Search.QNode (
   playsRoleIn -- RSLT -> RelRole -> Node -> Either DwtErr [Node]
   , qPlaysRoleIn -- RSLT -> RelRole -> QNode -> Either DwtErr [Node]
   , matchRoleMap -- RSLT -> RoleMap -> Either DwtErr [Node]
-  , matchRoleMapLab -- RSLT -> RoleMap -> Either DwtErr [LNode Expr]
-  , matchRelspecNodes -- RSLT -> Relspec -> Either DwtErr [Node]
-    -- critical: the intersection-finding function
-  , matchQRelspecNodes -- RSLT -> QRelspec -> Either DwtErr [Node]
-  , matchRelspecNodesLab -- same, except LNodes
-  , matchQRelspecNodesLab -- same, except LNodes
 
   , qGet -- RSLT -> QNode -> Either DwtErr [Node]
   , qGetLab -- RSLT -> QNode -> Either DwtErr [LNode Expr]

@@ -5,6 +5,7 @@ module TData (
   , firstMemberOfAnyTplt
   , firstMemberOfAnyTpltRM
   , tpltForRelsWithDogInPos1
+  , tpltForRelsWithDogInPos1RM
   , fromNeedsTo
   , dogAsTplt
   , dogAsTpltRM
@@ -15,6 +16,7 @@ module TData (
   , dogNeedsWaterForBrandy
   , dogNeedsWater
   , anyNeedsWater
+  , anyNeedsWaterRM
   , dogNeedsFromForTo
   , dogNeedsFromForToRM
   , brandyNeedsFromForToRM
@@ -92,6 +94,12 @@ anyNeedsWater = Map.fromList
   ,(Mbr 1, QVarSpec Any)
   ,(Mbr 2, QNodeSpec $ QLeaf $ Word "water")]
 
+anyNeedsWaterRM :: RoleMap
+anyNeedsWaterRM = Map.fromList
+  [(TpltRole, QLeaf $ mkTplt "_ needs _")
+  ,(Mbr 1, QVar Any)
+  ,(Mbr 2, QLeaf $ Word "water")]
+
 anyNeedsFromForTo :: QRelspec
 anyNeedsFromForTo = Map.fromList
   [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _ for _")
@@ -156,6 +164,10 @@ firstMemberOfAnyTpltRM = Map.fromList [ (TpltRole, QVar It)
 tpltForRelsWithDogInPos1 = Map.fromList [ (TpltRole, QVarSpec It)
                                         , (Mbr 1,   QNodeSpec $ At 0)
                                         ] :: QRelspec
+
+tpltForRelsWithDogInPos1RM = Map.fromList [ (TpltRole, QVar It)
+                                          , (Mbr 1,   At 0)
+                                          ] :: RoleMap
 
 fromNeedsTo =Map.fromList [ (TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _")
                        , (Mbr 1,   QVarSpec From)

@@ -3,20 +3,18 @@ module Dwt.Search.Branch (
   , partitionRelspec -- returns two relspecs
   , insRelspec -- add a relspec to a graph. unused.
   , getRelspec -- unused.  RSLT -> QNode -> Either DwtErr Relspec
-  , has1DirRM -- Mbrship(the dir it has 1 of) -> RoleMap -> Bool
-  , star -- RSLT -> QNode -> QRelspec -> Either DwtErr [Node]
-  , starRM -- RSLT -> QNode -> RoleMap -> Either DwtErr [Node]
-  , subQNodeForVars --QNode(sub this) -> Mbrship(for this) -> QRelspec(in this)
-  , subQNodeForVarsRM --QNode(sub this) ->Mbrship(for this) ->RoleMap(in this)
+  , has1Dir -- Mbrship(the dir it has 1 of) -> RoleMap -> Bool
+  , star -- RSLT -> QNode -> RoleMap -> Either DwtErr [Node]
+  , subQNodeForVars --QNode(sub this) ->Mbrship(for this) ->RoleMap(in this)
     -- -> ReaderT RSLT (Either DwtErr) RoleMap
-  , dwtDfs -- RSLT -> QRelspec -> [Node] -> Either DwtErr [Node]
+  , dwtDfs -- RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
   , dwtBfs -- same
 ) where
 
 import Data.Graph.Inductive (Node, insNode, insEdges, newNodes, lab)
 import Dwt.Types
 import Dwt.Search.Base (getRelNodeSpec, selectRelElts)
-import Dwt.Search.QNode (qGet1, matchRoleMap, matchQRelspecNodes)
+import Dwt.Search.QNode (qGet1, matchRoleMap)
 
 import Dwt.Util (listIntersect, prependCaller, gelemM)
 import qualified Data.Map as Map
@@ -66,58 +64,34 @@ getRelspec g q = prependCaller "getRelspec: " $ do
       return $ Map.fromList $ rvsl' ++ rnsl'
     x -> Left (ConstructorMistmatch, [ErrExpr x, ErrQNode $ At n], ".")
 
-has1Dir :: Mbrship -> QRelspec -> Bool
+has1Dir :: Mbrship -> RoleMap -> Bool
 has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
-  where f (QVarSpec y) = y == mv
-        f _ = False
-
-has1DirRM :: Mbrship -> RoleMap -> Bool
-has1DirRM mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (QVar y) = y == mv
         f _ = False
 
 -- | warning ? treats It like Any
-star :: RSLT -> QNode -> QRelspec -> Either DwtErr [Node]
-star g qFrom axis = do -- returns one generation, neighbors
+star :: RSLT -> QNode -> RoleMap -> Either DwtErr [Node]
+star g qFrom axis = do -- returns one generation of some kind of neighbor
   if has1Dir From axis then return ()
-     else Left (Invalid, [ErrQRelspec axis]
-               , "star: should have only one " ++ show From)
-  let forwardRoles = Map.keys $ Map.filter (== QVarSpec To) axis
-  axis' <- runReaderT (subQNodeForVars qFrom From axis) g
-  rels <- matchQRelspecNodes g axis'
-  concat <$> mapM (\rel -> selectRelElts g rel forwardRoles) rels
-
-starRM :: RSLT -> QNode -> RoleMap -> Either DwtErr [Node]
-starRM g qFrom axis = do -- returns one generation of some kind of neighbor
-  if has1DirRM From axis then return ()
      else Left (Invalid, [ErrRoleMap axis]
                , "star: should have only one " ++ show From)
   let forwardRoles = Map.keys $ Map.filter (== QVar To) axis
-  axis' <- runReaderT (subQNodeForVarsRM qFrom From axis) g
+  axis' <- runReaderT (subQNodeForVars qFrom From axis) g
   rels <- matchRoleMap g axis'
   concat <$> mapM (\rel -> selectRelElts g rel forwardRoles) rels
 
-subQNodeForVarsRM :: QNode -> Mbrship -> RoleMap
+-- | in r, changes each QVarSpec v to QNodeSpec n
+subQNodeForVars :: QNode -> Mbrship -> RoleMap
   -> ReaderT RSLT (Either DwtErr) RoleMap
-subQNodeForVarsRM q v r = hoist (prependCaller "subQNodeForVars") $ do
+subQNodeForVars q v r = hoist (prependCaller "subQNodeForVars") $ do
   g <- ask
   n <- lift $ qGet1 g q
   let f (QVar v') = if v == v' then At n else QVar v'
       f x = x -- f needs the v,v' distinction; otherwise v gets masked
   lift $ Right $ Map.map f r
 
--- | in r, changes each QVarSpec v to QNodeSpec n
-subQNodeForVars :: QNode -> Mbrship -> QRelspec
-  -> ReaderT RSLT (Either DwtErr) QRelspec
-subQNodeForVars q v r = hoist (prependCaller "subQNodeForVars") $ do
-  g <- ask
-  n <- lift $ qGet1 g q
-  let f (QVarSpec v') = if v == v' then QNodeSpec (At n) else QVarSpec v'
-      f x = x -- f needs the v,v' distinction; otherwise v gets masked
-  lift $ Right $ Map.map f r
-
 _bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- ^ order determines dfs or bfs
-  -> RSLT -> QRelspec
+  -> RSLT -> RoleMap
   -> [Node] -- ^ pending accumulation
   -> [Node] -- ^ the accumulator
   -> Either DwtErr [Node]
@@ -130,10 +104,10 @@ _bfsOrDfs collector g qdir (n:ns) acc = do
 bfsConcat = _bfsOrDfs (\new old -> old ++ new)
 dfsConcat = _bfsOrDfs (\new old -> new ++ old)
 
-dwtDfs :: RSLT -> QRelspec -> [Node] -> Either DwtErr [Node]
+dwtDfs :: RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
 dwtDfs g dir starts = do mapM_ (gelemM g) $ starts
                          (nub . reverse) <$> dfsConcat g dir starts []
 
-dwtBfs :: RSLT -> QRelspec -> [Node] -> Either DwtErr [Node]
+dwtBfs :: RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
 dwtBfs g dir starts = do mapM_ (gelemM g) $ starts
                          (nub . reverse) <$> bfsConcat g dir starts []

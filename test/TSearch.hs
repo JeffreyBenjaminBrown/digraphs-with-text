@@ -24,9 +24,9 @@ tQPlaysRoleIn = TestCase $ do
 
 tMatchQRelspecNodes = TestCase $ do
   assertBool "find dogNeedsWater" $ qGet g1 dogNeedsWater == Right [6]
-  assertBool "1" $ matchQRelspecNodes g1 anyNeedsWater
+  assertBool "1" $ matchRoleMap g1 anyNeedsWaterRM
     == qGet g1 dogNeedsWater
-  assertBool "2" $ matchQRelspecNodes g1 tpltForRelsWithDogInPos1
+  assertBool "2" $ matchRoleMap g1 tpltForRelsWithDogInPos1RM
     == Right [5,6,8]
 
 tMatchRoleMap = TestCase $ do
@@ -48,14 +48,14 @@ tStar = TestCase $ do
                                        , QLeaf $ Word "water"
                                        , QLeaf $ Word "chocolate"] )
   assertBool "star treats It the same as Any" $
-    (fmap S.fromList $ starRM g2 (QLeaf $ Word "water") anyNeedsFromForToRM)
-    == (fmap S.fromList $ starRM g2 (QLeaf $ Word "water") itNeedsFromForToRM)
+    (fmap S.fromList $ star g2 (QLeaf $ Word "water") anyNeedsFromForToRM)
+    == (fmap S.fromList $ star g2 (QLeaf $ Word "water") itNeedsFromForToRM)
   assertBool "any matches Laura and dog" $
-    (fmap S.fromList $ starRM g2 (QLeaf $ Word "water") anyNeedsFromForToRM)
+    (fmap S.fromList $ star g2 (QLeaf $ Word "water") anyNeedsFromForToRM)
     == (fmap S.fromList $ liftA2 (++)
                           (qGet g2 $ QLeaf $ Word "brandy")
                           (qGet g2 $ QLeaf $ Word "chocolate") )
   assertBool "but dog only matches dog" $
-    (starRM g2 (QLeaf $ Word "water") dogNeedsFromForToRM)
+    (star g2 (QLeaf $ Word "water") dogNeedsFromForToRM)
     == (qGet g2 $ QLeaf $ Word "brandy")
 
