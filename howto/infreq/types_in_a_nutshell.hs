@@ -22,11 +22,11 @@ Here are the types:
     data RelRole = TpltRole | Mbr MbrPos deriving(Show,Read,Eq,Ord) -- w/r/t a Rel
     data CollRole = CollMbr | CollTitle | CollSeparator deriving(Show,Read,Eq,Ord)
 
-    data Mbrship = It | Any | Up | Down
+    data SearchVar = It | Any | Up | Down
       deriving (Show,Read,Eq,Ord)
-    data QNodeOrVar = QVarSpec Mbrship | QNodeOrVar Node deriving(Show,Read,Eq,Ord)
+    data QNodeOrVar = QVarSpec SearchVar | QNodeOrVar Node deriving(Show,Read,Eq,Ord)
 
-    type RelVarSpec = Map.Map RelRole Mbrship -- subset of QRelspec info, but
+    type RelVarSpec = Map.Map RelRole SearchVar -- subset of QRelspec info, but
       -- a RelVarSpec in a RSLT is transformable into a QRelspec.
       -- The rest of the info can be inferred from the edges connected to it.
     type QRelspec = Map.Map RelRole QNodeOrVar

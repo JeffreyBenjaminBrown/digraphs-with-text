@@ -3,7 +3,7 @@
 module Dwt.Types (
   MbrPos, Arity
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
-  , Mbrship(..)
+  , SearchVar(..)
   , RelVarSpec
   , RelNodeSpec
   , NodeOrVar(..)
@@ -45,14 +45,14 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
   -- cleaner, and closer to truth, to pointonly to transitive Tplts.
   -- Exceptions: "some of," "no more than," "exactly" would use unary Tplts.
     -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
-data Mbrship = It | Any | From | To deriving (Show,Read,Eq,Ord)
+data SearchVar = It | Any | From | To deriving (Show,Read,Eq,Ord)
 type RoleMap  = Map.Map RelRole QNode
 
 -- == Parsing Hash expressions
 -- | Every rel has at least one joint, and potentially members on either side
   -- If there are more, the list of pairs stores them.
 data QNode = At Node -- ^ for when you know the expression's node
-  | QVar Mbrship -- ^ NEW
+  | QVar SearchVar
   | Absent | QLeaf Expr | QRel [Joint] [QNode] deriving (Show, Eq)
 type Level = Int -- ^ in "cats like you because you like them", the "because"
   -- relationship is level 2, and the "like" relationships are level 1
@@ -83,7 +83,7 @@ data ErrBase = Legacy -- ^ for when the errString has all the info
   | Impossible deriving (Show, Eq)
 
 data ErrOpt = ErrNode Node | ErrEdge Edge | ErrExpr Expr
-  | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrMbrship Mbrship
+  | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrSearchVar SearchVar
   | ErrQRelspec QRelspec | ErrRelspec Relspec | ErrRoleMap RoleMap
   | ErrQNode QNode deriving (Show, Eq)
 
@@ -95,12 +95,12 @@ errString :: Lens' DwtErr String
 errString = _3
 
 -- == Deprecated
-data NodeOrVar  = NodeSpec Node | VarSpec Mbrship deriving (Show,Read,Eq)
-data QNodeOrVar = QNodeSpec QNode | QVarSpec Mbrship deriving (Show,Eq)
+data NodeOrVar  = NodeSpec Node | VarSpec SearchVar deriving (Show,Read,Eq)
+data QNodeOrVar = QNodeSpec QNode | QVarSpec SearchVar deriving (Show,Eq)
 type Relspec  = Map.Map RelRole NodeOrVar
 type QRelspec = Map.Map RelRole QNodeOrVar -- ^ if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else,
   -- and at the TpltRole key is a QNodeSpec, not a QVarSpec
-type RelVarSpec  = Map.Map RelRole Mbrship
+type RelVarSpec  = Map.Map RelRole SearchVar
 type RelNodeSpec = Map.Map RelRole Node
   -- ^ not quite the set-complement of RelVarSpec

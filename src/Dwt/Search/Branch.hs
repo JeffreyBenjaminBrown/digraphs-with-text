@@ -1,8 +1,8 @@
 module Dwt.Search.Branch (
-  otherDir -- Mbrship -> Either DwtErr Mbrship
-  , has1Dir -- Mbrship(the dir it has 1 of) -> RoleMap -> Bool
+  otherDir -- SearchVar -> Either DwtErr SearchVar
+  , has1Dir -- SearchVar(the dir it has 1 of) -> RoleMap -> Bool
   , star -- RSLT -> QNode -> RoleMap -> Either DwtErr [Node]
-  , subQNodeForVars --QNode(sub this) ->Mbrship(for this) ->RoleMap(in this)
+  , subQNodeForVars --QNode(sub this) ->SearchVar(for this) ->RoleMap(in this)
     -- -> ReaderT RSLT (Either DwtErr) RoleMap
   , dwtDfs -- RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
   , dwtBfs -- same
@@ -22,13 +22,13 @@ import Control.Monad.Morph (hoist)
 
 
 -- | swap Up and Down, or err
-otherDir :: Mbrship -> Either DwtErr Mbrship
+otherDir :: SearchVar -> Either DwtErr SearchVar
 otherDir From = Right To
 otherDir To = Right From
 otherDir Any = Right Any
-otherDir It = Left (ConstructorMistmatch, [ErrMbrship It], "otherDir: Accepts To, From or Any.") -- todo ? just return Right It
+otherDir It = Left (ConstructorMistmatch, [ErrSearchVar It], "otherDir: Accepts To, From or Any.") -- todo ? just return Right It
 
-has1Dir :: Mbrship -> RoleMap -> Bool
+has1Dir :: SearchVar -> RoleMap -> Bool
 has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (QVar y) = y == mv
         f _ = False
@@ -45,7 +45,7 @@ star g qFrom axis = do -- returns one generation of some kind of neighbor
   concat <$> mapM (\rel -> selectRelElts g rel forwardRoles) rels
 
 -- | in r, changes each QVarSpec v to QNodeSpec n
-subQNodeForVars :: QNode -> Mbrship -> RoleMap
+subQNodeForVars :: QNode -> SearchVar -> RoleMap
   -> ReaderT RSLT (Either DwtErr) RoleMap
 subQNodeForVars q v r = hoist (prependCaller "subQNodeForVars") $ do
   g <- ask
