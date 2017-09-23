@@ -74,6 +74,8 @@ matchRoleMap g m = prependCaller "matchRoleMap: " $ do
       catSndMaybes = foldl f [] where f acc (a, Just b) = (a,b) : acc
                                       f acc (a, Nothing) = acc
   founds <- catSndMaybes . Map.toList <$> mapM maybeFind m
+  if founds /= [] then return ()
+    else Left (NothingSpecified, [ErrRoleMap m], "matchRoleMap.")
   return $ listIntersect $ map snd founds
 
 matchRelspecNodesLab :: RSLT -> Relspec -> Either DwtErr [LNode Expr]

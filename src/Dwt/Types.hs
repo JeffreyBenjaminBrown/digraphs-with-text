@@ -89,7 +89,7 @@ data ErrBase = Legacy -- ^ for when the errString has all the info
 
 data ErrOpt = ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrMbrship Mbrship
-  | ErrQRelspec QRelspec | ErrRelspec Relspec 
+  | ErrQRelspec QRelspec | ErrRelspec Relspec | ErrRoleMap RoleMap
   | ErrQNode QNode deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase
