@@ -1,13 +1,7 @@
--- | These are "basic" queries in that they mostly don't use QRelspec or
--- QNode.
-
 {-# LANGUAGE FlexibleContexts #-}
 module Dwt.Search.Base (
   mkRoleMap -- Node -> [Node] -> RoleMap
-  , mkRelspec -- Node -> [Node] -> Relspec
-  , mkQRelspec -- unused.  QNode(Tplt) -> [QNode] -> QRelspec
-  , getRelNodeSpec -- RSLT -> Node(QRelspec) -> Either DwtErr RelNodeSpec
-
+  , toRoleMap -- QNode -> Either DwtErr RoleMap
   , whereis -- RSLT -> Expr -> [Node]
   , tpltAt -- (MonadError DwtErr m) => RSLT -> Node(Tplt) -> m Expr(Tplt)
   , relTplt --                         RSLT -> Node(Rel) -> Either DwtErr Expr
@@ -32,34 +26,16 @@ import Data.Maybe (fromJust)
 import Control.Lens ((%~), (.~), _1, _2)
 
 
-toQRelspec :: QNode -> Either DwtErr QRelspec
-toQRelspec (QRel js qs) = Right $ Map.fromList $ t : ms where
-  t = (TpltRole, QNodeSpec $ QLeaf $ jointsToTplt js)
-  ms = zip (map Mbr [1..]) (map QNodeSpec qs)
-toQRelspec x = Left (ConstructorMistmatch, [ErrQNode x], "toQRelspec.")
-
 -- | Applies only when all the nodes the Rel involves are known.
 mkRoleMap :: QNode -> [QNode] -> RoleMap
 mkRoleMap t ns = Map.fromList $ (TpltRole, t) : mbrSpecs
   where mbrSpecs = zip (fmap Mbr [1..]) ns
 
-mkRelspec :: Node -> [Node] -> Relspec
-mkRelspec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
-
-mkQRelspec :: QNode -> [QNode] -> QRelspec
-mkQRelspec t ns = Map.fromList $ (TpltRole, QNodeSpec t) : mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) (fmap QNodeSpec ns)
-
-getRelNodeSpec :: RSLT -> Node -> Either DwtErr RelNodeSpec
-getRelNodeSpec g n = prependCaller "getRelNodeSpec: " $ do
-  gelemM g n
-  case lab g n of
-    Just (RelspecExpr _) -> return $ Map.fromList $ map f $ lsuc g n
-      where f (node,RelEdge r) = (r,node)
-            f _ = error "getRelNodeSpec: something was not a RelEdge"
-    Just _ -> Left (NotRelspecExpr, [ErrNode n], "")
-    Nothing -> Left (FoundNo, [ErrNode n], "")
+toRoleMap :: QNode -> Either DwtErr RoleMap
+toRoleMap (QRel js qs) = Right $ Map.fromList $ t : ms where
+  t = (TpltRole, QLeaf $ jointsToTplt js)
+  ms = zip (map Mbr [1..]) qs
+toRoleMap x = Left (ConstructorMistmatch, [ErrQNode x], "toRoleMap.")
 
 -- ====
 whereis :: RSLT -> Expr -> [Node] -- TODO ? dependent types: length == 1

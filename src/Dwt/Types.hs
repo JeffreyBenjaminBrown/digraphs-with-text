@@ -3,9 +3,13 @@
 module Dwt.Types (
   MbrPos, Arity
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
-  , Mbrship(..), RelVarSpec, RelNodeSpec
-  , NodeOrVar(..), Relspec
-  , QNodeOrVar(..), QRelspec
+  , Mbrship(..)
+  , RelVarSpec
+  , RelNodeSpec
+  , NodeOrVar(..)
+  , Relspec
+  , QNodeOrVar(..)
+  , QRelspec
   , RoleMap
   , QNode(..), Level, Joint(..), EO(..)
   , DwtErr, ErrBase(..), ErrOpt(..)
@@ -50,7 +54,8 @@ type QRelspec = Map.Map RelRole QNodeOrVar -- ^ if well-formed, includes
   -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else,
   -- and at the TpltRole key is a QNodeSpec, not a QVarSpec
 type RelVarSpec  = Map.Map RelRole Mbrship
-type RelNodeSpec = Map.Map RelRole Node -- ^ set-complement of RelVarSpec
+type RelNodeSpec = Map.Map RelRole Node
+  -- ^ not quite the set-complement of RelVarSpec
 type RelQNodeSpec = Void -- todo?
 
 -- == Parsing Hash expressions

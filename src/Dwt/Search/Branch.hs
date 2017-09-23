@@ -1,8 +1,5 @@
 module Dwt.Search.Branch (
   otherDir -- Mbrship -> Either DwtErr Mbrship
-  , partitionRelspec -- returns two relspecs
-  , insRelspec -- add a relspec to a graph. unused.
-  , getRelspec -- unused.  RSLT -> QNode -> Either DwtErr Relspec
   , has1Dir -- Mbrship(the dir it has 1 of) -> RoleMap -> Bool
   , star -- RSLT -> QNode -> RoleMap -> Either DwtErr [Node]
   , subQNodeForVars --QNode(sub this) ->Mbrship(for this) ->RoleMap(in this)
@@ -13,7 +10,7 @@ module Dwt.Search.Branch (
 
 import Data.Graph.Inductive (Node, insNode, insEdges, newNodes, lab)
 import Dwt.Types
-import Dwt.Search.Base (getRelNodeSpec, selectRelElts)
+import Dwt.Search.Base (selectRelElts)
 import Dwt.Search.QNode (qGet1, matchRoleMap)
 
 import Dwt.Util (listIntersect, prependCaller, gelemM)
@@ -30,39 +27,6 @@ otherDir From = Right To
 otherDir To = Right From
 otherDir Any = Right Any
 otherDir It = Left (ConstructorMistmatch, [ErrMbrship It], "otherDir: Accepts To, From or Any.") -- todo ? just return Right It
-
-partitionRelspec :: RSLT -> QRelspec
-  -> Either DwtErr (RelVarSpec, RelNodeSpec)
-partitionRelspec g rSpec = let f (QVarSpec _) = True
-                               f (QNodeSpec _) = False
-                               (vs,qs) = Map.partition f rSpec
-  in do ns <- mapM (\(QNodeSpec q) -> qGet1 g q)  qs
-        return (Map.map  (\(QVarSpec  v) -> v)  vs, ns)
-
-insRelspec :: QRelspec -> RSLT -> Either DwtErr RSLT -- ^ unused
-insRelspec rSpec g = do
-  (varMap, nodeMap) <- partitionRelspec g rSpec
-  let newAddr = head $ newNodes 1 g
-      newLNode = (newAddr, RelspecExpr varMap)
-        -- this node specifies the variable nodes
-  mapM_ (gelemM g) $ Map.elems nodeMap
-  let newLEdges = map (\(role,n) -> (newAddr, n, RelEdge role))
-                $ Map.toList nodeMap
-        -- these edges specify the addressed nodes
-  return $ insEdges newLEdges $ insNode newLNode g
-
-getRelspec :: RSLT -> QNode -> Either DwtErr Relspec
-  -- is nearly inverse to partitionRelspec
-getRelspec g q = prependCaller "getRelspec: " $ do
-  n <- qGet1 g q
-  case (fromJust $ lab g n) of
-    RelspecExpr rvs -> do
-      rnsl <- Map.toList <$> getRelNodeSpec g n
-      let rvsl = Map.toList rvs
-          rvsl' = map (\(role,var) ->(role,VarSpec  var )) rvsl
-          rnsl' = map (\(role,node)->(role,NodeSpec node)) rnsl
-      return $ Map.fromList $ rvsl' ++ rnsl'
-    x -> Left (ConstructorMistmatch, [ErrExpr x, ErrQNode $ At n], ".")
 
 has1Dir :: Mbrship -> RoleMap -> Bool
 has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)

@@ -20,7 +20,7 @@ import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
                 , listIntersect)
 import Dwt.Measure (extractTplt, isAbsent)
-import Dwt.Search.Base (mkRoleMap, mkRelspec, mkQRelspec)
+import Dwt.Search.Base (mkRoleMap)
 
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State (StateT, get, put)
@@ -41,26 +41,6 @@ qPlaysRoleIn :: RSLT -> RelRole -> QNode -> Either DwtErr [Node]
 qPlaysRoleIn g r q = prependCaller "qPlaysRoleIn: "
   $ qGet1 g q >>= playsRoleIn g r
 
-matchRelspecNodes :: RSLT -> Relspec -> Either DwtErr [Node]
-matchRelspecNodes g spec = prependCaller "matchRelspecNodes: " $ do
-  let nodeSpecs = Map.toList
-        $ Map.filter (\ns -> case ns of NodeSpec _ -> True; _ -> False)
-        $ spec :: [(RelRole,NodeOrVar)]
-  if nodeSpecs /= [] then return ()
-    else Left (NothingSpecified, [ErrRelspec spec], "matchRelspecNodes")
-  nodeListList <- mapM (\(r,NodeSpec n) -> playsRoleIn g r n) nodeSpecs
-  return $ listIntersect nodeListList
- 
-matchQRelspecNodes :: RSLT -> QRelspec -> Either DwtErr [Node]
-matchQRelspecNodes g spec = prependCaller "matchQRelspecNodes: " $ do
-  let nodeSpecs = Map.toList
-        $ Map.filter (\ns -> case ns of QNodeSpec _ -> True; _ -> False)
-        $ spec :: [(RelRole,QNodeOrVar)]
-  if nodeSpecs /= [] then return ()
-    else Left (NothingSpecified, [ErrQRelspec spec], "matchRelspecNodes")
-  nodeListList <- mapM (\(r,QNodeSpec n) -> qPlaysRoleIn g r n) nodeSpecs
-  return $ listIntersect nodeListList
-
 matchRoleMap :: RSLT -> RoleMap -> Either DwtErr [Node]
 matchRoleMap g m = prependCaller "matchRoleMap: " $ do
   let maybeFind :: (RelRole, QNode) -> Either DwtErr (Maybe [Node])
@@ -72,25 +52,11 @@ matchRoleMap g m = prependCaller "matchRoleMap: " $ do
   return $ listIntersect founds
 
 matchRoleMapLab :: RSLT -> RoleMap -> Either DwtErr [LNode Expr]
-matchRoleMapLab g rm = prependCaller "matchRelspecNodesLab: " $ do
+matchRoleMapLab g rm = prependCaller "matchRoleMapLab: " $ do
     -- TODO: slow: this looks up each node a second time to find its label
   ns <- matchRoleMap g rm
   return $ zip ns $ map (Mb.fromJust . lab g) ns
     -- fromJust is safe because matchRoleMap only returns Nodes in g
-
-matchRelspecNodesLab :: RSLT -> Relspec -> Either DwtErr [LNode Expr]
-matchRelspecNodesLab g spec = prependCaller "matchRelspecNodesLab: " $ do
-  ns <- matchRelspecNodes g spec
-  return $ zip ns $ map (Mb.fromJust . lab g) ns
-    -- TODO: slow: this looks up each node a second time to find its label
-    -- fromJust is safe because matchRelspecNodes only returns Nodes in g
-
-matchQRelspecNodesLab :: RSLT -> QRelspec -> Either DwtErr [LNode Expr]
-matchQRelspecNodesLab g spec = prependCaller "matchQRelspecNodesLab: " $ do
-  ns <- matchQRelspecNodes g spec
-  return $ zip ns $ map (Mb.fromJust . lab g) ns
-    -- TODO speed: this looks up each node twice
-    -- fromJust is safe because matchQRelspecNodes only returns Nodes in g
 
 
 -- TODO: simplify some stuff (maybe outside of this file?) by using 

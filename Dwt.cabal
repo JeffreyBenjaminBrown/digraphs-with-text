@@ -24,6 +24,7 @@ library
                      , Dwt.Search.Branch
                      , Dwt.Search.Parse
                      , Dwt.Search.QNode
+                     , Dwt.Search.Misfits
                      , Dwt.Show
                      , Dwt.Types
                      , Dwt.UI

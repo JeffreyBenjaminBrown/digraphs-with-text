@@ -8,9 +8,11 @@ module Dwt
   , module Dwt.Hash.Insert
   , module Dwt.Hash.Parse
   , module Dwt.ParseUtils
+  , module Dwt.Search.Base
   , module Dwt.Search.Branch
-  , module Dwt.Search.QNode
   , module Dwt.Search.Parse
+  , module Dwt.Search.QNode
+  , module Dwt.Search.Misfits
   , module Dwt.Show
   , module Dwt.MkTplt
   , module Dwt.Types
@@ -25,9 +27,11 @@ import Dwt.Edit
 import Dwt.Hash.Insert
 import Dwt.Hash.Parse
 import Dwt.ParseUtils
+import Dwt.Search.Base
 import Dwt.Search.Branch
-import Dwt.Search.QNode
 import Dwt.Search.Parse
+import Dwt.Search.QNode
+import Dwt.Search.Misfits
 import Dwt.Show
 import Dwt.MkTplt
 import Dwt.Types
