@@ -28,6 +28,9 @@ tMatchQRelspecNodes = TestCase $ do
   assertBool "2" $ matchQRelspecNodes g1 tpltForRelsWithDogInPos1
     == Right [5,6,8]
 
+--tNestedRelspec = TestCase $ do
+  --qGet g1 anyNeedsAnyIsAny
+
 tStar = TestCase $ do
   let Right (dogWaterChoco,g2)
         = flip runStateT g1 ( qPutSt $ QRel ["needs","for"]
@@ -45,3 +48,4 @@ tStar = TestCase $ do
   assertBool "but dog only matches dog" $
     (star g2 (QLeaf $ Word "water") dogNeedsFromForTo)
     == (qGet g2 $ QLeaf $ Word "brandy")
+

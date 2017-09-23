@@ -15,6 +15,9 @@ module TData (
   , itNeedsFromForTo
   , dogWantsBrandy
   , dogWantsBrandyIsDubious
+  , qAny
+  , anyNeedsAny
+  , anyNeedsAnyIsAny
   , anyNeedsFromForTo
 ) where
 
@@ -67,6 +70,13 @@ dogNeedsWaterForBrandy = At 8 :: QNode
 dogNeedsWater = QRel ["needs"] [dog,water] :: QNode
 dogWantsBrandy = QRel ["wants"] [dog,brandy] :: QNode
 dogWantsBrandyIsDubious = At 11 :: QNode
+qAny = QVar Any :: QNode
+
+anyNeedsAny :: QNode
+anyNeedsAny = QRel ["needs"] [qAny, qAny]
+
+anyNeedsAnyIsAny :: QNode
+anyNeedsAnyIsAny = QRel ["is"] [anyNeedsAny, qAny]
 
 anyNeedsWater :: QRelspec
 anyNeedsWater = Map.fromList
