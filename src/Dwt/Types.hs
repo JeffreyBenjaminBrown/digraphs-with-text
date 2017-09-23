@@ -3,17 +3,18 @@
 module Dwt.Types (
   MbrPos, Arity
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
-  , SearchVar(..)
+  , QNode(..), SearchVar(..), RoleMap
+  , Level, Joint(..), EO(..)
+  , DwtErr, ErrBase(..), ErrOpt(..)
+  , errBase, errOpts, errString -- lenses
+
+  -- | deprecated
   , RelVarSpec
   , RelNodeSpec
   , NodeOrVar(..)
   , Relspec
   , QNodeOrVar(..)
   , QRelspec
-  , RoleMap
-  , QNode(..), Level, Joint(..), EO(..)
-  , DwtErr, ErrBase(..), ErrOpt(..)
-  , errBase, errOpts, errString -- lenses
   ) where
 
 import Data.Graph.Inductive (Gr, Node, Edge)
@@ -41,26 +42,25 @@ data RelRole = TpltRole | Mbr MbrPos deriving(Show,Read,Eq,Ord)
 data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
   -- ^ a Col emits one CollPrinciple, any number of CollMbrs
 
+-- == Hash: writing to and querying the RSLT
 -- TODO: A CollPrinciple currently can point to anything. It would be
   -- cleaner, and closer to truth, to pointonly to transitive Tplts.
   -- Exceptions: "some of," "no more than," "exactly" would use unary Tplts.
     -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
 data SearchVar = It | Any | From | To deriving (Show,Read,Eq,Ord)
-type RoleMap  = Map.Map RelRole QNode
-
--- == Parsing Hash expressions
--- | Every rel has at least one joint, and potentially members on either side
-  -- If there are more, the list of pairs stores them.
 data QNode = At Node -- ^ for when you know the expression's node
   | QVar SearchVar
   | Absent | QLeaf Expr | QRel [Joint] [QNode] deriving (Show, Eq)
-type Level = Int -- ^ in "cats like you because you like them", the "because"
-  -- relationship is level 2, and the "like" relationships are level 1
+type RoleMap  = Map.Map RelRole QNode
 
+-- | Every rel has at least one joint, and potentially members on either side
+  -- If there are more, the list of pairs stores them.
 data Joint = Joint String deriving (Show, Eq)
   -- ^ in "you #like peaches #at noon", "like" and "at" are joints
 instance IsString Joint where fromString = Joint
 
+type Level = Int -- ^ in "cats like you because you like them", the "because"
+  -- relationship is level 2, and the "like" relationships are level 1
 data EO = EO     -- ^ EO = "expression orderer"
   { open :: Bool -- ^ open = "more expressions can be concatentated into it"
                  -- In b@(QRel (EO x _) _ _), x is true until

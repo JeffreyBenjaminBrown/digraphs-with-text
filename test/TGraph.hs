@@ -70,7 +70,7 @@ tInsRelM = TestCase $ do
 --          && (length $ edges g1) + 4 == (length $ edges gg)
 
 tPartitionRelspec = TestCase $ do
-  let Right (vs,ns) = partitionRelspec g1 firstMemberOfAnyTplt
+  let Right (vs,ns) = partitionRelspec g1 firstMemberOfAnyTplt_Relspec
   assertBool "1" $ Set.fromList (Map.toList vs)
     == Set.fromList [ (TpltRole, It)
                     , (Mbr 2,   Any) ]
@@ -78,8 +78,8 @@ tPartitionRelspec = TestCase $ do
     == Set.fromList [ (Mbr 1, 0) ]
 
 tInsRelspec = TestCase $ do
-  let Right (vs,_) = partitionRelspec g1 firstMemberOfAnyTplt
-      Right g2 = insRelspec firstMemberOfAnyTplt g1
+  let Right (vs,_) = partitionRelspec g1 firstMemberOfAnyTplt_Relspec
+      Right g2 = insRelspec firstMemberOfAnyTplt_Relspec g1
       [newNode] = newNodes 1 g1
   assertBool "node" $ lab g2 newNode == Just (RelspecExpr vs)
   assertBool "only 1 more edge" $ 
