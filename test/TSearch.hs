@@ -16,9 +16,9 @@ tSearch = TestList [ TestLabel "tQPlaysRoleIn" tQPlaysRoleIn
                    ]
 
 tQPlaysRoleIn = TestCase $ do
-  assertBool "1" $ qPlaysRoleIn g1 needsFor TpltRole
+  assertBool "1" $ qPlaysRoleIn g1 TpltRole needsFor
     == qGet g1 dogNeedsWaterForBrandy
-  assertBool "2" $ qPlaysRoleIn g1 dogWantsBrandy (Mbr 1)
+  assertBool "2" $ qPlaysRoleIn g1 (Mbr 1) dogWantsBrandy
     == qGet g1 dogWantsBrandyIsDubious
 
 tMatchQRelspecNodes = TestCase $ do
@@ -28,6 +28,7 @@ tMatchQRelspecNodes = TestCase $ do
   assertBool "2" $ matchQRelspecNodes g1 tpltForRelsWithDogInPos1
     == Right [5,6,8]
 
+-- >>>
 --tNestedRelspec = TestCase $ do
   --qGet g1 anyNeedsAnyIsAny
 

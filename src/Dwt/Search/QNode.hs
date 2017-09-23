@@ -2,8 +2,8 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Search.QNode (
-  playsRoleIn -- RSLT -> Node -> RelRole -> Either DwtErr [Node]
-  , qPlaysRoleIn -- RSLT -> QNode -> RelRole -> Either DwtErr [Node]
+  playsRoleIn -- RSLT -> RelRole -> Node -> Either DwtErr [Node]
+  , qPlaysRoleIn -- RSLT -> RelRole -> QNode -> Either DwtErr [Node]
   , matchRelspecNodes -- RSLT -> Relspec -> Either DwtErr [Node]
     -- critical: the intersection-finding function
   , matchQRelspecNodes -- RSLT -> QRelspec -> Either DwtErr [Node]
@@ -34,16 +34,16 @@ import qualified Data.Map as Map
 
 
 -- | Rels using Node n in RelRole r
-playsRoleIn :: RSLT -> Node -> RelRole -> Either DwtErr [Node]
-playsRoleIn g n r = prependCaller "qPlaysRoleIn: " $
+playsRoleIn :: RSLT -> RelRole -> Node -> Either DwtErr [Node]
+playsRoleIn g r n = prependCaller "qPlaysRoleIn: " $
   do gelemM g n -- makes f safe
-     return $ f g n r
-  where f :: (Graph gr) => gr a RSLTEdge -> Node -> RelRole -> [Node]
-        f g n r = [m | (m,r') <- lpre g n, r' == RelEdge r]
+     return $ f g r n
+  where f :: (Graph gr) => gr a RSLTEdge -> RelRole -> Node -> [Node]
+        f g r n = [m | (m,r') <- lpre g n, r' == RelEdge r]
 
-qPlaysRoleIn :: RSLT -> QNode -> RelRole -> Either DwtErr [Node]
-qPlaysRoleIn g q r = prependCaller "qPlaysRoleIn: "
-  $ qGet1 g q >>= \n -> playsRoleIn g n r
+qPlaysRoleIn :: RSLT -> RelRole -> QNode -> Either DwtErr [Node]
+qPlaysRoleIn g r q = prependCaller "qPlaysRoleIn: "
+  $ qGet1 g q >>= playsRoleIn g r
 
 matchRelspecNodes :: RSLT -> Relspec -> Either DwtErr [Node]
 matchRelspecNodes g spec = prependCaller "matchRelspecNodes: " $ do
@@ -52,7 +52,7 @@ matchRelspecNodes g spec = prependCaller "matchRelspecNodes: " $ do
         $ spec :: [(RelRole,NodeOrVar)]
   if nodeSpecs /= [] then return ()
     else Left (NothingSpecified, [ErrRelspec spec], "matchRelspecNodes")
-  nodeListList <- mapM (\(r,NodeSpec n) -> playsRoleIn g n r) nodeSpecs
+  nodeListList <- mapM (\(r,NodeSpec n) -> playsRoleIn g r n) nodeSpecs
   return $ listIntersect nodeListList
  
 matchQRelspecNodes :: RSLT -> QRelspec -> Either DwtErr [Node]
@@ -62,9 +62,10 @@ matchQRelspecNodes g spec = prependCaller "matchQRelspecNodes: " $ do
         $ spec :: [(RelRole,QNodeOrVar)]
   if nodeSpecs /= [] then return ()
     else Left (NothingSpecified, [ErrQRelspec spec], "matchRelspecNodes")
-  nodeListList <- mapM (\(r,QNodeSpec n) -> qPlaysRoleIn g n r) nodeSpecs
+  nodeListList <- mapM (\(r,QNodeSpec n) -> qPlaysRoleIn g r n) nodeSpecs
   return $ listIntersect nodeListList
 
+-- >>>
 --matchQRelspecNodes' :: RSLT -> QRelspec -> Either DwtErr [Node]
 --matchQRelspecNodes' g spec = prependCaller "matchQRelspecNodes': " $ do
 --  let f :: QNodeOrVar -> Maybe [Node]

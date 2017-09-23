@@ -159,7 +159,7 @@ tUsers = TestCase $ do
   assertBool "2" $ isLeft $ (users g1 100 :: Either DwtErr [Node])
 
 tSpecUsers = TestCase $ do
-  assertBool "with Arity" $ playsRoleIn g1 0 (Mbr 1) == Right [5,6,8]
+  assertBool "with Arity" $ playsRoleIn g1 (Mbr 1) 0 == Right [5,6,8]
 
 tMatchRel = TestCase $ do
   assertBool "dog in first pos"     $ matchQRelspecNodes g1 firstMemberOfAnyTplt == Right [5,6,8]
