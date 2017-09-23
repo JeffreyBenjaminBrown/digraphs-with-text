@@ -5,6 +5,7 @@ module Dwt.Search.QNode (
   playsRoleIn -- RSLT -> RelRole -> Node -> Either DwtErr [Node]
   , qPlaysRoleIn -- RSLT -> RelRole -> QNode -> Either DwtErr [Node]
   , matchRoleMap -- RSLT -> RoleMap -> Either DwtErr [Node]
+  , matchRoleMapLab -- RSLT -> RoleMap -> Either DwtErr [LNode Expr]
   , matchRelspecNodes -- RSLT -> Relspec -> Either DwtErr [Node]
     -- critical: the intersection-finding function
   , matchQRelspecNodes -- RSLT -> QRelspec -> Either DwtErr [Node]
@@ -25,7 +26,7 @@ import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
                 , listIntersect)
 import Dwt.Measure (extractTplt, isAbsent)
-import Dwt.Search.Base (mkRelspec, mkQRelspec)
+import Dwt.Search.Base (mkRoleMap, mkRelspec, mkQRelspec)
 
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.State (StateT, get, put)
@@ -105,8 +106,8 @@ matchQRelspecNodesLab g spec = prependCaller "matchQRelspecNodesLab: " $ do
 _qGet :: (RSLT -> Node -> x) -- ^ gets what's there; used for At.
   -- Can safely be unsafe, because the QAt's contents are surely present.
   -> (RSLT -> [x]) -- ^ nodes or labNodes; used for QLeaf
-  -> (RSLT -> QRelspec -> Either DwtErr [x])
-    -- ^ matchQRelspecNodes or matchQRelspecNodesLab; used for QRel
+  -> (RSLT -> RoleMap -> Either DwtErr [x])
+    -- ^ matchRoleMap or matchRoleMapLab; used for QRel
   -> RSLT -> QNode -> Either DwtErr [x]
 _qGet _ _ _ _ Absent = Left (Impossible, [ErrQNode Absent], "qGet.")
 _qGet f _ _ g q@(At n) = if gelem n g then return [f g n]
@@ -114,14 +115,14 @@ _qGet f _ _ g q@(At n) = if gelem n g then return [f g n]
 _qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
 _qGet _ _ f g q@(QRel _ qms) = prependCaller "_qGet: " $ do
   t <- extractTplt q
-  let qRelspec = mkQRelspec (QLeaf t) qms
-  f g qRelspec
+  let m = mkRoleMap (QLeaf t) qms
+  f g m
 
 qGet :: RSLT -> QNode -> Either DwtErr [Node]
-qGet = _qGet (\_ n -> n) nodes matchQRelspecNodes
+qGet = _qGet (\_ n -> n) nodes matchRoleMap
 
 qGetLab :: RSLT -> QNode -> Either DwtErr [LNode Expr]
-qGetLab = _qGet f labNodes matchQRelspecNodesLab where
+qGetLab = _qGet f labNodes matchRoleMapLab where
   f g n = (n, Mb.fromJust $ lab g n)
 
 qGet1 :: RSLT -> QNode -> Either DwtErr Node
@@ -155,4 +156,3 @@ qRegexWord g s = nodes $ labfilter f $ dropEdges g
   where r = mkRegex s
         f (Word t) = Mb.isJust $ matchRegex r t
         f _ = False
-

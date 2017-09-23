@@ -3,7 +3,8 @@
 
 {-# LANGUAGE FlexibleContexts #-}
 module Dwt.Search.Base (
-  mkRelspec -- Node -> [Node] -> Relspec
+  mkRoleMap -- Node -> [Node] -> RoleMap
+  , mkRelspec -- Node -> [Node] -> Relspec
   , mkQRelspec -- unused.  QNode(Tplt) -> [QNode] -> QRelspec
   , getRelNodeSpec -- RSLT -> Node(QRelspec) -> Either DwtErr RelNodeSpec
 
@@ -38,6 +39,10 @@ toQRelspec (QRel js qs) = Right $ Map.fromList $ t : ms where
 toQRelspec x = Left (ConstructorMistmatch, [ErrQNode x], "toQRelspec.")
 
 -- | Applies only when all the nodes the Rel involves are known.
+mkRoleMap :: QNode -> [QNode] -> RoleMap
+mkRoleMap t ns = Map.fromList $ (TpltRole, t) : mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) ns
+
 mkRelspec :: Node -> [Node] -> Relspec
 mkRelspec t ns = Map.fromList $ [(TpltRole, NodeSpec t)] ++ mbrSpecs
   where mbrSpecs = zip (fmap Mbr [1..]) (fmap NodeSpec ns)
