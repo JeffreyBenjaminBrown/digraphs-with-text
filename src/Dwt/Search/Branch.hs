@@ -1,13 +1,14 @@
 module Dwt.Search.Branch (
   otherDir -- Mbrship -> Either DwtErr Mbrship
   , partitionRelspec -- returns two relspecs
-  , insRelspec -- add a relspec to a graph
+  , insRelspec -- add a relspec to a graph. unused.
   , getRelspec -- unused.  RSLT -> QNode -> Either DwtErr Relspec
-  , has1Dir -- Mbrship(the dir it has 1 of) -> QRelspec -> Bool
+  , has1DirRM -- Mbrship(the dir it has 1 of) -> RoleMap -> Bool
   , star -- RSLT -> QNode -> QRelspec -> Either DwtErr [Node]
-    -- TODO: rewrite Mbrship as To,From,It,Any. Then use QRelspec, not a pair.
+  , starRM -- RSLT -> QNode -> RoleMap -> Either DwtErr [Node]
   , subQNodeForVars --QNode(sub this) -> Mbrship(for this) -> QRelspec(in this)
-    -- -> ReaderT RSLT (Either DwtErr) QRelspec
+  , subQNodeForVarsRM --QNode(sub this) ->Mbrship(for this) ->RoleMap(in this)
+    -- -> ReaderT RSLT (Either DwtErr) RoleMap
   , dwtDfs -- RSLT -> QRelspec -> [Node] -> Either DwtErr [Node]
   , dwtBfs -- same
 ) where
@@ -15,7 +16,7 @@ module Dwt.Search.Branch (
 import Data.Graph.Inductive (Node, insNode, insEdges, newNodes, lab)
 import Dwt.Types
 import Dwt.Search.Base (getRelNodeSpec, selectRelElts)
-import Dwt.Search.QNode (qGet1, matchQRelspecNodes)
+import Dwt.Search.QNode (qGet1, matchRoleMap, matchQRelspecNodes)
 
 import Dwt.Util (listIntersect, prependCaller, gelemM)
 import qualified Data.Map as Map
@@ -40,7 +41,7 @@ partitionRelspec g rSpec = let f (QVarSpec _) = True
   in do ns <- mapM (\(QNodeSpec q) -> qGet1 g q)  qs
         return (Map.map  (\(QVarSpec  v) -> v)  vs, ns)
 
-insRelspec :: QRelspec -> RSLT -> Either DwtErr RSLT
+insRelspec :: QRelspec -> RSLT -> Either DwtErr RSLT -- ^ unused
 insRelspec rSpec g = do
   (varMap, nodeMap) <- partitionRelspec g rSpec
   let newAddr = head $ newNodes 1 g
@@ -70,6 +71,11 @@ has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (QVarSpec y) = y == mv
         f _ = False
 
+has1DirRM :: Mbrship -> RoleMap -> Bool
+has1DirRM mv rc = 1 == length (Map.toList $ Map.filter f rc)
+  where f (QVar y) = y == mv
+        f _ = False
+
 -- | warning ? treats It like Any
 star :: RSLT -> QNode -> QRelspec -> Either DwtErr [Node]
 star g qFrom axis = do -- returns one generation, neighbors
@@ -80,6 +86,25 @@ star g qFrom axis = do -- returns one generation, neighbors
   axis' <- runReaderT (subQNodeForVars qFrom From axis) g
   rels <- matchQRelspecNodes g axis'
   concat <$> mapM (\rel -> selectRelElts g rel forwardRoles) rels
+
+starRM :: RSLT -> QNode -> RoleMap -> Either DwtErr [Node]
+starRM g qFrom axis = do -- returns one generation of some kind of neighbor
+  if has1DirRM From axis then return ()
+     else Left (Invalid, [ErrRoleMap axis]
+               , "star: should have only one " ++ show From)
+  let forwardRoles = Map.keys $ Map.filter (== QVar To) axis
+  axis' <- runReaderT (subQNodeForVarsRM qFrom From axis) g
+  rels <- matchRoleMap g axis'
+  concat <$> mapM (\rel -> selectRelElts g rel forwardRoles) rels
+
+subQNodeForVarsRM :: QNode -> Mbrship -> RoleMap
+  -> ReaderT RSLT (Either DwtErr) RoleMap
+subQNodeForVarsRM q v r = hoist (prependCaller "subQNodeForVars") $ do
+  g <- ask
+  n <- lift $ qGet1 g q
+  let f (QVar v') = if v == v' then At n else QVar v'
+      f x = x -- f needs the v,v' distinction; otherwise v gets masked
+  lift $ Right $ Map.map f r
 
 -- | in r, changes each QVarSpec v to QNodeSpec n
 subQNodeForVars :: QNode -> Mbrship -> QRelspec

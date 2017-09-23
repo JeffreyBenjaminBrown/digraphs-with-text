@@ -172,8 +172,8 @@ tChase = TestList [ TestLabel "tHas1From" tHas1Dir
                   ]
 
 tHas1Dir = TestCase $ do
-  assertBool "has 1 From" $ has1Dir From dogAsTplt
-  assertBool "has no From" $ not $ has1Dir From firstMemberOfAnyTplt
+  assertBool "has 1 From" $ has1DirRM From dogAsTpltRM
+  assertBool "has no From" $ not $ has1DirRM From firstMemberOfAnyTpltRM
 
 tValidRole = TestCase $ do
   assertBool "Tplt: valid role" $ isRight $ validMbrRole g1 5 TpltRole
