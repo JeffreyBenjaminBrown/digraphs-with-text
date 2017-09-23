@@ -39,7 +39,8 @@ playsRoleIn g r n = prependCaller "qPlaysRoleIn: " $
 
 qPlaysRoleIn :: RSLT -> RelRole -> QNode -> Either DwtErr [Node]
 qPlaysRoleIn g r q = prependCaller "qPlaysRoleIn: "
-  $ qGet1 g q >>= playsRoleIn g r
+  $ concat <$> (qGet g q
+                >>= (mapM $ playsRoleIn g r))
 
 matchRoleMap :: RSLT -> RoleMap -> Either DwtErr [Node]
 matchRoleMap g m = prependCaller "matchRoleMap: " $ do
@@ -104,10 +105,10 @@ qPutSt i@(QRel _ qms) = do
   insRelSt tnode ms
 qPutSt (At n) = lift $ Right n
 qPutSt q@(QLeaf x) = get >>= \g -> case qGet1 g q of
-  Right n -> lift $ Right n
+  Right n            -> lift $ Right n
   Left (FoundNo,_,_) -> let g' = insLeaf x g
-    in put g' >> lift (Right $ maxNode g')
-  Left e -> lift $ prependCaller "qPutSt: " $ Left e
+                        in put g' >> lift (Right $ maxNode g')
+  Left e             -> lift $ prependCaller "qPutSt: " $ Left e
 
 
 -- == Regex

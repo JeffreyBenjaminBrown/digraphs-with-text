@@ -20,6 +20,8 @@ module TData (
   , dogWantsBrandyIsDubious
   , anyNeedsAny
   , anyNeedsAnyIsAny
+  , anyWantsAny
+  , anyWantsAnyIsAny
 
   -- | = RoleMap
   , anyNeedsWaterRM
@@ -93,6 +95,8 @@ dogWantsBrandy = QRel ["wants"] [dog,brandy] :: QNode
 dogWantsBrandyIsDubious = At 11 :: QNode
 anyNeedsAny = QRel ["needs"] [qAny, qAny] :: QNode
 anyNeedsAnyIsAny = QRel ["is"] [anyNeedsAny, qAny] :: QNode
+anyWantsAny = QRel ["wants"] [qAny, qAny] :: QNode
+anyWantsAnyIsAny = QRel ["is"] [anyWantsAny, qAny] :: QNode
 
 -- | = RoleMap
 anyNeedsWaterRM :: RoleMap

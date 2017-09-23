@@ -1,11 +1,19 @@
 {-# LANGUAGE OverloadedStrings #-}
-module TSearch (tSearch) where
+{-# LANGUAGE TupleSections #-}
+module TSearch (
+  -- | = main routine
+  tSearch
+
+  -- | = testing qGet and matchRoleMap by hand
+  , t2matchRoleMap, t2_qGet
+  ) where
 
 import Data.Graph.Inductive
 import Dwt
 import TData
-import Data.Map as M
-import Test.HUnit
+import Data.Map as Map
+import Data.Maybe as Mb
+import Test.HUnit hiding (Node)
 import Control.Applicative (liftA2)
 import qualified Data.Set as S
 import Control.Monad.Trans.State (runStateT)
@@ -14,6 +22,7 @@ tSearch = TestList [ TestLabel "tQPlaysRoleIn" tQPlaysRoleIn
                    , TestLabel "tMatchQRelspecNodes" tMatchQRelspecNodes
                    , TestLabel "tStar" tStar
                    , TestLabel "tMatchRoleMap" tMatchRoleMap
+                   , TestLabel "tNestedRelspec" tNestedRelspec
                    ]
 
 tQPlaysRoleIn = TestCase $ do
@@ -37,9 +46,24 @@ tMatchRoleMap = TestCase $ do
   assertBool "3" $ matchRoleMap g1 brandyNeedsFromForToRM
     == Right []
 
--- >>>
---tNestedRelspec = TestCase $ do
-  --qGet g1 anyNeedsAnyIsAny
+-- testing qGet and matchRoleMap by hand
+t2matchRoleMap :: RSLT -> RoleMap -> Either DwtErr [(RelRole, Maybe [Node])]
+t2matchRoleMap g m = prependCaller "matchRoleMap: " $ do
+  let maybeFind :: (RelRole, QNode) -> Either DwtErr (RelRole, Maybe [Node])
+      maybeFind (r, QVar _) = Right (r, Nothing)
+      maybeFind (r, q) = (\ns -> (r, Just ns)) <$> qPlaysRoleIn g r q
+  mapM maybeFind $ Map.toList m
+
+t2_qGet :: RSLT -> QNode
+  -> Either DwtErr (RoleMap, [(RelRole, Maybe [Dwt.Node])])
+t2_qGet g q@(QRel _ qms) = do
+  t <- extractTplt q
+  let m = mkRoleMap (QLeaf t) qms
+  (m,) <$> t2matchRoleMap g m
+
+tNestedQRelsWithVars = TestCase $ do
+  assertBool "no dubious needs" $ qGet g1 anyNeedsAnyIsAny == Right []
+  assertBool "a dubious want" $ qGet g1 anyWantsAnyIsAny == Right [11]
 
 tStar = TestCase $ do
   let Right (dogWaterChoco,g2)

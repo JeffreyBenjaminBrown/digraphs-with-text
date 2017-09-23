@@ -9,12 +9,9 @@ module Dwt.Types (
   , errBase, errOpts, errString -- lenses
 
   -- | deprecated
-  , RelVarSpec
-  , RelNodeSpec
-  , NodeOrVar(..)
-  , Relspec
-  , QNodeOrVar(..)
-  , QRelspec
+  , NodeOrVar(..), QNodeOrVar(..)
+  , Relspec, QRelspec
+  , RelVarSpec, RelNodeSpec
   ) where
 
 import Data.Graph.Inductive (Gr, Node, Edge)
