@@ -46,17 +46,7 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
   -- Exceptions: "some of," "no more than," "exactly" would use unary Tplts.
     -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
 data Mbrship = It | Any | From | To deriving (Show,Read,Eq,Ord)
-data NodeOrVar  = NodeSpec Node | VarSpec Mbrship deriving (Show,Read,Eq)
-data QNodeOrVar = QNodeSpec QNode | QVarSpec Mbrship deriving (Show,Eq)
-type RoleMap  = Map.Map RelRole QNode -- ^ NEW
-type Relspec  = Map.Map RelRole NodeOrVar
-type QRelspec = Map.Map RelRole QNodeOrVar -- ^ if well-formed, includes
-  -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else,
-  -- and at the TpltRole key is a QNodeSpec, not a QVarSpec
-type RelVarSpec  = Map.Map RelRole Mbrship
-type RelNodeSpec = Map.Map RelRole Node
-  -- ^ not quite the set-complement of RelVarSpec
-type RelQNodeSpec = Void -- todo?
+type RoleMap  = Map.Map RelRole QNode
 
 -- == Parsing Hash expressions
 -- | Every rel has at least one joint, and potentially members on either side
@@ -103,3 +93,14 @@ errOpts :: Lens' DwtErr [ErrOpt]
 errOpts = _2
 errString :: Lens' DwtErr String
 errString = _3
+
+-- == Deprecated
+data NodeOrVar  = NodeSpec Node | VarSpec Mbrship deriving (Show,Read,Eq)
+data QNodeOrVar = QNodeSpec QNode | QVarSpec Mbrship deriving (Show,Eq)
+type Relspec  = Map.Map RelRole NodeOrVar
+type QRelspec = Map.Map RelRole QNodeOrVar -- ^ if well-formed, includes
+  -- one Tplt t, one MbrPos k for all k in [1, arity t], and nothing else,
+  -- and at the TpltRole key is a QNodeSpec, not a QVarSpec
+type RelVarSpec  = Map.Map RelRole Mbrship
+type RelNodeSpec = Map.Map RelRole Node
+  -- ^ not quite the set-complement of RelVarSpec
