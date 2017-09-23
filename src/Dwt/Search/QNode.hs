@@ -65,13 +65,16 @@ matchQRelspecNodes g spec = prependCaller "matchQRelspecNodes: " $ do
   nodeListList <- mapM (\(r,QNodeSpec n) -> qPlaysRoleIn g r n) nodeSpecs
   return $ listIntersect nodeListList
 
--- >>>
---matchQRelspecNodes' :: RSLT -> QRelspec -> Either DwtErr [Node]
---matchQRelspecNodes' g spec = prependCaller "matchQRelspecNodes': " $ do
---  let f :: QNodeOrVar -> Maybe [Node]
---      f (QVarSpec _) = Nothing
---      f (QNodeSpec q) = qGet g q
---  let spec' = Map.map f 
+matchRoleMap :: RSLT -> RoleMap -> Either DwtErr [Node]
+matchRoleMap g m = prependCaller "matchRoleMap: " $ do
+  let maybeFind :: QNode -> Either DwtErr (Maybe [Node])
+      maybeFind (QVar _) = Right Nothing
+      maybeFind q = Just <$> qGet g q
+      catSndMaybes :: [(RelRole, Maybe [Node])] -> [(RelRole, [Node])]
+      catSndMaybes = foldl f [] where f acc (a, Just b) = (a,b) : acc
+                                      f acc (a, Nothing) = acc
+  founds <- catSndMaybes . Map.toList <$> mapM maybeFind m
+  return $ listIntersect $ map snd founds
 
 matchRelspecNodesLab :: RSLT -> Relspec -> Either DwtErr [LNode Expr]
 matchRelspecNodesLab g spec = prependCaller "matchRelspecNodesLab: " $ do
