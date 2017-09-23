@@ -12,6 +12,8 @@ module TData (
   , dogNeedsWater
   , anyNeedsWater
   , dogNeedsFromForTo
+  , dogNeedsFromForToRM
+  , brandyNeedsFromForToRM
   , itNeedsFromForTo
   , dogWantsBrandy
   , dogWantsBrandyIsDubious
@@ -19,6 +21,7 @@ module TData (
   , anyNeedsAny
   , anyNeedsAnyIsAny
   , anyNeedsFromForTo
+  , anyNeedsFromForToRM
 ) where
 
 import Dwt
@@ -91,12 +94,33 @@ anyNeedsFromForTo = Map.fromList
   ,(Mbr 2, QVarSpec From)
   ,(Mbr 3, QVarSpec To)]
 
+anyNeedsFromForToRM :: RoleMap
+anyNeedsFromForToRM = Map.fromList
+  [(TpltRole, QLeaf $ mkTplt "_ needs _ for _")
+  ,(Mbr 1, QVar Any)
+  ,(Mbr 2, QVar From)
+  ,(Mbr 3, QVar To)]
+
+brandyNeedsFromForToRM :: RoleMap
+brandyNeedsFromForToRM = Map.fromList
+  [(TpltRole, QLeaf $ mkTplt "_ needs _ for _")
+  ,(Mbr 1, QLeaf $ Word "brandy")
+  ,(Mbr 2, QVar From)
+  ,(Mbr 3, QVar To)]
+
 dogNeedsFromForTo :: QRelspec
 dogNeedsFromForTo = Map.fromList
   [(TpltRole, QNodeSpec $ QLeaf $ mkTplt "_ needs _ for _")
   ,(Mbr 1, QNodeSpec $ QLeaf $ Word "dog")
   ,(Mbr 2, QVarSpec From)
   ,(Mbr 3, QVarSpec To)]
+
+dogNeedsFromForToRM :: RoleMap
+dogNeedsFromForToRM = Map.fromList
+  [(TpltRole, QLeaf $ mkTplt "_ needs _ for _")
+  ,(Mbr 1, QLeaf $ Word "dog")
+  ,(Mbr 2, QVar From)
+  ,(Mbr 3, QVar To)]
 
 itNeedsFromForTo :: QRelspec
 itNeedsFromForTo = Map.fromList

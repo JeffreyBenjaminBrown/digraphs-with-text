@@ -13,6 +13,7 @@ import Control.Monad.Trans.State (runStateT)
 tSearch = TestList [ TestLabel "tQPlaysRoleIn" tQPlaysRoleIn
                    , TestLabel "tMatchQRelspecNodes" tMatchQRelspecNodes
                    , TestLabel "tStar" tStar
+                   , TestLabel "tMatchRoleMap" tMatchRoleMap
                    ]
 
 tQPlaysRoleIn = TestCase $ do
@@ -27,6 +28,14 @@ tMatchQRelspecNodes = TestCase $ do
     == qGet g1 dogNeedsWater
   assertBool "2" $ matchQRelspecNodes g1 tpltForRelsWithDogInPos1
     == Right [5,6,8]
+
+tMatchRoleMap = TestCase $ do
+  assertBool "find a rolemap" $ matchRoleMap g1 anyNeedsFromForToRM
+    == Right [8]
+  assertBool "2" $ matchRoleMap g1 dogNeedsFromForToRM
+    == Right [8]
+  assertBool "3" $ matchRoleMap g1 brandyNeedsFromForToRM
+    == Right []
 
 -- >>>
 --tNestedRelspec = TestCase $ do

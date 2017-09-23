@@ -4,6 +4,7 @@
 module Dwt.Search.QNode (
   playsRoleIn -- RSLT -> RelRole -> Node -> Either DwtErr [Node]
   , qPlaysRoleIn -- RSLT -> RelRole -> QNode -> Either DwtErr [Node]
+  , matchRoleMap -- RSLT -> RoleMap -> Either DwtErr [Node]
   , matchRelspecNodes -- RSLT -> Relspec -> Either DwtErr [Node]
     -- critical: the intersection-finding function
   , matchQRelspecNodes -- RSLT -> QRelspec -> Either DwtErr [Node]
@@ -67,16 +68,13 @@ matchQRelspecNodes g spec = prependCaller "matchQRelspecNodes: " $ do
 
 matchRoleMap :: RSLT -> RoleMap -> Either DwtErr [Node]
 matchRoleMap g m = prependCaller "matchRoleMap: " $ do
-  let maybeFind :: QNode -> Either DwtErr (Maybe [Node])
-      maybeFind (QVar _) = Right Nothing
-      maybeFind q = Just <$> qGet g q
-      catSndMaybes :: [(RelRole, Maybe [Node])] -> [(RelRole, [Node])]
-      catSndMaybes = foldl f [] where f acc (a, Just b) = (a,b) : acc
-                                      f acc (a, Nothing) = acc
-  founds <- catSndMaybes . Map.toList <$> mapM maybeFind m
+  let maybeFind :: (RelRole, QNode) -> Either DwtErr (Maybe [Node])
+      maybeFind (_, QVar _) = Right Nothing
+      maybeFind (r, q) = Just <$> qPlaysRoleIn g r q
+  founds <- Mb.catMaybes <$> (mapM maybeFind $ Map.toList m)
   if founds /= [] then return ()
-    else Left (NothingSpecified, [ErrRoleMap m], "matchRoleMap.")
-  return $ listIntersect $ map snd founds
+                  else Left (NothingSpecified, [ErrRoleMap m], ".")
+  return $ listIntersect founds
 
 matchRelspecNodesLab :: RSLT -> Relspec -> Either DwtErr [LNode Expr]
 matchRelspecNodesLab g spec = prependCaller "matchRelspecNodesLab: " $ do
