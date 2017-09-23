@@ -76,6 +76,13 @@ matchRoleMap g m = prependCaller "matchRoleMap: " $ do
                   else Left (NothingSpecified, [ErrRoleMap m], ".")
   return $ listIntersect founds
 
+matchRoleMapLab :: RSLT -> RoleMap -> Either DwtErr [LNode Expr]
+matchRoleMapLab g rm = prependCaller "matchRelspecNodesLab: " $ do
+    -- TODO: slow: this looks up each node a second time to find its label
+  ns <- matchRoleMap g rm
+  return $ zip ns $ map (Mb.fromJust . lab g) ns
+    -- fromJust is safe because matchRoleMap only returns Nodes in g
+
 matchRelspecNodesLab :: RSLT -> Relspec -> Either DwtErr [LNode Expr]
 matchRelspecNodesLab g spec = prependCaller "matchRelspecNodesLab: " $ do
   ns <- matchRelspecNodes g spec
