@@ -10,7 +10,7 @@ module Dwt.Util (
 
   -- graphs
   , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
-  , replaceNode
+  , replaceNode, nodeToLNodeUsf
 
    -- monads
   , fr, fromRight
@@ -48,6 +48,9 @@ replaceNode (adr,c) (match adr -> (Just (a,b,_,d), g))
   = Right $ (a,b,c,d) & g
 replaceNode (adr,_) (match adr -> (Nothing, _))
   = Left (FoundNo, [ErrNode adr], "replaceNode.")
+
+nodeToLNodeUsf :: Gr a b -> Node -> LNode a
+nodeToLNodeUsf g n = let Just a = lab g n in (n,a)
 
 -- make the nodes the least positive integers possible
 compressGraph :: DynGraph gr => gr a b -> gr a b
