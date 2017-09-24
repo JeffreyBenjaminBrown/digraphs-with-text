@@ -7,7 +7,6 @@ module Dwt.Search.QNode (
   , matchRoleMap -- RSLT -> RoleMap -> Either DwtErr [Node]
 
   , qGet -- RSLT -> QNode -> Either DwtErr [Node]
-  , qGetLab -- RSLT -> QNode -> Either DwtErr [LNode Expr]
   , qGet1 -- RSLT -> QNode -> Either DwtErr Node
   , qPutSt -- QNode -> StateT RSLT (Either DwtErr) Node
   , qRegexWord -- RSLT -> String -> [Node]
@@ -18,8 +17,10 @@ module Dwt.Search.QNode (
   , subQNodeForVars --QNode(sub this) ->SearchVar(for this) ->RoleMap(in this)
     -- -> ReaderT RSLT (Either DwtErr) RoleMap
   , dwtDfs    -- RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
-  , dwtDfsLab -- RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
   , dwtBfs    -- RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
+
+  -- | = kind of silly
+  , dwtDfsLab -- RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
   , dwtBfsLab -- RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
 ) where
 
@@ -72,40 +73,23 @@ matchRoleMapLab g rm = prependCaller "matchRoleMapLab: " $ do
   return $ zip ns $ map (Mb.fromJust . lab g) ns
     -- fromJust is safe because matchRoleMap only returns Nodes in g
 
-
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1
 
--- TODO: Rewrite _qGet to handle only Nodes, not Nodes or LNodes.
--- It might currently speed things up, but it won't once DWT uses
--- a graph database made for scale.
-
 -- ^ x herein is either Node or LNode Expr. TODO: use a typeclass
-_qGet :: Eq x => (RSLT -> Node -> x) -- ^ gets what's there; used for At.
-  -- Can safely be unsafe, because the QAt's contents are surely present.
-  -> (RSLT -> [x]) -- ^ nodes or labNodes; used for QLeaf
-  -> (RSLT -> RoleMap -> Either DwtErr [x])
-    -- ^ matchRoleMap or matchRoleMapLab; used for QRel
-  -> RSLT -> QNode -> Either DwtErr [x]
-_qGet _ _ _ _ Absent = Left (Impossible, [ErrQNode Absent], "qGet.")
-_qGet f _ _ g q@(At n) = if gelem n g then return [f g n]
-  else Left (FoundNo, [ErrQNode q], "_qGet.")
-_qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
-_qGet _ _ f g q@(QRel _ qms) = prependCaller "_qGet: " $ do
+qGet :: RSLT -> QNode -> Either DwtErr [Node]
+qGet _ Absent = Left (Impossible, [ErrQNode Absent], "qGet.")
+qGet g q@(At n) = if gelem n g then return [n]
+                  else Left (FoundNo, [ErrQNode q], "qGet.")
+qGet g (QLeaf l) = return $ nodes $ labfilter (==l) $ dropEdges g
+qGet g q@(QRel _ qms) = prependCaller "qGet: " $ do
   t <- extractTplt q
   let m = mkRoleMap (QLeaf t) $ filter (not . (== Absent)) qms
     -- because non-interior Joints require the use of Absent
-  f g m
-_qGet a b c g (QAnd qs) = listIntersect <$> mapM (_qGet a b c g) qs
-_qGet a b c g (QOr qs) = nub . concat <$> mapM (_qGet a b c g) qs
--- _qGet a b c d g (QBranch dir q) = _qGet a b c d g q >>= d g dir
-
-qGet :: RSLT -> QNode -> Either DwtErr [Node]
-qGet = _qGet (\_ n -> n) nodes matchRoleMap
-
-qGetLab :: RSLT -> QNode -> Either DwtErr [LNode Expr]
-qGetLab = _qGet f labNodes matchRoleMapLab where
-  f g n = (n, Mb.fromJust $ lab g n)
+  matchRoleMap g m
+qGet g (QAnd qs) = listIntersect <$> mapM (qGet g) qs
+qGet g (QOr qs) = nub . concat <$> mapM (qGet g) qs
+qGet g (QBranch dir q) = qGet g q >>= dwtDfs g dir
 
 qGet1 :: RSLT -> QNode -> Either DwtErr Node
 qGet1 g q = prependCaller "qGet1: " $ case qGet g q of
