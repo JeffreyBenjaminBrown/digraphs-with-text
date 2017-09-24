@@ -22,7 +22,7 @@ tSearch = TestList [ TestLabel "tQPlaysRoleIn" tQPlaysRoleIn
                    , TestLabel "tMatchQRelspecNodes" tMatchQRelspecNodes
                    , TestLabel "tStar" tStar
                    , TestLabel "tMatchRoleMap" tMatchRoleMap
-                   , TestLabel "tNestedRelspec" tNestedRelspec
+                   , TestLabel "tNestedQRelsWithVars" tNestedQRelsWithVars
                    ]
 
 tQPlaysRoleIn = TestCase $ do

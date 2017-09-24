@@ -76,7 +76,8 @@ _qGet f _ _ g q@(At n) = if gelem n g then return [f g n]
 _qGet _ f _ g (QLeaf l) = return $ f $ labfilter (==l) $ dropEdges g
 _qGet _ _ f g q@(QRel _ qms) = prependCaller "_qGet: " $ do
   t <- extractTplt q
-  let m = mkRoleMap (QLeaf t) qms
+  let m = mkRoleMap (QLeaf t) $ filter (not . (== Absent)) qms
+    -- because non-interior Joints require the use of Absent
   f g m
 
 qGet :: RSLT -> QNode -> Either DwtErr [Node]
