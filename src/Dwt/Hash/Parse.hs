@@ -19,21 +19,27 @@ import Dwt.MkTplt (mkTplt)
 import Data.List (intersperse)
 
 
-type Qeo = (QNode, EO)
+type Hash = (QNode, EO)
 disregardedEo = EO True 0 -- todo: retire
-  -- what I should have done, rather than make Dwt.Hash.Parse.Qeo a pair, is
-  -- data Qeo = QeoRel QNode Eo | Qeo QNode
+  -- what I should have done, rather than make Dwt.Hash.Parse.Hash a pair, is
+  -- data Hash = HashRel QNode Eo | Hash QNode
   -- That way I wouldn't have to use disregardedNode
-
+data HashSum = Hash EO QNode | HashLeaf QNode
+getQNode :: HashSum -> QNode
+getQNode (HashLeaf q) = q
+getQNode (Hash _ q) = q
 
 -- == Things used when parsing Word and Rel values
 -- QNode expresses how to add (nested) data to the RSLT
-isInsRel :: Qeo -> Bool
+isInsRel :: Hash -> Bool
 isInsRel (QRel _ _, _) = True
 isInsRel _ = False
 
-startRel :: Level -> Joint -> Qeo -> Qeo -> Qeo
+startRel :: Level -> Joint -> Hash -> Hash -> Hash
 startRel l j a b = (QRel [j] [fst a, fst b], EO True l)
+
+startRelSum :: Level -> Joint -> HashSum -> HashSum -> HashSum
+startRelSum l j a b = Hash (EO True l) $ QRel [j] $ map getQNode [a,b]
 
 
 -- | PITFALL: In "a # b # c # d", you might imagine evaluating the middle #
@@ -43,22 +49,22 @@ startRel l j a b = (QRel [j] [fst a, fst b], EO True l)
 -- always incorporated into the other. I believe that is safe, because 
 -- expressions in serial on the same level will always be parsed left to
 -- right, not outside to inside.
-rightConcat :: Joint -> Qeo -> Qeo -> Qeo
+rightConcat :: Joint -> Hash -> Hash -> Hash
   -- TODO: if|when need speed, use a two-sided list of pairs
 rightConcat j m (QRel joints mbrs, eo)
   = (QRel (joints ++ [j]) (mbrs ++ [fst m]), eo)
 rightConcat _ _ _ = error "can only rightConcat into a QRel"
 
-leftConcat :: Joint -> Qeo -> Qeo -> Qeo
+leftConcat :: Joint -> Hash -> Hash -> Hash
 leftConcat j m (QRel joints mbrs, eo)
   = (QRel (j : joints) (fst m : mbrs), eo)
 leftConcat _ _ _ = error "can only leftConcat into a QRel"
 
-close :: Qeo -> Qeo
+close :: Hash -> Hash
 close (QRel b c, EO _ a) = (QRel b c, EO False a)
 close (x, _) = (x, disregardedEo)
 
-hash :: Level -> Joint -> Qeo -> Qeo -> Qeo
+hash :: Level -> Joint -> Hash -> Hash -> Hash
 hash l j a@(isInsRel -> False) b@(isInsRel -> False)       = startRel l j a b
 hash l j a@(isInsRel -> False) b@(QRel _ _, EO False _) = startRel l j a b
 hash l j a@(QRel _ _, EO False _) b@(isInsRel -> False) = startRel l j a b
@@ -87,16 +93,16 @@ hash l j a@(QRel _ _, ea) b@(QRel _ _, eb) =
 expr :: Parser QNode
 expr = fst <$> expr'
 
-expr' :: Parser Qeo
+expr' :: Parser Hash
 expr' = makeExprParser term
   [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
-term :: Parser Qeo
+term :: Parser Hash
 term = (, disregardedEo) . QLeaf <$> leaf
        <|> (, disregardedEo) <$> at
        <|> close <$> parens expr'
        <|> absent where
-  absent :: Parser Qeo
+  absent :: Parser Hash
   absent = (, disregardedEo) . const Absent <$> f
     <?> "Intended to \"find\" nothing."
   f = lookAhead $ const () <$> satisfy (== '#') <|> eof
@@ -107,7 +113,7 @@ pHashUnlabeled :: Int -> Parser ()
 pHashUnlabeled n = const () <$> f
   where f = string (replicate n '#') <* notFollowedBy (char '#')
 
-pHash :: Int -> Parser (Qeo -> Qeo -> Qeo)
+pHash :: Int -> Parser (Hash -> Hash -> Hash)
 pHash n = lexeme $ do
   pHashUnlabeled n
   label <- option "" $ anyWord <|> parens phrase
