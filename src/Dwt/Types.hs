@@ -47,6 +47,8 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
 data SearchVar = It | Any | From | To deriving (Show,Read,Eq,Ord)
 data QNode = At Node -- ^ for when you know the expression's node
   | QVar SearchVar | QAnd [QNode] | QOr [QNode]
+  -- | QMap RoleMap -- ? todo, for leaving Tplt or Mbrs unspecified
+  | QBranch RoleMap QNode
   | Absent | QLeaf Expr | QRel [Joint] [QNode] deriving (Show, Eq)
 type RoleMap  = Map.Map RelRole QNode
 

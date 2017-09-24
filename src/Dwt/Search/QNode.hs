@@ -17,8 +17,10 @@ module Dwt.Search.QNode (
   , star -- RSLT -> QNode -> RoleMap -> Either DwtErr [Node]
   , subQNodeForVars --QNode(sub this) ->SearchVar(for this) ->RoleMap(in this)
     -- -> ReaderT RSLT (Either DwtErr) RoleMap
-  , dwtDfs -- RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
-  , dwtBfs -- same
+  , dwtDfs    -- RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
+  , dwtDfsLab -- RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
+  , dwtBfs    -- RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
+  , dwtBfsLab -- RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
 ) where
 
 import Data.Graph.Inductive (Node, LNode, Graph, labfilter, lab, nodes
@@ -26,7 +28,7 @@ import Data.Graph.Inductive (Node, LNode, Graph, labfilter, lab, nodes
 import Dwt.Types
 import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
-                , listIntersect)
+                , listIntersect, nodeToLNodeUsf)
 import Dwt.Measure (extractTplt, isAbsent)
 import Dwt.Search.Base (mkRoleMap, selectRelElts)
 
@@ -74,6 +76,10 @@ matchRoleMapLab g rm = prependCaller "matchRoleMapLab: " $ do
 -- TODO: simplify some stuff (maybe outside of this file?) by using 
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1
 
+-- TODO: Rewrite _qGet to handle only Nodes, not Nodes or LNodes.
+-- It might currently speed things up, but it won't once DWT uses
+-- a graph database made for scale.
+
 -- ^ x herein is either Node or LNode Expr. TODO: use a typeclass
 _qGet :: Eq x => (RSLT -> Node -> x) -- ^ gets what's there; used for At.
   -- Can safely be unsafe, because the QAt's contents are surely present.
@@ -92,6 +98,7 @@ _qGet _ _ f g q@(QRel _ qms) = prependCaller "_qGet: " $ do
   f g m
 _qGet a b c g (QAnd qs) = listIntersect <$> mapM (_qGet a b c g) qs
 _qGet a b c g (QOr qs) = nub . concat <$> mapM (_qGet a b c g) qs
+-- _qGet a b c d g (QBranch dir q) = _qGet a b c d g q >>= d g dir
 
 qGet :: RSLT -> QNode -> Either DwtErr [Node]
 qGet = _qGet (\_ n -> n) nodes matchRoleMap
@@ -185,6 +192,16 @@ dwtDfs :: RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
 dwtDfs g dir starts = do mapM_ (gelemM g) $ starts
                          (nub . reverse) <$> dfsConcat g dir starts []
 
+dwtDfsLab :: RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
+dwtDfsLab g dir starts =
+  do mapM_ (gelemM g) $ starts
+     map (nodeToLNodeUsf g) . nub . reverse <$> dfsConcat g dir starts []
+
 dwtBfs :: RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
 dwtBfs g dir starts = do mapM_ (gelemM g) $ starts
                          (nub . reverse) <$> bfsConcat g dir starts []
+
+dwtBfsLab :: RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
+dwtBfsLab g dir starts =
+  do mapM_ (gelemM g) $ starts
+     map (nodeToLNodeUsf g) . nub . reverse <$> bfsConcat g dir starts []
