@@ -22,6 +22,7 @@ tSearch = TestList [ TestLabel "tQPlaysRoleIn" tQPlaysRoleIn
                    , TestLabel "tMatchQRelspecNodes" tMatchQRelspecNodes
                    , TestLabel "tStar" tStar
                    , TestLabel "tMatchRoleMap" tMatchRoleMap
+                   , TestLabel "tQGetBool" tQGetBool
                    , TestLabel "tNestedQRelsWithVars" tNestedQRelsWithVars
                    ]
 
@@ -60,6 +61,14 @@ t2_qGet g q@(QRel _ qms) = do
   t <- extractTplt q
   let m = mkRoleMap (QLeaf t) qms
   (m,) <$> t2matchRoleMap g m
+
+tQGetBool = TestCase $ do
+  assertBool "1" $ qGet g1 (QAnd [dogNeedsAny,anyNeedsWater])
+                == qGet g1 dogNeedsWater
+  assertBool "1" $
+    (S.fromList <$> (qGet g1 $ QOr [dogNeedsWater,dogWantsBrandy] ) )
+    == (S.fromList <$> liftA2 (++) (qGet g1 dogNeedsWater)
+                                   (qGet g1 dogWantsBrandy) )
 
 tNestedQRelsWithVars = TestCase $ do
   assertBool "no dubious needs" $ qGet g1 anyNeedsAnyIsAny == Right []

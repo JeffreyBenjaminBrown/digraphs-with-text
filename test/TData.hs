@@ -15,6 +15,8 @@ module TData (
   , brandy
 
   -- | == QRel
+  , dogNeedsAny
+  , anyNeedsWater
   , dogNeedsWater
   , dogWantsBrandy
   , dogWantsBrandyIsDubious
@@ -90,7 +92,10 @@ water = QLeaf $ Word "water" :: QNode
 brandy = QLeaf $ Word "brandy" :: QNode
 
 -- | == QRel
+dogNeedsAny = QRel ["needs"] [dog,qAny] :: QNode
+anyNeedsWater = QRel ["needs"] [qAny,water] :: QNode
 dogNeedsWater = QRel ["needs"] [dog,water] :: QNode
+
 dogWantsBrandy = QRel ["wants"] [dog,brandy] :: QNode
 dogWantsBrandyIsDubious = At 11 :: QNode
 anyNeedsAny = QRel ["needs"] [qAny, qAny] :: QNode

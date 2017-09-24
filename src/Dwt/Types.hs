@@ -18,7 +18,7 @@ import Data.Graph.Inductive (Gr, Node, Edge)
 import Data.Map as Map
 import Control.Lens hiding (Level)
 import Data.String (IsString, fromString)
-import Data.Void
+
 
 -- == Fundamental
 type Arity = Int
@@ -46,7 +46,7 @@ data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
     -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
 data SearchVar = It | Any | From | To deriving (Show,Read,Eq,Ord)
 data QNode = At Node -- ^ for when you know the expression's node
-  | QVar SearchVar
+  | QVar SearchVar | QAnd [QNode] | QOr [QNode]
   | Absent | QLeaf Expr | QRel [Joint] [QNode] deriving (Show, Eq)
 type RoleMap  = Map.Map RelRole QNode
 

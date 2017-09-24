@@ -56,8 +56,8 @@ subQNodeForVars q v r = hoist (prependCaller "subQNodeForVars") $ do
 
 _bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- ^ order determines dfs or bfs
   -> RSLT -> RoleMap
-  -> [Node] -- ^ pending accumulation
-  -> [Node] -- ^ the accumulator
+  -> [Node] -- ^ searching from these (it gets added to and depleted)
+  -> [Node] -- ^ the accumulator (it only gets added to)
   -> Either DwtErr [Node]
 _bfsOrDfs _ _ _ [] acc = return acc
 _bfsOrDfs collector g qdir (n:ns) acc = do

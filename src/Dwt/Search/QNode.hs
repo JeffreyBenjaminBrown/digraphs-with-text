@@ -27,6 +27,7 @@ import Control.Monad.Trans.State (StateT, get, put)
 import qualified Data.Maybe as Mb
 import Text.Regex (mkRegex, matchRegex)
 import qualified Data.Map as Map
+import Data.List (nub)
 
 
 -- | Rels using Node n in RelRole r
@@ -64,7 +65,7 @@ matchRoleMapLab g rm = prependCaller "matchRoleMapLab: " $ do
 -- Graph.whereis :: RSLT -> Expr -> [Node] -- hopefully length = 1
 
 -- ^ x herein is either Node or LNode Expr. TODO: use a typeclass
-_qGet :: (RSLT -> Node -> x) -- ^ gets what's there; used for At.
+_qGet :: Eq x => (RSLT -> Node -> x) -- ^ gets what's there; used for At.
   -- Can safely be unsafe, because the QAt's contents are surely present.
   -> (RSLT -> [x]) -- ^ nodes or labNodes; used for QLeaf
   -> (RSLT -> RoleMap -> Either DwtErr [x])
@@ -79,6 +80,8 @@ _qGet _ _ f g q@(QRel _ qms) = prependCaller "_qGet: " $ do
   let m = mkRoleMap (QLeaf t) $ filter (not . (== Absent)) qms
     -- because non-interior Joints require the use of Absent
   f g m
+_qGet a b c g (QAnd qs) = listIntersect <$> mapM (_qGet a b c g) qs
+_qGet a b c g (QOr qs) = nub . concat <$> mapM (_qGet a b c g) qs
 
 qGet :: RSLT -> QNode -> Either DwtErr [Node]
 qGet = _qGet (\_ n -> n) nodes matchRoleMap
