@@ -5,6 +5,7 @@ module Dwt.Hash.Parse (
 
   -- for tests, not interface
   , leaf, at, qVar
+  , pRelRole
   , EO(..), Hash(..)
   , hash, rightConcat, leftConcat
   ) where
@@ -132,6 +133,17 @@ pHash n = lexeme $ do pHashUnlabeled n
         pHashUnlabeled n = const () <$> f
         f = string (replicate n '#') <* notFollowedBy (char '#')
 
+at :: Parser QNode
+at = At <$> (char '@' >> integer)
+
+qVar :: Parser QNode
+qVar = QVar <$> (string "@" >> it <|> any <|> from <|> to) where
+  it, any, from, to :: Parser SearchVar
+  it = const It <$> word "it"
+  any = const Any <$> word "any"
+  from = const From <$> word "from"
+  to = const It <$> word "to"
+
 pAnd :: Int -> Parser (Hash -> Hash -> Hash)
 pAnd n = lexeme $ do pAndUnlabeled n
                      return $ \a b-> HashLeaf $ QAnd $ map getQNode [a,b]
@@ -149,6 +161,14 @@ pOr n = lexeme $ do pOrUnlabeled n
         pOrUnlabeled n = const () <$> f
         f = string (replicate n '|') <* notFollowedBy (char '|')
 
+--pBranch :: Parser Qnode
+--pBranch = lexeme $ do word "@branch"
+--                      dir <- parens 
+
+pRelRole :: Parser RelRole
+pRelRole = const TpltRole <$> word "tplt"
+  <|> Mbr <$> (word "mbr" >> integer)
+
 leaf :: Parser Expr
 leaf = do
   let blank = lexeme $ string "_" <* notFollowedBy (wordChar <|> char '_')
@@ -156,17 +176,6 @@ leaf = do
   p <- some $ blank <|> anyWord
   return $ case elem "_" p of True ->  mkTplt . f $ p
                               False -> Word   . f $ p
-
-at :: Parser QNode
-at = At <$> (char '@' >> integer)
-
-qVar :: Parser QNode
-qVar = QVar <$> (string "@" >> it <|> any <|> from <|> to) where
-  it, any, from, to :: Parser SearchVar
-  it = const It <$> word "it"
-  any = const Any <$> word "any"
-  from = const From <$> word "from"
-  to = const It <$> word "to"
 
 -- | unused
 hasBlanks :: Parser Bool

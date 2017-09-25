@@ -1,6 +1,6 @@
 module Dwt.ParseUtils (
   Parser
-  , sc, lexeme, parens -- grouping
+  , sc, lexeme, parens, brackets -- grouping
 
   , wordChar, symbol, word, anyWord, phrase -- words
 
@@ -26,6 +26,9 @@ lexeme = L.lexeme sc
 
 parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
+
+brackets :: Parser a -> Parser a
+brackets = between (symbol "[") (symbol "]")
 
 symbol :: String -> Parser String -- | TODO: eliminate, because dangerous: is lexeme, but doesn't check that it's not followed by a non-space character
 symbol = L.symbol sc
