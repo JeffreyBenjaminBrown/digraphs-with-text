@@ -2,6 +2,7 @@
 {-# LANGUAGE TupleSections #-}
 module Dwt.Hash.Parse (
   expr
+  , exprSum 
 
   -- for tests, not interface
   , Level, EO(..)
@@ -35,7 +36,7 @@ disregardedEo = EO True 0 -- todo: retire
   -- what I should have done, rather than make Dwt.Hash.Parse.Hash a pair, is
   -- data Hash = HashRel QNode Eo | Hash QNode
   -- That way I wouldn't have to use disregardedNode
-data HashSum = Hash EO QNode | HashLeaf QNode
+data HashSum = Hash EO QNode | HashLeaf QNode deriving Show
 getQNode :: HashSum -> QNode
 getQNode (HashLeaf q) = q
 getQNode (Hash _ q) = q
@@ -45,6 +46,10 @@ getQNode (Hash _ q) = q
 isInsRel :: Hash -> Bool
 isInsRel (QRel _ _, _) = True
 isInsRel _ = False
+
+isInsRelSum :: HashSum -> Bool
+isInsRelSum (Hash _ _) = True
+isInsRelSum (HashLeaf _) = False
 
 startRel :: Level -> Joint -> Hash -> Hash -> Hash
 startRel l j a b = (QRel [j] [fst a, fst b], EO True l)
@@ -70,18 +75,30 @@ rightConcatSum :: Joint
   -> HashSum -- ^ insert this
   -> HashSum -- ^ into the right side of this
   -> HashSum -- ifdo speed : use a two-sided list of pairs
-rightConcatSum j (Hash _ q) (Hash eo (QRel joints mbrs))
-  = Hash eo $ QRel (joints ++ [j]) (mbrs ++ [q])
-rightConcatSum _ _ _ = error "can only rightConcat into a QRel"
+rightConcatSum j h (Hash eo (QRel joints mbrs))
+  = Hash eo $ QRel (joints ++ [j]) (mbrs ++ [getQNode h])
+rightConcatSum _ _ _ = error "can only rightConcatSum into a QRel"
 
 leftConcat :: Joint -> Hash -> Hash -> Hash
 leftConcat j m (QRel joints mbrs, eo)
   = (QRel (j : joints) (fst m : mbrs), eo)
 leftConcat _ _ _ = error "can only leftConcat into a QRel"
 
+leftConcatSum :: Joint
+  -> HashSum -- ^ insert this
+  -> HashSum -- ^ into the right side of this
+  -> HashSum -- ifdo speed : use a two-sided list of pairs
+leftConcatSum j h (Hash eo (QRel joints mbrs))
+  = Hash eo $ QRel (j : joints) (getQNode h : mbrs)
+leftConcatSum _ _ _ = error "can only leftConcat into a QRel"
+
 close :: Hash -> Hash
 close (QRel b c, EO _ a) = (QRel b c, EO False a)
 close (x, _) = (x, disregardedEo)
+
+closeSum :: HashSum -> HashSum
+closeSum (Hash (EO _ a) (QRel b c)) = Hash (EO False a) $ QRel b c
+closeSum x@(HashLeaf _) = x
 
 hash :: Level -> Joint -> Hash -> Hash -> Hash
 hash l j a@(isInsRel -> False) b@(isInsRel -> False)       = startRel l j a b
@@ -107,14 +124,48 @@ hash l j a@(QRel _ _, ea) b@(QRel _ _, eb) =
      else if e == ea then rightConcat j b a
      else error msg
 
+hashSum :: Level -> Joint -> HashSum -> HashSum -> HashSum
+hashSum l j a@(isInsRelSum -> False) b@(isInsRelSum -> False)
+  = startRelSum l j a b
+hashSum l j a@(isInsRelSum -> False) b@(Hash (EO False _) (QRel _ _))
+  = startRelSum l j a b
+hashSum l j a@(Hash (EO False _) (QRel _ _)) b@(isInsRelSum -> False)
+  = startRelSum l j a b
+hashSum l j a@(isInsRelSum -> False) b@(Hash (EO True l') (QRel _ _))
+  | l < l' = error "Higher level should not have been evaluated first."
+  | l == l' = leftConcatSum j a b -- I suspect this won't happen either
+  | l > l' = startRelSum l j a b
+hashSum l j a@(Hash (EO True l') (QRel _ _)) b@(isInsRelSum -> False)
+  | l < l' = error "Higher level should not have been evaluated first."
+  | l == l' = rightConcatSum j b a -- but this will
+  | l > l' = startRelSum l j a b
+hashSum l j a@(Hash ea (QRel _ _)) b@(Hash eb (QRel _ _)) =
+  let e = EO True l
+      msg = unlines [ "Joint should have been evaluated earlier."
+                    , "level: " ++ show l
+                    , "joint: " ++ show j
+                    , "left: " ++ show a
+                    , "right: " ++ show b ]
+  in if e <= eb then error msg
+     else if e > ea then startRelSum l j a b
+     else if e == ea then rightConcatSum j b a
+     else error msg
+
 
 -- == the QNode parser
 expr :: Parser QNode
 expr = fst <$> expr'
 
+exprSum :: Parser QNode
+exprSum = getQNode <$> expr'Sum
+
 expr' :: Parser Hash
 expr' = makeExprParser term
   [ [InfixL $ try $ pHash n] | n <- [1..8] ]
+
+expr'Sum :: Parser HashSum
+expr'Sum = makeExprParser termSum
+  [ [InfixL $ try $ pHashSum n] | n <- [1..8] ]
 
 term :: Parser Hash
 term = (, disregardedEo) . QLeaf <$> leaf
@@ -128,6 +179,17 @@ term = (, disregardedEo) . QLeaf <$> leaf
     -- the Absent parser should look for #, but not ), because
     -- parentheses get consumed in pairs in an outer (earlier) context
 
+termSum :: Parser HashSum
+termSum = HashLeaf . QLeaf <$> leaf
+       <|> HashLeaf <$> at
+       <|> closeSum <$> parens expr'Sum
+       <|> absent where
+  absent :: Parser HashSum
+  absent = HashLeaf . const Absent <$> f <?> "Intended to \"find\" nothing."
+  f = lookAhead $ const () <$> satisfy (== '#') <|> eof
+    -- the Absent parser should look for #, but not ), because
+    -- parentheses get consumed in pairs in an outer (earlier) context
+
 pHashUnlabeled :: Int -> Parser ()
 pHashUnlabeled n = const () <$> f
   where f = string (replicate n '#') <* notFollowedBy (char '#')
@@ -137,6 +199,12 @@ pHash n = lexeme $ do
   pHashUnlabeled n
   label <- option "" $ anyWord <|> parens phrase
   return $ hash n $ Joint label
+
+pHashSum :: Int -> Parser (HashSum -> HashSum -> HashSum)
+pHashSum n = lexeme $ do
+  pHashUnlabeled n
+  label <- option "" $ anyWord <|> parens phrase
+  return $ hashSum n $ Joint label
 
 leaf :: Parser Expr
 leaf = do

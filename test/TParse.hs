@@ -14,7 +14,7 @@ tParseInner = TestList [ TestLabel "tHash" tHash
                        ]
 
 tHash = TestCase $ do
-  assertBool "4" $ either (const True) (const False) $ parse expr "" ")("
+  assertBool "4" $ either (const True) (const False) $ parse exprSum "" ")("
 
   assertBool "1"
     $ hash 2 ("") (QLeaf $ Word "hi", disregardedEo)
@@ -44,23 +44,27 @@ tHash = TestCase $ do
         ,(QLeaf $ Word "right")]
        , EO True 4)
 
-  let p = parse expr "uhh ... parse error?"
-        "dogs #like you ###becase you #(give or misplace) (bones #that reek super nasty) #to dogs ##sometimes"
-      a = QRel
-            ["becase"] 
-            [QRel
-              ["like"] 
-              [QLeaf (Word "dogs")
-              ,QLeaf (Word "you")]
-            ,QRel
-              ["sometimes"] 
-              [QRel
-                ["give or misplace", "to"] 
-                [QLeaf (Word "you")
-                ,QRel
-                  ["that"] 
-                  [QLeaf (Word "bones")
-                  ,QLeaf  (Word "reek super nasty")]
-                ,QLeaf (Word "dogs")]
-              ,Absent]]
-    in assertBool "4" $ p == Right a
+  assertBool "longParse" $ longParse == Right bigQNode
+  assertBool "smallerParse" $ smallerParse == Right smallerQNode
+
+smallerParse = parse exprSum ""
+  "you #(give or misplace) bones that reek nasty #to dogs"
+smallerQNode = QRel ["give or misplace", "to"] 
+                    [ QLeaf (Word "you")
+                     , QLeaf $ Word "bones that reek nasty"
+                     , QLeaf (Word "dogs")]
+
+longParse = parse exprSum ""
+  "dogs #like you ###becase you #(give or misplace) (bones #that reek super nasty) #to dogs ##sometimes"
+bigQNode = QRel ["becase"] 
+             [ QRel ["like"] 
+               [ QLeaf (Word "dogs")
+               , QLeaf (Word "you")]
+             , QRel ["sometimes"] 
+               [QRel ["give or misplace", "to"] 
+                 [ QLeaf (Word "you")
+                 , QRel ["that"] 
+                   [ QLeaf (Word "bones")
+                   , QLeaf  (Word "reek super nasty")]
+                 , QLeaf (Word "dogs")]
+               , Absent]]
