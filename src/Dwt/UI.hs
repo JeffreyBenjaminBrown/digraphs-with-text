@@ -7,7 +7,7 @@ import Dwt.Types
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse (expr)
-import Dwt.Search.Parse (Command(..), pCommand)
+import Dwt.Search.Parse (Command(..), ReadNodes, pCommand)
 import Dwt.Util (fr)
 
 import Brick.Widgets.Core ( (<+>), (<=>), hLimit, vLimit, str)
@@ -67,14 +67,16 @@ changeView st = do
       command = fr $ parse pCommand "" commandString -- TODO: nix the fr
   case command of ViewGraph reader -> viewRSLT reader st'
                   ShowQueries -> showQueries st'
-                  -- TODO: ShowQNodes
-  where
-    viewRSLT theReader st = do
-      let nodesToView = runReader theReader $ st^.rslt
-      case nodesToView of
-        Left dwtErr -> error $ "viewRSLT" ++ show dwtErr
-        Right ntv -> M.continue $ st & uiView .~ lines (view  (st^.rslt)  ntv)
-    showQueries st = M.continue $ st & uiView .~ st^.commands
+
+viewRSLT :: ReadNodes -> St -> T.EventM Name (T.Next St)
+viewRSLT reader st = do
+  let nodesToView = runReader reader $ st^.rslt
+  case nodesToView of
+    Left dwtErr -> error $ "viewRSLT" ++ show dwtErr
+    Right ntv -> M.continue $ st & uiView .~ lines (view  (st^.rslt)  ntv)
+
+showQueries :: St -> T.EventM Name (T.Next St)
+showQueries st = M.continue $ st & uiView .~ st^.commands
 
 -- ==== Controls
 appHandleEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)

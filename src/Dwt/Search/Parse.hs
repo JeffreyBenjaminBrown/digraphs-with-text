@@ -9,12 +9,11 @@ import Control.Applicative ((<|>))
 import Control.Monad.Trans.Reader
 
 
-data Command = ViewGraph ReadNodes | ShowQueries | ShowQNodes
+data Command = ViewGraph ReadNodes | ShowQueries
 type ReadNodes = Reader RSLT (Either DwtErr [Node])
 
 pCommand :: Parser Command
 pCommand = foldl1 (<|>) [pUsers, pAllNodes, pShowQueries, pQNode]
-  --TODO: add pShowQNodes]
 
 pQNode :: Parser Command
 pQNode = ViewGraph . f <$> (word "qn" >> expr) where
@@ -34,6 +33,3 @@ pAllNodes = const f <$> symbol "all" where
 
 pShowQueries :: Parser Command
 pShowQueries = const ShowQueries <$> symbol "qs"
-
-pShowQNodes :: Parser Command
-pShowQNodes = const ShowQNodes <$> symbol "is"

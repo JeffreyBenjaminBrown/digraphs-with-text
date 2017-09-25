@@ -5,7 +5,7 @@ import qualified Data.Map as M
 import qualified Data.Maybe as Mb
 import qualified Data.Set as S
 
-import Control.Applicative
+import Control.Applicative hiding (empty)
 import Control.Monad
 import Control.Monad.Morph
 import Control.Monad.Trans.Class
