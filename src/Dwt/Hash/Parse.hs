@@ -4,6 +4,7 @@ module Dwt.Hash.Parse (
   expr
 
   -- for tests, not interface
+  , leaf, at, qVar
   , EO(..), Hash(..)
   , hash, rightConcat, leftConcat
   ) where
@@ -109,8 +110,9 @@ _expr = makeExprParser term
   [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
 term :: Parser Hash
-term = HashLeaf . QLeaf <$> leaf
-       <|> HashLeaf <$> at
+term = HashLeaf . QLeaf <$> try leaf
+       <|> HashLeaf <$> try at
+       <|> HashLeaf <$> try qVar
        <|> close <$> parens _expr
        <|> absent where
   absent :: Parser Hash
@@ -139,6 +141,14 @@ leaf = do
 
 at :: Parser QNode
 at = At <$> (char '@' >> integer)
+
+qVar :: Parser QNode
+qVar = QVar <$> (string "@" >> it <|> any <|> from <|> to) where
+  it, any, from, to :: Parser SearchVar
+  it = const It <$> word "it"
+  any = const Any <$> word "any"
+  from = const From <$> word "from"
+  to = const It <$> word "to"
 
 -- | unused
 hasBlanks :: Parser Bool
