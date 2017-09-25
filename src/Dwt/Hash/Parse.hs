@@ -168,7 +168,7 @@ pRoleMap = M.fromList <$> pair `sepBy` (lexeme $ char ',') where
 
 -- == the simplest kinds of leaf
 leafOrAtOrVar :: Parser QNode
-leafOrAtOrVar = QLeaf <$> try leaf <|> at <|> qVar
+leafOrAtOrVar = QLeaf <$> try leaf <|> try at <|> try qVar
 
 leaf :: Parser Expr
 leaf = do
