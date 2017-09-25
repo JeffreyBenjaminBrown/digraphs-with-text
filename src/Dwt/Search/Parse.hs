@@ -3,7 +3,7 @@ module Dwt.Search.Parse where
 import Data.Graph.Inductive (Node, pre, nodes)
 import Dwt.Types
 import Dwt.ParseUtils (Parser, integer, symbol, word)
-import Dwt.Hash.Parse (exprSum)
+import Dwt.Hash.Parse (expr)
 import Dwt.Search.QNode (qGet)
 import Control.Applicative ((<|>))
 import Control.Monad.Trans.Reader
@@ -17,7 +17,7 @@ pCommand = foldl1 (<|>) [pUsers, pAllNodes, pShowQueries, pQNode]
   --TODO: add pShowQNodes]
 
 pQNode :: Parser Command
-pQNode = ViewGraph . f <$> (word "qn" >> exprSum) where
+pQNode = ViewGraph . f <$> (word "qn" >> expr) where
   f qnode = do g <- ask
                return $ qGet g qnode
 

@@ -12,7 +12,7 @@ tAdd = TestList [ TestLabel "tAddLabeled" tAddLabeled
 
 tAddLabeled = TestCase $ do
   let Right g = execStateT f empty
-      f = mapM (addExpr . fr . parse exprSum "" ) exprs
+      f = mapM (addExpr . fr . parse expr "" ) exprs
       exprs = ["a #x", "#x a", "a #x b", "##x b #x"]
       qa = QLeaf $ Word "a"
       qb = QLeaf $ Word "b"
@@ -23,7 +23,7 @@ tAddLabeled = TestCase $ do
 
 tAddUnlabeled = TestCase $ do
   let Right g = execStateT f empty
-      f = mapM (addExpr . fr . parse exprSum "" ) exprs
+      f = mapM (addExpr . fr . parse expr "" ) exprs
       exprs = ["a #", "# a", "a # b", "## b #"]
         -- TODO: unlabeled rels (a #) and (# a) are visually indistinguishable
       qa = QLeaf $ Word "a"

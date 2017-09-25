@@ -6,7 +6,7 @@ module Dwt.UI where
 import Dwt.Types
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
-import Dwt.Hash.Parse (exprSum)
+import Dwt.Hash.Parse (expr)
 import Dwt.Search.Parse (Command(..), pCommand)
 import Dwt.Util (fr)
 
@@ -49,7 +49,7 @@ initialState g = St g [] [] (F.focusRing [InsertWindow, CommandWindow])
 addToRSLT :: St -> T.EventM Name (T.Next St)
 addToRSLT st = do
     let strings = st ^. insertWindow & E.getEditContents
-        graphUpdater = mapM (addExpr . fr . parse exprSum "") strings
+        graphUpdater = mapM (addExpr . fr . parse expr "") strings
           -- TODO: nix the fr
         g = st ^. rslt
         e = execStateT graphUpdater g
