@@ -33,16 +33,16 @@ instance Ord EO where -- ^ Open > closed. If those are equal, ## > #, etc.
   EO a b <= EO c d = a <= c && b <= d
 
 data Hash = Hash EO QNode -- ^ QRels go here
-  | HashLeaf QNode -- ^ anything else goes here
+  | HashNonRel QNode -- ^ anything else goes here
   deriving (Show, Eq)
 
 getQNode :: Hash -> QNode
-getQNode (HashLeaf q) = q
+getQNode (HashNonRel q) = q
 getQNode (Hash _ q) = q
 
 hasInsRel :: Hash -> Bool
 hasInsRel (Hash _ _) = True
-hasInsRel (HashLeaf _) = False
+hasInsRel (HashNonRel _) = False
 
 startRel :: Level -> Joint -> Hash -> Hash -> Hash
 startRel l j a b = Hash (EO True l) $ QRel [j] $ map getQNode [a,b]
@@ -72,7 +72,7 @@ leftConcat _ _ _ = error "can only leftConcat into a QRel"
 
 close :: Hash -> Hash
 close (Hash (EO _ a) (QRel b c)) = Hash (EO False a) $ QRel b c
-close x@(HashLeaf _) = x
+close x@(HashNonRel _) = x
 
 hash :: Level -> Joint -> Hash -> Hash -> Hash
 hash l j a@(hasInsRel -> False) b@(hasInsRel -> False)
@@ -114,13 +114,13 @@ _expr = makeExprParser term
     ] | n <- [1..8] ]
 
 term :: Parser Hash
-term = HashLeaf . QLeaf <$> try leaf
-       <|> HashLeaf <$> try at
-       <|> HashLeaf <$> try qVar
+term = HashNonRel . QLeaf <$> try leaf
+       <|> HashNonRel <$> try at
+       <|> HashNonRel <$> try qVar
        <|> close <$> parens _expr
        <|> absent where
   absent :: Parser Hash
-  absent = HashLeaf . const Absent <$> f <?> "Intended to \"find\" nothing."
+  absent = HashNonRel . const Absent <$> f <?> "Intended to \"find\" nothing."
   f = lookAhead $ const () <$> satisfy (== '#') <|> eof
     -- the Absent parser should look for #, but not ), because
     -- parentheses get consumed in pairs in an outer (earlier) context
@@ -146,7 +146,7 @@ qVar = QVar <$> (string "@" >> it <|> any <|> from <|> to) where
 
 pAnd :: Int -> Parser (Hash -> Hash -> Hash)
 pAnd n = lexeme $ do pAndUnlabeled n
-                     return $ \a b-> HashLeaf $ QAnd $ map getQNode [a,b]
+                     return $ \a b-> HashNonRel $ QAnd $ map getQNode [a,b]
   -- todo ? prettier would be to test if they are already QAnds,
   -- and if so merge them, rather than creating a new one.
   -- The same could be done to pOr.
@@ -156,7 +156,7 @@ pAnd n = lexeme $ do pAndUnlabeled n
 
 pOr :: Int -> Parser (Hash -> Hash -> Hash)
 pOr n = lexeme $ do pOrUnlabeled n
-                    return $ \a b-> HashLeaf $ QOr $ map getQNode [a,b]
+                    return $ \a b-> HashNonRel $ QOr $ map getQNode [a,b]
   where pOrUnlabeled :: Int -> Parser ()
         pOrUnlabeled n = const () <$> f
         f = string (replicate n '|') <* notFollowedBy (char '|')

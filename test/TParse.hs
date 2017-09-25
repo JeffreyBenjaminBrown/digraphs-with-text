@@ -17,13 +17,13 @@ tHash = TestCase $ do
   assertBool "4" $ either (const True) (const False) $ parse expr "" ")("
 
   assertBool "1"
-    $ hash 2 ("") (HashLeaf $ QLeaf $ Word "hi")
-                  (HashLeaf $ QLeaf $ Word "there")
+    $ hash 2 ("") (HashNonRel $ QLeaf $ Word "hi")
+                  (HashNonRel $ QLeaf $ Word "there")
     == (Hash (EO True 2) $ QRel [""] [(QLeaf $ Word "hi")
                                      ,(QLeaf $ Word "there")] )
 
   assertBool "2" $
-    rightConcat ("") (HashLeaf $ QLeaf $ Word "na")
+    rightConcat ("") (HashNonRel $ QLeaf $ Word "na")
     (Hash (EO True 3) $ QRel ["zaba"] [(QLeaf $ Word "left")
                                       ,(QLeaf $ Word "right")] )
     == (Hash (EO True 3) $ QRel ["zaba",""] [(QLeaf $ Word "left")
@@ -31,7 +31,7 @@ tHash = TestCase $ do
                                             ,(QLeaf $ Word "na")] )
 
   assertBool "3"
-    $ leftConcat ("new") (HashLeaf $ QLeaf $ Word "new")
+    $ leftConcat ("new") (HashNonRel $ QLeaf $ Word "new")
       (Hash (EO True 4) $ QRel ["j"] [(QLeaf $ Word "left")
                                      ,(QLeaf $ Word "right")] )
     == (Hash (EO True 4) $ QRel ["new","j"]
