@@ -5,7 +5,7 @@ module Dwt.Hash.Parse (
 
   -- for tests, not interface
   , leaf, at, qVar, leafOrAtOrVar
-  , pRelRole
+  , pBranch, pRoleMap
   , EO(..), Hash(..)
   , hash, rightConcat, leftConcat
   ) where
@@ -14,12 +14,13 @@ import Text.Megaparsec
 import Text.Megaparsec.Char (satisfy, string, char)
 import Text.Megaparsec.Expr (makeExprParser, Operator(..))
 
-import Dwt.ParseUtils (Parser, lexeme, parens, sc
+import Dwt.ParseUtils (Parser, lexeme, parens, brackets, sc
                       , integer
                       , anyWord, word, wordChar, phrase)
 import Dwt.Types
 import Dwt.MkTplt (mkTplt)
 import Data.List (intersperse)
+import qualified Data.Map as M
 
 
 -- == Hash (not parsing)
@@ -151,13 +152,19 @@ pOr n = lexeme $ do pOrUnlabeled n
         f = string (replicate n '|') <* notFollowedBy (char '|')
 
 -- == QBranch
---pBranch :: Parser Qnode
---pBranch = lexeme $ do word "@branch"
---                      dir <- parens 
+pBranch :: Parser QNode
+pBranch = lexeme $ do word "@branch"
+                      dir <- parens pRoleMap
+                      origin <- expr
+                      return $ QBranch dir origin
 
-pRelRole :: Parser RelRole
-pRelRole = const TpltRole <$> word "tplt"
-  <|> Mbr <$> (word "mbr" >> integer)
+pRoleMap :: Parser RoleMap
+pRoleMap = M.fromList <$> pair `sepBy` (lexeme $ char ',') where
+  pair :: Parser (RelRole, QNode)
+  pair = (,) <$> pRelRole <*> expr
+  pRelRole :: Parser RelRole
+  pRelRole = lexeme $ const TpltRole <$> word "t"
+                      <|> Mbr <$> integer
 
 -- == the simplest kinds of leaf
 leafOrAtOrVar :: Parser QNode
