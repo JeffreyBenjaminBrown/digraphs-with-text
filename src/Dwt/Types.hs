@@ -1,10 +1,9 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 module Dwt.Types (
-  MbrPos, Arity
+  MbrPos, Arity, Level
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
-  , QNode(..), SearchVar(..), RoleMap
-  , Level, Joint(..), EO(..)
+  , QNode(..), Joint(..), SearchVar(..), RoleMap
   , DwtErr, ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString -- lenses
 
@@ -23,6 +22,8 @@ import Data.String (IsString, fromString)
 -- == Fundamental
 type Arity = Int
 type MbrPos = Int -- k members of k-ary Rel, MbrPos(ition) values [1..k]
+type Level = Int -- ^ in "cats like you because you like them", the "because"
+  -- relationship is level 2, and the "like" relationships are level 1
 
 type RSLT = Gr Expr RSLTEdge -- ^ reflective set of labeled tuples
 data Expr = Word String | Fl Float -- ^ Fl and Word are similarly atomic
@@ -57,18 +58,6 @@ type RoleMap  = Map.Map RelRole QNode
 data Joint = Joint String deriving (Show, Eq)
   -- ^ in "you #like peaches #at noon", "like" and "at" are joints
 instance IsString Joint where fromString = Joint
-
-type Level = Int -- ^ in "cats like you because you like them", the "because"
-  -- relationship is level 2, and the "like" relationships are level 1
-data EO = EO     -- ^ EO = "expression orderer"
-  { open :: Bool -- ^ open = "more expressions can be concatentated into it"
-                 -- In b@(QRel (EO x _) _ _), x is true until
-                 -- b has been surrounded by parentheses.
-  , inLevel :: Level } deriving (Eq)
-instance Show EO where
-  show (EO x y) = "(EO " ++ show x ++ " " ++ show y ++ ")"
-instance Ord EO where -- ^ Open > closed. If those are equal, ## > #, etc.
-  EO a b <= EO c d = a <= c && b <= d
 
 -- == Errors
 type DwtErr = (ErrBase, [ErrOpt], String)

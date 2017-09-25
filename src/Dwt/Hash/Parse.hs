@@ -4,6 +4,7 @@ module Dwt.Hash.Parse (
   expr
 
   -- for tests, not interface
+  , Level, EO(..)
   , hash, rightConcat, leftConcat, disregardedEo
   ) where
 
@@ -18,6 +19,16 @@ import Dwt.Types
 import Dwt.MkTplt (mkTplt)
 import Data.List (intersperse)
 
+
+data EO = EO     -- ^ EO = "expression orderer"
+  { open :: Bool -- ^ open = "more expressions can be concatentated into it"
+                 -- In b@(QRel (EO x _) _ _), x is true until
+                 -- b has been surrounded by parentheses.
+  , inLevel :: Level } deriving (Eq)
+instance Show EO where
+  show (EO x y) = "(EO " ++ show x ++ " " ++ show y ++ ")"
+instance Ord EO where -- ^ Open > closed. If those are equal, ## > #, etc.
+  EO a b <= EO c d = a <= c && b <= d
 
 type Hash = (QNode, EO)
 disregardedEo = EO True 0 -- todo: retire
@@ -54,6 +65,14 @@ rightConcat :: Joint -> Hash -> Hash -> Hash
 rightConcat j m (QRel joints mbrs, eo)
   = (QRel (joints ++ [j]) (mbrs ++ [fst m]), eo)
 rightConcat _ _ _ = error "can only rightConcat into a QRel"
+
+rightConcatSum :: Joint
+  -> HashSum -- ^ insert this
+  -> HashSum -- ^ into the right side of this
+  -> HashSum -- ifdo speed : use a two-sided list of pairs
+rightConcatSum j (Hash _ q) (Hash eo (QRel joints mbrs))
+  = Hash eo $ QRel (joints ++ [j]) (mbrs ++ [q])
+rightConcatSum _ _ _ = error "can only rightConcat into a QRel"
 
 leftConcat :: Joint -> Hash -> Hash -> Hash
 leftConcat j m (QRel joints mbrs, eo)
