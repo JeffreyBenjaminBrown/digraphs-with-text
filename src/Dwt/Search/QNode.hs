@@ -36,6 +36,7 @@ import Dwt.Search.Base (mkRoleMap, selectRelElts)
 import Data.List (nub)
 import qualified Data.Map as Map
 import qualified Data.Maybe as Mb
+import Data.Set (Set, fromList, intersection, union)
 import Control.Monad.Morph (hoist)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Reader (ReaderT, runReaderT, ask, lift)
@@ -50,6 +51,15 @@ playsRoleIn g r n = prependCaller "qPlaysRoleIn: " $
      return $ f g r n
   where f :: (Graph gr) => gr a RSLTEdge -> RelRole -> Node -> [Node]
         f g r n = [m | (m,r') <- lpre g n, r' == RelEdge r]
+
+-- TODO: convert all search functions from List to Set, like this one
+-- difficulty: Set has no Traversable instance; need (fromlist . _ . tolist)
+playsRoleInSetRefactor :: RSLT -> RelRole -> Node -> Either DwtErr (Set Node)
+playsRoleInSetRefactor g r n = prependCaller "qPlaysRoleIn: " $
+  do gelemM g n -- makes f safe
+     return $ f g r n
+  where f :: (Graph gr) => gr a RSLTEdge -> RelRole -> Node -> Set Node
+        f g r n = fromList [m | (m,r') <- lpre g n, r' == RelEdge r]
 
 qPlaysRoleIn :: RSLT -> RelRole -> QNode -> Either DwtErr [Node]
 qPlaysRoleIn g r q = prependCaller "qPlaysRoleIn: "
@@ -189,3 +199,6 @@ dwtBfsLab :: RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
 dwtBfsLab g dir starts =
   do mapM_ (gelemM g) $ starts
      map (nodeToLNodeUsf g) . nub . reverse <$> bfsConcat g dir starts []
+
+
+-- == refactoring from list to set
