@@ -22,6 +22,7 @@ import Dwt.MkTplt (mkTplt)
 import Data.List (intersperse)
 
 
+-- == Hash (not parsing)
 data EO = EO     -- ^ EO = "expression orderer"
   { open :: Bool -- ^ open = "more expressions can be concatentated into it"
                  -- In b@(QRel (EO x _) _ _), x is true until
@@ -102,7 +103,7 @@ hash l j a@(Hash ea (QRel _ _)) b@(Hash eb (QRel _ _)) =
      else error msg
 
 
--- == the QNode parser
+-- == parsing QNodes
 expr :: Parser QNode
 expr = getQNode <$> _expr
 
@@ -123,6 +124,7 @@ term = HashNonRel <$> try leafOrAtOrVar
     -- the Absent parser should look for #, but not ), because
     -- parentheses get consumed in pairs in an outer (earlier) context
 
+-- == parsing operators
 pHash :: Int -> Parser (Hash -> Hash -> Hash)
 pHash n = lexeme $ do pHashUnlabeled n
                       label <- option "" $ anyWord <|> parens phrase
@@ -130,17 +132,6 @@ pHash n = lexeme $ do pHashUnlabeled n
   where pHashUnlabeled :: Int -> Parser ()
         pHashUnlabeled n = const () <$> f
         f = string (replicate n '#') <* notFollowedBy (char '#')
-
-at :: Parser QNode
-at = At <$> (char '@' >> integer)
-
-qVar :: Parser QNode
-qVar = QVar <$> (string "@" >> it <|> any <|> from <|> to) where
-  it, any, from, to :: Parser SearchVar
-  it = const It <$> word "it"
-  any = const Any <$> word "any"
-  from = const From <$> word "from"
-  to = const It <$> word "to"
 
 pAnd :: Int -> Parser (Hash -> Hash -> Hash)
 pAnd n = lexeme $ do pAndUnlabeled n
@@ -159,6 +150,7 @@ pOr n = lexeme $ do pOrUnlabeled n
         pOrUnlabeled n = const () <$> f
         f = string (replicate n '|') <* notFollowedBy (char '|')
 
+-- == QBranch
 --pBranch :: Parser Qnode
 --pBranch = lexeme $ do word "@branch"
 --                      dir <- parens 
@@ -166,6 +158,10 @@ pOr n = lexeme $ do pOrUnlabeled n
 pRelRole :: Parser RelRole
 pRelRole = const TpltRole <$> word "tplt"
   <|> Mbr <$> (word "mbr" >> integer)
+
+-- == the simplest kinds of leaf
+leafOrAtOrVar :: Parser QNode
+leafOrAtOrVar = QLeaf <$> try leaf <|> at <|> qVar
 
 leaf :: Parser Expr
 leaf = do
@@ -175,8 +171,16 @@ leaf = do
   return $ case elem "_" p of True ->  mkTplt . f $ p
                               False -> Word   . f $ p
 
-leafOrAtOrVar :: Parser QNode
-leafOrAtOrVar = QLeaf <$> try leaf <|> at <|> qVar
+at :: Parser QNode
+at = At <$> (char '@' >> integer)
+
+qVar :: Parser QNode
+qVar = QVar <$> (string "@" >> it <|> any <|> from <|> to) where
+  it, any, from, to :: Parser SearchVar
+  it = const It <$> word "it"
+  any = const Any <$> word "any"
+  from = const From <$> word "from"
+  to = const It <$> word "to"
 
 -- | unused
 hasBlanks :: Parser Bool
