@@ -30,7 +30,9 @@ instance Show EO where
 instance Ord EO where -- ^ Open > closed. If those are equal, ## > #, etc.
   EO a b <= EO c d = a <= c && b <= d
 
-data Hash = Hash EO QNode | HashLeaf QNode deriving (Show, Eq)
+data Hash = Hash EO QNode -- ^ QRels go here
+  | HashLeaf QNode -- ^ anything else goes here
+  deriving (Show, Eq)
 
 getQNode :: Hash -> QNode
 getQNode (HashLeaf q) = q
@@ -100,16 +102,16 @@ hash l j a@(Hash ea (QRel _ _)) b@(Hash eb (QRel _ _)) =
 
 -- == the QNode parser
 expr :: Parser QNode
-expr = getQNode <$> expr'
+expr = getQNode <$> _expr
 
-expr' :: Parser Hash
-expr' = makeExprParser term
+_expr :: Parser Hash
+_expr = makeExprParser term
   [ [InfixL $ try $ pHash n] | n <- [1..8] ]
 
 term :: Parser Hash
 term = HashLeaf . QLeaf <$> leaf
        <|> HashLeaf <$> at
-       <|> close <$> parens expr'
+       <|> close <$> parens _expr
        <|> absent where
   absent :: Parser Hash
   absent = HashLeaf . const Absent <$> f <?> "Intended to \"find\" nothing."
