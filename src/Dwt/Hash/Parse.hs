@@ -31,13 +31,14 @@ instance Ord EO where -- ^ Open > closed. If those are equal, ## > #, etc.
   EO a b <= EO c d = a <= c && b <= d
 
 data Hash = Hash EO QNode | HashLeaf QNode deriving (Show, Eq)
+
 getQNode :: Hash -> QNode
 getQNode (HashLeaf q) = q
 getQNode (Hash _ q) = q
 
-isInsRel :: Hash -> Bool
-isInsRel (Hash _ _) = True
-isInsRel (HashLeaf _) = False
+hasInsRel :: Hash -> Bool
+hasInsRel (Hash _ _) = True
+hasInsRel (HashLeaf _) = False
 
 startRel :: Level -> Joint -> Hash -> Hash -> Hash
 startRel l j a b = Hash (EO True l) $ QRel [j] $ map getQNode [a,b]
@@ -70,17 +71,17 @@ close (Hash (EO _ a) (QRel b c)) = Hash (EO False a) $ QRel b c
 close x@(HashLeaf _) = x
 
 hash :: Level -> Joint -> Hash -> Hash -> Hash
-hash l j a@(isInsRel -> False) b@(isInsRel -> False)
+hash l j a@(hasInsRel -> False) b@(hasInsRel -> False)
   = startRel l j a b
-hash l j a@(isInsRel -> False) b@(Hash (EO False _) (QRel _ _))
+hash l j a@(hasInsRel -> False) b@(Hash (EO False _) (QRel _ _))
   = startRel l j a b
-hash l j a@(Hash (EO False _) (QRel _ _)) b@(isInsRel -> False)
+hash l j a@(Hash (EO False _) (QRel _ _)) b@(hasInsRel -> False)
   = startRel l j a b
-hash l j a@(isInsRel -> False) b@(Hash (EO True l') (QRel _ _))
+hash l j a@(hasInsRel -> False) b@(Hash (EO True l') (QRel _ _))
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = leftConcat j a b -- I suspect this won't happen either
   | l > l' = startRel l j a b
-hash l j a@(Hash (EO True l') (QRel _ _)) b@(isInsRel -> False)
+hash l j a@(Hash (EO True l') (QRel _ _)) b@(hasInsRel -> False)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = rightConcat j b a -- but this will
   | l > l' = startRel l j a b
