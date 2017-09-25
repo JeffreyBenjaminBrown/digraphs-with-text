@@ -81,14 +81,14 @@ tStar = TestCase $ do
                                        , QLeaf $ Word "water"
                                        , QLeaf $ Word "chocolate"] )
   assertBool "star treats It the same as Any" $
-    (fmap S.fromList $ star g2 (QLeaf $ Word "water") anyNeedsFromForToRM)
-    == (fmap S.fromList $ star g2 (QLeaf $ Word "water") itNeedsFromForToRM)
+    (fmap S.fromList $ star g2 anyNeedsFromForToRM $ QLeaf $ Word "water")
+    == (fmap S.fromList $ star g2 itNeedsFromForToRM $ QLeaf $ Word "water")
   assertBool "any matches Laura and dog" $
-    (fmap S.fromList $ star g2 (QLeaf $ Word "water") anyNeedsFromForToRM)
+    (fmap S.fromList $ star g2 anyNeedsFromForToRM $ QLeaf $ Word "water")
     == (fmap S.fromList $ liftA2 (++)
                           (qGet g2 $ QLeaf $ Word "brandy")
                           (qGet g2 $ QLeaf $ Word "chocolate") )
   assertBool "but dog only matches dog" $
-    (star g2 (QLeaf $ Word "water") dogNeedsFromForToRM)
+    (star g2 dogNeedsFromForToRM $ QLeaf $ Word "water")
     == (qGet g2 $ QLeaf $ Word "brandy")
 

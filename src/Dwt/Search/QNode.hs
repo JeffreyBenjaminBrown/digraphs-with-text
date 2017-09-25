@@ -13,7 +13,7 @@ module Dwt.Search.QNode (
 
   , otherDir -- SearchVar -> Either DwtErr SearchVar
   , has1Dir -- SearchVar(the dir it has 1 of) -> RoleMap -> Bool
-  , star -- RSLT -> QNode -> RoleMap -> Either DwtErr [Node]
+  , star -- RSLT -> RoleMap -> QNode -> Either DwtErr [Node]
   , subQNodeForVars --QNode(sub this) ->SearchVar(for this) ->RoleMap(in this)
     -- -> ReaderT RSLT (Either DwtErr) RoleMap
   , dwtDfs    -- RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
@@ -148,8 +148,8 @@ has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
         f _ = False
 
 -- | warning ? treats It like Any
-star :: RSLT -> QNode -> RoleMap -> Either DwtErr [Node]
-star g qFrom axis = do -- returns one generation of some kind of neighbor
+star :: RSLT -> RoleMap -> QNode -> Either DwtErr [Node]
+star g axis qFrom = do -- returns one generation of some kind of neighbor
   if has1Dir From axis then return ()
      else Left (Invalid, [ErrRoleMap axis]
                , "star: should have only one " ++ show From)
@@ -175,7 +175,7 @@ _bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- ^ order determines dfs or bfs
   -> Either DwtErr [Node]
 _bfsOrDfs _ _ _ [] acc = return acc
 _bfsOrDfs collector g qdir (n:ns) acc = do
-  newNodes <- star g (At n) qdir -- todo speed ? calls has1Dir too much
+  newNodes <- star g qdir $ At n -- todo speed ? calls has1Dir too much
   _bfsOrDfs collector g qdir (nub $ collector newNodes ns) (n:acc)
     -- todo speed ? discard visited nodes from graph.  (might backfire?)
 
