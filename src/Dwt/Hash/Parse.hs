@@ -4,7 +4,7 @@ module Dwt.Hash.Parse (
   expr
 
   -- for tests, not interface
-  , leaf, at, qVar
+  , leaf, at, qVar, leafOrAtOrVar
   , pRelRole
   , EO(..), Hash(..)
   , hash, rightConcat, leftConcat
@@ -114,9 +114,7 @@ _expr = makeExprParser term
     ] | n <- [1..8] ]
 
 term :: Parser Hash
-term = HashNonRel . QLeaf <$> try leaf
-       <|> HashNonRel <$> try at
-       <|> HashNonRel <$> try qVar
+term = HashNonRel <$> try leafOrAtOrVar
        <|> close <$> parens _expr
        <|> absent where
   absent :: Parser Hash
@@ -176,6 +174,9 @@ leaf = do
   p <- some $ blank <|> anyWord
   return $ case elem "_" p of True ->  mkTplt . f $ p
                               False -> Word   . f $ p
+
+leafOrAtOrVar :: Parser QNode
+leafOrAtOrVar = QLeaf <$> try leaf <|> at <|> qVar
 
 -- | unused
 hasBlanks :: Parser Bool
