@@ -107,7 +107,10 @@ expr = getQNode <$> _expr
 
 _expr :: Parser Hash
 _expr = makeExprParser term
-  [ [InfixL $ try $ pHash n] | n <- [1..8] ]
+  [ [ InfixL $ try $ pHash n
+    , InfixL $ try $ pAnd n
+    , InfixL $ try $ pOr n
+    ] | n <- [1..8] ]
 
 term :: Parser Hash
 term = HashLeaf . QLeaf <$> try leaf
@@ -121,15 +124,30 @@ term = HashLeaf . QLeaf <$> try leaf
     -- the Absent parser should look for #, but not ), because
     -- parentheses get consumed in pairs in an outer (earlier) context
 
-pHashUnlabeled :: Int -> Parser ()
-pHashUnlabeled n = const () <$> f
-  where f = string (replicate n '#') <* notFollowedBy (char '#')
-
 pHash :: Int -> Parser (Hash -> Hash -> Hash)
-pHash n = lexeme $ do
-  pHashUnlabeled n
-  label <- option "" $ anyWord <|> parens phrase
-  return $ hash n $ Joint label
+pHash n = lexeme $ do pHashUnlabeled n
+                      label <- option "" $ anyWord <|> parens phrase
+                      return $ hash n $ Joint label
+  where pHashUnlabeled :: Int -> Parser ()
+        pHashUnlabeled n = const () <$> f
+        f = string (replicate n '#') <* notFollowedBy (char '#')
+
+pAnd :: Int -> Parser (Hash -> Hash -> Hash)
+pAnd n = lexeme $ do pAndUnlabeled n
+                     return $ \a b-> HashLeaf $ QAnd $ map getQNode [a,b]
+  -- todo ? prettier would be to test if they are already QAnds,
+  -- and if so merge them, rather than creating a new one.
+  -- The same could be done to pOr.
+  where pAndUnlabeled :: Int -> Parser ()
+        pAndUnlabeled n = const () <$> f
+        f = string (replicate n '&') <* notFollowedBy (char '&')
+
+pOr :: Int -> Parser (Hash -> Hash -> Hash)
+pOr n = lexeme $ do pOrUnlabeled n
+                    return $ \a b-> HashLeaf $ QOr $ map getQNode [a,b]
+  where pOrUnlabeled :: Int -> Parser ()
+        pOrUnlabeled n = const () <$> f
+        f = string (replicate n '|') <* notFollowedBy (char '|')
 
 leaf :: Parser Expr
 leaf = do
