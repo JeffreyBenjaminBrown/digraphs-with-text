@@ -1,4 +1,4 @@
-module Dwt.Search.Parse where
+module Dwt.UI.Parse where
 
 import Data.Graph.Inductive (Node, pre, nodes)
 import Dwt.Types

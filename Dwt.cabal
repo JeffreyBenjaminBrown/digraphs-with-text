@@ -20,14 +20,14 @@ library
                      , Dwt.Hash.Parse
                      , Dwt.MkTplt
                      , Dwt.ParseUtils
-                     , Dwt.Search.Base
+                     , Dwt.Search.Initial
                      , Dwt.Search.Branch
-                     , Dwt.Search.Parse
+                     , Dwt.UI.Parse
                      , Dwt.Search.QNode
                      , Dwt.Search.Misfits
                      , Dwt.Show
                      , Dwt.Types
-                     , Dwt.UI
+                     , Dwt.UI.Terminal
                      , Dwt.Util
 
   build-depends:       base

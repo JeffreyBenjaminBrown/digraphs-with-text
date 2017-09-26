@@ -3,7 +3,7 @@ module TGraph where
 import Dwt hiding (fromRight)
 import Data.Graph.Inductive
 import TData
-import Dwt.Search.Base (selectRelElts, validMbrRole, users, relTplt, tpltAt)
+import Dwt.Search.Initial (selectRelElts, validMbrRole, users, relTplt, tpltAt)
 import Test.HUnit hiding (Node)
 
 import qualified Data.Map as Map

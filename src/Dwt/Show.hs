@@ -6,7 +6,7 @@ module Dwt.Show
 
 import Dwt.Measure (tpltArity)
 import Dwt.MkTplt (subInTplt, subInTpltWithHashes)
-import Dwt.Search.Base (users,mbrs)
+import Dwt.Search.Initial (users,mbrs)
 import Dwt.Types
 import Dwt.Util
 

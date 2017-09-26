@@ -1,13 +1,15 @@
+-- | Terminal in the category theory sense of terminal object:
+-- every module in Dwt.UI will be imported into this one.
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RankNTypes #-}
-module Dwt.UI where
+module Dwt.UI.Terminal where
 
 import Dwt.Types
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse (expr)
-import Dwt.Search.Parse (Command(..), ReadNodes, pCommand)
+import Dwt.UI.Parse (Command(..), ReadNodes, pCommand)
 import Dwt.Util (fr)
 
 import Brick.Widgets.Core ( (<+>), (<=>), hLimit, vLimit, str)

@@ -1,5 +1,7 @@
+-- | Initial in the category theory sense of initial object:
+-- every module in Dwt.Search will import this one.
 {-# LANGUAGE FlexibleContexts #-}
-module Dwt.Search.Base (
+module Dwt.Search.Initial (
   mkRoleMap -- Node -> [Node] -> RoleMap
   , toRoleMap -- QNode -> Either DwtErr RoleMap
   , whereis -- RSLT -> Expr -> [Node]

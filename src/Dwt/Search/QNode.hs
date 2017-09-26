@@ -31,7 +31,7 @@ import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
                 , listIntersect, nodeToLNodeUsf)
 import Dwt.Measure (extractTplt, isAbsent)
-import Dwt.Search.Base (mkRoleMap, selectRelElts, users)
+import Dwt.Search.Initial (mkRoleMap, selectRelElts, users)
 
 import Data.List (nub, sortOn)
 import qualified Data.Map as Map

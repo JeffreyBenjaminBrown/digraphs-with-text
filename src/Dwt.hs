@@ -8,14 +8,14 @@ module Dwt
   , module Dwt.Hash.Insert
   , module Dwt.Hash.Parse
   , module Dwt.ParseUtils
-  , module Dwt.Search.Base
-  , module Dwt.Search.Parse
+  , module Dwt.Search.Initial
+  , module Dwt.UI.Parse
   , module Dwt.Search.QNode
   , module Dwt.Search.Misfits
   , module Dwt.Show
   , module Dwt.MkTplt
   , module Dwt.Types
-  , module Dwt.UI
+  , module Dwt.UI.Terminal
   , module Dwt.Util
   ) where
 
@@ -26,14 +26,14 @@ import Dwt.Edit
 import Dwt.Hash.Insert
 import Dwt.Hash.Parse
 import Dwt.ParseUtils
-import Dwt.Search.Base
-import Dwt.Search.Parse
+import Dwt.Search.Initial
+import Dwt.UI.Parse
 import Dwt.Search.QNode
 import Dwt.Search.Misfits
 import Dwt.Show
 import Dwt.MkTplt
 import Dwt.Types
-import Dwt.UI
+import Dwt.UI.Terminal
 import Dwt.Util
 
 import qualified Data.Maybe as Mb
