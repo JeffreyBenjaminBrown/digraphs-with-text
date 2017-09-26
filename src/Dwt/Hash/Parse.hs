@@ -5,7 +5,7 @@ module Dwt.Hash.Parse (
 
   -- for tests, not interface
   , leaf, at, qVar, leafOrAtOrVar
-  , pBranch, pBranchMap, pRoleMap
+  , pBranch, pMapBranch, pRoleMap
   , EO(..), Hash(..)
   , hash, rightConcat, leftConcat
   ) where
@@ -116,8 +116,12 @@ _expr = makeExprParser term
     , InfixL $ try $ pOr n
     ] | n <- [1..8] ]
 
+pQNode = (QLeaf <$> try leaf <|> try at <|> try qVar)
+         <|> try pBranch
+         <|> try pMapBranch
+
 term :: Parser Hash
-term = HashNonRel <$> try leafOrAtOrVar
+term = HashNonRel <$> try pQNode
        <|> close <$> parens _expr
        <|> absent where
   absent :: Parser Hash
@@ -153,6 +157,7 @@ pOr n = lexeme $ do pOrUnlabeled n
         f = string (replicate n '|') <* notFollowedBy (char '|')
 
 -- == QBranch
+-- | less typing, but less flexible
 pBranch :: Parser QNode -- TODO ? handle a Left in a Parser
 pBranch = lexeme $ do
   word "/b"
@@ -162,8 +167,9 @@ pBranch = lexeme $ do
                                       ++ show e
                     Right dir -> return $ QBranch dir origin
 
-pBranchMap :: Parser QNode
-pBranchMap = lexeme $ do word "/bm"
+-- | a little harder to type,  but more flexible
+pMapBranch :: Parser QNode
+pMapBranch = lexeme $ do word "/mb"
                          dir <- parens pRoleMap
                          origin <- expr
                          return $ QBranch dir origin

@@ -14,10 +14,11 @@ data Command = ViewGraph ReadNodes | ShowQueries
 type ReadNodes = Reader RSLT (Either DwtErr [Node])
 
 pCommand :: Parser Command
-pCommand = foldl1 (<|>) $ map try [pUsers, pAllNodes, pShowQueries, pQNode]
+pCommand = foldl1 (<|>) $ map try [pUsers, pAllNodes, pShowQueries
+                                  , pQNodeCommand]
 
-pQNode :: Parser Command
-pQNode = ViewGraph . f <$> expr where
+pQNodeCommand :: Parser Command
+pQNodeCommand = ViewGraph . f <$> expr where
   f qnode = do g <- ask
                return $ qGet g qnode
 
