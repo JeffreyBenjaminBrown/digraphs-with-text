@@ -31,7 +31,7 @@ import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
                 , listIntersect, nodeToLNodeUsf)
 import Dwt.Measure (extractTplt, isAbsent)
-import Dwt.Search.Base (mkRoleMap, selectRelElts)
+import Dwt.Search.Base (mkRoleMap, selectRelElts, users)
 
 import Data.List (nub)
 import qualified Data.Map as Map
@@ -149,10 +149,12 @@ has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
 
 -- | warning ? treats It like Any
 star :: RSLT -> RoleMap -> QNode -> Either DwtErr [Node]
+star g (Map.null -> True) qFrom = do from <- qGet g qFrom
+                                     concat <$> mapM (users g) from
 star g axis qFrom = do -- returns one generation of some kind of neighbor
   if has1Dir From axis then return ()
      else Left (Invalid, [ErrRoleMap axis]
-               , "star: should have only one " ++ show From)
+               , "star: should have exactly one " ++ show From)
   let forwardRoles = Map.keys $ Map.filter (== QVar To) axis
   axis' <- runReaderT (subQNodeForVars qFrom From axis) g
   rels <- matchRoleMap g axis'
@@ -186,14 +188,14 @@ dwtDfs :: RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
 dwtDfs g dir starts = do mapM_ (gelemM g) $ starts
                          (nub . reverse) <$> dfsConcat g dir starts []
 
+dwtBfs :: RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
+dwtBfs g dir starts = do mapM_ (gelemM g) $ starts
+                         (nub . reverse) <$> bfsConcat g dir starts []
+
 dwtDfsLab :: RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
 dwtDfsLab g dir starts =
   do mapM_ (gelemM g) $ starts
      map (nodeToLNodeUsf g) . nub . reverse <$> dfsConcat g dir starts []
-
-dwtBfs :: RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
-dwtBfs g dir starts = do mapM_ (gelemM g) $ starts
-                         (nub . reverse) <$> bfsConcat g dir starts []
 
 dwtBfsLab :: RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
 dwtBfsLab g dir starts =
