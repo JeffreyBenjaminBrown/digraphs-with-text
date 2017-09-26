@@ -1,4 +1,4 @@
-dwtDfs :: RSLT -> (SearchVar,QRelspec) -> [Node] -> Either String [Node]
+dwtDfs_unlim :: RSLT -> (SearchVar,QRelspec) -> [Node] -> Either String [Node]
 insRelspec :: QRelspec -> RSLT -> Either DwtErr RSLT
 type QRelspec = Map.Map RelRole QNodeOrVar
   -- the others are flexible, but the TpltRole must map to a QNodeSpec

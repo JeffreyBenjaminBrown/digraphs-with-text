@@ -191,5 +191,5 @@ tRecursiveSearch = TestCase $ do
       rspec = Map.fromList [(TpltRole, QLeaf $ mkTplt "_ is _"),
                             (Mbr 1, QVar From),
                             (Mbr 2, QVar To)]
-  assertBool "1" $ dwtDfs g rspec [0] == Right [0,1,7,11,9]
-  assertBool "2" $ dwtBfs g rspec [0] == Right [0,1,7,9,11]
+  assertBool "1" $ dwtDfs_unlim g rspec [0] == Right [0,1,7,11,9]
+  assertBool "2" $ dwtBfs_unlim g rspec [0] == Right [0,1,7,9,11]

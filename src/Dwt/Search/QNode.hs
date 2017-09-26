@@ -16,12 +16,12 @@ module Dwt.Search.QNode (
   , star -- RSLT -> RoleMap -> QNode -> Either DwtErr [Node]
   , subQNodeForVars --QNode(sub this) ->SearchVar(for this) ->RoleMap(in this)
     -- -> ReaderT RSLT (Either DwtErr) RoleMap
-  , dwtDfs    -- RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
-  , dwtBfs    -- RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
+  , dwtDfs_unlim    -- RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
+  , dwtBfs_unlim    -- RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
 
   -- | = kind of silly
-  , dwtDfsLab -- RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
-  , dwtBfsLab -- RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
+  , dwtDfsLab_unlim -- RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
+  , dwtBfsLab_unlim -- RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
 ) where
 
 import Data.Graph.Inductive (Node, LNode, Graph, labfilter, lab, nodes
@@ -99,7 +99,7 @@ qGet g q@(QRel _ qms) = prependCaller "qGet: " $ do
   matchRoleMap g m
 qGet g (QAnd qs) = listIntersect <$> mapM (qGet g) qs
 qGet g (QOr qs) = nub . concat <$> mapM (qGet g) qs
-qGet g (QBranch dir q) = qGet g q >>= dwtDfs g dir
+qGet g (QBranch dir q) = qGet g q >>= dwtDfs_unlim g dir
 
 qGet1 :: RSLT -> QNode -> Either DwtErr Node
 qGet1 g q = prependCaller "qGet1: " $ case qGet g q of
@@ -135,6 +135,7 @@ qRegexWord g s = nodes $ labfilter f $ dropEdges g
 
 
 -- ==== Branches
+-- == Utilities
 -- | swap Up and Down, or err
 otherDir :: SearchVar -> Either DwtErr SearchVar
 otherDir From = Right To
@@ -147,6 +148,17 @@ has1Dir mv rc = 1 == length (Map.toList $ Map.filter f rc)
   where f (QVar y) = y == mv
         f _ = False
 
+-- | in r, changes each QVarSpec v to QNodeSpec n
+subQNodeForVars :: QNode -> SearchVar -> RoleMap
+  -> ReaderT RSLT (Either DwtErr) RoleMap
+subQNodeForVars q v r = hoist (prependCaller "subQNodeForVars") $ do
+  g <- ask
+  n <- lift $ qGet1 g q
+  let f (QVar v') = if v == v' then At n else QVar v'
+      f x = x -- f needs the v,v' distinction; otherwise v gets masked
+  lift $ Right $ Map.map f r
+
+-- == star, bfs, dfs
 -- | warning ? treats It like Any
 star :: RSLT -> RoleMap -> QNode -> Either DwtErr [Node]
 star g (Map.null -> True) qFrom = do from <- qGet g qFrom
@@ -160,45 +172,35 @@ star g axis qFrom = do -- returns one generation of some kind of neighbor
   rels <- matchRoleMap g axis'
   concat <$> mapM (\rel -> selectRelElts g rel forwardRoles) rels
 
--- | in r, changes each QVarSpec v to QNodeSpec n
-subQNodeForVars :: QNode -> SearchVar -> RoleMap
-  -> ReaderT RSLT (Either DwtErr) RoleMap
-subQNodeForVars q v r = hoist (prependCaller "subQNodeForVars") $ do
-  g <- ask
-  n <- lift $ qGet1 g q
-  let f (QVar v') = if v == v' then At n else QVar v'
-      f x = x -- f needs the v,v' distinction; otherwise v gets masked
-  lift $ Right $ Map.map f r
-
-_bfsOrDfs :: ([Node] -> [Node] -> [Node]) -- ^ order determines dfs or bfs
+_bfsOrDfs_unlim :: ([Node] -> [Node] -> [Node]) -- ^ order determines dfs or bfs
   -> RSLT -> RoleMap
   -> [Node] -- ^ searching from these (it gets added to and depleted)
   -> [Node] -- ^ the accumulator (it only gets added to)
   -> Either DwtErr [Node]
-_bfsOrDfs _ _ _ [] acc = return acc
-_bfsOrDfs collector g qdir (n:ns) acc = do
+_bfsOrDfs_unlim _ _ _ [] acc = return acc
+_bfsOrDfs_unlim collector g qdir (n:ns) acc = do
   newNodes <- star g qdir $ At n -- todo speed ? calls has1Dir too much
-  _bfsOrDfs collector g qdir (nub $ collector newNodes ns) (n:acc)
+  _bfsOrDfs_unlim collector g qdir (nub $ collector newNodes ns) (n:acc)
     -- todo speed ? discard visited nodes from graph.  (might backfire?)
 
-bfsConcat = _bfsOrDfs (\new old -> old ++ new)
-dfsConcat = _bfsOrDfs (\new old -> new ++ old)
+bfsConcat = _bfsOrDfs_unlim (\new old -> old ++ new)
+dfsConcat = _bfsOrDfs_unlim (\new old -> new ++ old)
 
-dwtDfs :: RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
-dwtDfs g dir starts = do mapM_ (gelemM g) $ starts
-                         (nub . reverse) <$> dfsConcat g dir starts []
+dwtDfs_unlim :: RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
+dwtDfs_unlim g dir starts = do mapM_ (gelemM g) $ starts
+                               (nub . reverse) <$> dfsConcat g dir starts []
 
-dwtBfs :: RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
-dwtBfs g dir starts = do mapM_ (gelemM g) $ starts
-                         (nub . reverse) <$> bfsConcat g dir starts []
+dwtBfs_unlim :: RSLT -> RoleMap -> [Node] -> Either DwtErr [Node]
+dwtBfs_unlim g dir starts = do mapM_ (gelemM g) $ starts
+                               (nub . reverse) <$> bfsConcat g dir starts []
 
-dwtDfsLab :: RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
-dwtDfsLab g dir starts =
+dwtDfsLab_unlim :: RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
+dwtDfsLab_unlim g dir starts =
   do mapM_ (gelemM g) $ starts
      map (nodeToLNodeUsf g) . nub . reverse <$> dfsConcat g dir starts []
 
-dwtBfsLab :: RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
-dwtBfsLab g dir starts =
+dwtBfsLab_unlim :: RSLT -> RoleMap -> [Node] -> Either DwtErr [LNode Expr]
+dwtBfsLab_unlim g dir starts =
   do mapM_ (gelemM g) $ starts
      map (nodeToLNodeUsf g) . nub . reverse <$> bfsConcat g dir starts []
 
