@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Dwt.Search.Initial (
   mkRoleMap -- Node -> [Node] -> RoleMap
-  , toRoleMap -- QNode -> Either DwtErr RoleMap
   , whereis -- RSLT -> Expr -> [Node]
   , tpltAt -- (MonadError DwtErr m) => RSLT -> Node(Tplt) -> m Expr(Tplt)
   , relTplt --                         RSLT -> Node(Rel) -> Either DwtErr Expr
@@ -18,7 +17,6 @@ module Dwt.Search.Initial (
 import Data.Graph.Inductive (Node, Graph, Gr, lsuc, lpre, lab, labfilter
                             , nodes)
 import Dwt.Initial.Types
-import Dwt.MkTplt (jointsToTplt)
 import Dwt.Initial.Util (gelemM, listIntersect, prependCaller)
 import Dwt.Initial.Measure (isCollM, isRelM, tpltArity)
 import qualified Data.Map as Map
@@ -32,11 +30,6 @@ mkRoleMap :: QNode -> [QNode] -> RoleMap
 mkRoleMap t ns = Map.fromList $ (TpltRole, t) : mbrSpecs
   where mbrSpecs = zip (fmap Mbr [1..]) ns
 
-toRoleMap :: QNode -> Either DwtErr RoleMap
-toRoleMap (QRel js qs) = Right $ Map.fromList $ t : ms where
-  t = (TpltRole, QLeaf $ jointsToTplt js)
-  ms = zip (map Mbr [1..]) qs
-toRoleMap x = Left (ConstructorMistmatch, [ErrQNode x], "toRoleMap.")
 
 -- ====
 whereis :: RSLT -> Expr -> [Node] -- TODO ? dependent types: length == 1

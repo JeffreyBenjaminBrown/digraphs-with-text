@@ -7,7 +7,7 @@ module Dwt.Show
 import Dwt.Initial.Types
 import Dwt.Initial.Util (fromRight)
 import Dwt.Initial.Measure (tpltArity)
-import Dwt.MkTplt (subInTplt, subInTpltWithHashes)
+import Dwt.Second.MkTplt (subInTplt, subInTpltWithHashes)
 import Dwt.Search.Initial (users,mbrs)
 
 import Data.Graph.Inductive

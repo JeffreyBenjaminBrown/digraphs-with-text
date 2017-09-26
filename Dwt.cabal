@@ -18,7 +18,7 @@ library
                      , Dwt.Edit
                      , Dwt.Hash.Insert 
                      , Dwt.Hash.Parse
-                     , Dwt.MkTplt
+                     , Dwt.Second.MkTplt
                      , Dwt.Initial.ParseUtils
                      , Dwt.Search.Initial
                      , Dwt.Search.Branch

@@ -1,6 +1,6 @@
 {-# LANGUAGE ViewPatterns #-}
 
-module Dwt.MkTplt (
+module Dwt.Second.MkTplt (
   mkTplt
   , jointsToTplt
 

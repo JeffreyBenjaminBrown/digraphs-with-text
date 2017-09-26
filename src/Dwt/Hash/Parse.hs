@@ -18,7 +18,8 @@ import Dwt.Initial.ParseUtils (Parser, lexeme, parens, brackets, sc
                       , integer
                       , anyWord, word, wordChar, phrase)
 import Dwt.Initial.Types
-import Dwt.MkTplt (mkTplt)
+import Dwt.Second.MkTplt (mkTplt)
+import Dwt.Second.Misc (toRoleMap)
 import Data.List (intersperse)
 import qualified Data.Map as M
 
@@ -151,14 +152,15 @@ pOr n = lexeme $ do pOrUnlabeled n
         pOrUnlabeled n = const () <$> f
         f = string (replicate n '|') <* notFollowedBy (char '|')
 
--- >>>
 -- == QBranch
-pBranch :: Parser QNode
-pBranch = lexeme $ do word "/b"
-                      return $ At 0
---                      dir <- toRoleMap <$> parens expr
---                      origin <- expr
---                      return $ QBranch dir origin
+pBranch :: Parser QNode -- TODO ? handle a Left in a Parser
+pBranch = lexeme $ do
+  word "/b"
+  eitherDir <- toRoleMap <$> parens expr
+  origin <- expr
+  case eitherDir of Left e -> error $ "pBranch parser encountered a Left: "
+                                      ++ show e
+                    Right dir -> return $ QBranch dir origin
 
 pBranchMap :: Parser QNode
 pBranchMap = lexeme $ do word "/bm"
