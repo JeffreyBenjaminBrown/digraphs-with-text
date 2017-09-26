@@ -153,7 +153,7 @@ pOr n = lexeme $ do pOrUnlabeled n
 
 -- == QBranch
 pBranch :: Parser QNode
-pBranch = lexeme $ do word "@branch"
+pBranch = lexeme $ do word "/br"
                       dir <- parens pRoleMap
                       origin <- expr
                       return $ QBranch dir origin
@@ -179,10 +179,10 @@ leaf = do
                               False -> Word   . f $ p
 
 at :: Parser QNode
-at = At <$> (char '@' >> integer)
+at = At <$> (char '/' >> integer)
 
 qVar :: Parser QNode
-qVar = QVar <$> (string "@" >> it <|> any <|> from <|> to) where
+qVar = QVar <$> (string "/" >> it <|> any <|> from <|> to) where
   it, any, from, to :: Parser SearchVar
   it = const It <$> word "it"
   any = const Any <$> word "any"

@@ -22,16 +22,16 @@ pQNode = ViewGraph . f <$> expr where
                return $ qGet g qnode
 
 pUsers :: Parser Command
-pUsers = ViewGraph . f <$> (symbol "@u" *> integer) where
+pUsers = ViewGraph . f <$> (symbol "/u" *> integer) where
   f node = do g <- ask
               return $ Right $ pre g node
   -- TODO: what if qNode is not present? use QNode, not Node
   -- or better: TODO: expand QNode to include stars
 
 pAllNodes :: Parser Command
-pAllNodes = const f <$> symbol "@all" where
+pAllNodes = const f <$> symbol "/all" where
    f = ViewGraph $ do g <- ask
                       return $ Right $ nodes g
 
 pShowQueries :: Parser Command
-pShowQueries = const ShowQueries <$> symbol "@queries"
+pShowQueries = const ShowQueries <$> symbol "/queries"
