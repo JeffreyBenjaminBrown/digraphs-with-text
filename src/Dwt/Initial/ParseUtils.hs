@@ -1,4 +1,4 @@
-module Dwt.ParseUtils (
+module Dwt.Initial.ParseUtils (
   Parser
   , sc, lexeme, parens, brackets -- grouping
 

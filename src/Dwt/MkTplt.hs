@@ -13,9 +13,9 @@ module Dwt.MkTplt (
   , pTplt
   ) where
 
-import Dwt.Types
-import Dwt.Util (fr)
-import Dwt.ParseUtils (Parser, lexeme, phrase)
+import Dwt.Initial.Types
+import Dwt.Initial.Util (fr)
+import Dwt.Initial.ParseUtils (Parser, lexeme, phrase)
 
 import Data.Text (pack, unpack, strip)
 import Text.Megaparsec

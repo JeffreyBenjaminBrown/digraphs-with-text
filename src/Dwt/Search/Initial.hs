@@ -17,10 +17,10 @@ module Dwt.Search.Initial (
 
 import Data.Graph.Inductive (Node, Graph, Gr, lsuc, lpre, lab, labfilter
                             , nodes)
-import Dwt.Types
+import Dwt.Initial.Types
 import Dwt.MkTplt (jointsToTplt)
-import Dwt.Util (gelemM, listIntersect, prependCaller)
-import Dwt.Measure (isCollM, isRelM, tpltArity)
+import Dwt.Initial.Util (gelemM, listIntersect, prependCaller)
+import Dwt.Initial.Measure (isCollM, isRelM, tpltArity)
 import qualified Data.Map as Map
 import Control.Monad.Except (MonadError, throwError)
 import Data.Maybe (fromJust)

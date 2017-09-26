@@ -14,9 +14,9 @@ module Dwt.Edit (
   , chRelRole --RSLT -> Node(Rel) -> Node(new Mbr) -> RelRole -> Either DwtErr RSLT
   ) where
 
-import Dwt.Types
-import Dwt.Measure
-import Dwt.Util
+import Dwt.Initial.Types
+import Dwt.Initial.Measure
+import Dwt.Initial.Util
 import Dwt.Search.Initial (tpltAt)
 import Data.Graph.Inductive
 import Control.Monad (mapM_)

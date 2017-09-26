@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Dwt.Types (
+module Dwt.Initial.Types (
   MbrPos, Arity, Level
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , QNode(..), Joint(..), SearchVar(..), RoleMap

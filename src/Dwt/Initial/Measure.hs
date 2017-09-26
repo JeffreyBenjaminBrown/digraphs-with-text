@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 -- | Measurements that do not require a RSLT.
 -- For the other kind, see Dwt.Search.*
-module Dwt.Measure (
+module Dwt.Initial.Measure (
   -- Tplt
   mbrListMatchesTpltArity -- (MonadError DwtErr m) => [Node] -> Expr -> m ()
   , extractTplt -- QNode -> Either DwtErr Expr
@@ -20,7 +20,7 @@ module Dwt.Measure (
   , isValid
   ) where
 
-import Dwt.Types
+import Dwt.Initial.Types
 import Data.Graph.Inductive (Node, Graph, lab)
 import Control.Monad.Except (MonadError, throwError)
 import Control.Lens

@@ -14,10 +14,10 @@ import Text.Megaparsec
 import Text.Megaparsec.Char (satisfy, string, char)
 import Text.Megaparsec.Expr (makeExprParser, Operator(..))
 
-import Dwt.ParseUtils (Parser, lexeme, parens, brackets, sc
+import Dwt.Initial.ParseUtils (Parser, lexeme, parens, brackets, sc
                       , integer
                       , anyWord, word, wordChar, phrase)
-import Dwt.Types
+import Dwt.Initial.Types
 import Dwt.MkTplt (mkTplt)
 import Data.List (intersperse)
 import qualified Data.Map as M

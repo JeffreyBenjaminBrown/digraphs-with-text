@@ -26,11 +26,11 @@ module Dwt.Search.QNode (
 
 import Data.Graph.Inductive (Node, LNode, Graph, labfilter, lab, nodes
   , insNode, insEdges, newNodes, labNodes, gelem, lpre)
-import Dwt.Types
+import Dwt.Initial.Types
 import Dwt.Edit (insLeaf, insRelSt)
-import Dwt.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
+import Dwt.Initial.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
                 , listIntersect, nodeToLNodeUsf)
-import Dwt.Measure (extractTplt, isAbsent)
+import Dwt.Initial.Measure (extractTplt, isAbsent)
 import Dwt.Search.Initial (mkRoleMap, selectRelElts, users)
 
 import Data.List (nub, sortOn)

@@ -4,11 +4,11 @@ module Dwt.Show
   ( module Dwt.Show
   ) where
 
-import Dwt.Measure (tpltArity)
+import Dwt.Initial.Types
+import Dwt.Initial.Util (fromRight)
+import Dwt.Initial.Measure (tpltArity)
 import Dwt.MkTplt (subInTplt, subInTpltWithHashes)
 import Dwt.Search.Initial (users,mbrs)
-import Dwt.Types
-import Dwt.Util
 
 import Data.Graph.Inductive
 import Data.List (sortOn, intercalate)

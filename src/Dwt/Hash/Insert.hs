@@ -5,10 +5,10 @@
 module Dwt.Hash.Insert (prettyPrint, addExpr) where
 
 import Data.Graph.Inductive hiding (empty, prettyPrint)
-import Dwt.Types
+import Dwt.Initial.Types
 import Dwt.Search.QNode
-import Dwt.Measure (isAbsent)
-import Dwt.Util (gelemM)
+import Dwt.Initial.Measure (isAbsent)
+import Dwt.Initial.Util (gelemM)
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Class (lift)
 

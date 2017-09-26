@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Dwt.Util (
+module Dwt.Initial.Util (
   listIntersect -- lists
 
   -- graphs & monads
@@ -18,7 +18,7 @@ module Dwt.Util (
   ) where
 
 import Data.Graph.Inductive
-import Dwt.Types (RSLT, RSLTEdge
+import Dwt.Initial.Types (RSLT, RSLTEdge
                  , DwtErr(..), ErrBase(..), ErrOpt(..), errString)
 import Data.List (intersect)
 import qualified Data.Map as Map

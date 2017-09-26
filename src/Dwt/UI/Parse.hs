@@ -1,8 +1,8 @@
 module Dwt.UI.Parse where
 
 import Data.Graph.Inductive (Node, pre, nodes)
-import Dwt.Types
-import Dwt.ParseUtils (Parser, integer, symbol, word)
+import Dwt.Initial.Types
+import Dwt.Initial.ParseUtils (Parser, integer, symbol, word)
 import Text.Megaparsec (try)
 import Dwt.Hash.Parse (expr)
 import Dwt.Search.QNode (qGet)

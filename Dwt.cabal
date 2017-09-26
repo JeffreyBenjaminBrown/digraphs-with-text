@@ -14,21 +14,21 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src, test
   exposed-modules:     Dwt
-                     , Dwt.Measure
+                     , Dwt.Initial.Measure
                      , Dwt.Edit
                      , Dwt.Hash.Insert 
                      , Dwt.Hash.Parse
                      , Dwt.MkTplt
-                     , Dwt.ParseUtils
+                     , Dwt.Initial.ParseUtils
                      , Dwt.Search.Initial
                      , Dwt.Search.Branch
                      , Dwt.UI.Parse
                      , Dwt.Search.QNode
                      , Dwt.Search.Misfits
                      , Dwt.Show
-                     , Dwt.Types
+                     , Dwt.Initial.Types
                      , Dwt.UI.Terminal
-                     , Dwt.Util
+                     , Dwt.Initial.Util
 
   build-depends:       base
                      , containers 

@@ -40,7 +40,7 @@
       ) where
 
     import Dwt.Edit
-    import Dwt.Util
+    import Dwt.Initial.Util
     import Dwt.ParsecUtils
 
     import Text.Parsec

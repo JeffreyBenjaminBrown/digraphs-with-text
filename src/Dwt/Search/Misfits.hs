@@ -8,8 +8,8 @@ module Dwt.Search.Misfits (
   ) where
 
 import Data.Graph.Inductive
-import Dwt.Types
-import Dwt.Util (gelemM, prependCaller)
+import Dwt.Initial.Types
+import Dwt.Initial.Util (gelemM, prependCaller)
 import Dwt.Search.QNode (qGet1)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)

@@ -5,12 +5,12 @@
 {-# LANGUAGE RankNTypes #-}
 module Dwt.UI.Terminal where
 
-import Dwt.Types
+import Dwt.Initial.Types
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse (expr)
 import Dwt.UI.Parse (Command(..), ReadNodes, pCommand)
-import Dwt.Util (fr)
+import Dwt.Initial.Util (fr)
 
 import Brick.Widgets.Core ( (<+>), (<=>), hLimit, vLimit, str)
 import Brick.Util (on)
