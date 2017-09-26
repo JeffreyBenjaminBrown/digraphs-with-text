@@ -187,7 +187,7 @@ qVar = QVar <$> (string "@" >> it <|> any <|> from <|> to) where
   it = const It <$> word "it"
   any = const Any <$> word "any"
   from = const From <$> word "from"
-  to = const It <$> word "to"
+  to = const To <$> word "to"
 
 -- | unused
 hasBlanks :: Parser Bool

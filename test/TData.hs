@@ -29,6 +29,7 @@ module TData (
   , anyNeedsWaterRM
   , anyNeedsFromForToRM
   , brandyNeedsFromForToRM
+  , fromNeedsToRM
   , dogNeedsFromForToRM
   , itNeedsFromForToRM
   , firstMemberOfAnyTpltRM
@@ -123,6 +124,12 @@ brandyNeedsFromForToRM = Map.fromList
   ,(Mbr 1, QLeaf $ Word "brandy")
   ,(Mbr 2, QVar From)
   ,(Mbr 3, QVar To)]
+
+fromNeedsToRM :: RoleMap
+fromNeedsToRM = Map.fromList
+  [(TpltRole, QLeaf $ mkTplt "_ needs _")
+  ,(Mbr 1, QVar From)
+  ,(Mbr 2, QVar To)]
 
 dogNeedsFromForToRM :: RoleMap
 dogNeedsFromForToRM = Map.fromList

@@ -19,5 +19,6 @@ import Control.Monad.Trans.State
 import Control.Monad.Trans.Either
 import Control.Monad.Trans.Reader
 
+:s test/TBranch.hs
 :set prompt ">>> "
 :show imports

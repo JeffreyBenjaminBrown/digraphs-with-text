@@ -91,4 +91,3 @@ tStar = TestCase $ do
   assertBool "but dog only matches dog" $
     (star g2 dogNeedsFromForToRM $ QLeaf $ Word "water")
     == (qGet g2 $ QLeaf $ Word "brandy")
-
