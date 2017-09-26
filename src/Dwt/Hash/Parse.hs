@@ -5,7 +5,7 @@ module Dwt.Hash.Parse (
 
   -- for tests, not interface
   , leaf, at, qVar, leafOrAtOrVar
-  , pBranch, pRoleMap
+  , pBranch, pBranchMap, pRoleMap
   , EO(..), Hash(..)
   , hash, rightConcat, leftConcat
   ) where
@@ -151,12 +151,20 @@ pOr n = lexeme $ do pOrUnlabeled n
         pOrUnlabeled n = const () <$> f
         f = string (replicate n '|') <* notFollowedBy (char '|')
 
+-- >>>
 -- == QBranch
 pBranch :: Parser QNode
-pBranch = lexeme $ do word "/br"
-                      dir <- parens pRoleMap
-                      origin <- expr
-                      return $ QBranch dir origin
+pBranch = lexeme $ do word "/b"
+                      return $ At 0
+--                      dir <- toRoleMap <$> parens expr
+--                      origin <- expr
+--                      return $ QBranch dir origin
+
+pBranchMap :: Parser QNode
+pBranchMap = lexeme $ do word "/bm"
+                         dir <- parens pRoleMap
+                         origin <- expr
+                         return $ QBranch dir origin
 
 pRoleMap :: Parser RoleMap
 pRoleMap = M.fromList <$> pair `sepBy` (lexeme $ char ',') where

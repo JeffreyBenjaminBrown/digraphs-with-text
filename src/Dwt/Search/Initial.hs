@@ -19,9 +19,8 @@ import Data.Graph.Inductive (Node, Graph, Gr, lsuc, lpre, lab, labfilter
                             , nodes)
 import Dwt.Types
 import Dwt.MkTplt (jointsToTplt)
-import Dwt.Util (gelemM, listIntersect)
+import Dwt.Util (gelemM, listIntersect, prependCaller)
 import Dwt.Measure (isCollM, isRelM, tpltArity)
-import Dwt.Util (prependCaller)
 import qualified Data.Map as Map
 import Control.Monad.Except (MonadError, throwError)
 import Data.Maybe (fromJust)
