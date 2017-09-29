@@ -1,0 +1,1 @@
+Dwt.Query.Cycles is cribbed from https://github.com/gablin/fgl -- code pending incorporation into the main branch of FGL.

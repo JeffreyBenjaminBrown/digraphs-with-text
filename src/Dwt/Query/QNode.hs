@@ -215,6 +215,3 @@ dwtBfsLab_unlim g dir starts =
   do mapM_ (gelemM g) $ starts
      let f = _bfsOrDfs_unlim _bfsConcat_unlim g dir starts []
      map (nodeToLNodeUsf g) . nub . reverse <$> f
-
-
--- == refactoring from list to set
