@@ -22,10 +22,10 @@ library
                      , Dwt.Second.Misc
                      , Dwt.Hash.Insert 
                      , Dwt.Hash.Parse
-                     , Dwt.Search.Initial
-                     , Dwt.Search.Branch
-                     , Dwt.Search.QNode
-                     , Dwt.Search.Misfits
+                     , Dwt.Query.Initial
+                     , Dwt.Query.Branch
+                     , Dwt.Query.QNode
+                     , Dwt.Query.Misfits
                      , Dwt.UI.Parse
                      , Dwt.UI.Terminal
                      , Dwt.Show

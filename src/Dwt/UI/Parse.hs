@@ -5,7 +5,7 @@ import Dwt.Initial.Types
 import Dwt.Initial.ParseUtils (Parser, integer, symbol, word)
 import Text.Megaparsec (try)
 import Dwt.Hash.Parse (expr)
-import Dwt.Search.QNode (qGet)
+import Dwt.Query.QNode (qGet)
 import Control.Applicative ((<|>))
 import Control.Monad.Trans.Reader
 

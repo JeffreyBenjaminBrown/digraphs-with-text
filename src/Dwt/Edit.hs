@@ -17,7 +17,7 @@ module Dwt.Edit (
 import Dwt.Initial.Types
 import Dwt.Initial.Measure
 import Dwt.Initial.Util
-import Dwt.Search.Initial (tpltAt)
+import Dwt.Query.Initial (tpltAt)
 import Data.Graph.Inductive
 import Control.Monad (mapM_)
 import Control.Monad.Trans.State

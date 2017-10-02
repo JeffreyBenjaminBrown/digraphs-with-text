@@ -8,10 +8,10 @@ module Dwt
   , module Dwt.Hash.Insert
   , module Dwt.Hash.Parse
   , module Dwt.Initial.ParseUtils
-  , module Dwt.Search.Initial
+  , module Dwt.Query.Initial
   , module Dwt.UI.Parse
-  , module Dwt.Search.QNode
-  , module Dwt.Search.Misfits
+  , module Dwt.Query.QNode
+  , module Dwt.Query.Misfits
   , module Dwt.Show
   , module Dwt.Second.MkTplt
   , module Dwt.Initial.Types
@@ -26,10 +26,10 @@ import Dwt.Edit
 import Dwt.Hash.Insert
 import Dwt.Hash.Parse
 import Dwt.Initial.ParseUtils
-import Dwt.Search.Initial
+import Dwt.Query.Initial
 import Dwt.UI.Parse
-import Dwt.Search.QNode
-import Dwt.Search.Misfits
+import Dwt.Query.QNode
+import Dwt.Query.Misfits
 import Dwt.Show
 import Dwt.Second.MkTplt
 import Dwt.Initial.Types

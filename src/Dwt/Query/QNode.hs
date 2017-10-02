@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Dwt.Search.QNode (
+module Dwt.Query.QNode (
   playsRoleIn -- RSLT -> RelRole -> Node -> Either DwtErr [Node]
   , qPlaysRoleIn -- RSLT -> RelRole -> QNode -> Either DwtErr [Node]
   , matchRoleMap -- RSLT -> RoleMap -> Either DwtErr [Node]
@@ -31,7 +31,7 @@ import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Initial.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
                 , listIntersect, nodeToLNodeUsf)
 import Dwt.Initial.Measure (extractTplt, isAbsent)
-import Dwt.Search.Initial (mkRoleMap, selectRelElts, users)
+import Dwt.Query.Initial (mkRoleMap, selectRelElts, users)
 
 import Data.List (nub, sortOn)
 import qualified Data.Map as Map

@@ -1,6 +1,6 @@
 -- Unused, except in some tests, but potentially handy.
 
-module Dwt.Search.Misfits (
+module Dwt.Query.Misfits (
   getRelNodeSpec -- RSLT -> Node(RelspecExpr) -> Either DwtErr RelNodeSpec
   , getRelspec -- RSLT -> QNode -> Either DwtErr Relspec
   , partitionRelspec -- returns two relspecs
@@ -10,7 +10,7 @@ module Dwt.Search.Misfits (
 import Data.Graph.Inductive
 import Dwt.Initial.Types
 import Dwt.Initial.Util (gelemM, prependCaller)
-import Dwt.Search.QNode (qGet1)
+import Dwt.Query.QNode (qGet1)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 
