@@ -2,7 +2,7 @@ module Dwt.UI.Parse where
 
 import Data.Graph.Inductive (Node, pre, nodes)
 import Dwt.Initial.Types
-import Dwt.Initial.ParseUtils (Parser, integer, symbol, word)
+import Dwt.Initial.ParseUtils (Parser, integer, word)
 import Text.Megaparsec (try)
 import Dwt.Hash.Parse (expr)
 import Dwt.Query.QNode (qGet)

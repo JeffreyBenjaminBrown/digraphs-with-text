@@ -30,7 +30,11 @@ parens = between (symbol "(") (symbol ")")
 brackets :: Parser a -> Parser a
 brackets = between (symbol "[") (symbol "]")
 
-symbol :: String -> Parser String -- | TODO: eliminate, because dangerous: is lexeme, but doesn't check that it's not followed by a non-space character
+-- | For words, it's better to use `word`.
+-- `symbol` doesn't check whether it's followed by a word character.
+-- For instance, `parse (symbol "a") "" "aardvark"` will parse an "a"
+-- when failure would be more natural.
+symbol :: String -> Parser String
 symbol = L.symbol sc
 
 -- TODO: Mystery: I want wordChar to include '_', but it makes tests fail.
