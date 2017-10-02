@@ -50,7 +50,7 @@ initialState g = St g [] [] (F.focusRing [InsertWindow, CommandWindow])
 -- ==== Change state
 addToRSLT :: St -> T.EventM Name (T.Next St)
 addToRSLT st = do
-    let strings = st ^. insertWindow & E.getEditContents
+    let strings = filter (not . null) $ st ^. insertWindow & E.getEditContents
         graphUpdater = mapM (addExpr . fr . parse expr "") strings
           -- TODO: nix the fr
         g = st ^. rslt
@@ -62,7 +62,8 @@ addToRSLT st = do
 
 changeView :: St -> T.EventM Name (T.Next St)
 changeView st = do
-  let (commandString:_) = st^.commandWindow & E.getEditContents
+  let (commandString:_) = filter (not . null)
+                          $ st^.commandWindow & E.getEditContents
         -- TODO: take first string without discarding rest
       st' = commandWindow %~ E.applyEdit Z.clearZipper
             $ commands %~ (commandString :) $ st
@@ -115,11 +116,11 @@ appDraw st = [ui] where
        (E.renderEditor $ str . unlines)
        (st^.commandWindow)
   ui = C.center
-    $ (str "Insert here: " <+> e1)
+    $ (str "Add data here " <+> e1)
     <=> str " "
-    <=> (str "Command here: " <+> e2)
+    <=> (str "Issue queries here " <+> e2)
     <=>  str " "
-    <=> (str "See here: " <+> str (unlines $ st ^. uiView))
+    <=> (vLimit 20 $ str "Check it out " <+> str (unlines $ st ^. uiView))
     <=> str " "
 
 appAttrMap :: A.AttrMap

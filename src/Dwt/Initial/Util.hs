@@ -2,17 +2,17 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Initial.Util (
-  listIntersect -- lists
+  listIntersect -- ^ lists
 
-  -- graphs & monads
+  -- | graphs & monads
   , hasLEdgeM
   , gelemM
 
-  -- graphs
+  -- | graphs
   , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
   , replaceNode, nodeToLNodeUsf
 
-   -- monads
+   -- | monads
   , fr, fromRight
   , prependCaller
   ) where

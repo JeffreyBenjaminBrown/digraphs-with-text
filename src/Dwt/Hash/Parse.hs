@@ -107,7 +107,7 @@ hash l j a@(Hash ea (QRel _ _)) b@(Hash eb (QRel _ _)) =
 
 -- == parsing QNodes
 expr :: Parser QNode
-expr = getQNode <$> _expr
+expr = lexeme $ sc >> getQNode <$> _expr
 
 _expr :: Parser Hash
 _expr = makeExprParser term
