@@ -35,10 +35,10 @@ You can query for nested relationships, too -- for instance, `/any ##because tur
 
 Try adding (in the data-entry window) a few more statements:
 
-  turtles #are lizards
-  lizards #are animals
-  mammals #are animals
-  squirrels #are mammals
+    turtles #are lizards
+    lizards #are animals
+    mammals #are animals
+    squirrels #are mammals
 
 Now ask (in the query window) for `/b (/from #are /to) turtles`. The UI should return "lizards" and "animals". (The /b stands for "branch"; it indicates recursive search, in the direction specified by "from" and "to".)
 
