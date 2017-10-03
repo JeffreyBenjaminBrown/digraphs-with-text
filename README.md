@@ -1,4 +1,4 @@
-# In a nutshell
+# What it is
 
 DWT is knowledge graph software, designed with a focus on ease and expressivity.
 
@@ -9,12 +9,12 @@ The Hash language allows a user to add statements to a knowledge graph without h
 Querying functions let the user traverse the graph, asking questions like, "What are all the things I have to do today?", "What do I care about that Professor X could talk about?", or "What tasks does Sharon have to do that depend on tasks I have to do?"
 
 
-# To try it
+# How to use it
 
 [Try the UI!](/introduction/try-the-ui.md)
 
 
-# How it works
+# How it's built
 
 ## For users and coders
 
