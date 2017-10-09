@@ -117,35 +117,43 @@ nullMbrMap t@(Tplt _) =
 nullMbrMap _ = error "nullMbrMap: given a non-Tplt"
 
 -- ==== things using _showExpr
-prefixerDefault = Prefixer { _str = colWordFunc
+prefixerVerbose = Prefixer { _str = colWordFunc
                     , _tplt = \n -> ":" ++ show n ++ " "
                     , _rel = \n tn -> show n ++ ":" ++ show tn ++ " "
                     , _coll = colWordFunc } where
   colWordFunc = \n -> show n ++ ": "
 
-prefixerTerse = Prefixer {_str=f, _tplt=f, _coll=f, _rel = const f}
+prefixer = Prefixer {_str=f, _tplt=f, _coll=f, _rel = const f}
   where f = const ""
 
 showExpr :: RSLT -> Node -> String
 showExpr g n = _showExpr vp g d (Just n)
   where d = exprDepth g n
-        vp = ViewProg { vpPrefixer = prefixerDefault
+        vp = ViewProg { vpPrefixer = prefixer
                       , vpShowFiats = Map.empty }
 
-showExprT :: RSLT -> Node -> String -- terse, no addresses
-showExprT g n = _showExpr vp g d (Just n)
+showExprVerbose :: RSLT -> Node -> String
+showExprVerbose g n = _showExpr vp g d (Just n)
   where d = exprDepth g n
-        vp = ViewProg { vpPrefixer = prefixerTerse
+        vp = ViewProg { vpPrefixer = prefixerVerbose
                       , vpShowFiats = Map.empty }
+
+view :: RSLT -> [Node] -> Either DwtErr [String]
+view g ns = do mapM f ns
+  where f n = do x <- length <$> users g n
+                 return $ show (n, x, showExpr g n)
+
+-- | verbose: shows inner addresses
+viewVerbose :: RSLT -> [Node] -> Either DwtErr [String]
+viewVerbose g ns = do mapM f ns
+  where f n = do x <- length <$> users g n
+                 return $ show (n, x, showExprVerbose g n)
 
 v :: RSLT -> [Node] -> IO ()
-v g ns = mapM_ putStrLn $ map f ns
+v g ns = do putStrLn "(users, content)"
+            mapM_ putStrLn $ map f ns
   where f n = show $ (fromRight $ length <$> users g n -- emul: counts users
                      , showExpr g n)
-
-view :: RSLT -> [Node] -> String -- terse: no inner addresses, no neighborhoods
-view g ns = unlines $ map f ns
-  where f n = show (n, showExprT g n)
 
 -- ==== mostly unused
 bracket :: String -> String -- unused, but a useful pair of characters

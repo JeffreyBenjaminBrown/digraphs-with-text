@@ -76,7 +76,7 @@ viewRSLT reader st = do
   let nodesToView = runReader reader $ st^.rslt
   case nodesToView of
     Left dwtErr -> error $ "viewRSLT" ++ show dwtErr
-    Right ntv -> M.continue $ st & uiView .~ lines (view  (st^.rslt)  ntv)
+    Right ntv -> M.continue $ st & uiView .~ (fr $ view  (st^.rslt)  ntv)
 
 showQueries :: St -> T.EventM Name (T.Next St)
 showQueries st = M.continue $ st & uiView .~ st^.commands
