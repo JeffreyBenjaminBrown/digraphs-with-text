@@ -111,13 +111,17 @@ qGet1 g q = prependCaller "qGet1: " $ case qGet g q of
 
 qPutSt :: QNode -> StateT RSLT (Either DwtErr) Node
 qPutSt Absent = lift $ Left (Impossible, [ErrQNode Absent], "qPutSt.")
-qPutSt i@(QRel _ qms) = do
-  -- TODO ? would be more efficient to return even the half-completed state
-  -- let tag = prependCaller "qPutSt: " -- TODO: use
-  t <- lift $ extractTplt i
-  tnode <- qPutSt $ QLeaf t
-  ms <- mapM qPutSt $ filter (not . isAbsent) qms
-  insRelSt tnode ms
+qPutSt i@(QRel _ qms) = hoist (prependCaller "qPutSt: ") $ do
+  g <- get
+  case qGet1 g i of
+    Right n -> return n
+    Left e@(FoundMany,_,_) -> lift $ Left e
+    Left (FoundNo,_,_) -> do
+      -- TODO ? more efficient ? return even the half-completed state
+      t <- lift $ extractTplt i
+      tnode <- qPutSt $ QLeaf t
+      ms <- mapM qPutSt $ filter (not . isAbsent) qms
+      insRelSt tnode ms
 qPutSt (At n) = lift $ Right n
 qPutSt q@(QLeaf x) = get >>= \g -> case qGet1 g q of
   Right n            -> lift $ Right n

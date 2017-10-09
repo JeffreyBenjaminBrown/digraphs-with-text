@@ -33,8 +33,7 @@ prettyPrint = it 0 where
 
 addExpr :: QNode -> StateT RSLT (Either DwtErr) Node
 addExpr (At n) = get >>= lift . flip gelemM n >> return n
-addExpr Absent = lift $ Left (Impossible
-  , [ErrQNode Absent], "execQNode.")
+addExpr Absent = lift $ Left (Impossible, [ErrQNode Absent], "execQNode.")
 addExpr (QLeaf e) = qPutSt $ QLeaf e
 addExpr (QRel js as) = do
   ns <- mapM addExpr $ filter (not . isAbsent) as
