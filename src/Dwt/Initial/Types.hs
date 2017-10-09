@@ -3,6 +3,7 @@
 module Dwt.Initial.Types (
   MbrPos, Arity, Level
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
+  , PathInExpr
   , QNode(..), Joint(..), SearchVar(..), RoleMap
   , DwtErr, ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString -- lenses
@@ -40,9 +41,11 @@ data RelRole = TpltRole | Mbr MbrPos deriving(Show,Read,Eq,Ord)
 data CollRole = CollPrinciple | CollMbr deriving(Show,Read,Eq,Ord)
   -- ^ a Col emits one CollPrinciple, any number of CollMbrs
 
+type PathInExpr = [RelRole]
+
 -- == Hash: writing to and querying the RSLT
 -- TODO: A CollPrinciple currently can point to anything. It would be
-  -- cleaner, and closer to truth, to pointonly to transitive Tplts.
+  -- cleaner, and closer to truth, to point only to transitive Tplts.
   -- Exceptions: "some of," "no more than," "exactly" would use unary Tplts.
     -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
 data SearchVar = It | Any | From | To deriving (Show,Read,Eq,Ord)

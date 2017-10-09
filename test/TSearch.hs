@@ -17,14 +17,20 @@ import Test.HUnit hiding (Node)
 import Control.Applicative (liftA2)
 import qualified Data.Set as S
 import Control.Monad.Trans.State (runStateT)
+import Text.Megaparsec (parse)
 
-tSearch = TestList [ TestLabel "tQPlaysRoleIn" tQPlaysRoleIn
+tSearch = TestList [ TestLabel "tPathsToIts" tPathsToIts
+                   , TestLabel "tQPlaysRoleIn" tQPlaysRoleIn
                    , TestLabel "tMatchQRelspecNodes" tMatchQRelspecNodes
                    , TestLabel "tStar" tStar
                    , TestLabel "tMatchRoleMap" tMatchRoleMap
                    , TestLabel "tQGetBool" tQGetBool
                    , TestLabel "tNestedQRelsWithVars" tNestedQRelsWithVars
                    ]
+
+tPathsToIts = TestCase $ do
+  let Right q = parse expr "" "(/it ##is good #for ed ##when ed #is /it)"
+  assertBool "1" $ pathsToIts q == Right (S.fromList [[Mbr 1],[Mbr 3,Mbr 2]])
 
 tQPlaysRoleIn = TestCase $ do
   assertBool "1" $ qPlaysRoleIn g1 TpltRole needsFor

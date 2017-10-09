@@ -2,7 +2,8 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Query.QNode (
-  playsRoleIn -- RSLT -> RelRole -> Node -> Either DwtErr [Node]
+  pathsToIts -- QNode -> Either DwtErr (S.Set PathInExpr)
+  , playsRoleIn -- RSLT -> RelRole -> Node -> Either DwtErr [Node]
   , qPlaysRoleIn -- RSLT -> RelRole -> QNode -> Either DwtErr [Node]
   , matchRoleMap -- RSLT -> RoleMap -> Either DwtErr [Node]
 
@@ -33,16 +34,47 @@ import Dwt.Initial.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
 import Dwt.Initial.Measure (extractTplt, isAbsent)
 import Dwt.Query.Initial (mkRoleMap, selectRelElts, users)
 
+import Data.Either (isRight)
 import Data.List (nub, sortOn)
 import qualified Data.Map as Map
 import qualified Data.Maybe as Mb
-import Data.Set (Set, fromList, intersection, union)
+import qualified Data.Set as S
 import Control.Monad.Morph (hoist)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Reader (ReaderT, runReaderT, ask, lift)
 import Control.Monad.Trans.State (StateT, get, put)
 import Text.Regex (mkRegex, matchRegex)
 
+
+-- The pathsToIts algorithm
+  -- pair each member with an indicator of what member it is, e.g.
+  --   (/it ##is good #for ed ##when ed #is /it)
+  --   -> [(Mbr 1, /it), (Mbr 2, good #for ed), (Mbr 3, ed #is /it)]
+  -- replace each member with pathsToIts called on that member
+  --   -> [( Mbr 1, Right $ Set.fromList [[]] )
+  --      ,( Mbr 2, Left (FoundNo,..))
+  --      ,( Mbr 3, pathsToIts (ed #is /it)) ]
+  --   -> [( Mbr 1, Right $ Set.fromList [[]] )
+  --      ,( Mbr 2, Left (FoundNo,..))
+  --      ,( Mbr 3, Right $ Set.fromList [[Mbr 2]]) ]
+  -- discard each pair with a right side of (Left (FoundNo ...))
+  -- prepend the left side of each pair to each elt in the right side
+  --   -> [Right $ Set.fromList [[Mbr 1]]
+  --      ,Right $ Set.fromList [[Mbr 3, Mbr 2]]]
+  -- make a set that's the union of each member of that list
+  --   -> Right $ Set.fromList [[Mbr 1], [Mbr 3, Mbr 2]]
+
+pathsToIts :: QNode -> Either DwtErr (S.Set PathInExpr)
+pathsToIts (QRel _ qs) = do
+  let w = zip [Mbr i | i <- [1..]] $ filter (not . isAbsent) qs
+        :: [(RelRole, QNode)]
+      x,y  :: [(RelRole, Either DwtErr (S.Set PathInExpr))]
+      x = map (\(a,b) -> (a, pathsToIts b)) w
+      y = filter (isRight . snd) x
+      z = map (\(a, Right b) -> S.map (a:) b) y
+  return $ S.unions z
+pathsToIts (QVar It) = Right $ S.fromList [[]]
+pathsToIts _ = Left (FoundNo,[],"") -- is not an error
 
 -- | Rels using Node n in RelRole r
 playsRoleIn :: RSLT -> RelRole -> Node -> Either DwtErr [Node]
@@ -54,12 +86,12 @@ playsRoleIn g r n = prependCaller "qPlaysRoleIn: " $
 
 -- TODO: convert all search functions from List to Set, like this one
 -- difficulty: Set has no Traversable instance; need (fromlist . _ . tolist)
-playsRoleInSetRefactor :: RSLT -> RelRole -> Node -> Either DwtErr (Set Node)
+playsRoleInSetRefactor :: RSLT -> RelRole -> Node -> Either DwtErr (S.Set Node)
 playsRoleInSetRefactor g r n = prependCaller "qPlaysRoleIn: " $
   do gelemM g n -- makes f safe
      return $ f g r n
-  where f :: (Graph gr) => gr a RSLTEdge -> RelRole -> Node -> Set Node
-        f g r n = fromList [m | (m,r') <- lpre g n, r' == RelEdge r]
+  where f :: (Graph gr) => gr a RSLTEdge -> RelRole -> Node -> S.Set Node
+        f g r n = S.fromList [m | (m,r') <- lpre g n, r' == RelEdge r]
 
 qPlaysRoleIn :: RSLT -> RelRole -> QNode -> Either DwtErr [Node]
 qPlaysRoleIn g r q = prependCaller "qPlaysRoleIn: "
