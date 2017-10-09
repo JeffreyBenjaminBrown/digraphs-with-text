@@ -11,6 +11,7 @@ module TSearch (
 import Data.Graph.Inductive
 import Dwt
 import TData
+import Data.Either (isLeft)
 import Data.Map as Map
 import Data.Maybe as Mb
 import Test.HUnit hiding (Node)
@@ -19,7 +20,8 @@ import qualified Data.Set as S
 import Control.Monad.Trans.State (runStateT)
 import Text.Megaparsec (parse)
 
-tSearch = TestList [ TestLabel "tPathsToIts" tPathsToIts
+tSearch = TestList [ TestLabel "tSubExpr" tSubExpr
+                   , TestLabel "tPathsToIts" tPathsToIts
                    , TestLabel "tQPlaysRoleIn" tQPlaysRoleIn
                    , TestLabel "tMatchQRelspecNodes" tMatchQRelspecNodes
                    , TestLabel "tStar" tStar
@@ -31,6 +33,14 @@ tSearch = TestList [ TestLabel "tPathsToIts" tPathsToIts
 tPathsToIts = TestCase $ do
   let Right q = parse expr "" "(/it ##is good #for ed ##when ed #is /it)"
   assertBool "1" $ pathsToIts q == Right (S.fromList [[Mbr 1],[Mbr 3,Mbr 2]])
+
+tSubExpr = TestCase $ do
+  let Right dubious = qGet1 g1 dogWantsBrandyIsDubious
+      Right wants = qGet1 g1 dogWantsBrandy
+      Right brandyNode = qGet1 g1 brandy
+  assertBool "1" $ subExpr [Mbr 1] g1 dubious == Right wants
+  assertBool "2" $ subExpr [Mbr 1, Mbr 2] g1 dubious == Right brandyNode
+  assertBool "3" $ isLeft $ subExpr [Mbr 1, Mbr 2, Mbr 1] g1 dubious
 
 tQPlaysRoleIn = TestCase $ do
   assertBool "1" $ qPlaysRoleIn g1 TpltRole needsFor

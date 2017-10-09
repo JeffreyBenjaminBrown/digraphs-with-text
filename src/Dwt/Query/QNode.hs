@@ -3,6 +3,8 @@
 
 module Dwt.Query.QNode (
   pathsToIts -- QNode -> Either DwtErr (S.Set PathInExpr)
+  , subExpr -- PathInExpr -> RSLT -> Node -> Either DwtErr Node
+
   , playsRoleIn -- RSLT -> RelRole -> Node -> Either DwtErr [Node]
   , qPlaysRoleIn -- RSLT -> RelRole -> QNode -> Either DwtErr [Node]
   , matchRoleMap -- RSLT -> RoleMap -> Either DwtErr [Node]
@@ -26,7 +28,7 @@ module Dwt.Query.QNode (
 ) where
 
 import Data.Graph.Inductive (Node, LNode, Graph, labfilter, lab, nodes
-  , insNode, insEdges, newNodes, labNodes, gelem, lpre)
+  , insNode, insEdges, newNodes, labNodes, gelem, lpre, lsuc)
 import Dwt.Initial.Types
 import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Initial.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
@@ -39,6 +41,7 @@ import Data.List (nub, sortOn)
 import qualified Data.Map as Map
 import qualified Data.Maybe as Mb
 import qualified Data.Set as S
+import Control.Lens
 import Control.Monad.Morph (hoist)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Reader (ReaderT, runReaderT, ask, lift)
@@ -74,7 +77,17 @@ pathsToIts (QRel _ qs) = do
       z = map (\(a, Right b) -> S.map (a:) b) y
   return $ S.unions z
 pathsToIts (QVar It) = Right $ S.fromList [[]]
-pathsToIts _ = Left (FoundNo,[],"") -- is not an error
+pathsToIts _ = Left (FoundNo,[],"") -- not an error
+
+subExpr :: PathInExpr -> RSLT -> Node -> Either DwtErr Node
+subExpr [] _ n = Right n
+subExpr (s:ss) g n = 
+  -- todo ? if Left, return full original path, not just bad subpath
+  case map fst $ filter ((== RelEdge s) . snd) $ lsuc g n of
+    [n'] -> subExpr ss g n'
+    [] -> Left $ error & errBase .~ ConstructorMistmatch
+    _ -> Left $ error & errBase .~ FoundMany
+  where error = (Invalid,[ErrPathInExpr (s:ss), ErrNode n], "subExpr.")
 
 -- | Rels using Node n in RelRole r
 playsRoleIn :: RSLT -> RelRole -> Node -> Either DwtErr [Node]
