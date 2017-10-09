@@ -31,7 +31,7 @@ data ViewProg = ViewProg { vpPrefixer :: Prefixer
                          , vpShowFiats :: ShowFiats
                          }
 
--- things _showExpr uses, maybe useful elsewhere -- TODO ? export|promote x-file
+-- | == things _showExpr uses, maybe useful elsewhere -- TODO ? export|promote x-file
 exprDepth :: RSLT -> Node -> Depth -- TODO ? Use the [Node]
 exprDepth g n = fst $ _exprDepth g (0,[n]) (1,[]) []
 
@@ -48,7 +48,7 @@ _exprDepth g (_,[]) ng@(d, _) acc = -- this gen empty, so next replaces it
 _exprDepth g (d,n:ns) (d',ns')  acc = let newNodes = mbrs g n in
   _exprDepth (delNode n g) (d,ns) (d', newNodes ++ ns') (n:acc)
 
--- ==== _showExpr and things only it uses
+-- | == _showExpr and things only it uses
 _showExpr :: ViewProg -> RSLT -> Depth -> Maybe Node -> String
 _showExpr _  _ _  Nothing = "#absent_node#"
 _showExpr vp g d (Just n) = 
@@ -116,15 +116,15 @@ nullMbrMap t@(Tplt _) =
   in Map.fromList $ zip es mns
 nullMbrMap _ = error "nullMbrMap: given a non-Tplt"
 
--- ==== things using _showExpr
+-- | == things using _showExpr
+prefixer = Prefixer {_str=f, _tplt=f, _coll=f, _rel = const f}
+  where f = const ""
+
 prefixerVerbose = Prefixer { _str = colWordFunc
                     , _tplt = \n -> ":" ++ show n ++ " "
                     , _rel = \n tn -> show n ++ ":" ++ show tn ++ " "
                     , _coll = colWordFunc } where
   colWordFunc = \n -> show n ++ ": "
-
-prefixer = Prefixer {_str=f, _tplt=f, _coll=f, _rel = const f}
-  where f = const ""
 
 showExpr :: RSLT -> Node -> String
 showExpr g n = _showExpr vp g d (Just n)
@@ -143,18 +143,23 @@ view g ns = do mapM f ns
   where f n = do x <- length <$> users g n
                  return $ show (n, x, showExpr g n)
 
--- | verbose: shows inner addresses
 viewVerbose :: RSLT -> [Node] -> Either DwtErr [String]
-viewVerbose g ns = do mapM f ns
+viewVerbose g ns = do mapM f ns -- ^ verbose: shows inner addresses
   where f n = do x <- length <$> users g n
                  return $ show (n, x, showExprVerbose g n)
 
-v :: RSLT -> [Node] -> IO ()
-v g ns = do putStrLn "(users, content)"
-            mapM_ putStrLn $ map f ns
-  where f n = show $ (fromRight $ length <$> users g n -- emul: counts users
-                     , showExpr g n)
+-- | == IO
+_v :: (RSLT -> [Node] -> Either DwtErr [String]) -> RSLT -> [Node] -> IO ()
+_v viewer g ns = do putStrLn "(node, users, content)"
+                    either (putStrLn . show) (mapM_ putStrLn) $ viewer g ns
 
--- ==== mostly unused
+v, vv :: RSLT -> [Node] -> IO ()
+v  = _v view
+vv = _v viewVerbose
+va, vva :: RSLT -> IO ()
+va g = v g $ nodes g
+vva g = vv g $ nodes g
+
+-- | == mostly unused
 bracket :: String -> String -- unused, but a useful pair of characters
 bracket s = "\171" ++ s ++ "\187" -- = «s»
