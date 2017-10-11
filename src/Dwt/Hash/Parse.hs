@@ -4,10 +4,13 @@ module Dwt.Hash.Parse (
   expr
 
   -- for tests, not interface
+  , EO(..), Hash(..)
+  , getQNode
+  , hasInsRel
+  , startRel, rightConcat, leftConcat, close
+  , hash
   , leaf, at, qVar, leafOrAtOrVar
   , pBranch, pMapBranch, pRoleMap
-  , EO(..), Hash(..)
-  , hash, rightConcat, leftConcat
   ) where
 
 import Text.Megaparsec
