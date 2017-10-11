@@ -69,7 +69,7 @@ import Text.Regex (mkRegex, matchRegex)
   --   -> Right $ Set.fromList [[Mbr 1], [Mbr 3, Mbr 2]]
 
 pathsToIts :: QNode -> Either DwtErr (S.Set PathInExpr)
-pathsToIts (QRel _ qs) = do
+pathsToIts (QRel _ _ qs) = do
   let w = zip [Mbr i | i <- [1..]] $ filter (not . isAbsent) qs
         :: [(RelRole, QNode)]
       x,y  :: [(RelRole, Either DwtErr (S.Set PathInExpr))]
@@ -142,7 +142,7 @@ qGet _ Absent = Left (Impossible, [ErrQNode Absent], "qGet.")
 qGet g q@(At n) = if gelem n g then return [n]
                   else Left (FoundNo, [ErrQNode q], "qGet.")
 qGet g (QLeaf l) = return $ nodes $ labfilter (==l) $ dropEdges g
-qGet g q@(QRel _ qms) = prependCaller "qGet: " $ do
+qGet g q@(QRel _ _ qms) = prependCaller "qGet: " $ do
   t <- extractTplt q
   let m = mkRoleMap (QLeaf t) $ filter (not . (== Absent)) qms
     -- because non-interior Joints require the use of Absent
@@ -164,7 +164,7 @@ qGet1 g q = prependCaller "qGet1: " $ case qGet g q of
 
 qPutSt :: QNode -> StateT RSLT (Either DwtErr) Node
 qPutSt Absent = lift $ Left (Impossible, [ErrQNode Absent], "qPutSt.")
-qPutSt i@(QRel _ qms) = hoist (prependCaller "qPutSt: ") $ do
+qPutSt i@(QRel _ _ qms) = hoist (prependCaller "qPutSt: ") $ do
   g <- get
   case qGet1 g i of
     Right n -> return n

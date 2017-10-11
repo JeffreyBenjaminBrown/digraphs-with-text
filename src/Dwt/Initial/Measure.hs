@@ -27,7 +27,7 @@ import Control.Lens
 
 
 extractTplt :: QNode -> Either DwtErr Expr
-extractTplt (QRel js as) = Right $ Tplt $ ja ++ map (\(Joint s) -> s) js ++ jz
+extractTplt (QRel _ js as) = Right $ Tplt $ ja ++ map (\(Joint s) -> s) js ++ jz
   where (ja,jz) = (f $ head as, f $ last as)
         f Absent = []
         f _ = [""]
@@ -112,9 +112,9 @@ isAbsent _ = False
 isAt (At _) = True
 isAt _ = False
 
-isValid (QRel [_] [Absent,Absent]) = False
-isValid (QRel [_] [_,_]) = True
-isValid (QRel js  ms) = (not $ any isAbsent $ middle)
+isValid (QRel _ [_] [Absent,Absent]) = False
+isValid (QRel _ [_] [_,_]) = True
+isValid (QRel _ js  ms) = (not $ any isAbsent $ middle)
                            && all isValid ms
                            && length js + 1 == length ms
   where middle = tail . reverse . tail $ ms

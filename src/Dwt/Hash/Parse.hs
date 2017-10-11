@@ -48,7 +48,7 @@ hasInsRel (Hash _ _) = True
 hasInsRel (HashNonRel _) = False
 
 startRel :: Level -> Joint -> Hash -> Hash -> Hash
-startRel l j a b = Hash (EO True l) $ QRel [j] $ map getQNode [a,b]
+startRel l j a b = Hash (EO True l) $ QRel False [j] $ map getQNode [a,b]
 
 -- | PITFALL: In "a # b # c # d", you might imagine evaluating the middle #
 -- after the others. In that case both sides would be a QRel, and you would
@@ -61,38 +61,38 @@ rightConcat :: Joint
   -> Hash -- ^ insert this
   -> Hash -- ^ into the right side of this
   -> Hash -- ifdo speed : use a two-sided list of pairs
-rightConcat j h (Hash eo (QRel joints mbrs))
-  = Hash eo $ QRel (joints ++ [j]) (mbrs ++ [getQNode h])
+rightConcat j h (Hash eo (QRel isTop joints mbrs))
+  = Hash eo $ QRel isTop (joints ++ [j]) (mbrs ++ [getQNode h])
 rightConcat _ _ _ = error "can only rightConcat into a QRel"
 
 leftConcat :: Joint
   -> Hash -- ^ insert this
   -> Hash -- ^ into the right side of this
   -> Hash -- ifdo speed : use a two-sided list of pairs
-leftConcat j h (Hash eo (QRel joints mbrs))
-  = Hash eo $ QRel (j : joints) (getQNode h : mbrs)
+leftConcat j h (Hash eo (QRel isTop joints mbrs))
+  = Hash eo $ QRel isTop (j : joints) (getQNode h : mbrs)
 leftConcat _ _ _ = error "can only leftConcat into a QRel"
 
 close :: Hash -> Hash
-close (Hash (EO _ a) (QRel b c)) = Hash (EO False a) $ QRel b c
+close (Hash (EO _ a) (QRel isTop b c)) = Hash (EO False a) $ QRel isTop b c
 close x@(HashNonRel _) = x
 
 hash :: Level -> Joint -> Hash -> Hash -> Hash
 hash l j a@(hasInsRel -> False) b@(hasInsRel -> False)
   = startRel l j a b
-hash l j a@(hasInsRel -> False) b@(Hash (EO False _) (QRel _ _))
+hash l j a@(hasInsRel -> False) b@(Hash (EO False _) (QRel _ _ _))
   = startRel l j a b
-hash l j a@(Hash (EO False _) (QRel _ _)) b@(hasInsRel -> False)
+hash l j a@(Hash (EO False _) (QRel _ _ _)) b@(hasInsRel -> False)
   = startRel l j a b
-hash l j a@(hasInsRel -> False) b@(Hash (EO True l') (QRel _ _))
+hash l j a@(hasInsRel -> False) b@(Hash (EO True l') (QRel _ _ _))
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = leftConcat j a b -- I suspect this won't happen either
   | l > l' = startRel l j a b
-hash l j a@(Hash (EO True l') (QRel _ _)) b@(hasInsRel -> False)
+hash l j a@(Hash (EO True l') (QRel _ _ _)) b@(hasInsRel -> False)
   | l < l' = error "Higher level should not have been evaluated first."
   | l == l' = rightConcat j b a -- but this will
   | l > l' = startRel l j a b
-hash l j a@(Hash ea (QRel _ _)) b@(Hash eb (QRel _ _)) =
+hash l j a@(Hash ea (QRel _ _ _)) b@(Hash eb (QRel _ _ _)) =
   let e = EO True l
       msg = unlines [ "Joint should have been evaluated earlier."
                     , "level: " ++ show l

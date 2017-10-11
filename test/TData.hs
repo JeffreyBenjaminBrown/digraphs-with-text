@@ -93,16 +93,16 @@ water = QLeaf $ Word "water" :: QNode
 brandy = QLeaf $ Word "brandy" :: QNode
 
 -- | == QRel
-dogNeedsAny = QRel ["needs"] [dog,qAny] :: QNode
-anyNeedsWater = QRel ["needs"] [qAny,water] :: QNode
-dogNeedsWater = QRel ["needs"] [dog,water] :: QNode
+dogNeedsAny = QRel False ["needs"] [dog,qAny] :: QNode
+anyNeedsWater = QRel False ["needs"] [qAny,water] :: QNode
+dogNeedsWater = QRel False ["needs"] [dog,water] :: QNode
 
-dogWantsBrandy = QRel ["wants"] [dog,brandy] :: QNode
+dogWantsBrandy = QRel False ["wants"] [dog,brandy] :: QNode
 dogWantsBrandyIsDubious = At 11 :: QNode
-anyNeedsAny = QRel ["needs"] [qAny, qAny] :: QNode
-anyNeedsAnyIsAny = QRel ["is"] [anyNeedsAny, qAny] :: QNode
-anyWantsAny = QRel ["wants"] [qAny, qAny] :: QNode
-anyWantsAnyIsAny = QRel ["is"] [anyWantsAny, qAny] :: QNode
+anyNeedsAny = QRel False ["needs"] [qAny, qAny] :: QNode
+anyNeedsAnyIsAny = QRel False ["is"] [anyNeedsAny, qAny] :: QNode
+anyWantsAny = QRel False ["wants"] [qAny, qAny] :: QNode
+anyWantsAnyIsAny = QRel False ["is"] [anyWantsAny, qAny] :: QNode
 
 -- | = RoleMap
 anyNeedsWaterRM :: RoleMap

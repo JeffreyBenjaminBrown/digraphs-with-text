@@ -23,7 +23,7 @@ prettyPrint = it 0 where
   space :: Int -> String
   space k = replicate (4*k) ' '
   it :: Level -> QNode -> IO ()
-  it indent (QRel js (m:ms)) = do
+  it indent (QRel _ js (m:ms)) = do
     putStrLn $ space indent ++ "QNode: "
     it (indent+1) m
     let f (j,m) = do putStrLn $ (space $ indent+1) ++ show j
@@ -35,9 +35,9 @@ addExpr :: QNode -> StateT RSLT (Either DwtErr) Node
 addExpr (At n) = get >>= lift . flip gelemM n >> return n
 addExpr Absent = lift $ Left (Impossible, [ErrQNode Absent], "execQNode.")
 addExpr (QLeaf e) = qPutSt $ QLeaf e
-addExpr (QRel js as) = do
+addExpr (QRel isTop js as) = do
   ns <- mapM addExpr $ filter (not . isAbsent) as
-  qPutSt $ QRel js $ reshuffle ns as
+  qPutSt $ QRel isTop js $ reshuffle ns as
   where reshuffle :: [Node] -> [QNode] -> [QNode]
         reshuffle [] ms = ms
         reshuffle ns (Absent:is) = Absent : reshuffle ns is

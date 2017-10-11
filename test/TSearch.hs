@@ -80,7 +80,7 @@ t2matchRoleMap g m = prependCaller "matchRoleMap: " $ do
 
 t2_qGet :: RSLT -> QNode
   -> Either DwtErr (RoleMap, [(RelRole, Maybe [Dwt.Node])])
-t2_qGet g q@(QRel _ qms) = do
+t2_qGet g q@(QRel False _ qms) = do
   t <- extractTplt q
   let m = mkRoleMap (QLeaf t) qms
   (m,) <$> t2matchRoleMap g m
@@ -99,7 +99,7 @@ tNestedQRelsWithVars = TestCase $ do
 
 tStar = TestCase $ do
   let Right (dogWaterChoco,g2)
-        = flip runStateT g1 ( qPutSt $ QRel ["needs","for"]
+        = flip runStateT g1 ( qPutSt $ QRel False ["needs","for"]
                                        [ QLeaf $ Word "Laura"
                                        , QLeaf $ Word "water"
                                        , QLeaf $ Word "chocolate"] )

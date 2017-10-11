@@ -54,8 +54,9 @@ data QNode = At Node -- ^ for when you know the expression's node
   -- | QMap RoleMap -- ? todo, for leaving Tplt or Mbrs unspecified
   | QBranch RoleMap QNode
   | Absent | QLeaf Expr
-  | QRel [Joint] [QNode]
-  | QRelTop [Joint] [QNode]
+  | QRel {qRelTop :: Bool
+         , qRelJoints :: [Joint]
+         , qRelQNodes :: [QNode] }
   deriving (Show, Eq)
 type RoleMap  = Map.Map RelRole QNode
 
