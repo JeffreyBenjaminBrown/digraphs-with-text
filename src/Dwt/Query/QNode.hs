@@ -148,8 +148,8 @@ qGet g q@(QRel _ qms) = prependCaller "qGet: " $ do
     -- because non-interior Joints require the use of Absent
   ns <- matchRoleMap g m
   ps <- pathsToIts q
-  return $ if null ps then ns
-    else [] -- >>> TODO
+  if null ps then return ns
+             else nub . concat <$> mapM (its g q) ns
 qGet g (QAnd qs) = listIntersect <$> mapM (qGet g) qs
 qGet g (QOr qs) = nub . concat <$> mapM (qGet g) qs
 qGet g (QBranch dir q) = qGet g q >>= dwtDfs_unlim g dir
