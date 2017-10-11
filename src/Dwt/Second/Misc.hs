@@ -1,5 +1,6 @@
 module Dwt.Second.Misc (
-  qRelUntop
+  qRelUntop -- QNode -> QNode
+  , qRel -- QNode -> Bool
   , toRoleMap -- QNode -> Either DwtErr RoleMap
   ) where
 
@@ -12,6 +13,11 @@ qRelUntop :: QNode -> QNode
 qRelUntop (QRelTop js qs) = QRel js qs
 qRelUntop q@(QRel _ _) = q
 qRelUntop _ = error "qRelUntop: expects a QRel."
+
+qRel :: QNode -> Bool
+qRel (QRel _ _) = True
+qRel (QRelTop _ _) = True
+qRel _ = False
 
 toRoleMap :: QNode -> Either DwtErr RoleMap
 toRoleMap q@(QRel js qs) = do t <- extractTplt q
