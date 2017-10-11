@@ -35,6 +35,7 @@ import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Initial.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
                 , listIntersect, nodeToLNodeUsf)
 import Dwt.Initial.Measure (extractTplt, isAbsent)
+import Dwt.Second.Misc (qNodeIsTop)
 import Dwt.Query.Initial (mkRoleMap, selectRelElts, users)
 
 import Data.Either (isRight)
@@ -70,7 +71,9 @@ import Text.Regex (mkRegex, matchRegex)
 
 pathsToIts :: QNode -> Either DwtErr (S.Set PathInExpr)
 pathsToIts (QRel _ _ qs) = do
-  let w = zip [Mbr i | i <- [1..]] $ filter (not . isAbsent) qs
+  let w = zip [Mbr i | i <- [1..]]
+        $ filter (not . qNodeIsTop)
+        $ filter (not . isAbsent) qs
         :: [(RelRole, QNode)]
       x,y  :: [(RelRole, Either DwtErr (S.Set PathInExpr))]
       x = map (\(a,b) -> (a, pathsToIts b)) w

@@ -22,7 +22,7 @@ import Dwt.Initial.ParseUtils (Parser, lexeme, parens, brackets, sc
                       , anyWord, word, wordChar, phrase)
 import Dwt.Initial.Types
 import Dwt.Second.MkTplt (mkTplt)
-import Dwt.Second.Misc (toRoleMap)
+import Dwt.Second.Misc (qNodeTop, toRoleMap)
 import Data.List (intersperse)
 import qualified Data.Map as M
 
@@ -120,6 +120,7 @@ _expr = makeExprParser term
     ] | n <- [1..8] ]
 
 pQNode = (QLeaf <$> try leaf <|> try at <|> try qVar)
+         <|> try pTop
          <|> try pBranch
          <|> try pMapBranch
 
@@ -188,6 +189,9 @@ pRoleMap = M.fromList <$> pair `sepBy` (lexeme $ char ',') where
 -- == the simplest kinds of leaf
 leafOrAtOrVar :: Parser QNode
 leafOrAtOrVar = QLeaf <$> try leaf <|> try at <|> try qVar
+
+pTop :: Parser QNode
+pTop = qNodeTop <$> (word "/top" >> expr)
 
 leaf :: Parser Expr
 leaf = do
