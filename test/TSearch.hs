@@ -22,6 +22,7 @@ import Text.Megaparsec (parse)
 
 tSearch = TestList [ TestLabel "tSubExpr" tSubExpr
                    , TestLabel "tPathsToIts" tPathsToIts
+                   , TestLabel "tIts" tIts
                    , TestLabel "tQPlaysRoleIn" tQPlaysRoleIn
                    , TestLabel "tMatchQRelspecNodes" tMatchQRelspecNodes
                    , TestLabel "tStar" tStar
@@ -38,9 +39,15 @@ tSubExpr = TestCase $ do
   let Right dubious = qGet1 g1 dogWantsBrandyIsDubious
       Right wants = qGet1 g1 dogWantsBrandy
       Right brandyNode = qGet1 g1 brandy
-  assertBool "1" $ subExpr [Mbr 1] g1 dubious == Right wants
-  assertBool "2" $ subExpr [Mbr 1, Mbr 2] g1 dubious == Right brandyNode
-  assertBool "3" $ isLeft $ subExpr [Mbr 1, Mbr 2, Mbr 1] g1 dubious
+  assertBool "1" $ subExpr g1 dubious [Mbr 1] == Right wants
+  assertBool "2" $ subExpr g1 dubious [Mbr 1, Mbr 2] == Right brandyNode
+  assertBool "3" $ isLeft $ subExpr g1 dubious [Mbr 1, Mbr 2, Mbr 1]
+
+tIts = TestCase $ do
+  let Right q = parse expr "" "/it #is /any"
+      Right is = qGet1 g1 dogWantsBrandyIsDubious
+      Right wants = qGet g1 dogWantsBrandy
+  assertBool "1" $ its g1 q is == Right wants
 
 tQPlaysRoleIn = TestCase $ do
   assertBool "1" $ qPlaysRoleIn g1 TpltRole needsFor

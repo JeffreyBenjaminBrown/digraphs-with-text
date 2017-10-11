@@ -3,7 +3,8 @@
 
 module Dwt.Query.QNode (
   pathsToIts -- QNode -> Either DwtErr (S.Set PathInExpr)
-  , subExpr -- PathInExpr -> RSLT -> Node -> Either DwtErr Node
+  , subExpr -- RSLT -> Node -> PathInExpr -> Either DwtErr Node
+  , its -- RSLT -> QNode -> Node -> Either DwtErr [Node]
 
   , playsRoleIn -- RSLT -> RelRole -> Node -> Either DwtErr [Node]
   , qPlaysRoleIn -- RSLT -> RelRole -> QNode -> Either DwtErr [Node]
@@ -79,15 +80,19 @@ pathsToIts (QRel _ qs) = do
 pathsToIts (QVar It) = Right $ S.fromList [[]]
 pathsToIts _ = Left (FoundNo,[],"") -- not an error
 
-subExpr :: PathInExpr -> RSLT -> Node -> Either DwtErr Node
-subExpr [] _ n = Right n
-subExpr (s:ss) g n = 
+subExpr :: RSLT -> Node -> PathInExpr -> Either DwtErr Node
+subExpr _ n [] = Right n
+subExpr g n (s:ss) = 
   -- todo ? if Left, return full original path, not just bad subpath
   case map fst $ filter ((== RelEdge s) . snd) $ lsuc g n of
-    [n'] -> subExpr ss g n'
+    [n'] -> subExpr g n' ss
     [] -> Left $ error & errBase .~ ConstructorMistmatch
     _ -> Left $ error & errBase .~ FoundMany
   where error = (Invalid,[ErrPathInExpr (s:ss), ErrNode n], "subExpr.")
+
+its :: RSLT -> QNode -> Node -> Either DwtErr [Node]
+its g q superExpr = do ps <- pathsToIts q
+                       mapM (subExpr g superExpr) $ S.toList ps
 
 -- | Rels using Node n in RelRole r
 playsRoleIn :: RSLT -> RelRole -> Node -> Either DwtErr [Node]
@@ -141,7 +146,10 @@ qGet g q@(QRel _ qms) = prependCaller "qGet: " $ do
   t <- extractTplt q
   let m = mkRoleMap (QLeaf t) $ filter (not . (== Absent)) qms
     -- because non-interior Joints require the use of Absent
-  matchRoleMap g m
+  ns <- matchRoleMap g m
+  ps <- pathsToIts q
+  return $ if null ps then ns
+    else [] -- >>> TODO
 qGet g (QAnd qs) = listIntersect <$> mapM (qGet g) qs
 qGet g (QOr qs) = nub . concat <$> mapM (qGet g) qs
 qGet g (QBranch dir q) = qGet g q >>= dwtDfs_unlim g dir
