@@ -44,7 +44,7 @@ As an example, adding `(_ needs _) #(is equivalent to) (_ requires _)` would cre
 Querying is a little more complex than writing, because we query for multiple expressions at once. We still use the same language, Hash, but we introduce a few "reserved words". Each of them is preceded by the `/` symbol.
 
 ## Basic queries
-#### Query for one thing by writing it
+### Query for one thing by writing it
 A query does not have to involve any reserved words. The query `hummingbirds #are amazing` will return the expression `hummingbirds #are amazing` if it is in the graph. If it is not, it will return nothing.
 
 ### Query for everything using /all
