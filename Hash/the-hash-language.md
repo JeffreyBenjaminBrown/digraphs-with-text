@@ -9,32 +9,43 @@ You already know about words and parentheses. The only remaining thing to learn 
 ## Using # to create simple and compound relationships
 
 ### A simple (level-1) binary relationship
-`bob #needs legal counsel` creates a binary `needs`-relationship between `bob` and `legal counsel`. `bob` and `legal counsel` could be called level-0 expressions. The `#` indicates that `needs` lies one level above them, forming a relationship that connects them. If `bob` and `legal counsel` were not in the RSLT before, they are now; if they were, they are not duplicated. The same goes for the "relationship template" `_ needs _`.
+`Bob #needs legal counsel` creates a binary `needs`-relationship between `Bob` and `legal counsel`. `Bob` and `legal counsel` could be called level-0 expressions. The `#` indicates that `needs` lies one level above them, forming a relationship that connects them. If `Bob` and `legal counsel` were not in the RSLT before, they are now; if they were, they are not duplicated.
 
-`bob` and `legal counsel` can be thought of as level-0 expressions. They contain no subexpressions. `bob #needs legal counsel` is a level-1 expression. Loosely, `#` means "make it higher" or "make it connect the others".
+The "relationship template" `_ needs _` is also added to the graph, if it is not already present. A relationship template is like a relationship, but it has no members. Relationships are built using relationship templates. (Note that when referring to a template, we don't write the `#` symbol. We only write that when *using* the relationship to connect things.)
+
+`Bob` and `legal counsel` can be thought of as level-0 expressions. They contain no subexpressions. `Bob #needs legal counsel` is a level-1 expression. Loosely, `#` means "make it higher" or "make it connect the others".
 
 ### A simple (level-1) ternary relationship
-`bob #needs bodyguards #when traveling` represents a ternary `needs-when`-relationship, between `bob`, `bodyguards` and `traveling`.
+`Bob #needs tech support #for teleconferencing` represents a ternary `needs-for`-relationship, between `Bob`, `tech support` and `teleconferencing`.
+
+A binary relationship, such as "Van #studies set theory" has one "joint" between two "members". A ternary relationship, such as "Van #studies set theory #on sundays`, has two joints and three members. Etc.
 
 ### A compound (level-2) relationship
-In a level-2 relationship, at least one member is itself a level-1 relationship. An example is `bob #goes skiing ##in january`. That creates a `during`-relationship between the level-1 relationship `bob #goes skiing` and the level-0 expression `january`.
+In a level-2 relationship, at least one member is itself a level-1 relationship. An example is `Bob #started working ##on january 1 2017`. That creates an `on`-relationship between the level-1 relationship `Bob #goes skiing` and the level-0 expression `january`.
 
-### A compound unary relationship
-A `relationship` does not have to have multiple members. `maybe` and `not` are two important unary relationships. `##maybe I #need help` creates a `maybe`-relationship with only one member, `I #need help`.
+### Unary relationships
+A "relationship" does not have to have multiple members; it can be "unary". `maybe` and `not` are two important unary relationships. For instance, `##maybe we #need debt restructuring` creates a `maybe`-relationship with only one member, `we #need debt restructuring`.
 
 ### Any number of # marks is valid
-For instance, `reasonable people #like watermelon ##when the weather #is hot ###because watermelon #is cold`.
+`reasonable people #like watermelon ##when the weather #is hot ###because watermelon #is cold`.
 
 ## Parentheses help, too
-Parentheses offer another way to delineate subexpressions. # can be applied to a parenthetical expression just like it was a single word -- as in, for instance, `gold #(produced by) a goose`.
+The preceding statement regarding watermelon could be rewritten as `(reasonable people #like watermelon ##when the weather #is hot) #because (watermelon #is cold)`.
+
+Parentheses can be used for joints as well -- as in, for instance, `gold #(produced by) a goose`.
+
+## Relationship templates can also be in relationships
+As described earlier, when you add `a #needs b` to the graph, the effect is to add (if they don't already exist) `a`, `b`, the relationship `a #needs b`, and the relationship template `_ needs _`. That template can itself be in a relationship.
+
+As an example, adding `(_ needs _) #(is equivalent to) (_ requires _)` would create (if they don't already exist) the "needs" template, the "requires" template, and the "is equivalent to" template, and would use the "is equivalent to" template to relate the other two.
 
 # Querying a RSLT with Hash
 
-Querying is a little more complex than writing, because we query for multiple expressions at once. We still use the same language, Hash, but we introduce a few special symbols. Each of them is preceded by the `/` symbol.
+Querying is a little more complex than writing, because we query for multiple expressions at once. We still use the same language, Hash, but we introduce a few "reserved words". Each of them is preceded by the `/` symbol.
 
 ## Basic queries
 #### Query for one thing by writing it
-A query does not have to involve any special symbols. The query `hummingbirds #are amazing` will return the expression `hummingbirds #are amazing` if it is in the graph. If it is not, it will return nothing.
+A query does not have to involve any reserved words. The query `hummingbirds #are amazing` will return the expression `hummingbirds #are amazing` if it is in the graph. If it is not, it will return nothing.
 
 ### Query for everything using /all
 The simplest query for multiple things is `/all`. That will return every node in the graph.
@@ -50,12 +61,12 @@ I #must attend Eric and Stacy's wedding #on Saturday
 `I #must /any #by Friday` would then return the first two expressions. `/any` is a "wildcard": it matches any expression.
 
 ### Query for subexpressions using /it
-Using the same data, if we instead queried for `I #must /it #by Friday`, we would get `locate Chicago` and `own a suit`. The `/it` symbol causes the query to return the subexpression that appears in its place, rather than the entire expression.
+Using the same data, if we instead queried for `I #must /it #by Friday`, we would get `locate Chicago` and `own a suit`. The `/it` symbol causes the query to return the subexpression that appears where `/it` appears in the query, rather than the entire expression that matched the query.
 
 ### Boolean operations: & and |
-`(I #like /it) & (you #like /it)` will return everything that you and I both like. `(I #like /it) | (you #like /it)` will return everything that either of us like. (`&` is called the "intersection" operator,  and `|` the "union" operator.)
+`(I #like /it) & (you #like /it)` will return everything that you and I both like. `(I #like /it) | (you #like /it)` will return everything that either of us like. `&` is called the "intersection" operator,  and `|` the "union" operator.
 
-## Advanced topics
+## Advanced queries
 ### Early evaluation for sub-queries: Use /eval
 
 Consider a RSLT with the following data:
@@ -68,7 +79,7 @@ We might try the query `Bran #likes (/it #is psychopathic)`, as a way to find al
 
 To do that, use the `/eval` keyword. `Bran #likes (/eval /it #is psychopathic)` will return what we want.
 
-### Search recursively using /b (that stands for "branch"), /from and /to
+### Search recursively using /branch, /from and /to
 
 Suppose we had this data:
 ```
@@ -77,15 +88,20 @@ the spaceship #needs GPS connectivity
 the fuel pod #needs petroleum
 ```
 
-We might want to find everything the spaceship needs. Needs is a transitive relationship: if a needs b and b needs c, then a needs c. Thus the query `the spaceship #needs /it` is insufficient for these purposes. We need to specify a recursive search, starting from `the spaceship`, using the `_ needs _` relationship. Here's how:
+We might want to find everything the spaceship needs. Needs is a transitive relationship: if a needs b and b needs c, then a needs c. Thus the query `the spaceship #needs /it` is insufficient: it will not recognize that the spaceship needs petroleum. 
 
-`/b (/from #needs /to) the spaceship`
+Here is how to specify a recursive search, starting from `the spaceship`, using the `_ needs _` relationship:
 
-The keywords `/from` and `/to` indicate the direction to travel along the `needs` relationship. That relationship connects a thing that needs to a thing that is needed; it can be traversed in two directions, and they mean very different things. For recursive search, we must specify that direction.
+`/branch (/from #needs /to) the spaceship`
 
-Note that the keywords `/from` and `/to` can be used to specify searches involving relationships with more than two members.
+The keywords `/from` and `/to` indicate the direction to travel along the `needs` relationship.
 
-### Relationship templates can also be in relationships
-As described earlier, when you add `a #needs b` to the graph, the effect is to add (if they don't already exist) `a`, `b`, the relationship `a #needs b`, and the relationship template `_ needs _`. That template can itself be in a relationship. (Note that when referring to a template, we don't use the `#` symbol. We only use that when *using* the relationship to connect things.)
+Searches involving relationships with more than two members are specified the same way. For instance, 
 
-As an example, adding `(_ needs _) #(is equivalent to) (_ requires _)` would create (if they don't already exist) the "needs" template, the "requires" template, and the "is equivalent to" template, and would use the "is equivalent to" template to relate the other two.
+`/branch (/from #needs /to #on Sunday) the spaceship`
+
+would return everything that the spaceship needs on Sunday, and
+
+`/branch (/from #needs /to #on /any) the spaceship`
+
+would return everything that the spaceship needs at any time.

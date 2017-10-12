@@ -164,7 +164,7 @@ pOr n = lexeme $ do pOrUnlabeled n
 -- | less typing, but less flexible
 pBranch :: Parser QNode -- TODO ? handle a Left in a Parser
 pBranch = lexeme $ do
-  word "/b"
+  word "/branch"
   eitherDir <- toRoleMap <$> parens expr
   origin <- expr
   case eitherDir of Left e -> error $ "pBranch parser encountered a Left: "
