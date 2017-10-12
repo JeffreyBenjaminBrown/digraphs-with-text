@@ -28,7 +28,7 @@ pUsers = ViewGraph . f <$> (word "/u" *> integer) where
   -- or better: TODO: expand QNode to include stars
 
 pAllNodes :: Parser Command
-pAllNodes = const f <$> word "/a" where
+pAllNodes = const f <$> word "/all" where
    f = ViewGraph $ do g <- ask
                       return $ Right $ nodes g
 

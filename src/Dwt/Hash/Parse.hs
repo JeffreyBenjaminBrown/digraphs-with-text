@@ -191,7 +191,7 @@ leafOrAtOrVar :: Parser QNode
 leafOrAtOrVar = QLeaf <$> try leaf <|> try at <|> try qVar
 
 pTop :: Parser QNode
-pTop = qNodeTop <$> (word "/top" >> expr)
+pTop = qNodeTop <$> (word "/eval" >> expr)
 
 leaf :: Parser Expr
 leaf = do

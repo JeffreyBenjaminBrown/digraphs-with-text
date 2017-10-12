@@ -17,7 +17,7 @@ In the data entry (upper) window, try typing:
 
 Enter that data by pressing M-Enter (Alt-Enter). Now those statements, and every object and relationship they involve, are in the graph.  (The number of hash marks indicates the precedence of the relationships. For more detail, see [The Hash Language](/Hash/the-hash-language.md).)
 
-Press Tab to go to the query (lower) window. Type `/a` and press M-Enter. Now you see all (/a stands for "all") things in the graph.
+Press Tab to go to the query (lower) window. Type `/all` and press M-Enter. Now you see all things in the graph.
 
 
 # Query the graph
