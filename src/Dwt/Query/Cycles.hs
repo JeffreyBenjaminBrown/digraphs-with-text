@@ -6,7 +6,7 @@
    License     : BSD3
 -}
 
-module Data.Graph.Inductive.Query.Cycles
+module Dwt.Query.Cycles
   ( cycles
   , cycles'
   , uniqueCycles
