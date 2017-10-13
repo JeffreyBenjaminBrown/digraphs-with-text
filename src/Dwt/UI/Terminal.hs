@@ -43,8 +43,12 @@ data St = St { _rslt :: RSLT
 makeLenses ''St
 
 initialState :: RSLT -> St
-initialState g = St g [] [] (F.focusRing [InsertWindow, CommandWindow])
-  (E.editor InsertWindow Nothing "") (E.editor CommandWindow (Just 2) "")
+initialState g = St {_rslt = g
+  , _commands = ["/all"]
+  , _uiView = []
+  , _focusRing = F.focusRing [InsertWindow, CommandWindow]
+  , _insertWindow = E.editor InsertWindow Nothing ""
+  , _commandWindow = E.editor CommandWindow (Just 2) ""}
 
 
 -- ==== Change state
@@ -71,6 +75,15 @@ changeView st = do
   case command of ViewGraph reader -> viewRSLT reader st'
                   ShowQueries -> showQueries st'
 
+-- | like changeView, but without reading a new query
+updateView :: St -> T.EventM Name (T.Next St)
+updateView st = do
+  let commandString = head $ st ^. commands
+        -- head safe b/c commands begins nonempty and never shrinks
+      command = fr $ parse pCommand "" commandString -- TODO: nix the fr
+  case command of ViewGraph reader -> viewRSLT reader st
+                  ShowQueries -> showQueries st
+
 viewRSLT :: ReadNodes -> St -> T.EventM Name (T.Next St)
 viewRSLT reader st = do
   let nodesToView = runReader reader $ st^.rslt
@@ -89,7 +102,11 @@ appHandleEvent st (T.VtyEvent ev) =
   V.EvKey V.KEsc [] -> M.halt st
   V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusPrev
   V.EvKey V.KEnter [V.MMeta] -> case fromJust focus of
-    InsertWindow -> addToRSLT st -- MMeta is the only working modifier
+    -- >>> 
+    InsertWindow -> do
+      addToRSLT st -- MMeta is the only working modifier
+--      case st ^. commands of ("/all":_) -> updateView st'
+--                             _ -> M.continue st'
     CommandWindow -> changeView st
   _ -> M.continue =<< case fromJust focus of
     InsertWindow -> T.handleEventLensed st insertWindow E.handleEditorEvent ev
