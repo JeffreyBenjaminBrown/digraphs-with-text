@@ -117,6 +117,7 @@ _expr = makeExprParser term
   [ [ InfixL $ try $ pHash n
     , InfixL $ try $ pAnd n
     , InfixL $ try $ pOr n
+    , InfixL $ try $ pDiff n
     ] | n <- [1..8] ]
 
 pQNode = (QLeaf <$> try leaf <|> try at <|> try qVar)
@@ -159,6 +160,14 @@ pOr n = lexeme $ do pOrUnlabeled n
   where pOrUnlabeled :: Int -> Parser ()
         pOrUnlabeled n = const () <$> f
         f = string (replicate n '|') <* notFollowedBy (char '|')
+
+pDiff :: Int -> Parser (Hash -> Hash -> Hash)
+pDiff n =
+  lexeme $ do pDiffUnlabeled n
+              return $ \a b -> HashNonRel $ QDiff (getQNode a) (getQNode b) 
+  where pDiffUnlabeled :: Int -> Parser ()
+        pDiffUnlabeled n = const () <$> f
+        f = string (replicate n '\\') <* notFollowedBy (char '\\')
 
 -- == QBranch
 -- | less typing, but less flexible

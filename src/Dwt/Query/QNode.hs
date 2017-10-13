@@ -33,7 +33,7 @@ import Data.Graph.Inductive (Node, LNode, Graph, labfilter, lab, nodes
 import Dwt.Initial.Types
 import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Initial.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
-                , listIntersect, nodeToLNodeUsf)
+                , listIntersect, listDiff, nodeToLNodeUsf)
 import Dwt.Initial.Measure (extractTplt, isAbsent)
 import Dwt.Second.Misc (qNodeIsTop)
 import Dwt.Query.Initial (mkRoleMap, selectRelElts, users)
@@ -155,6 +155,7 @@ qGet g q@(QRel _ _ qms) = prependCaller "qGet: " $ do
              else nub . concat <$> mapM (its g q) ns
 qGet g (QAnd qs) = listIntersect <$> mapM (qGet g) qs
 qGet g (QOr qs) = nub . concat <$> mapM (qGet g) qs
+qGet g (QDiff keep drop) = listDiff <$> qGet g keep <*> qGet g drop
 qGet g (QBranch dir q) = qGet g q >>= dwtDfs_unlim g dir
 
 qGet1 :: RSLT -> QNode -> Either DwtErr Node

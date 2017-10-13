@@ -2,7 +2,7 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Initial.Util (
-  listIntersect -- ^ lists
+  listIntersect, listDiff -- ^ lists
 
   -- | graphs & monads
   , hasLEdgeM
@@ -22,11 +22,15 @@ import Dwt.Initial.Types (RSLT, RSLTEdge
                  , DwtErr(..), ErrBase(..), ErrOpt(..), errString)
 import Data.List (intersect)
 import qualified Data.Map as Map
+import qualified Data.Set as S
 import Control.Lens  ((%~))
 
 -- == lists
 listIntersect [] = []
 listIntersect (x:xs) = foldl intersect x xs
+
+listDiff :: Ord a => [a] -> [a] -> [a]
+listDiff a b = S.toList $ S.difference (S.fromList a) (S.fromList b)
 
 -- == graphs
 maxNode :: Gr a b -> Node

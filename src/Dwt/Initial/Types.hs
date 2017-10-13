@@ -50,7 +50,8 @@ type PathInExpr = [RelRole]
     -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
 data SearchVar = It | Any | From | To deriving (Show,Read,Eq,Ord)
 data QNode = At Node -- ^ for when you know the expression's node
-  | QVar SearchVar | QAnd [QNode] | QOr [QNode]
+  | QVar SearchVar
+  | QAnd [QNode] | QOr [QNode] | QDiff QNode QNode
   -- | QMap RoleMap -- ? todo, for leaving Tplt or Mbrs unspecified
   | QBranch RoleMap QNode
   | Absent | QLeaf Expr
