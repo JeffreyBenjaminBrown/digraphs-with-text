@@ -60,8 +60,9 @@ _showExpr vp g d (Just n) =
       Nothing -> error $ "showExpr: node " ++ (show n) ++ " not in graph"
       Just (Word s)   -> (_str $ vpPrefixer vp) n ++ s
       Just (Fl f)   -> (_str $ vpPrefixer vp) n ++ show f
-      Just t@(Tplt _) -> (_tplt $ vpPrefixer vp) n ++
-        (subInTplt t $ replicate (tpltArity t) "_")
+      Just t@(Tplt _) -> (_tplt $ vpPrefixer vp) n
+        ++ noHashes (subInTplt t $ replicate (tpltArity t) "_")
+        where noHashes = filter $ not . (== '#') :: String -> String
       Just (Coll)    -> (_coll $ vpPrefixer vp) n
         ++ (show_maybe_node . Just . head)
              [m | (m,CollEdge CollPrinciple) <- lsuc g n]

@@ -57,7 +57,7 @@ startRel l j a b = Hash (EO True l) $ QRel False [j] $ map getQNode [a,b]
 -- after the others. In that case both sides would be a QRel, and you would
 -- want to modify both, rather than make one a member of the other. These
 -- concat functions skip that possibility; one of the two QNode arguments is
--- always incorporated into the other. I believe that is safe, because 
+-- always incorporated into the other. I believe that is safe, because
 -- expressions in serial on the same level will always be parsed left to
 -- right, not outside to inside.
 rightConcat :: Joint
@@ -196,7 +196,7 @@ pTop = qNodeTop <$> (word "/eval" >> expr)
 leaf :: Parser Expr
 leaf = do
   let blank = lexeme $ string "_" <* notFollowedBy (wordChar <|> char '_')
-      f = concat . intersperse " " 
+      f = concat . intersperse " "
   p <- some $ blank <|> anyWord
   return $ case elem "_" p of True ->  mkTplt . f $ p
                               False -> Word   . f $ p

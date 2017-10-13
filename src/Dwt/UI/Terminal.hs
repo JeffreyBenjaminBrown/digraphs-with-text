@@ -76,7 +76,7 @@ viewRSLT reader st = do
   let nodesToView = runReader reader $ st^.rslt
   case nodesToView of
     Left dwtErr -> error $ "viewRSLT" ++ show dwtErr
-    Right ntv -> M.continue $ st & uiView .~ (fr $ view  (st^.rslt)  ntv)
+    Right ns -> M.continue $ st & uiView .~ (fr $ view  (st^.rslt)  ns)
 
 showQueries :: St -> T.EventM Name (T.Next St)
 showQueries st = M.continue $ st & uiView .~ st^.commands
@@ -120,7 +120,7 @@ appDraw st = [ui] where
     <=> str " "
     <=> (str "Issue queries here " <+> e2)
     <=>  str " "
-    <=> (vLimit 20 $ str "Check it out " <+> str (unlines $ st ^. uiView))
+    <=> (vLimit 15 $ str "Check it out " <+> str (unlines $ st ^. uiView))
     <=> str " "
 
 appAttrMap :: A.AttrMap
