@@ -10,6 +10,7 @@ import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse (expr)
 import Dwt.UI.Parse (Command(..), ReadNodes, pCommand)
+import Dwt.UI.State
 import Dwt.Initial.Util (fr)
 
 import Brick.Widgets.Core ( (<+>), (<=>), hLimit, vLimit, str)
@@ -30,70 +31,6 @@ import Control.Monad.Trans.State (execStateT)
 import Control.Monad.Trans.Reader (runReader)
 import Data.Maybe (fromJust)
 
-
-data Name = InsertWindow | CommandWindow deriving (Ord, Show, Eq)
-
-data St = St { _rslt :: RSLT
-             , _commands :: [String]
-             , _uiView :: [String]
-             ,_focusRing :: F.FocusRing Name
-             , _insertWindow, _commandWindow :: E.Editor String Name
-             }
-
-makeLenses ''St
-
-initialState :: RSLT -> St
-initialState g = St {_rslt = g
-  , _commands = ["/all"]
-  , _uiView = []
-  , _focusRing = F.focusRing [InsertWindow, CommandWindow]
-  , _insertWindow = E.editor InsertWindow Nothing ""
-  , _commandWindow = E.editor CommandWindow (Just 2) ""}
-
-
--- ==== Change state
-addToRSLT :: St -> T.EventM Name (T.Next St)
-addToRSLT st = do
-    let strings = filter (not . null) $ st ^. insertWindow & E.getEditContents
-        graphUpdater = mapM (addExpr . fr . parse expr "") strings
-          -- TODO: nix the fr
-        g = st ^. rslt
-        e = execStateT graphUpdater g
-    let f1 = insertWindow %~ E.applyEdit Z.clearZipper
-        f2 = case e of Left _ -> id -- TODO: display the error
-                       Right g' -> rslt .~ g'
-    M.continue $ st & f2 . f1
-
-changeView :: St -> T.EventM Name (T.Next St)
-changeView st = do
-  let (commandString:_) = filter (not . null)
-                          $ st^.commandWindow & E.getEditContents
-        -- TODO: take first string without discarding rest
-      st' = commandWindow %~ E.applyEdit Z.clearZipper
-            $ commands %~ (commandString :) $ st
-      command = fr $ parse pCommand "" commandString -- TODO: nix the fr
-  case command of ViewGraph reader -> viewRSLT reader st'
-                  ShowQueries -> showQueries st'
-
--- | like changeView, but without reading a new query
-updateView :: St -> T.EventM Name (T.Next St)
-updateView st = do
-  let commandString = head $ st ^. commands
-        -- head safe b/c commands begins nonempty and never shrinks
-      command = fr $ parse pCommand "" commandString -- TODO: nix the fr
-  case command of ViewGraph reader -> viewRSLT reader st
-                  ShowQueries -> showQueries st
-
-viewRSLT :: ReadNodes -> St -> T.EventM Name (T.Next St)
-viewRSLT reader st = do
-  let nodesToView = runReader reader $ st^.rslt
-  case nodesToView of
-    Left dwtErr -> error $ "viewRSLT" ++ show dwtErr
-    Right ns -> M.continue $ st & uiView .~ (fr $ view  (st^.rslt)  ns)
-
-showQueries :: St -> T.EventM Name (T.Next St)
-showQueries st = M.continue $ st & uiView .~ st^.commands
-
 -- ==== Controls
 appHandleEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
 appHandleEvent st (T.VtyEvent ev) =
@@ -102,12 +39,11 @@ appHandleEvent st (T.VtyEvent ev) =
   V.EvKey V.KEsc [] -> M.halt st
   V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusPrev
   V.EvKey V.KEnter [V.MMeta] -> case fromJust focus of
-    -- >>> 
-    InsertWindow -> do
-      addToRSLT st -- MMeta is the only working modifier
---      case st ^. commands of ("/all":_) -> updateView st'
---                             _ -> M.continue st'
-    CommandWindow -> changeView st
+    -- MMeta is the only working modifier (Kubuntu, Konsole, GHCI)
+    InsertWindow -> let st' = addToRSLT st in M.continue $
+      case st ^. commands of ("/all":_) -> updateView st'
+                             _ -> st'
+    CommandWindow -> M.continue $ changeView st
   _ -> M.continue =<< case fromJust focus of
     InsertWindow -> T.handleEventLensed st insertWindow E.handleEditorEvent ev
     CommandWindow -> T.handleEventLensed st commandWindow E.handleEditorEvent ev
@@ -152,7 +88,6 @@ theApp = M.App { M.appDraw = appDraw
                , M.appStartEvent = return
                , M.appAttrMap = const appAttrMap
                }
-
 
 -- ==== Main
 ui :: RSLT -> IO (RSLT, [String])

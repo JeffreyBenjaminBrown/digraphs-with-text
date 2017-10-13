@@ -27,6 +27,7 @@ library
                      , Dwt.Query.QNode
                      , Dwt.Query.Misfits
                      , Dwt.UI.Parse
+                     , Dwt.UI.State
                      , Dwt.UI.Terminal
                      , Dwt.Show
                      , Dwt.Edit
