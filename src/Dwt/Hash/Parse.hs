@@ -136,38 +136,22 @@ term = HashNonRel <$> try pQNode
     -- parentheses get consumed in pairs in an outer (earlier) context
 
 -- == parsing operators
+y :: Char -> Int -> Parser ()
+y c n = string (replicate n c) <* notFollowedBy (char c) >> return ()
+
 pHash :: Int -> Parser (Hash -> Hash -> Hash)
-pHash n = lexeme $ do pHashUnlabeled n
+pHash n = lexeme $ do y '#' n
                       label <- option "" $ anyWord <|> parens phrase
                       return $ hash n $ Joint label
-  where pHashUnlabeled :: Int -> Parser ()
-        pHashUnlabeled n = const () <$> f
-        f = string (replicate n '#') <* notFollowedBy (char '#')
 
-pAnd :: Int -> Parser (Hash -> Hash -> Hash)
-pAnd n = lexeme $ do pAndUnlabeled n
-                     return $ \a b-> HashNonRel $ QAnd $ map getQNode [a,b]
-  -- todo ? prettier would be to test if they are already QAnds,
-  -- and if so merge them, rather than creating a new one.
-  -- The same could be done to pOr.
-  where pAndUnlabeled :: Int -> Parser ()
-        pAndUnlabeled n = const () <$> f
-        f = string (replicate n '&') <* notFollowedBy (char '&')
-
-pOr :: Int -> Parser (Hash -> Hash -> Hash)
-pOr n = lexeme $ do pOrUnlabeled n
-                    return $ \a b-> HashNonRel $ QOr $ map getQNode [a,b]
-  where pOrUnlabeled :: Int -> Parser ()
-        pOrUnlabeled n = const () <$> f
-        f = string (replicate n '|') <* notFollowedBy (char '|')
-
-pDiff :: Int -> Parser (Hash -> Hash -> Hash)
-pDiff n =
-  lexeme $ do pDiffUnlabeled n
-              return $ \a b -> HashNonRel $ QDiff (getQNode a) (getQNode b) 
-  where pDiffUnlabeled :: Int -> Parser ()
-        pDiffUnlabeled n = const () <$> f
-        f = string (replicate n '\\') <* notFollowedBy (char '\\')
+pAnd, pOr, pDiff :: Int -> Parser (Hash -> Hash -> Hash)
+pAnd n = lexeme $ do y '&' n
+                     return $ \a b -> HashNonRel $ QAnd $ map getQNode [a,b]
+pOr n = lexeme $ do y '|' n
+                    return $ \a b -> HashNonRel $ QOr $ map getQNode [a,b]
+pDiff n = lexeme $ do
+  y '\\' n
+  return $ \a b -> HashNonRel $ QDiff (getQNode a) (getQNode b)
 
 -- == QBranch
 -- | less typing, but less flexible
