@@ -21,7 +21,7 @@ pCommand = foldl1 (<|>) $ map try [pUsers
                                   ]
 
 pUsers :: Parser Command
-pUsers = ViewGraph . f <$> (word "/u" *> integer) where
+pUsers = ViewGraph . f <$> (word "/users" *> integer) where
   f node = do g <- ask
               return $ Right $ pre g node
   -- TODO: what if qNode is not present? use QNode, not Node
@@ -33,7 +33,7 @@ pAllNodes = const f <$> word "/all" where
                       return $ Right $ nodes g
 
 pShowQueries :: Parser Command
-pShowQueries = const ShowQueries <$> word "/q"
+pShowQueries = const ShowQueries <$> word "/queries"
 
 pQNodeCommand :: Parser Command
 pQNodeCommand = ViewGraph . f <$> expr where

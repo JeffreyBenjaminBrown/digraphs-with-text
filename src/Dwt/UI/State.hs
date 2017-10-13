@@ -74,8 +74,8 @@ changeView st = do
 -- | like changeView, but without reading a new query
 updateView :: St -> St
 updateView st = do
-  let commandString = head $ st ^. commands
-        -- head safe b/c commands begins nonempty and never shrinks
+  let commandString = head $ st ^. commands -- head is safe b/c
+        -- _commands begins nonempty and never shrinks
       command = fr $ parse pCommand "" commandString -- TODO: nix the fr
   case command of ViewGraph reader -> viewRSLT reader st
                   ShowQueries -> showQueries st
@@ -85,7 +85,7 @@ viewRSLT reader st = do
   let nodesToView = runReader reader $ st^.rslt
   case nodesToView of
     Left dwtErr -> error $ "viewRSLT" ++ show dwtErr
-    Right ns -> st & uiView .~ (fr $ view  (st^.rslt)  ns)
+    Right ns -> st & uiView .~ reverse (fr $ view  (st^.rslt)  ns)
 
 showQueries :: St -> St
 showQueries st = st & uiView .~ st^.commands
