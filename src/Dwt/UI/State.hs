@@ -40,13 +40,14 @@ data St = St { _rslt :: RSLT
 makeLenses ''St
 
 initialState :: RSLT -> St
-initialState g = St {_rslt = g
+initialState g = updateView $ St
+  { _rslt = g
   , _commands = ["/all"]
   , _uiView = []
   , _focusRing = F.focusRing [InsertWindow, CommandWindow]
   , _insertWindow = E.editor InsertWindow Nothing ""
-  , _commandWindow = E.editor CommandWindow (Just 2) ""}
-
+  , _commandWindow = E.editor CommandWindow (Just 2) ""
+  }
 
 -- ==== Change state
 addToRSLT :: St -> St
