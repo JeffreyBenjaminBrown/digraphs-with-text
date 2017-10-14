@@ -32,9 +32,9 @@ data Name = InsertWindow | CommandWindow deriving (Ord, Show, Eq)
 
 data St = St { _rslt :: RSLT
              , _commands :: [String]
-             , _uiView :: [String]
              ,_focusRing :: F.FocusRing Name
              , _insertWindow, _commandWindow :: E.Editor String Name
+             , _outputWindow :: [String]
              }
 
 makeLenses ''St
@@ -43,10 +43,10 @@ initialState :: RSLT -> St
 initialState g = updateView $ St
   { _rslt = g
   , _commands = ["/all"]
-  , _uiView = []
   , _focusRing = F.focusRing [InsertWindow, CommandWindow]
   , _insertWindow = E.editor InsertWindow Nothing ""
   , _commandWindow = E.editor CommandWindow (Just 2) ""
+  , _outputWindow = []
   }
 
 -- ==== Change state
@@ -67,7 +67,8 @@ changeView st = do
                           $ st^.commandWindow & E.getEditContents
         -- TODO: take first string without discarding rest
       st' = commandWindow %~ E.applyEdit Z.clearZipper
-            $ commands %~ (commandString :) $ st
+            $ commands %~ (commandString :)
+            $ st
       command = fr $ parse pCommand "" commandString -- TODO: nix the fr
   case command of ViewGraph reader -> viewRSLT reader st'
                   ShowQueries -> showQueries st'
@@ -86,7 +87,7 @@ viewRSLT reader st = do
   let nodesToView = runReader reader $ st^.rslt
   case nodesToView of
     Left dwtErr -> error $ "viewRSLT" ++ show dwtErr
-    Right ns -> st & uiView .~ reverse (fr $ view  (st^.rslt)  ns)
+    Right ns -> st & outputWindow .~ reverse (fr $ view  (st^.rslt)  ns)
 
 showQueries :: St -> St
-showQueries st = st & uiView .~ st^.commands
+showQueries st = st & outputWindow .~ st^.commands

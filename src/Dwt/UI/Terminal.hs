@@ -73,7 +73,7 @@ appDraw st = [ui] where
     <=> str " "
     <=> (str "Issue queries here " <+> e2)
     <=>  str " "
-    <=> (vLimit 15 $ str (unlines $ st ^. uiView))
+    <=> (vLimit 15 $ str (unlines $ st ^. outputWindow))
     <=> str " "
 
 appAttrMap :: A.AttrMap
