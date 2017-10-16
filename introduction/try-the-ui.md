@@ -1,4 +1,9 @@
-# Start it
+# The UI in a nutshell
+
+Press `M-a` to add Hash expressions, `M-v` to create a view based on a Hash expression. The `M` modifier is probably the Alt key. If it doesn't work, you can simulate pressing `M` by switching to the other window, using `Tab`.
+
+
+# Getting to the UI
 
 First install [Stack](https://docs.haskellstack.org/en/stable/README/).
 
@@ -7,7 +12,7 @@ Clone the repo. Within that folder, run `stack ghci`. Now you're in GHCI, the RE
 Run `ui empty`. Now you're in the ui, starting with an empty graph.
 
 
-# Add data to the graph
+# Adding data to the graph
 
 In the data entry (upper) window, try typing:
 
@@ -15,36 +20,19 @@ In the data entry (upper) window, try typing:
     turtles #are safe ##because turtles #have shells
     I #like pizza ##because of course
 
-Enter that data by pressing M-Enter (Alt-Enter). Now those statements, and every object and relationship they involve, are in the graph.  (The number of hash marks indicates the precedence of the relationships. For more detail, see [The Hash Language](/Hash/the-hash-language.md).)
+Enter that data by pressing `M-a`. The `a` stands for "add". The `M` is a modifier key; on most systems, it stands for "Alt". If it doesn't work, you can simulate pressing Alt by switching to the other window, using the Tab key.
 
-Press Tab to go to the query (lower) window. Type `/all` and press M-Enter. Now you see all things in the graph.
+In the data above, each relationship preceded by a single `#` mark is a member of a ##because relationship. The number of hash marks indicates the precedence of the relationships; any number is valid.
 
-
-# Query the graph
-
-## Simple queries
-
-Type `turtle` into the query window and press M-Enter. Below should appear every expression that matches the word "turtle". (There's only one.)
-
-Queries can be about relationships, and can include variables. For instance, type `/any #have shells` and press M-Enter. Below should appear the expression "turtles #have shells".
-
-You can query for nested relationships, too -- for instance, `/any ##because turtles #have shells`.
+For more detail about representing knowledge using a RSLT, see [The Hash Language](/Hash/the-hash-language.md).
 
 
-## Recursive queries -- If plants need dirt and dirt needs worms, then plants need worms
+# Querying the graph
 
-Try adding (in the data-entry window) a few more statements:
+Type `turtle` and press `M-v` (the `v` stands for "view"). Below should appear every expression that matches the word "turtle". (There's only one.)
 
-    turtles #are lizards
-    lizards #are animals
-    mammals #are animals
-    squirrels #are mammals
+Type `/all` and press `M-v`. Now you're back to seeing everything.
 
-Now ask (in the query window) for `/b (/from #are /to) turtles`. The UI should return "lizards" and "animals". (The /b stands for "branch"; it indicates recursive search, in the direction specified by "from" and "to".)
+A query does not need to specify everything. For instance, try querying for `/it #have shells`. Below should appear the expression `turtles`. You can query for nested relationships, too -- for instance, `/any ##because turtles #have shells`.
 
-
-## Boolean operators on queries
-
-Try querying for `(/b (/from #are /to) turtles) & (/b (/from #are /to) squirrels)`. The result should be every category that includes both turtles and squirrels.
-
-`a & b` produces the intersection of the queries `a` and `b`. Similarly, `a | b` produces their union.
+For more details on querying a RSLT using Hash, see [The Hash Language](/Hash/the-hash-language.md).

@@ -4,7 +4,7 @@ Hash is a language for reading and writing a RSLT. A RSLT is [like a graph, but 
 
 # Writing to a RSLT with Hash
 
-You already know about words and parentheses. The only remaining thing to learn about is the # symbol.
+Being a human fluent in some natural language, you already know about words and parentheses. To add data to a RSLT in Hash, you only need one more symbol, `#`.
 
 ## Using # to create simple and compound relationships
 
