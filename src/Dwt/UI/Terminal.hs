@@ -30,25 +30,27 @@ import Text.Megaparsec (parse)
 import Control.Monad.Trans.State (execStateT)
 import Control.Monad.Trans.Reader (runReader)
 import Data.Maybe (fromJust)
+import qualified Data.Map as Map
 
--- ==== Controls
+-- ==== Control
 appHandleEvent :: St -> T.BrickEvent Name e -> T.EventM Name (T.Next St)
-appHandleEvent st (T.VtyEvent ev) =
-  let focus = F.focusGetCurrent (st^.focusRing)
-  in case ev of
-  V.EvKey V.KEsc [] -> M.halt st
-  V.EvKey (V.KChar '\t') [] -> M.continue $ st & focusRing %~ F.focusPrev
-  V.EvKey V.KEnter [V.MMeta] -> case fromJust focus of
-    -- MMeta is the only working modifier (Kubuntu, Konsole, GHCI)
-    InsertWindow -> let st' = addToRSLT st in M.continue $
-      case st ^. commands of ("/all":_) -> updateView st'
-                             _ -> st'
-    CommandWindow -> M.continue $ changeView st
-  _ -> M.continue =<< case fromJust focus of
-    InsertWindow -> T.handleEventLensed st insertWindow E.handleEditorEvent ev
-    CommandWindow -> T.handleEventLensed st commandWindow E.handleEditorEvent ev
-appHandleEvent st _ = M.continue st
-
+appHandleEvent st (T.VtyEvent (V.EvKey V.KEsc [])) = M.halt st
+appHandleEvent st (T.VtyEvent (V.EvKey (V.KChar '\t') [])) =
+  M.continue $ st & focusRing %~ F.focusPrev
+appHandleEvent st@(fromJust . F.focusGetCurrent . flip (^.) focusRing
+                  -> InsertWindow)
+               (T.VtyEvent ev) = case ev of
+  V.EvKey (V.KChar 'a') [V.MMeta] -> M.continue $ addToRSLTAndMaybeRefresh st
+  V.EvKey (V.KChar 'v') [V.MMeta] -> M.continue $ changeView st
+  ev -> M.continue
+    =<< T.handleEventLensed st insertWindow E.handleEditorEvent ev
+appHandleEvent st@(fromJust . F.focusGetCurrent . flip (^.) focusRing
+                  -> CommandWindow)
+               (T.VtyEvent ev) = case ev of
+  V.EvKey (V.KChar 'a') [] -> M.continue $ addToRSLTAndMaybeRefresh st
+  V.EvKey (V.KChar 'v') [] -> M.continue $ changeView st
+  ev -> M.continue st
+  
 appChooseCursor :: St -> [T.CursorLocation Name] -> Maybe (T.CursorLocation Name)
 appChooseCursor = F.focusRingCursor (^.focusRing)
 
@@ -69,9 +71,9 @@ appDraw st = [ui] where
        (E.renderEditor $ str . unlines)
        (st^.commandWindow)
   ui = C.center
-    $ (str "Add data here " <+> e1)
+    $ e1
     <=> str " "
-    <=> (str "Issue queries here " <+> e2)
+    <=> e2
     <=>  str " "
     <=> (vLimit 15 $ str (unlines $ st ^. outputWindow))
     <=> str " "
@@ -81,6 +83,8 @@ appAttrMap = A.attrMap V.defAttr [ (E.editAttr       , V.white `on` V.blue)
                                  , (E.editFocusedAttr, V.black `on` V.yellow)
                                  ]
 
+
+-- ==== Main
 theApp :: M.App St e Name
 theApp = M.App { M.appDraw = appDraw
                , M.appChooseCursor = appChooseCursor
@@ -89,7 +93,6 @@ theApp = M.App { M.appDraw = appDraw
                , M.appAttrMap = const appAttrMap
                }
 
--- ==== Main
 ui :: RSLT -> IO (RSLT, [String])
 ui g = do st <- M.defaultMain theApp $ initialState g
           return (st ^. rslt

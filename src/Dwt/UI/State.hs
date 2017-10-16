@@ -45,11 +45,17 @@ initialState g = updateView $ St
   , _commands = ["/all"]
   , _focusRing = F.focusRing [InsertWindow, CommandWindow]
   , _insertWindow = E.editor InsertWindow Nothing ""
-  , _commandWindow = E.editor CommandWindow (Just 2) ""
+  , _commandWindow = E.editor CommandWindow (Just 1) "Visit this window to simulate pressing the Alt key."
   , _outputWindow = []
   }
 
 -- ==== Change state
+-- | if the previous view was /all, refresh view; otherwise don't
+addToRSLTAndMaybeRefresh :: St -> St
+addToRSLTAndMaybeRefresh st = let st' = addToRSLT st in
+  case st ^. commands of ("/all":_) -> updateView st'
+                         _ -> st'
+
 addToRSLT :: St -> St
 addToRSLT st = st & f2 . f1 where
   strings = filter (not . null) $ st ^. insertWindow & E.getEditContents
@@ -64,9 +70,9 @@ addToRSLT st = st & f2 . f1 where
 changeView :: St -> St
 changeView st = do
   let (commandString:_) = filter (not . null)
-                          $ st^.commandWindow & E.getEditContents
+                          $ st^.insertWindow & E.getEditContents
         -- TODO: take first string without discarding rest
-      st' = commandWindow %~ E.applyEdit Z.clearZipper
+      st' = insertWindow %~ E.applyEdit Z.clearZipper
             $ commands %~ (commandString :)
             $ st
       command = fr $ parse pCommand "" commandString -- TODO: nix the fr
