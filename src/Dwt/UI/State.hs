@@ -6,32 +6,36 @@ import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse (expr)
 import Dwt.UI.Parse (pCommand, commandToReadNodes)
-import Dwt.Initial.Util (fr)
+import Dwt.Initial.Util (fr,fl)
 
 import Brick.Widgets.Core ( (<+>), (<=>), hLimit, vLimit, str)
 import Brick.Util (on)
 import qualified Brick.Main as M
 import qualified Brick.Types as T
 import qualified Brick.Widgets.Center as C
-import qualified Brick.Widgets.Edit as E
+import qualified Brick.Widgets.Edit as Ed
 import qualified Brick.AttrMap as A
 import qualified Brick.Focus as F
 import qualified Graphics.Vty as V
+import qualified Data.Either as E
 import qualified Data.Text.Zipper as Z
 
 import Lens.Micro
 import Lens.Micro.TH
-import Text.Megaparsec (parse)
+import Text.Megaparsec (parse, ParseError, Token)
 import Control.Monad.Trans.State (execStateT)
 import Control.Monad.Trans.Reader (runReader)
 import Data.Maybe (fromJust)
+import Data.Void (Void)
 
 data Name = InsertWindow | FakeAltKeyWindow deriving (Ord, Show, Eq)
 
 data St = St { _rslt :: RSLT
              , _commands :: [String]
+             , _parseErrors :: [ParseError (Token String) Void]
+             , _dwtErrors :: [DwtErr]
              ,_focusRing :: F.FocusRing Name
-             , _inputWindow, _fakeAltKeyWindow :: E.Editor String Name
+             , _inputWindow, _fakeAltKeyWindow :: Ed.Editor String Name
              , _outputWindow :: [String]
              }
 
@@ -41,9 +45,11 @@ initialState :: RSLT -> St
 initialState g = recalculateView $ St
   { _rslt = g
   , _commands = ["/all"]
+  , _parseErrors = []
+  , _dwtErrors = []
   , _focusRing = F.focusRing [InsertWindow, FakeAltKeyWindow]
-  , _inputWindow = E.editor InsertWindow Nothing ""
-  , _fakeAltKeyWindow = E.editor FakeAltKeyWindow (Just 1) "Visit this window to simulate pressing the Alt key."
+  , _inputWindow = Ed.editor InsertWindow Nothing ""
+  , _fakeAltKeyWindow = Ed.editor FakeAltKeyWindow (Just 1) "Visit this window to simulate pressing Alt."
   , _outputWindow = []
   }
 
@@ -54,23 +60,30 @@ addToRSLTAndMaybeRefresh st = let st' = addToRSLT st in
   case st ^. commands of ("/all":_) -> recalculateView st'
                          _ -> st'
 
+deleteErrors :: St -> St
+deleteErrors st = dwtErrors .~ [] $ parseErrors .~ [] $ st
+
 addToRSLT :: St -> St
 addToRSLT st = st & f2 . f1 where
-  strings = filter (not . null) $ st ^. inputWindow & E.getEditContents
-  graphUpdater = mapM (addExpr . fr . parse expr "") strings
-    -- TODO: nix the fr
+  strings = filter (not . null) $ st ^. inputWindow & Ed.getEditContents
+  parseResults = map (parse expr "") strings
+    :: [Either (ParseError (Token String) Void) QNode]
+  parseErrors = E.lefts parseResults
+    -- TODO: show these
+  qnodes = E.rights parseResults
+  graphUpdater = mapM addExpr qnodes
   g = st ^. rslt
   e = execStateT graphUpdater g
-  f1 = inputWindow %~ E.applyEdit Z.clearZipper
+  f1 = inputWindow %~ Ed.applyEdit Z.clearZipper
   f2 = case e of Left _ -> id -- TODO: display the error
                  Right g' -> rslt .~ g'
 
 changeView :: St -> St
 changeView st =
   let (commandString:_) = filter (not . null)
-                          $ st^.inputWindow & E.getEditContents
+                          $ st^.inputWindow & Ed.getEditContents
         -- TODO: take first string without discarding rest
-      st' = inputWindow %~ E.applyEdit Z.clearZipper
+      st' = inputWindow %~ Ed.applyEdit Z.clearZipper
             $ commands %~ (commandString :)
             $ st
   in updateView commandString st
@@ -92,6 +105,6 @@ viewRSLT reader st = do
   case nodesToView of
     Left dwtErr -> error $ "viewRSLT" ++ show dwtErr
     Right ns -> st & outputWindow .~ reverse (fr $ view  (st^.rslt)  ns)
-
+      -- TODO: nix the fr
 showQueries :: St -> St
 showQueries st = st & outputWindow .~ st^.commands

@@ -93,6 +93,7 @@ data ErrOpt = ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrQRelspec QRelspec | ErrRelspec Relspec | ErrRoleMap RoleMap
   | ErrPathInExpr PathInExpr
   | ErrQNode QNode
+  | ErrParse String
   | ErrCommand Command deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase

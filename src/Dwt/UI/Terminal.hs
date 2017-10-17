@@ -37,15 +37,19 @@ appHandleEvent st (T.VtyEvent (V.EvKey (V.KChar '\t') [])) =
 appHandleEvent st@(fromJust . F.focusGetCurrent . flip (^.) focusRing
                   -> InsertWindow)
                (T.VtyEvent ev) = case ev of
-  V.EvKey (V.KChar 'a') [V.MMeta] -> M.continue $ addToRSLTAndMaybeRefresh st
-  V.EvKey (V.KChar 'v') [V.MMeta] -> M.continue $ changeView st
+  V.EvKey (V.KChar 'a') [V.MMeta] -> M.continue
+    $ addToRSLTAndMaybeRefresh . deleteErrors $ st
+  V.EvKey (V.KChar 'v') [V.MMeta] -> M.continue
+    $ changeView . deleteErrors $ st
   ev -> M.continue
     =<< T.handleEventLensed st inputWindow E.handleEditorEvent ev
 appHandleEvent st@(fromJust . F.focusGetCurrent . flip (^.) focusRing
                   -> FakeAltKeyWindow)
                (T.VtyEvent ev) = case ev of
-  V.EvKey (V.KChar 'a') [] -> M.continue $ addToRSLTAndMaybeRefresh st
-  V.EvKey (V.KChar 'v') [] -> M.continue $ changeView st
+  V.EvKey (V.KChar 'a') [] -> M.continue
+    $ addToRSLTAndMaybeRefresh . deleteErrors $ st
+  V.EvKey (V.KChar 'v') [] -> M.continue
+    $ changeView . deleteErrors $ st
   ev -> M.continue st
   
 appChooseCursor :: St -> [T.CursorLocation Name] -> Maybe (T.CursorLocation Name)

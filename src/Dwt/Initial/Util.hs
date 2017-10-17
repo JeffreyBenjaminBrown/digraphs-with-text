@@ -2,7 +2,11 @@
 {-# LANGUAGE ViewPatterns #-}
 
 module Dwt.Initial.Util (
-  listIntersect, listDiff -- ^ lists
+  -- | DwtErr
+  printDwtErr
+
+   -- | lists
+  , listIntersect, listDiff
 
   -- | graphs & monads
   , hasLEdgeM
@@ -12,8 +16,8 @@ module Dwt.Initial.Util (
   , maxNode, dropEdges, negateGraph, compressGraph, joinGraphs
   , replaceNode, nodeToLNodeUsf
 
-   -- | monads
-  , fr
+   -- | Either
+  , fr, fl
   , prependCaller
   ) where
 
@@ -24,6 +28,12 @@ import Data.List (intersect)
 import qualified Data.Map as Map
 import qualified Data.Set as S
 import Control.Lens  ((%~))
+
+-- == DwtErr
+printDwtErr :: DwtErr -> String
+printDwtErr (base,opts,chain) = show "Error " ++ show base
+  ++ " in call stack: " ++ show chain
+  ++ "\n offending input: " ++ show opts
 
 -- == lists
 listIntersect [] = []
@@ -84,11 +94,16 @@ gelemM :: Graph gr => gr a b -> Node -> Either DwtErr ()
 gelemM g n = if gelem n g then return () 
   else Left (FoundNo, [ErrNode n], "gelemM.")
 
--- == monads
+-- == Either
 fr :: Either a b -> b  -- doesn't handle the Left case (with a default)
   -- is therefore different from Data.Either.fromRight
 fr (Right r) = r
 fr _ = error "fromRight applied to Left"
+
+fl :: Either a b -> a  -- doesn't handle the Left case (with a default)
+  -- is therefore different from Data.Either.fromRight
+fl (Left a) = a
+fl _ = error "fromLeft applied to Right"
 
 prependCaller :: String -> Either DwtErr a -> Either DwtErr a
 prependCaller _ e@(Right _) = e
