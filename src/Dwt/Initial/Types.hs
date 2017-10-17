@@ -5,6 +5,7 @@ module Dwt.Initial.Types (
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , PathInExpr
   , QNode(..), Joint(..), SearchVar(..), RoleMap
+  , ReadNodes, CommandXX(..)
   , DwtErr, ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString -- lenses
 
@@ -17,6 +18,7 @@ module Dwt.Initial.Types (
 import Data.Graph.Inductive (Gr, Node, Edge)
 import Data.Map as Map
 import Control.Lens hiding (Level)
+import Control.Monad.Trans.Reader
 import Data.String (IsString, fromString)
 
 
@@ -67,6 +69,13 @@ data Joint = Joint String deriving (Show, Eq)
   -- ^ in "you #like peaches #at noon", "like" and "at" are joints
 instance IsString Joint where fromString = Joint
 
+type ReadNodes = Reader RSLT (Either DwtErr [Node])
+
+data CommandXX = CommandQNode QNode
+               | CommandUsers Node
+               | CommandAllNodes
+               | CommandShowQueries deriving (Show, Eq)
+
 -- == Errors
 type DwtErr = (ErrBase, [ErrOpt], String)
 
@@ -82,7 +91,8 @@ data ErrOpt = ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrEdgeLab RSLTEdge | ErrRelRole RelRole | ErrSearchVar SearchVar
   | ErrQRelspec QRelspec | ErrRelspec Relspec | ErrRoleMap RoleMap
   | ErrPathInExpr PathInExpr
-  | ErrQNode QNode deriving (Show, Eq)
+  | ErrQNode QNode
+  | ErrCommandXX CommandXX deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase
 errBase = _1

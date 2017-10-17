@@ -11,7 +11,13 @@ import Control.Monad.Trans.Reader
 
 
 data Command = ViewGraph ReadNodes | ShowQueries
-type ReadNodes = Reader RSLT (Either DwtErr [Node])
+
+commandXXToReadNodes :: CommandXX -> ReadNodes
+commandXXToReadNodes (CommandQNode q) = do g <- ask; return $ qGet g q
+commandXXToReadNodes (CommandUsers n) = do g <- ask; return $ Right $ pre g n
+commandXXToReadNodes CommandAllNodes = do g <- ask; return $ Right $ nodes g
+commandXXToReadNodes c@CommandShowQueries = return $ Left
+  (ConstructorMistmatch, [ErrCommandXX c], "commandXXToReadNodes.")
 
 pCommand :: Parser Command
 pCommand = foldl1 (<|>) $ map try [pUsers
