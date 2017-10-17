@@ -52,7 +52,8 @@ type PathInExpr = [RelRole]
     -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
 data SearchVar = It | Any | From | To deriving (Show,Read,Eq,Ord)
 data QNode = At Node -- ^ for when you know the expression's node
-  | QVar SearchVar
+  | QVar SearchVar -- ^ these cannot be queried for
+                   -- they are for use only within other QNodes
   | QAnd [QNode] | QOr [QNode] | QDiff QNode QNode
   -- | QMap RoleMap -- ? todo, for leaving Tplt or Mbrs unspecified
   | QBranch RoleMap QNode
@@ -61,7 +62,7 @@ data QNode = At Node -- ^ for when you know the expression's node
          , qRelJoints :: [Joint]
          , qRelQNodes :: [QNode] }
   deriving (Show, Eq)
-type RoleMap  = Map.Map RelRole QNode
+type RoleMap = Map.Map RelRole QNode
 
 -- | Every rel has at least one joint, and potentially members on either side
   -- If there are more, the list of pairs stores them.

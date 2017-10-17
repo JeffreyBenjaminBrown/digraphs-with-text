@@ -125,8 +125,8 @@ matchRoleMap g m = prependCaller "matchRoleMap: " $ do
       maybeFind (_, QVar _) = Right Nothing
       maybeFind (r, q) = Just <$> qPlaysRoleIn g r q
   founds <- Mb.catMaybes <$> (mapM maybeFind $ Map.toList m)
-  if founds /= [] then return ()
-                  else Left (NothingSpecified, [ErrRoleMap m], ".")
+  if null founds then Left (NothingSpecified, [ErrRoleMap m], ".")
+                 else return ()
   return $ listIntersect founds
 
 matchRoleMapLab :: RSLT -> RoleMap -> Either DwtErr [LNode Expr]
@@ -145,14 +145,14 @@ qGet _ Absent = Left (Impossible, [ErrQNode Absent], "qGet.")
 qGet g q@(At n) = if gelem n g then return [n]
                   else Left (FoundNo, [ErrQNode q], "qGet.")
 qGet g (QLeaf l) = return $ nodes $ labfilter (==l) $ dropEdges g
-qGet g q@(QRel _ _ qms) = prependCaller "qGet: " $ do
+qGet g q@(QRel isTop _ qms) = prependCaller "qGet: " $ do
   t <- extractTplt q
   let m = mkRoleMap (QLeaf t) $ filter (not . (== Absent)) qms
     -- because non-interior Joints require the use of Absent
   ns <- matchRoleMap g m
   ps <- pathsToIts q
-  if null ps then return ns
-             else nub . concat <$> mapM (its g q) ns
+  if isTop && (not . null) ps then nub . concat <$> mapM (its g q) ns
+                              else return ns
 qGet g (QAnd qs) = listIntersect <$> mapM (qGet g) qs
 qGet g (QOr qs) = nub . concat <$> mapM (qGet g) qs
 qGet g (QDiff keep drop) = listDiff <$> qGet g keep <*> qGet g drop

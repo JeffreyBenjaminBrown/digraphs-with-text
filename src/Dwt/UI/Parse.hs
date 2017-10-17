@@ -1,17 +1,20 @@
 module Dwt.UI.Parse where
 
-import Data.Graph.Inductive (Node, pre, nodes)
-import Dwt.Initial.Types
-import Dwt.Initial.ParseUtils (Parser, integer, word)
-import Text.Megaparsec (try)
-import Dwt.Hash.Parse (expr)
-import Dwt.Query.QNode (qGet)
 import Control.Applicative ((<|>))
 import Control.Monad.Trans.Reader
+import Data.Graph.Inductive (Node, pre, nodes)
+import Text.Megaparsec (try)
+
+import Dwt.Initial.Types
+import Dwt.Initial.ParseUtils (Parser, integer, word)
+import Dwt.Second.Misc (qNodeTop)
+import Dwt.Hash.Parse (expr)
+import Dwt.Query.QNode (qGet)
 
 
 commandToReadNodes :: Command -> ReadNodes
-commandToReadNodes (CommandQNode q) = do g <- ask; return $ qGet g q
+commandToReadNodes (CommandQNode q) = do g <- ask
+                                         return $ qGet g $ qNodeTop q
 commandToReadNodes (CommandUsers n) = do g <- ask; return $ Right $ pre g n
 commandToReadNodes CommandAllNodes = do g <- ask; return $ Right $ nodes g
 commandToReadNodes c@CommandShowQueries = return $ Left
