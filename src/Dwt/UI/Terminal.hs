@@ -23,7 +23,7 @@ import qualified Data.Text.Zipper as Z
 
 import Lens.Micro
 import Lens.Micro.TH
-import Text.Megaparsec (parse)
+import Text.Megaparsec (parse, parseErrorPretty)
 import Control.Monad.Trans.State (execStateT)
 import Control.Monad.Trans.Reader (runReader)
 import Data.Maybe (fromJust)
@@ -71,7 +71,10 @@ appDraw st = [ui] where
   e2 = F.withFocusRing (st^.focusRing)
        (E.renderEditor $ str . unlines)
        (st^.fakeAltKeyWindow)
+  andPerhapsParseErrors ui = if null $ st ^. parseErrors then ui
+    else str (unlines $ map parseErrorPretty $ st ^. parseErrors) <=> ui
   ui = C.center
+    $ andPerhapsParseErrors
     $ e1
     <=> str " "
     <=> e2

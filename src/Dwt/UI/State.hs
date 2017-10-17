@@ -42,7 +42,7 @@ data St = St { _rslt :: RSLT
 makeLenses ''St
 
 initialState :: RSLT -> St
-initialState g = recalculateView $ St
+initialState g = refreshView $ St
   { _rslt = g
   , _commands = ["/all"]
   , _parseErrors = []
@@ -57,26 +57,26 @@ initialState g = recalculateView $ St
 -- | if the previous view was /all, refresh view; otherwise don't
 addToRSLTAndMaybeRefresh :: St -> St
 addToRSLTAndMaybeRefresh st = let st' = addToRSLT st in
-  case st ^. commands of ("/all":_) -> recalculateView st'
+  case st ^. commands of ("/all":_) -> refreshView st'
                          _ -> st'
 
 deleteErrors :: St -> St
 deleteErrors st = dwtErrors .~ [] $ parseErrors .~ [] $ st
 
 addToRSLT :: St -> St
-addToRSLT st = st & f2 . f1 where
+addToRSLT st = st & f3 . f2 . f1 where
   strings = filter (not . null) $ st ^. inputWindow & Ed.getEditContents
-  parseResults = map (parse expr "") strings
+  parseEithers = map (parse expr "") strings
     :: [Either (ParseError (Token String) Void) QNode]
-  parseErrors = E.lefts parseResults
-    -- TODO: show these
-  qnodes = E.rights parseResults
+  qnodes = E.rights parseEithers
   graphUpdater = mapM addExpr qnodes
   g = st ^. rslt
   e = execStateT graphUpdater g
   f1 = inputWindow %~ Ed.applyEdit Z.clearZipper
   f2 = case e of Left _ -> id -- TODO: display the error
                  Right g' -> rslt .~ g'
+  f3 = parseErrors .~ E.lefts parseEithers
+    -- TODO: show these
 
 changeView :: St -> St
 changeView st =
@@ -88,11 +88,10 @@ changeView st =
             $ st
   in updateView commandString st
 
-recalculateView :: St -> St
-recalculateView st = updateView (head $ st ^. commands) st
+refreshView :: St -> St
+refreshView st = updateView (head $ st ^. commands) st
   -- head is safe b/c _commands begins nonempty and never shrinks
 
--- | like changeView, but without reading a new query
 updateView :: String -> St -> St
 updateView cmdString st = let command = fr $ parse pCommand "" cmdString in
                     -- TODO: nix the fr
@@ -106,5 +105,6 @@ viewRSLT reader st = do
     Left dwtErr -> error $ "viewRSLT" ++ show dwtErr
     Right ns -> st & outputWindow .~ reverse (fr $ view  (st^.rslt)  ns)
       -- TODO: nix the fr
+
 showQueries :: St -> St
 showQueries st = st & outputWindow .~ st^.commands
