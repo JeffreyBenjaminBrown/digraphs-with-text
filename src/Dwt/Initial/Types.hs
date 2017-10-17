@@ -5,7 +5,7 @@ module Dwt.Initial.Types (
   , RSLT, Expr(..), RSLTEdge(..), RelRole(..), CollRole(..)
   , PathInExpr
   , QNode(..), Joint(..), SearchVar(..), RoleMap
-  , ReadNodes, CommandXX(..)
+  , ReadNodes, Command(..)
   , DwtErr, ErrBase(..), ErrOpt(..)
   , errBase, errOpts, errString -- lenses
 
@@ -71,7 +71,7 @@ instance IsString Joint where fromString = Joint
 
 type ReadNodes = Reader RSLT (Either DwtErr [Node])
 
-data CommandXX = CommandQNode QNode
+data Command = CommandQNode QNode
                | CommandUsers Node
                | CommandAllNodes
                | CommandShowQueries deriving (Show, Eq)
@@ -92,7 +92,7 @@ data ErrOpt = ErrNode Node | ErrEdge Edge | ErrExpr Expr
   | ErrQRelspec QRelspec | ErrRelspec Relspec | ErrRoleMap RoleMap
   | ErrPathInExpr PathInExpr
   | ErrQNode QNode
-  | ErrCommandXX CommandXX deriving (Show, Eq)
+  | ErrCommand Command deriving (Show, Eq)
 
 errBase :: Lens' DwtErr ErrBase
 errBase = _1

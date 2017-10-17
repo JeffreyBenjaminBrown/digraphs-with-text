@@ -10,14 +10,12 @@ import Control.Applicative ((<|>))
 import Control.Monad.Trans.Reader
 
 
-data Command = ViewGraph ReadNodes | ShowQueries
-
-commandXXToReadNodes :: CommandXX -> ReadNodes
-commandXXToReadNodes (CommandQNode q) = do g <- ask; return $ qGet g q
-commandXXToReadNodes (CommandUsers n) = do g <- ask; return $ Right $ pre g n
-commandXXToReadNodes CommandAllNodes = do g <- ask; return $ Right $ nodes g
-commandXXToReadNodes c@CommandShowQueries = return $ Left
-  (ConstructorMistmatch, [ErrCommandXX c], "commandXXToReadNodes.")
+commandToReadNodes :: Command -> ReadNodes
+commandToReadNodes (CommandQNode q) = do g <- ask; return $ qGet g q
+commandToReadNodes (CommandUsers n) = do g <- ask; return $ Right $ pre g n
+commandToReadNodes CommandAllNodes = do g <- ask; return $ Right $ nodes g
+commandToReadNodes c@CommandShowQueries = return $ Left
+  (ConstructorMistmatch, [ErrCommand c], "commandToReadNodes.")
 
 pCommand :: Parser Command
 pCommand = foldl1 (<|>) $ map try [pUsers
@@ -27,21 +25,13 @@ pCommand = foldl1 (<|>) $ map try [pUsers
                                   ]
 
 pUsers :: Parser Command
-pUsers = ViewGraph . f <$> (word "/users" *> integer) where
-  f node = do g <- ask
-              return $ Right $ pre g node
-  -- TODO: what if qNode is not present? use QNode, not Node
-  -- or better: TODO: expand QNode to include stars
+pUsers = CommandUsers <$> (word "/users" *> integer)
 
 pAllNodes :: Parser Command
-pAllNodes = const f <$> word "/all" where
-   f = ViewGraph $ do g <- ask
-                      return $ Right $ nodes g
+pAllNodes = const CommandAllNodes <$> word "/all"
 
 pShowQueries :: Parser Command
-pShowQueries = const ShowQueries <$> word "/queries"
+pShowQueries = const CommandShowQueries <$> word "/queries"
 
 pQNodeCommand :: Parser Command
-pQNodeCommand = ViewGraph . f <$> expr where
-  f qnode = do g <- ask
-               return $ qGet g qnode
+pQNodeCommand = CommandQNode <$> expr

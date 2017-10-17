@@ -5,7 +5,7 @@ import Dwt.Initial.Types
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse (expr)
-import Dwt.UI.Parse (Command(..), pCommand)
+import Dwt.UI.Parse (pCommand, commandToReadNodes)
 import Dwt.Initial.Util (fr)
 
 import Brick.Widgets.Core ( (<+>), (<=>), hLimit, vLimit, str)
@@ -74,8 +74,8 @@ changeView st = do
             $ commands %~ (commandString :)
             $ st
       command = fr $ parse pCommand "" commandString -- TODO: nix the fr
-  case command of ViewGraph reader -> viewRSLT reader st'
-                  ShowQueries -> showQueries st'
+  case command of CommandShowQueries -> showQueries st'
+                  r -> viewRSLT (commandToReadNodes r) st'
 
 -- | like changeView, but without reading a new query
 updateView :: St -> St
@@ -83,8 +83,8 @@ updateView st = do
   let commandString = head $ st ^. commands -- head is safe b/c
         -- _commands begins nonempty and never shrinks
       command = fr $ parse pCommand "" commandString -- TODO: nix the fr
-  case command of ViewGraph reader -> viewRSLT reader st
-                  ShowQueries -> showQueries st
+  case command of CommandShowQueries -> showQueries st
+                  r -> viewRSLT (commandToReadNodes r) st
 
 viewRSLT :: ReadNodes -> St -> St
 viewRSLT reader st = do

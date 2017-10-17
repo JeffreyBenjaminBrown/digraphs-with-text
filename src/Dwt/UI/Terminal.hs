@@ -7,7 +7,6 @@ import Dwt.Initial.Types
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse (expr)
-import Dwt.UI.Parse (Command(..), pCommand)
 import Dwt.UI.State
 import Dwt.Initial.Util (fr)
 
