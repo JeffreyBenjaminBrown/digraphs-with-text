@@ -38,7 +38,7 @@ data St = St { _rslt :: RSLT
 makeLenses ''St
 
 initialState :: RSLT -> St
-initialState g = updateView $ St
+initialState g = recalculateView $ St
   { _rslt = g
   , _commands = ["/all"]
   , _focusRing = F.focusRing [InsertWindow, CommandWindow]
@@ -51,7 +51,7 @@ initialState g = updateView $ St
 -- | if the previous view was /all, refresh view; otherwise don't
 addToRSLTAndMaybeRefresh :: St -> St
 addToRSLTAndMaybeRefresh st = let st' = addToRSLT st in
-  case st ^. commands of ("/all":_) -> updateView st'
+  case st ^. commands of ("/all":_) -> recalculateView st'
                          _ -> st'
 
 addToRSLT :: St -> St
@@ -66,23 +66,23 @@ addToRSLT st = st & f2 . f1 where
                  Right g' -> rslt .~ g'
 
 changeView :: St -> St
-changeView st = do
+changeView st =
   let (commandString:_) = filter (not . null)
                           $ st^.insertWindow & E.getEditContents
         -- TODO: take first string without discarding rest
       st' = insertWindow %~ E.applyEdit Z.clearZipper
             $ commands %~ (commandString :)
             $ st
-      command = fr $ parse pCommand "" commandString -- TODO: nix the fr
-  case command of CommandShowQueries -> showQueries st'
-                  r -> viewRSLT (commandToReadNodes r) st'
+  in updateView commandString st
+
+recalculateView :: St -> St
+recalculateView st = updateView (head $ st ^. commands) st
+  -- head is safe b/c _commands begins nonempty and never shrinks
 
 -- | like changeView, but without reading a new query
-updateView :: St -> St
-updateView st = do
-  let commandString = head $ st ^. commands -- head is safe b/c
-        -- _commands begins nonempty and never shrinks
-      command = fr $ parse pCommand "" commandString -- TODO: nix the fr
+updateView :: String -> St -> St
+updateView cmdString st = let command = fr $ parse pCommand "" cmdString in
+                    -- TODO: nix the fr
   case command of CommandShowQueries -> showQueries st
                   r -> viewRSLT (commandToReadNodes r) st
 
