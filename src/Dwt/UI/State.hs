@@ -26,12 +26,12 @@ import Control.Monad.Trans.State (execStateT)
 import Control.Monad.Trans.Reader (runReader)
 import Data.Maybe (fromJust)
 
-data Name = InsertWindow | CommandWindow deriving (Ord, Show, Eq)
+data Name = InsertWindow | FakeAltKeyWindow deriving (Ord, Show, Eq)
 
 data St = St { _rslt :: RSLT
              , _commands :: [String]
              ,_focusRing :: F.FocusRing Name
-             , _insertWindow, _commandWindow :: E.Editor String Name
+             , _inputWindow, _fakeAltKeyWindow :: E.Editor String Name
              , _outputWindow :: [String]
              }
 
@@ -41,9 +41,9 @@ initialState :: RSLT -> St
 initialState g = recalculateView $ St
   { _rslt = g
   , _commands = ["/all"]
-  , _focusRing = F.focusRing [InsertWindow, CommandWindow]
-  , _insertWindow = E.editor InsertWindow Nothing ""
-  , _commandWindow = E.editor CommandWindow (Just 1) "Visit this window to simulate pressing the Alt key."
+  , _focusRing = F.focusRing [InsertWindow, FakeAltKeyWindow]
+  , _inputWindow = E.editor InsertWindow Nothing ""
+  , _fakeAltKeyWindow = E.editor FakeAltKeyWindow (Just 1) "Visit this window to simulate pressing the Alt key."
   , _outputWindow = []
   }
 
@@ -56,21 +56,21 @@ addToRSLTAndMaybeRefresh st = let st' = addToRSLT st in
 
 addToRSLT :: St -> St
 addToRSLT st = st & f2 . f1 where
-  strings = filter (not . null) $ st ^. insertWindow & E.getEditContents
+  strings = filter (not . null) $ st ^. inputWindow & E.getEditContents
   graphUpdater = mapM (addExpr . fr . parse expr "") strings
     -- TODO: nix the fr
   g = st ^. rslt
   e = execStateT graphUpdater g
-  f1 = insertWindow %~ E.applyEdit Z.clearZipper
+  f1 = inputWindow %~ E.applyEdit Z.clearZipper
   f2 = case e of Left _ -> id -- TODO: display the error
                  Right g' -> rslt .~ g'
 
 changeView :: St -> St
 changeView st =
   let (commandString:_) = filter (not . null)
-                          $ st^.insertWindow & E.getEditContents
+                          $ st^.inputWindow & E.getEditContents
         -- TODO: take first string without discarding rest
-      st' = insertWindow %~ E.applyEdit Z.clearZipper
+      st' = inputWindow %~ E.applyEdit Z.clearZipper
             $ commands %~ (commandString :)
             $ st
   in updateView commandString st
