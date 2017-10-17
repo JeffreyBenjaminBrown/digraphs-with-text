@@ -41,6 +41,14 @@ data St = St { _rslt :: RSLT
 
 makeLenses ''St
 
+instance Show St where
+  show s = "St {rslt: " ++ show (s^.rslt)
+    ++ ", commands: " ++ show (s^.commands)
+    ++ ", parseErrors: " ++ show (s^.parseErrors)
+    ++ ", dwtErrors: " ++ show (s^.dwtErrors)
+    ++ ", outputWindow: " ++ show (s^.outputWindow)
+    ++ ", plus a focus ring and two editors}"
+
 initialState :: RSLT -> St
 initialState g = refreshView $ St
   { _rslt = g
@@ -76,7 +84,6 @@ addToRSLT st = st & f3 . f2 . f1 where
   f2 = case e of Left _ -> id -- TODO: display the error
                  Right g' -> rslt .~ g'
   f3 = parseErrors .~ E.lefts parseEithers
-    -- TODO: show these
 
 changeView :: St -> St
 changeView st =
@@ -93,10 +100,10 @@ refreshView st = updateView (head $ st ^. commands) st
   -- head is safe b/c _commands begins nonempty and never shrinks
 
 updateView :: String -> St -> St
-updateView cmdString st = let command = fr $ parse pCommand "" cmdString in
-                    -- TODO: nix the fr
-  case command of CommandShowQueries -> showQueries st
-                  r -> viewRSLT (commandToReadNodes r) st
+updateView cmdString st = case parse pCommand "" cmdString of
+  Left pe -> st & parseErrors .~ [pe]
+  Right cmd -> case cmd of CommandShowQueries -> showQueries st
+                           r -> viewRSLT (commandToReadNodes r) st
 
 viewRSLT :: ReadNodes -> St -> St
 viewRSLT reader st = do

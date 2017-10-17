@@ -97,7 +97,9 @@ theApp = M.App { M.appDraw = appDraw
                , M.appAttrMap = const appAttrMap
                }
 
-ui :: RSLT -> IO (RSLT, [String])
+ui :: RSLT -> IO RSLT
 ui g = do st <- M.defaultMain theApp $ initialState g
-          return (st ^. rslt
-                 , st ^. commands)
+          return $ st ^. rslt
+
+uist :: St -> IO (St)
+uist st = M.defaultMain theApp st >>= return
