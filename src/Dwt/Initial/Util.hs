@@ -13,7 +13,7 @@ module Dwt.Initial.Util (
   , replaceNode, nodeToLNodeUsf
 
    -- | monads
-  , fr, fromRight
+  , fr
   , prependCaller
   ) where
 
@@ -85,11 +85,10 @@ gelemM g n = if gelem n g then return ()
   else Left (FoundNo, [ErrNode n], "gelemM.")
 
 -- == monads
-fromRight, fr :: Either a b -> b  -- TODO: doesn't handle the Left case
+fr :: Either a b -> b  -- doesn't handle the Left case (with a default)
   -- is therefore different from Data.Either.fromRight
-fr = fromRight
-fromRight (Right r) = r
-fromRight _ = error "fromRight applied to Left"
+fr (Right r) = r
+fr _ = error "fromRight applied to Left"
 
 prependCaller :: String -> Either DwtErr a -> Either DwtErr a
 prependCaller _ e@(Right _) = e

@@ -32,7 +32,7 @@ import Data.Graph.Inductive (Node, LNode, Graph, labfilter, lab, nodes
   , insNode, insEdges, newNodes, labNodes, gelem, lpre, lsuc)
 import Dwt.Initial.Types
 import Dwt.Edit (insLeaf, insRelSt)
-import Dwt.Initial.Util (maxNode, dropEdges, fromRight, prependCaller, gelemM
+import Dwt.Initial.Util (maxNode, dropEdges, prependCaller, gelemM
                 , listIntersect, listDiff, nodeToLNodeUsf)
 import Dwt.Initial.Measure (extractTplt, isAbsent)
 import Dwt.Second.Misc (qNodeIsTop)
@@ -59,7 +59,7 @@ import Text.Regex (mkRegex, matchRegex)
   --   -> [( Mbr 1, Right $ Set.fromList [[]] )
   --      ,( Mbr 2, Left (FoundNo,..))
   --      ,( Mbr 3, pathsToIts (ed #is /it)) ]
-  --   -> [( Mbr 1, Right $ Set.fromList [[]] )
+  --   =  [( Mbr 1, Right $ Set.fromList [[]] )
   --      ,( Mbr 2, Left (FoundNo,..))
   --      ,( Mbr 3, Right $ Set.fromList [[Mbr 2]]) ]
   -- discard each pair with a right side of (Left (FoundNo ...))

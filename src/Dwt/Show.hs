@@ -5,7 +5,6 @@ module Dwt.Show
   ) where
 
 import Dwt.Initial.Types
-import Dwt.Initial.Util (fromRight)
 import Dwt.Initial.Measure (tpltArity)
 import Dwt.Second.MkTplt (subInTplt, subInTpltWithHashes)
 import Dwt.Query.Initial (users,mbrs)
