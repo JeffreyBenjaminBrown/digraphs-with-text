@@ -1,8 +1,6 @@
 -- | Terminal in the category theory sense of terminal object:
 -- every module in Dwt.UI will be imported into this one.
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ViewPatterns #-}
 module Dwt.UI.Terminal where
 
 import Dwt.Initial.Types
