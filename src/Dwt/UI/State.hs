@@ -6,7 +6,6 @@ import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse (expr)
 import Dwt.UI.Parse (pCommand, commandToReadNodes)
-import Dwt.Initial.Util (fr,fl)
 
 import Brick.Widgets.Core ( (<+>), (<=>), hLimit, vLimit, str)
 import Brick.Util (on)
@@ -25,7 +24,6 @@ import Lens.Micro.TH
 import Text.Megaparsec (parse, ParseError, Token)
 import Control.Monad.Trans.State (execStateT)
 import Control.Monad.Trans.Reader (runReader)
-import Data.Maybe (fromJust)
 import Data.Void (Void)
 
 data Name = InsertWindow | FakeAltKeyWindow deriving (Ord, Show, Eq)
@@ -81,7 +79,7 @@ addToRSLT st = st & f3 . f2 . f1 where
   g = st ^. rslt
   e = execStateT graphUpdater g
   f1 = inputWindow %~ Ed.applyEdit Z.clearZipper
-  f2 = case e of Left _ -> id -- TODO: display the error
+  f2 = case e of Left de -> dwtErrors .~ [de]
                  Right g' -> rslt .~ g'
   f3 = parseErrors .~ E.lefts parseEithers
 
