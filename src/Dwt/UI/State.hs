@@ -91,7 +91,7 @@ changeView st =
       st' = inputWindow %~ Ed.applyEdit Z.clearZipper
             $ commands %~ (commandString :)
             $ st
-  in updateView commandString st
+  in updateView commandString st'
 
 refreshView :: St -> St
 refreshView st = updateView (head $ st ^. commands) st
