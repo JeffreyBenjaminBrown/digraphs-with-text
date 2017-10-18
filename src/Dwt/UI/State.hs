@@ -107,11 +107,10 @@ updateView cmdString st = case parse pCommand "" cmdString of
 
 viewRSLT :: ReadNodes -> St -> St
 viewRSLT reader st = do
-  let nodesToView = runReader reader $ st^.rslt
-  case nodesToView of
-    Left dwtErr -> error $ "viewRSLT" ++ show dwtErr
-    Right ns -> st & outputWindow .~ reverse (fr $ view  (st^.rslt)  ns)
-      -- TODO: nix the fr
+  let x = do ns <- runReader reader $ st^.rslt
+             view (st^.rslt) ns :: Either DwtErr [String]
+  case x of Left de -> st & dwtErrors .~ [de]
+            Right lines -> st & outputWindow .~ reverse lines
 
 showQueries :: St -> St
 showQueries st = st & outputWindow .~ st^.commands

@@ -4,11 +4,11 @@
 module Dwt.UI.Terminal where
 
 import Dwt.Initial.Types
+import Dwt.Initial.Util (printDwtErr)
 import Dwt.Show (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse (expr)
 import Dwt.UI.State
-import Dwt.Initial.Util (fr)
 
 import Brick.Widgets.Core ( (<+>), (<=>), hLimit, vLimit, str)
 import Brick.Util (on)
@@ -71,16 +71,15 @@ appDraw st = [ui] where
   e2 = F.withFocusRing (st^.focusRing)
        (E.renderEditor $ str . unlines)
        (st^.fakeAltKeyWindow)
-  andPerhapsParseErrors ui = if null $ st ^. parseErrors then ui
+  maybeAddParseErrors ui = if null $ st ^. parseErrors then ui
     else str (unlines $ map parseErrorPretty $ st ^. parseErrors) <=> ui
-  ui = C.center
-    $ andPerhapsParseErrors
-    $ e1
-    <=> str " "
-    <=> e2
-    <=>  str " "
-    <=> (vLimit 15 $ str (unlines $ st ^. outputWindow))
-    <=> str " "
+  maybeAddDwtErrors ui = if null $ st ^. dwtErrors then ui
+    else str (unlines $ map printDwtErr $ st ^. dwtErrors) <=> ui
+  ui = C.center 
+    $ maybeAddParseErrors . maybeAddDwtErrors
+    $ e1 <=> str " "
+    <=> e2 <=>  str " "
+    <=> (vLimit 15 $ str (unlines $ st ^. outputWindow)) <=> str " "
 
 appAttrMap :: A.AttrMap
 appAttrMap = A.attrMap V.defAttr [ (E.editAttr       , V.white `on` V.blue)

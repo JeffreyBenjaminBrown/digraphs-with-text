@@ -31,9 +31,9 @@ import Control.Lens  ((%~))
 
 -- == DwtErr
 printDwtErr :: DwtErr -> String
-printDwtErr (base,opts,chain) = show "Error " ++ show base
-  ++ " in call stack: " ++ show chain
-  ++ "\n offending input: " ++ show opts
+printDwtErr (base,opts,chain) = "Error: " ++ show base 
+  ++ "\n  triggered by input: " ++ show opts
+  ++ "\n  in call stack: " ++ show chain
 
 -- == lists
 listIntersect [] = []
