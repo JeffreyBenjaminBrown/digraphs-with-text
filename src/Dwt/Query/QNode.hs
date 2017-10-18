@@ -142,6 +142,7 @@ matchRoleMapLab g rm = prependCaller "matchRoleMapLab: " $ do
 -- ^ x herein is either Node or LNode Expr. TODO: use a typeclass
 qGet :: RSLT -> QNode -> Either DwtErr [Node]
 qGet _ Absent = Left (Impossible, [ErrQNode Absent], "qGet.")
+qGet _ q@(QVar _) = Left (Impossible, [ErrQNode q], "qGet.")
 qGet g q@(At n) = if gelem n g then return [n]
                   else Left (FoundNo, [ErrQNode q], "qGet.")
 qGet g (QLeaf l) = return $ nodes $ labfilter (==l) $ dropEdges g

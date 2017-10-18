@@ -51,16 +51,17 @@ type PathInExpr = [RelRole]
   -- Exceptions: "some of," "no more than," "exactly" would use unary Tplts.
     -- As in "some of {Ghandi, Einstein, Peter Pan} existed".
 data SearchVar = It | Any | From | To deriving (Show,Read,Eq,Ord)
-data QNode = At Node -- ^ for when you know the expression's node
-  | QVar SearchVar -- ^ these cannot be queried for
-                   -- they are for use only within other QNodes
+data QNode = Absent 
+  | At Node -- ^ for when you know the expression's node
+  | QLeaf Expr
   | QAnd [QNode] | QOr [QNode] | QDiff QNode QNode
   -- | QMap RoleMap -- ? todo, for leaving Tplt or Mbrs unspecified
   | QBranch RoleMap QNode
-  | Absent | QLeaf Expr
   | QRel {qRelTop :: Bool
          , qRelJoints :: [Joint]
          , qRelQNodes :: [QNode] }
+  | QVar SearchVar -- ^ these cannot be queried for
+                   -- they are for use only within other QNodes
   deriving (Show, Eq)
 type RoleMap = Map.Map RelRole QNode
 
