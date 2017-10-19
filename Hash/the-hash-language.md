@@ -1,4 +1,27 @@
-# The Hash language
+# Table of contents
+* What the RSLT and the Hash language are
+* Adding to a RSLT with Hash
+  * Using * to create simple and compound relationships
+    * A simple (level-1) binary relationship
+    * A simple (level-1) ternary relationship
+    * A compound (level-2) relationship
+    * Unary relationships
+    * Any number of * marks is valid
+  * Parentheses help, too
+  * Relationship templates can be in relationships
+* Querying a RSLT with Hash
+  * Basic queries
+    * Query for one thing by writing it
+    * Query for everything using /all
+    * Query with wildcards using /any
+    * Boolean operations: union (|), interseciton (&), and difference (\)
+  * Advanced queries
+    * Early evaluation for sub-queries: Use /eval
+    * Search recursively using /branch, /from and /to
+    * Count &, | and \ symbols like * symbols
+
+
+# What the RSLT and the Hash language are
 
 Hash is a language for reading and writing a RSLT. A RSLT is [like a graph, but more expressive](/introduction/the_rslt,_why_and_how/it.pdf). Hash is simpler than other graph-writing languages (such as Turtle), and far simpler than other graph-reading languages (such as Sparql or Gremlin).
 
@@ -41,7 +64,7 @@ The preceding statement regarding watermelon could be rewritten as `(reasonable 
 Parentheses can be used for joints as well -- as in, for instance, `gold #(produced by) a goose`.
 
 
-## Relationship templates can also be in relationships
+## Relationship templates can be in relationships
 As described earlier, when you add `a #needs b` to the graph, the effect is to add (if they don't already exist) `a`, `b`, the relationship `a #needs b`, and the relationship template `_ needs _`. That template can itself be in a relationship.
 
 As an example, adding `(_ needs _) #(is equivalent to) (_ requires _)` would create (if they don't already exist) the "needs" template, the "requires" template, and the "is equivalent to" template, and would use the "is equivalent to" template to relate the other two.
@@ -124,15 +147,15 @@ would return everything that the spaceship needs on Sunday, and
 would return everything that the spaceship needs at any time.
 
 
-### Counting &, | and \ symbols like # symbols
+### Count &, | and \ symbols like # symbols
 The set operators `&`, `|` and `\` can be repeated, just like the `#` symbol, to decrease their precedence (making them "bind later"). For instance, rather than 
 ```
-(/it #helps Democrats) | (/it #helps Republicans)
+(/it #helps Democrats) & (/it #helps Republicans)
 ```
 
 you could write 
 ```
-/it #helps Democrats || /it #helps Republicans
+/it #helps Democrats && /it #helps Republicans
 ```
 
 It saves three keystrokes, and is arguably more readable.
