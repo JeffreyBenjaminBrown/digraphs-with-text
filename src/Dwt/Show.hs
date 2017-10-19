@@ -84,14 +84,12 @@ _showRel vp g d n =
        (map (_showExpr vp g $ d-1) memberNodes)
        d
 
+-- | returns [(RelEdge (Mbr 1), Nothing), .. (RelEdge (Mbr arity), Nothing)]
 nullMbrMap :: Expr -> Map.Map RSLTEdge (Maybe Node) 
-  -- in the result, each Maybe is Nothing, and
-    -- the RSLTEdges run from (Mbr 1) to (Mbr arity)
-nullMbrMap t@(Tplt _) =
+nullMbrMap t@(Tplt _) = 
   let arity = tpltArity t
-      mns = replicate arity Nothing :: [Maybe Node]
-      es = map (RelEdge . Mbr) [1..arity] -- RelEdge $ Mbr 1 :: DwtEDge
-  in Map.fromList $ zip es mns
+      es = map (RelEdge . Mbr) [1..arity]
+  in Map.fromList $ zip es $ repeat Nothing
 nullMbrMap _ = error "nullMbrMap: given a non-Tplt"
 
 -- | == things using _showExpr
