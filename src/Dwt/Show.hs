@@ -1,23 +1,15 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Dwt.Show
-  ( module Dwt.Show
-  ) where
+module Dwt.Show where
 
 import Dwt.Initial.Types
 import Dwt.Initial.Measure (tpltArity)
 import Dwt.Second.MkTplt (subInTplt, subInTpltWithHashes)
-import Dwt.Query.Initial (users,mbrs)
+import Dwt.Query.Initial (users,mbrs,exprDepth)
 
 import Data.Graph.Inductive
 import Data.List (sortOn, intercalate)
 import qualified Data.Map as Map
-
-type Depth = Int
-type Gen = (Depth,[Node])
-
-type ShowFiats = Map.Map Node String -- lookup how to show some special Nodes
-  -- todo ! use for shorthand like It
 
 data Prefixer = Prefixer {
     _str :: (Node -> String) -- Word|Fl -> String
@@ -26,30 +18,17 @@ data Prefixer = Prefixer {
   , _coll :: (Node -> String)
   }
 
+type ShowFiats = Map.Map Node String -- lookup how to show some special Nodes
+  -- todo ! use for shorthand like It
+
 data ViewProg = ViewProg { vpPrefixer :: Prefixer
                          , vpShowFiats :: ShowFiats
                          }
 
--- | == things _showExpr uses, maybe useful elsewhere -- TODO ? export|promote x-file
-exprDepth :: RSLT -> Node -> Depth -- TODO ? Use the [Node]
-exprDepth g n = fst $ _exprDepth g (0,[n]) (1,[]) []
-
-_exprDepth :: RSLT -> Gen -- this gen
-                      -> Gen -- next gen
-                      -> [Node] -- accum every node visited
-                      -> (Depth,[Node]) -- depth + the accum
-  -- when a node's scrs are evaluated, it is removed from the graph
-    -- so only the shortest path to it is evaluated
-  -- WARNING: does not return a Gen -- those Nodes might be at any depth
-_exprDepth _ (d,[])    (_,[]) acc = (d,acc)
-_exprDepth g (_,[]) ng@(d, _) acc = -- this gen empty, so next replaces it
-  _exprDepth g ng (d+1,[]) acc
-_exprDepth g (d,n:ns) (d',ns')  acc = let newNodes = mbrs g n in
-  _exprDepth (delNode n g) (d,ns) (d', newNodes ++ ns') (n:acc)
-
 -- | == _showExpr and things only it uses
-_showExpr :: ViewProg -> RSLT -> Depth -> Maybe Node -> String
+_showExpr :: ViewProg -> RSLT -> Level -> Maybe Node -> String
 _showExpr _  _ _  Nothing = "#absent_node#"
+  -- TODO: return Either, in case passed a missing node
 _showExpr vp g d (Just n) = 
   let show_maybe_node mn = _showExpr vp g (d+1) mn
   in case Map.lookup n (vpShowFiats vp) of
@@ -62,6 +41,7 @@ _showExpr vp g d (Just n) =
       Just t@(Tplt _) -> (_tplt $ vpPrefixer vp) n
         ++ noHashes (subInTplt t $ replicate (tpltArity t) "_")
         where noHashes = filter $ not . (== '#') :: String -> String
+      Just (Rel) -> _showRel vp g d n
       Just (Coll)    -> (_coll $ vpPrefixer vp) n
         ++ (show_maybe_node . Just . head)
              [m | (m,CollEdge CollPrinciple) <- lsuc g n]
@@ -85,9 +65,7 @@ _showExpr vp g d (Just n) =
 --          $ subInTplt tpltLab 
 --          $ map showAddressOrVar $ map snd rsl
 
-      Just (Rel) -> _showRel vp g d n
-
-_showRel :: ViewProg -> RSLT -> Depth -> Node -> String
+_showRel :: ViewProg -> RSLT -> Level -> Node -> String
 _showRel vp g d n =
   let elts = Map.fromList $ map (\(adr,elab)->(elab,Just adr))
                           $ lsuc g n :: Map.Map RSLTEdge (Maybe Node)
