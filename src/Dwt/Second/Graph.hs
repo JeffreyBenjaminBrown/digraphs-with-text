@@ -1,7 +1,7 @@
 -- | Initial in the category theory sense of initial object:
 -- every module in Dwt.Query will import this one.
 {-# LANGUAGE FlexibleContexts #-}
-module Dwt.Query.Initial (
+module Dwt.Second.Graph (
   whereis -- RSLT -> Expr -> [Node]
   , tpltAt -- (MonadError DwtErr m) => RSLT -> Node(Tplt) -> m Expr(Tplt)
   , relTplt --                         RSLT -> Node(Rel) -> Either DwtErr Expr
@@ -19,6 +19,7 @@ import Data.Graph.Inductive (Node, Graph, Gr, lsuc, lpre, lab, labfilter
 import Dwt.Initial.Types
 import Dwt.Initial.Util (gelemM, listIntersect, prependCaller)
 import Dwt.Initial.Measure (isCollM, isRelM, tpltArity)
+
 import qualified Data.Map as Map
 import Control.Monad.Except (MonadError, throwError)
 import Data.Maybe (fromJust)

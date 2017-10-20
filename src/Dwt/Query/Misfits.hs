@@ -10,7 +10,7 @@ module Dwt.Query.Misfits (
 import Data.Graph.Inductive
 import Dwt.Initial.Types
 import Dwt.Initial.Util (gelemM, prependCaller)
-import Dwt.Query.QNode (qGet1)
+import Dwt.Query.Main (qGet1)
 import qualified Data.Map as Map
 import Data.Maybe (fromJust)
 

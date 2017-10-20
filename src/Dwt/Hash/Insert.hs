@@ -6,7 +6,7 @@ module Dwt.Hash.Insert (prettyPrint, addExpr) where
 
 import Data.Graph.Inductive hiding (empty, prettyPrint)
 import Dwt.Initial.Types
-import Dwt.Query.QNode
+import Dwt.Query.Main
 import Dwt.Initial.Measure (isAbsent)
 import Dwt.Initial.Util (gelemM)
 import Control.Monad.Trans.State

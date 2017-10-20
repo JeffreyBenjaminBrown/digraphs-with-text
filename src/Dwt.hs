@@ -8,9 +8,9 @@ module Dwt
   , module Dwt.Hash.Insert
   , module Dwt.Hash.Parse
   , module Dwt.Initial.ParseUtils
-  , module Dwt.Query.Initial
+  , module Dwt.Second.Graph
   , module Dwt.UI.Parse
-  , module Dwt.Query.QNode
+  , module Dwt.Query.Main
   , module Dwt.Query.Misfits
   , module Dwt.Show.Expr
   , module Dwt.Second.QNode
@@ -27,9 +27,9 @@ import Dwt.Edit
 import Dwt.Hash.Insert
 import Dwt.Hash.Parse
 import Dwt.Initial.ParseUtils
-import Dwt.Query.Initial
+import Dwt.Second.Graph
 import Dwt.UI.Parse
-import Dwt.Query.QNode
+import Dwt.Query.Main
 import Dwt.Query.Misfits
 import Dwt.Show.Expr
 import Dwt.Second.QNode

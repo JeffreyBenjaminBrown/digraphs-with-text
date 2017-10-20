@@ -6,7 +6,5 @@ I borrowed some language from category theory so that the names of modules could
 
 * The modules Dwt.Second.* import nothing except modules from Dwt.Initial and Dwt.Second.
 
-* Dwt.Query.Initial imports nothing else from Dwt.Query.
-
 * Dwt.UI.Terminal imports every other module in Dwt.UI.
 

@@ -6,7 +6,7 @@ import Dwt.Initial.Types
 import Dwt.Initial.Measure (tpltArity)
 import Dwt.Second.MkTplt (subInTplt, subInTpltWithHashes)
 import Dwt.Show.Expr
-import Dwt.Query.Initial (users,mbrs,exprDepth)
+import Dwt.Second.Graph (users,mbrs,exprDepth)
 
 import Data.Graph.Inductive
 import Data.List (sortOn, intercalate)

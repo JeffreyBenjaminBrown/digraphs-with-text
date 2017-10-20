@@ -9,7 +9,7 @@ import Dwt.Initial.Types
 import Dwt.Initial.ParseUtils (Parser, integer, word)
 import Dwt.Second.QNode (qNodeTop)
 import Dwt.Hash.Parse (expr)
-import Dwt.Query.QNode (qGet)
+import Dwt.Query.Main (qGet)
 
 
 commandToReadNodes :: Command -> ReadNodes

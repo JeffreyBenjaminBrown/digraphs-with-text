@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ViewPatterns #-}
 
-module Dwt.Query.QNode (
+module Dwt.Query.Main (
   pathsToIts -- QNode -> Either DwtErr (S.Set PathInExpr)
   , subExpr -- RSLT -> Node -> PathInExpr -> Either DwtErr Node
   , its -- RSLT -> QNode -> Node -> Either DwtErr [Node]
@@ -36,7 +36,7 @@ import Dwt.Initial.Util (maxNode, dropEdges, prependCaller, gelemM
                 , listIntersect, listDiff, nodeToLNodeUsf)
 import Dwt.Initial.Measure (extractTplt, isAbsent)
 import Dwt.Second.QNode (qNodeIsTop, mkRoleMap)
-import Dwt.Query.Initial (selectRelElts, users)
+import Dwt.Second.Graph (selectRelElts, users)
 
 import Data.Either (isRight)
 import Data.List (nub, sortOn)
