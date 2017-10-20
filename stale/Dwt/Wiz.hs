@@ -4,7 +4,7 @@
     module Dwt.Wiz where
     import Data.Graph.Inductive
     import Dwt.Edit
-    import Dwt.Show
+    import Dwt.Show.Expr
     import qualified Data.Maybe as Mb
 
     import Control.Monad (void)

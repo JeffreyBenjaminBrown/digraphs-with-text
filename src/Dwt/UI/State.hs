@@ -15,7 +15,7 @@ module Dwt.UI.State (
   ) where
 
 import Dwt.Initial.Types
-import Dwt.Show (view)
+import Dwt.Show.GoingAway (view)
 import Dwt.Hash.Insert (addExpr)
 import Dwt.Hash.Parse (expr)
 import Dwt.UI.Parse (pCommand, commandToReadNodes)

@@ -4,7 +4,7 @@
 
     import Data.Graph.Inductive
     import Dwt.Edit
-    import Dwt.Show
+    import Dwt.Show.Expr
 
     import System.IO ( BufferMode(NoBuffering)
                      , hSetBuffering, hSetEcho

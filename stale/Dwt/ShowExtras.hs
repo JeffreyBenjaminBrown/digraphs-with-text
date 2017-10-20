@@ -1,4 +1,4 @@
-    module Dwt.ShowExtras
+    module Dwt.Show.ExprExtras
       ( graphToText
       , showRaw
       ) where

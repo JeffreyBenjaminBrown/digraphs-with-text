@@ -5,9 +5,6 @@ module Dwt.UI.Terminal where
 
 import Dwt.Initial.Types
 import Dwt.Initial.Util (printDwtErr)
-import Dwt.Show (view)
-import Dwt.Hash.Insert (addExpr)
-import Dwt.Hash.Parse (expr)
 import Dwt.UI.State
 
 import Brick.Widgets.Core ( (<+>), (<=>), hLimit, vLimit, str)
@@ -59,7 +56,6 @@ appChooseCursor = F.focusRingCursor (^.focusRing)
 -- ==== Draw
 appDraw :: St -> [T.Widget Name]
 appDraw st = [ui] where
-  -- v = str $ view g $ st ^. nodesInView
   e1 = F.withFocusRing
          (st^.focusRing)
          (  -- :: Bool -> a -> b

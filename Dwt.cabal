@@ -29,7 +29,8 @@ library
                      , Dwt.UI.Parse
                      , Dwt.UI.State
                      , Dwt.UI.Terminal
-                     , Dwt.Show
+                     , Dwt.Show.Expr
+                     , Dwt.Show.GoingAway
                      , Dwt.Edit
 
   build-depends:       base

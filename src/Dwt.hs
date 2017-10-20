@@ -12,7 +12,7 @@ module Dwt
   , module Dwt.UI.Parse
   , module Dwt.Query.QNode
   , module Dwt.Query.Misfits
-  , module Dwt.Show
+  , module Dwt.Show.Expr
   , module Dwt.Second.MkTplt
   , module Dwt.Initial.Types
   , module Dwt.UI.Terminal
@@ -30,7 +30,7 @@ import Dwt.Query.Initial
 import Dwt.UI.Parse
 import Dwt.Query.QNode
 import Dwt.Query.Misfits
-import Dwt.Show
+import Dwt.Show.Expr
 import Dwt.Second.MkTplt
 import Dwt.Initial.Types
 import Dwt.UI.Terminal
