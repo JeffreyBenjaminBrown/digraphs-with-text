@@ -22,7 +22,7 @@ import Dwt.Initial.ParseUtils (Parser, lexeme, parens, brackets, sc
                       , anyWord, word, wordChar, phrase)
 import Dwt.Initial.Types
 import Dwt.Second.MkTplt (mkTplt)
-import Dwt.Second.Misc (qNodeTop, toRoleMap)
+import Dwt.Second.QNode (qNodeTop, toRoleMap)
 import Data.List (intersperse)
 import qualified Data.Map as M
 

@@ -2,8 +2,7 @@
 -- every module in Dwt.Query will import this one.
 {-# LANGUAGE FlexibleContexts #-}
 module Dwt.Query.Initial (
-  mkRoleMap -- Node -> [Node] -> RoleMap
-  , whereis -- RSLT -> Expr -> [Node]
+  whereis -- RSLT -> Expr -> [Node]
   , tpltAt -- (MonadError DwtErr m) => RSLT -> Node(Tplt) -> m Expr(Tplt)
   , relTplt --                         RSLT -> Node(Rel) -> Either DwtErr Expr
   , selectRelElts -- RSLT -> Node(Rel) -> [RelRole] -> Either DwtErr [Node]
@@ -24,12 +23,6 @@ import qualified Data.Map as Map
 import Control.Monad.Except (MonadError, throwError)
 import Data.Maybe (fromJust)
 import Control.Lens ((%~), (.~), _1, _2)
-
-
--- | Applies only when all the nodes the Rel involves are known.
-mkRoleMap :: QNode -> [QNode] -> RoleMap
-mkRoleMap t ns = Map.fromList $ (TpltRole, t) : mbrSpecs
-  where mbrSpecs = zip (fmap Mbr [1..]) ns
 
 
 -- ====

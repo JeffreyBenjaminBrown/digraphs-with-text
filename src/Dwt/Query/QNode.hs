@@ -35,8 +35,8 @@ import Dwt.Edit (insLeaf, insRelSt)
 import Dwt.Initial.Util (maxNode, dropEdges, prependCaller, gelemM
                 , listIntersect, listDiff, nodeToLNodeUsf)
 import Dwt.Initial.Measure (extractTplt, isAbsent)
-import Dwt.Second.Misc (qNodeIsTop)
-import Dwt.Query.Initial (mkRoleMap, selectRelElts, users)
+import Dwt.Second.QNode (qNodeIsTop, mkRoleMap)
+import Dwt.Query.Initial (selectRelElts, users)
 
 import Data.Either (isRight)
 import Data.List (nub, sortOn)

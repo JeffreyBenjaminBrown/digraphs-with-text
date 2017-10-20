@@ -7,7 +7,7 @@ import Text.Megaparsec (try)
 
 import Dwt.Initial.Types
 import Dwt.Initial.ParseUtils (Parser, integer, word)
-import Dwt.Second.Misc (qNodeTop)
+import Dwt.Second.QNode (qNodeTop)
 import Dwt.Hash.Parse (expr)
 import Dwt.Query.QNode (qGet)
 

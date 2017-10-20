@@ -1,7 +1,8 @@
-module Dwt.Second.Misc (
+module Dwt.Second.QNode (
   qNodeTop -- QNode -> QNode
   , qNodeIsTop -- QNode -> QNode
   , toRoleMap -- QNode -> Either DwtErr RoleMap
+  , mkRoleMap -- QNode -> [QNode] -> RoleMap
   ) where
 
 import Dwt.Initial.Types
@@ -23,3 +24,8 @@ toRoleMap q@(QRel _ js qs) = do t <- extractTplt q
                                     mPairs = zip (map Mbr [1..]) qs
                                 Right $ Map.fromList $ tPair : mPairs
 toRoleMap x = Left (ConstructorMistmatch, [ErrQNode x], "toRoleMap.")
+
+-- | Applies only when all the nodes the Rel involves are known.
+mkRoleMap :: QNode -> [QNode] -> RoleMap
+mkRoleMap t ns = Map.fromList $ (TpltRole, t) : mbrSpecs
+  where mbrSpecs = zip (fmap Mbr [1..]) ns

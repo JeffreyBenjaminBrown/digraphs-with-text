@@ -19,7 +19,7 @@ library
                      , Dwt.Initial.Util
                      , Dwt.Initial.ParseUtils
                      , Dwt.Second.MkTplt
-                     , Dwt.Second.Misc
+                     , Dwt.Second.QNode
                      , Dwt.Hash.Insert 
                      , Dwt.Hash.Parse
                      , Dwt.Query.Initial
