@@ -1,5 +1,18 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Dwt.UI.State where
+module Dwt.UI.State (
+  Name(..)
+  , St(..), rslt, commands, parseErrors, dwtErrors, focusRing
+          , inputWindow, fakeAltKeyWindow, outputWindow
+  , initialState -- RSLT -> St
+  , addToRSLTAndMaybeRefresh -- St -> St
+  , deleteErrors -- St -> St
+  , addToRSLT -- St -> St
+  , changeView -- St -> St
+  , refreshView -- St -> St
+  , updateView -- String -> St -> St
+  , viewRSLT -- ReadNodes -> St -> St
+  , showQueries -- St -> St
+  ) where
 
 import Dwt.Initial.Types
 import Dwt.Show (view)

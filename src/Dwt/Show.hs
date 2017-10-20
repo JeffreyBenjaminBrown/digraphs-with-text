@@ -79,10 +79,11 @@ _showRel vp g d n =
         (nullMbrMap tpltExpr) :: [Maybe Node]
         -- handles missing nodes
         -- todo ? ordered list bad; just pass map
+      memberStrings = map (_showExpr vp g $ d-1) memberNodes
   in ((_rel $ vpPrefixer vp) n tpltAddr ++)
-     $ subInTpltWithHashes tpltExpr
-       (map (_showExpr vp g $ d-1) memberNodes)
-       d
+     $ subInTpltWithHashes tpltExpr memberStrings (d-1)
+       -- TODO ? the above d-1 is a hack. Better: rewrite subInTpltWithHashes.
+       -- It's just an offset; it's not due to recursion in subexpressions.
 
 -- | returns [(RelEdge (Mbr 1), Nothing), .. (RelEdge (Mbr arity), Nothing)]
 nullMbrMap :: Expr -> Map.Map RSLTEdge (Maybe Node) 
