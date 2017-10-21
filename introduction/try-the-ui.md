@@ -1,7 +1,9 @@
+# Try the UI!
+
 The UI will let you add to and query a Reflective Set of Labeled Tuples ("RSLT"), a data structure that generalizes graphs, using [the Hash language](/Hash/the-hash-language.md).
 
 
-# Table of contents
+## Table of contents
 * Starting the UI
 * Using the UI
   * Adding data to a RSLT

@@ -1,4 +1,5 @@
-# Table of contents
+# The Hash Language
+## Table of contents
 * What the RSLT and the Hash language are
 * Adding to a RSLT with Hash
   * Using * to create simple and compound relationships
