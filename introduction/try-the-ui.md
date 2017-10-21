@@ -87,7 +87,3 @@ The UI includes more data than a RSLT -- there is a command history, the state o
 uist :: St -> IO St
 ```
 (`St` stands for "application state".) To start `uist` using RSLT `g` and save the result as `st`, call `st <- uist $ initialState g`. (Substitute `empty` for `g` to start with a blank RSLT.)
-
-
-# Further reading
-[This paper](/introduction/the_rslt%2C_why_and_how/it.pdf) describes how a RSLT is implemented. It's almost embarrassingly simple.
