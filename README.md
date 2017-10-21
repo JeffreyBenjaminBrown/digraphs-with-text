@@ -1,10 +1,10 @@
 # What DWT is
 
-DWT is knowledge graph software aimed at non-programmers.
+DWT is knowledge graph software aimed (eventually) at non-programmers.
 
 The Reflective Set of Labeled Tuples ("RSLT") is a generalization of the graph that is simultaneously easier to use and more expressive. Relationships in a RSLT can have any number of members, and can themselves be members of other relationships. Statements in a RSLT look like ordinary speech: for instance, "(I #like dentists) #because (dentists #give gerbils #to me)".
 
-[Hash](https://github.com/JeffreyBenjaminBrown/digraphs-with-text/blob/master/Hash/the-hash-language.md) is a simple pattern-matching language for adding to and querying a RSLT. It is less expressive than, say, Gremlin. (I would like to implement Hash using Gremlin, and make Gremlin calls available to users who want it). However, Hash requires no programming experience, and Hash queries resemble ordinary speech. For instance, to ask for the reasons Germany lost WWII, one could write "(Germany #lost WWII) #because /it".
+[Hash](https://github.com/JeffreyBenjaminBrown/digraphs-with-text/blob/master/Hash/the-hash-language.md) is a simple pattern-matching language for adding to and querying a RSLT. Hash requires no programming experience, and Hash queries resemble ordinary speech. For instance, to ask for the reasons Germany lost WWII, one could write "(Germany #lost WWII) #because /it".
 
 
 # How to try DWT
