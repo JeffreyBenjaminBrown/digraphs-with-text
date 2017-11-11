@@ -45,6 +45,7 @@ library
                           -- only for MonadError, I think
                      , either
                           -- for Control.Monad.Trans.Either (for in repl)
+                     , split
                      , transformers
                      , mmorph
                      , parsec

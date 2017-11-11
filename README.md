@@ -1,10 +1,6 @@
-# What DWT is
+# Why DWT
 
-DWT is knowledge graph software aimed (eventually) at non-programmers.
-
-The Reflective Set of Labeled Tuples ("RSLT") is a generalization of the graph that is simultaneously easier to use and more expressive. Relationships in a RSLT can have any number of members, and can themselves be members of other relationships. Statements in a RSLT look like ordinary speech: for instance, "(I #like dentists) #because (dentists #give gerbils #to me)".
-
-[Hash](https://github.com/JeffreyBenjaminBrown/digraphs-with-text/blob/master/Hash/the-hash-language.md) is a simple pattern-matching language for adding to and querying a RSLT. Hash requires no programming experience, and Hash queries resemble ordinary speech. For instance, to ask for the reasons Germany lost WWII, one could write "(Germany #lost WWII) #because /it".
+DWT makes graph programming [more expressive and easier](https://github.com/JeffreyBenjaminBrown/digraphs-with-text/wiki/Why-DWT).
 
 
 # How to try DWT
@@ -13,6 +9,15 @@ The demo requires no programming experience. This [short (730 words) guide](/int
 
 
 # How DWT works
+
+## The data structure and language
+
+The Reflective Set of Labeled Tuples ("RSLT") is a generalization of the graph that is simultaneously easier to use and more expressive. Relationships in a RSLT can have any number of members, and can themselves be members of other relationships. Statements in a RSLT look like ordinary speech: for instance, "(I #like dentists) #because (dentists #give gerbils #to me)".
+
+[Hash](https://github.com/JeffreyBenjaminBrown/digraphs-with-text/blob/master/Hash/the-hash-language.md) is a simple pattern-matching language for adding to and querying a RSLT. Hash requires no programming experience, and Hash queries resemble ordinary speech. For instance, to ask for the reasons Germany lost WWII, one could write "(Germany #lost WWII) #because /it".
+
+
+## Hacking DWT
 
 The codebase is small -- 1300 lines, if you exclude tests, imports, exports and blank lines. 
 
@@ -23,6 +28,6 @@ The [simplified model of the type system](/introduction/Minimal_Types.hs) might 
 Or just dive into the src/ folder. (When you do that, [module-hierarchy.md](/introduction/module-hierarchy.md) explains how the folders and filenames under src/ indicate the dependency structure of the code.)
 
 
-# The future of DWT
+## The future of DWT
 
 Some plans for the software's future can be found in the [issue tracker](https://github.com/JeffreyBenjaminBrown/digraphs-with-text/issues). Other ideas are welcome.
