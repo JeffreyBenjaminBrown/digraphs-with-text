@@ -20,7 +20,8 @@ import Text.Megaparsec.Expr (makeExprParser, Operator(..))
 import Dwt.Initial.ParseUtils (Parser, lexeme, parens, brackets, sc
                       , integer
                       , anyWord, word, wordChar, phrase)
-import Dwt.Initial.Types
+import Dwt.Initial.Types (Expr(..), SearchVar(..), QNode(..), RelRole(..)
+                         , RoleMap(..), Joint(..), Level(..))
 import Dwt.Second.MkTplt (mkTplt)
 import Dwt.Second.QNode (qNodeTop, toRoleMap)
 import Data.List (intersperse)
